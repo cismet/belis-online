@@ -13,7 +13,7 @@ function App() {
 					</Route>
 
 					<Route path='/'>
-						<Home />
+						<MobileApp />
 					</Route>
 				</Switch>
 			</div>
