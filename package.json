@@ -3,7 +3,7 @@
   "version": "3.0.0-SNAPSHOT.3",
   "config": {
     "dockerRegistryPath": "cismet",
-    "alphaFolder": "~/426b-wupp-topic-maps-alpha2",
+    "alphaFolder": "~/2500-belis-online-alpha",
     "alphaHost": "new-boxy"
   },
   "private": true,
