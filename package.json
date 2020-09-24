@@ -1,14 +1,39 @@
 {
-  "name": "600-belis-online",
-  "version": "0.1.0",
+  "name": "BelIS-online",
+  "version": "3.0.0",
+  "config": {
+    "dockerRegistryPath": "cismet",
+    "alphaFolder": "~/426b-wupp-topic-maps-alpha2",
+    "alphaHost": "new-boxy"
+  },
   "private": true,
   "dependencies": {
+    "@fortawesome/fontawesome-free": "^5.14.0",
+    "@fortawesome/fontawesome-svg-core": "^1.2.30",
+    "@fortawesome/free-brands-svg-icons": "^5.14.0",
+    "@fortawesome/free-regular-svg-icons": "^5.14.0",
+    "@fortawesome/free-solid-svg-icons": "^5.14.0",
+    "@fortawesome/react-fontawesome": "^0.1.11",
+    "@react-hook/window-size": "^3.0.7",
+    "@rehooks/component-size": "^1.0.3",
+    "@rehooks/online-status": "^1.1.2",
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.3.2",
     "@testing-library/user-event": "^7.1.2",
+    "bootstrap": "^4.5.2",
+    "framer-motion": "^2.7.1",
+    "localforage": "^1.9.0",
     "react": "^16.13.1",
+    "react-bootstrap": "^1.3.0",
+    "react-bootstrap-switch": "^15.5.3",
+    "react-cismap": "^0.5.2",
+    "react-device-detect": "^1.13.1",
     "react-dom": "^16.13.1",
-    "react-scripts": "3.4.3"
+    "react-hook-form": "^6.8.4",
+    "react-ios-switch": "^0.1.19",
+    "react-router-dom": "^5.2.0",
+    "react-scripts": "3.4.3",
+    "unfetch": "^4.1.0"
   },
   "scripts": {
     "start": "react-scripts start",
