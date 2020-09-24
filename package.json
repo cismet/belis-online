@@ -1,6 +1,6 @@
 {
   "name": "BelIS-online",
-  "version": "3.0.0-SNAPSHOT.0",
+  "version": "3.0.0-SNAPSHOT.1",
   "config": {
     "dockerRegistryPath": "cismet",
     "alphaFolder": "~/426b-wupp-topic-maps-alpha2",
