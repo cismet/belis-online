@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 //--------- Hooks
 import useComponentSize from '@rehooks/component-size';
 import { useWindowSize } from '@react-hook/window-size';
@@ -29,14 +29,19 @@ import useOnlineStatus from '@rehooks/online-status';
 
 //--------- my components
 import Switch from '../components/commons/Switch';
+
 //---------
-
-let urlSearchParams = new URLSearchParams('');
-
+const backgrounds = {
+	stadtplan: 'wupp-plan-live@90',
+	lbk: 'wupp-plan-live@100|trueOrtho2020@75|rvrSchrift@100',
+	nightplan:
+		'wupp-plan-live@{"opacity":0.9,"css-filter": "filter:grayscale(0.9)brightness(0.9)invert(1)"}'
+};
 const View = () => {
+	const urlSearchParams = new URLSearchParams('');
 	const [ width, height ] = useWindowSize();
 	const onlineStatus = useOnlineStatus();
-
+	const [ backgroundLayer, setBackgroundLayer ] = useState(backgrounds.stadtplan);
 	let refUpperToolbar = useRef(null);
 	let sizeU = useComponentSize(refUpperToolbar);
 	let lowerToolbar = useRef(null);
@@ -49,7 +54,11 @@ const View = () => {
 
 	return (
 		<div>
-			<Navbar ref={refUpperToolbar} bg='light' expand='lg'>
+			<Navbar
+				ref={refUpperToolbar}
+				bg={backgroundLayer === backgrounds.nightplan ? 'dark' : 'light'}
+				expand='lg'
+			>
 				<Nav className='mr-auto'>
 					<Nav.Link href='#home'>
 						<Icon className='text-primary' icon={faSearch} />
@@ -118,7 +127,7 @@ const View = () => {
 				onclick={(e) => console.log('click', e)}
 				ondblclick={(e) => console.log('doubleclick', e)}
 				autoFitProcessedHandler={() => this.props.mappingActions.setAutoFit(false)}
-				backgroundlayers={'trueOrtho2020@100'}
+				backgroundlayers={backgroundLayer || 'trueOrtho2020@100'}
 				urlSearchParams={urlSearchParams}
 				fullScreenControlEnabled={false}
 				locateControlEnabled={false}
@@ -127,7 +136,11 @@ const View = () => {
 				zoomSnap={0.5}
 				zoomDelta={0.5}
 			/>
-			<Navbar ref={lowerToolbar} bg='light' expand='lg'>
+			<Navbar
+				ref={lowerToolbar}
+				bg={backgroundLayer === backgrounds.nightplan ? 'dark' : 'light'}
+				expand='lg'
+			>
 				<Navbar.Brand href='#home'>{onlineStatus ? 'Online' : 'Offline'}</Navbar.Brand>
 				<Navbar.Toggle aria-controls='basic-navbar-nav' />
 				<Nav className='mr-auto'>
@@ -143,9 +156,44 @@ const View = () => {
 
 				<Form inline>
 					<ButtonGroup className='mr-2' aria-label='First group'>
-						<Button variant='outline-primary'>Stadtplan</Button>
-						<Button variant='outline-primary'>Stadtplan dunkel</Button>
-						<Button variant='primary'>Luftbildkarte</Button>
+						<Button
+							variant={
+								backgroundLayer === backgrounds.stadtplan ? (
+									'primary'
+								) : (
+									'outline-primary'
+								)
+							}
+							onClick={() => {
+								setBackgroundLayer(backgrounds.stadtplan);
+							}}
+						>
+							Stadtplan
+						</Button>
+						<Button
+							variant={
+								backgroundLayer === backgrounds.nightplan ? (
+									'primary'
+								) : (
+									'outline-primary'
+								)
+							}
+							onClick={() => {
+								setBackgroundLayer(backgrounds.nightplan);
+							}}
+						>
+							Stadtplan dunkel
+						</Button>
+						<Button
+							variant={
+								backgroundLayer === backgrounds.lbk ? 'primary' : 'outline-primary'
+							}
+							onClick={() => {
+								setBackgroundLayer(backgrounds.lbk);
+							}}
+						>
+							Luftbildkarte
+						</Button>
 					</ButtonGroup>
 				</Form>
 			</Navbar>
