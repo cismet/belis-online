@@ -1,7 +1,7 @@
 const BELISVERSION = '%BELIS_VERSION%';
 const BELISHASH = '#%BELIS_HASH%';
 
-export const getBelisMapVersion = () => {
+export const getBelisVersion = () => {
 	/*eslint-disable no-useless-concat*/
 	if (BELISVERSION === '%BELIS' + '_' + 'VERSION%') {
 		return 'dev-hot-reload';
@@ -9,7 +9,7 @@ export const getBelisMapVersion = () => {
 		return BELISVERSION;
 	}
 };
-export const getBeliscMapHash = () => {
+export const getBelisHash = () => {
 	if (BELISHASH === '%BELIS' + '_' + 'HASH%') {
 		return '#dev-hot-reload';
 	} else {

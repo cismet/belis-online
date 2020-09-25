@@ -20,8 +20,8 @@ COPY .package.json.without.version ./package.json
 RUN yarn install
 RUN yarn cache clean
 COPY . .
-RUN VERSION=`cat .version`; sed -i "s/%BELISMAP_VERSION%/$VERSION/" src/constants/versions.js
-RUN HASH=`cat .githash`; sed -i "s/%BELISMAP_HASH%/$HASH/" src/constants/versions.js
+RUN VERSION=`cat .version`; sed -i "s/%BELIS_VERSION%/$VERSION/" src/constants/versions.js
+RUN HASH=`cat .githash`; sed -i "s/%BELIS_HASH%/$HASH/" src/constants/versions.js
 RUN yarn run build
 
 # ---

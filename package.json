@@ -33,6 +33,7 @@
     "react-ios-switch": "^0.1.19",
     "react-router-dom": "^5.2.0",
     "react-scripts": "3.4.3",
+    "stacktrace-js": "^2.0.2",
     "unfetch": "^4.1.0"
   },
   "scripts": {
