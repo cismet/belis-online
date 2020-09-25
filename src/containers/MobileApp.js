@@ -35,13 +35,19 @@ const backgrounds = {
 	stadtplan: 'wupp-plan-live@90',
 	lbk: 'wupp-plan-live@100|trueOrtho2020@75|rvrSchrift@100',
 	nightplan:
-		'wupp-plan-live@{"opacity":0.9,"css-filter": "filter:grayscale(0.9)brightness(0.9)invert(1)"}'
+		'wupp-plan-live@{"opacity":0.3,"css-filter": "filter:grayscale(0.9)brightness(0.9)invert(1)"}',
+	pale_stadtplan: 'wupp-plan-live@30',
+	pale_lbk: 'wupp-plan-live@20|trueOrtho2020@30|rvrSchrift@100',
+	pale_nightplan:
+		'wupp-plan-live@{"opacity":0.3,"css-filter": "filter:grayscale(0.9)brightness(0.9)invert(1)"}'
 };
+
 const View = () => {
 	const urlSearchParams = new URLSearchParams('');
 	const [ width, height ] = useWindowSize();
 	const onlineStatus = useOnlineStatus();
-	const [ backgroundLayer, setBackgroundLayer ] = useState(backgrounds.stadtplan);
+
+	const [ background, setBackground ] = useState('stadtplan');
 	let refUpperToolbar = useRef(null);
 	let sizeU = useComponentSize(refUpperToolbar);
 	let lowerToolbar = useRef(null);
@@ -51,11 +57,13 @@ const View = () => {
 		cursor: 'pointer',
 		clear: 'both'
 	};
+	const [ focus, setFocus ] = useState(false);
+	const [ pale, setPale ] = useState(false);
 
 	const topNavbar = (
 		<Navbar
 			ref={refUpperToolbar}
-			bg={backgroundLayer === backgrounds.nightplan ? 'dark' : 'light'}
+			bg={background === 'nightplan' ? 'dark' : 'light'}
 			expand='lg'
 		>
 			<Nav className='mr-auto'>
@@ -92,27 +100,13 @@ const View = () => {
 					/>
 				</InputGroup>
 			</Form>
-
-			{/* <Form inline>
-        <Button variant='outline-primary'>Suche</Button>
-
-        <FormControl
-            type='text'
-            placeholder='Stadtteil | Adresse | POI'
-            className='mr-sm-2'
-        />
-    </Form> */}
 			<Button variant='outline-primary'>
 				<Icon icon={faBars} />
 			</Button>
 		</Navbar>
 	);
 	const bottomnNavbar = (
-		<Navbar
-			ref={lowerToolbar}
-			bg={backgroundLayer === backgrounds.nightplan ? 'dark' : 'light'}
-			expand='lg'
-		>
+		<Navbar ref={lowerToolbar} bg={background === 'nightplan' ? 'dark' : 'light'} expand='lg'>
 			<Navbar.Brand href='#home'>{onlineStatus ? 'Online' : 'Offline'}</Navbar.Brand>
 			<Navbar.Toggle aria-controls='basic-navbar-nav' />
 			<Nav className='mr-auto'>
@@ -121,48 +115,45 @@ const View = () => {
 				</Nav.Link>
 			</Nav>
 			<Nav className='mr-auto'>
-				<Switch id='focus-toggle' preLabel='Fokus' />
+				<Switch
+					disabled={true}
+					id='focus-toggle'
+					preLabel='Fokus'
+					switched={focus}
+					stateChanged={(switched) => setFocus(switched)}
+				/>
 
 				<div style={{ width: 30 }} />
-				<Switch id='pale-toggle' preLabel='Blass' />
+				<Switch
+					id='pale-toggle'
+					preLabel='Blass'
+					switched={pale}
+					stateChanged={(switched) => setPale(switched)}
+				/>
 			</Nav>
 
 			<Form inline>
 				<ButtonGroup className='mr-2' aria-label='First group'>
 					<Button
-						variant={
-							backgroundLayer === backgrounds.stadtplan ? (
-								'primary'
-							) : (
-								'outline-primary'
-							)
-						}
+						variant={background === 'stadtplan' ? 'primary' : 'outline-primary'}
 						onClick={() => {
-							setBackgroundLayer(backgrounds.stadtplan);
+							setBackground('stadtplan');
 						}}
 					>
 						Stadtplan
 					</Button>
 					<Button
-						variant={
-							backgroundLayer === backgrounds.nightplan ? (
-								'primary'
-							) : (
-								'outline-primary'
-							)
-						}
+						variant={background === 'nightplan' ? 'primary' : 'outline-primary'}
 						onClick={() => {
-							setBackgroundLayer(backgrounds.nightplan);
+							setBackground('nightplan');
 						}}
 					>
 						Stadtplan dunkel
 					</Button>
 					<Button
-						variant={
-							backgroundLayer === backgrounds.lbk ? 'primary' : 'outline-primary'
-						}
+						variant={background === 'lbk' ? 'primary' : 'outline-primary'}
 						onClick={() => {
-							setBackgroundLayer(backgrounds.lbk);
+							setBackground('lbk');
 						}}
 					>
 						Luftbildkarte
@@ -171,11 +162,15 @@ const View = () => {
 			</Form>
 		</Navbar>
 	);
+	const resultingLayer = backgrounds[(pale === true ? 'pale_' : '') + background];
+	console.log('resultingLayer index', (pale === true ? 'pale_' : '') + background);
+	console.log('resultingLayer', resultingLayer);
+
 	const map = (
 		<RoutedMap
 			editable={false}
 			style={mapStyle}
-			key={'leafletRoutedMap'}
+			key={'leafletRoutedMap.' + pale + '.' + focus + '.' + background}
 			referenceSystem={MappingConstants.crs25832}
 			referenceSystemDefinition={MappingConstants.proj4crs25832def}
 			ref={(leafletMap) => {
@@ -186,7 +181,7 @@ const View = () => {
 			onclick={(e) => console.log('click', e)}
 			ondblclick={(e) => console.log('doubleclick', e)}
 			autoFitProcessedHandler={() => this.props.mappingActions.setAutoFit(false)}
-			backgroundlayers={backgroundLayer || 'trueOrtho2020@100'}
+			backgroundlayers={resultingLayer}
 			urlSearchParams={urlSearchParams}
 			fullScreenControlEnabled={false}
 			locateControlEnabled={false}

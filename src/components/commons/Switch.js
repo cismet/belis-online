@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import Switch from 'react-ios-switch';
 
 const Comp = (props) => {
-	const [ switched, setSwitched ] = useState(false);
+	const [ switched, setSwitched ] = useState(props.switched || false);
 	return (
 		<div>
 			<span>
@@ -10,9 +10,13 @@ const Comp = (props) => {
 					{props.preLabel}
 				</span>
 				<Switch
+					disabled={props.disabled}
 					style={{ verticalAlign: 'middle' }}
 					onChange={() => {
 						setSwitched((old) => !old);
+						if (props.stateChanged !== undefined) {
+							props.stateChanged(!switched);
+						}
 					}}
 					checked={switched}
 				/>
