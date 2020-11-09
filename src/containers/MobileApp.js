@@ -2,6 +2,7 @@ import React, { useRef, useState } from 'react';
 //--------- Hooks
 import useComponentSize from '@rehooks/component-size';
 import { useWindowSize } from '@react-hook/window-size';
+import useOnlineStatus from '@rehooks/online-status';
 
 //--------- Bootstrap
 import Navbar from 'react-bootstrap/Navbar';
@@ -12,6 +13,7 @@ import FormControl from 'react-bootstrap/FormControl';
 import Button from 'react-bootstrap/Button';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import InputGroup from 'react-bootstrap/InputGroup';
+
 ////--------- Icons
 import { FontAwesomeIcon as Icon } from '@fortawesome/react-fontawesome';
 import {
@@ -23,9 +25,11 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { faCompass } from '@fortawesome/free-regular-svg-icons';
 
-////--------- other components
+////--------- other cismet components
 import { RoutedMap, MappingConstants } from 'react-cismap';
-import useOnlineStatus from '@rehooks/online-status';
+
+////--------- other 3rd party components
+import bboxPolygon from '@turf/bbox-polygon';
 
 //--------- my components
 import Switch from '../components/commons/Switch';
@@ -163,8 +167,8 @@ const View = () => {
 		</Navbar>
 	);
 	const resultingLayer = backgrounds[(pale === true ? 'pale_' : '') + background];
-	console.log('resultingLayer index', (pale === true ? 'pale_' : '') + background);
-	console.log('resultingLayer', resultingLayer);
+	// console.log('resultingLayer index', (pale === true ? 'pale_' : '') + background);
+	// console.log('resultingLayer', resultingLayer);
 
 	const map = (
 		<RoutedMap
@@ -189,6 +193,20 @@ const View = () => {
 			maxZoom={18}
 			zoomSnap={0.5}
 			zoomDelta={0.5}
+			locationChangedHandler={(location) => {
+				console.log('location', location);
+			}}
+			boundingBoxChangedHandler={(bb) => {
+				console.log('location boundingbox', bb);
+				let geom = bboxPolygon([ bb.left, bb.top, bb.right, bb.bottom ]).geometry;
+				geom.srs = 25832;
+				console.log(
+					'location boundingbox',
+					JSON.stringify({
+						polygon: geom
+					})
+				);
+			}}
 		/>
 	);
 	return (

@@ -20,6 +20,7 @@
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.3.2",
     "@testing-library/user-event": "^7.1.2",
+    "@turf/bbox-polygon": "^6.0.1",
     "bootstrap": "^4.5.2",
     "framer-motion": "^2.7.1",
     "localforage": "^1.9.0",
