@@ -170,9 +170,7 @@ queries.rundsteuerempfaenger = `{
 queries.abzweigdose = `{
     abzweigdose {
         id
-        geom {
-            geo_field
-        }
+       
         dokumenteArray {
             dms_url {
                 url {
@@ -311,10 +309,6 @@ queries.mauerlasche = `{
       foto
       fk_strassenschluessel
       fk_material
-      fk_geom
-      geom {
-        geo_field
-      }
       id
       is_deleted
       laufende_nummer
@@ -352,9 +346,7 @@ queries.schaltstelle = `{
       einbaudatum_rs
       erstellungsjahr
       fk_bauart
-      geom {
-        geo_field
-      }
+      
       foto
       fk_strassenschluessel
       haus_nummer
@@ -371,12 +363,6 @@ queries.schaltstelle = `{
   `;
 queries.tdta_leuchten = `{
     tdta_leuchten {
-        tdta_standort_mast {
-            lfd_nummer
-            geom {
-                geo_field
-            }
-        }
         leuchtennummer
         anschlussleistung_1dk
         anschlussleistung_2dk
@@ -427,9 +413,6 @@ queries.tdta_standort_mast = `{
     tdta_standort_mast {
         id
         bemerkungen
-        geom {
-            geo_field
-        }
         anstrichfarbe
         dokumenteArray {
             dms_url {
@@ -476,6 +459,15 @@ queries.tdta_standort_mast = `{
             bezeichnung
         }
     }
+}`;
+
+queries.raw_point_index = `{
+    raw_point_index {
+        id
+        tablename
+        x
+        y
+  }
 }`;
 
 //--------??

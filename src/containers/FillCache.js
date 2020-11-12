@@ -47,9 +47,9 @@ async function addToIDB(dbPromise, objectStore, data, setProgress) {
 	const tx = db.transaction(objectStore, 'readwrite');
 	const promises = [];
 	for (const item of data) {
-		console.log('item', item);
+		// console.log('item', item);
 		removeEmpty(item);
-		console.log('after removeEmpty(item)', item);
+		// console.log('after removeEmpty(item)', item);
 
 		promises.push(tx.store.put(item));
 	}
@@ -184,6 +184,7 @@ const View = () => {
 			<Loader itemKey='tdta_leuchten' />
 			{/* <Loader itemKey='veranlassung' /> */}
 			<Loader itemKey='tdta_standort_mast' />
+			<Loader itemKey='raw_point_index' />
 		</div>
 		// <div>
 		// 	<Loader itemKey='tkey_leuchtentyp' />

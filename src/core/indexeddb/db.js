@@ -1,6 +1,6 @@
 import { openDB } from 'idb/with-async-ittr.js';
 
-export const dbPromise = openDB('Belis', 4, {
+export const dbPromise = openDB('Belis', 7, {
 	upgrade(db) {
 		createOrClearObjectStore(db, 'anlagengruppe');
 		createOrClearObjectStore(db, 'arbeitsprotokollstatus');
@@ -36,12 +36,13 @@ export const dbPromise = openDB('Belis', 4, {
 		createOrClearObjectStore(db, 'tdta_leuchten');
 		createOrClearObjectStore(db, 'veranlassung');
 		createOrClearObjectStore(db, 'tdta_standort_mast');
+		createOrClearObjectStore(db, 'raw_point_index', { autoIncrement: true });
 	}
 });
 
-function createOrClearObjectStore(db, storename, keyPath = 'id') {
+function createOrClearObjectStore(db, storename, options = { keyPath: 'id' }) {
 	try {
-		db.createObjectStore(storename, { keyPath });
+		db.createObjectStore(storename, options);
 	} catch (e) {
 		console.log('error during createobjectstore');
 	}
