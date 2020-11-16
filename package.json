@@ -3,8 +3,8 @@
   "version": "3.0.0-SNAPSHOT.12",
   "config": {
     "dockerRegistryPath": "cismet",
-    "alphaFolder": "~/2500-belis-online-alpha",
-    "alphaHost": "new-boxy"
+    "alphaFolder": "~/2501-belis-online-alpha",
+    "alphaHost": "boxy"
   },
   "private": true,
   "dependencies": {
