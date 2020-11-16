@@ -22,7 +22,9 @@ function timeout(ms) {
 }
 
 async function fetchGraphQL(operationsDoc, variables) {
-	const result = await fetch('http://192.168.178.66:8090/v1/graphql', {
+	console.log('headers', myHeaders);
+
+	const result = await fetch('https://belis-alpha-graphql-api.cismet.de/v1/graphql', {
 		method: 'POST',
 		body: JSON.stringify({
 			query: operationsDoc,
@@ -36,7 +38,7 @@ async function fetchGraphQL(operationsDoc, variables) {
 let myHeaders = new Headers();
 myHeaders.append('pragma', 'no-cache');
 myHeaders.append('cache-control', 'no-cache');
-myHeaders.append('x-hasura-admin-faUserSecret', 'Xooquixac5Hae');
+myHeaders.append('x-hasura-admin-secret', 'Xooquixac5Hae');
 
 const removeEmpty = (obj) => {
 	Object.keys(obj).forEach((key) => {
@@ -96,17 +98,27 @@ const Loader = ({ itemKey }) => {
 			// dbPromise.then((db) => {
 			// 	db.clear(itemKey);
 			// });
-			fetchGraphQL(queries[itemKey], {}).then((result) => {
-				console.log(itemKey + ' returned with ' + result.data[itemKey].length + ' results');
+			fetchGraphQL(queries[itemKey], {})
+				.then((result, error) => {
+					if (error !== undefined) {
+						console.log('error in fetch ', error);
+					} else {
+						console.log(
+							itemKey + ' returned with ' + result.data[itemKey].length + ' results'
+						);
 
-				setLoadingState('caching');
-				setMax(result.data[itemKey].length);
+						setLoadingState('caching');
+						setMax(result.data[itemKey].length);
 
-				addToIDB(dbPromise, itemKey, result.data[itemKey], setNumber).then(() => {
-					console.log('XXXX done');
-					setLoadingState('cached');
+						addToIDB(dbPromise, itemKey, result.data[itemKey], setNumber).then(() => {
+							console.log('XXXX done');
+							setLoadingState('cached');
+						});
+					}
+				})
+				.catch(function(error) {
+					console.log('error in fetch ', error);
 				});
-			});
 		},
 		[ itemKey ]
 	);
@@ -127,7 +139,11 @@ const Loader = ({ itemKey }) => {
 	// console.log('number.loadingState', number, loadingState);
 
 	if (loadingState === undefined) {
-		return <div>---</div>;
+		return (
+			<tr>
+				<td>---</td>
+			</tr>
+		);
 	} else if (loadingState === 'loading') {
 		return (
 			<tr>
@@ -191,14 +207,14 @@ const CacheSettings = ({ hide = () => {} }) => {
 						}}
 					>
 						<tbody>
-							{/* <Loader itemKey='tdta_standort_mast' />
+							<Loader itemKey='tdta_standort_mast' />
 							<Loader itemKey='raw_point_index' />
 							<Loader itemKey='leitung' />
 							<Loader itemKey='mauerlasche' />
 							<Loader itemKey='schaltstelle' />
 							<Loader itemKey='tdta_leuchten' />
 							<Loader itemKey='anlagengruppe' />
-							<Loader itemKey='arbeitsprotokollstatus' /> */}
+							<Loader itemKey='arbeitsprotokollstatus' />
 							<Loader itemKey='bauart' />
 							{/* <Loader itemKey='infobaustein' /> */}
 							<Loader itemKey='leitungstyp' />
