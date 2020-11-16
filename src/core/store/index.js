@@ -4,12 +4,14 @@ import spatialIndexSlice from './slices/spatialIndex';
 import featureCollectionSlice from './slices/featureCollection';
 import testSlice from './slices/test';
 import mappingSlice from './slices/mapping';
+import uiMessageSlice from './slices/uiMessage';
 const store = configureStore({
 	reducer: {
 		spatialIndex: spatialIndexSlice.reducer,
 		testCounter: testSlice.reducer,
 		mapping: mappingSlice.reducer,
-		featureCollection: featureCollectionSlice.reducer
+		featureCollection: featureCollectionSlice.reducer,
+		uiMessage: uiMessageSlice.reducer
 	},
 	devTools: process.env.NODE_ENV !== 'production',
 	middleware: [ ...getDefaultMiddleware({ immutableCheck: false, serializableCheck: false }) ]

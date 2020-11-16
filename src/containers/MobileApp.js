@@ -3,6 +3,7 @@ import React, { useRef, useState, useEffect } from 'react';
 import useComponentSize from '@rehooks/component-size';
 import { useWindowSize } from '@react-hook/window-size';
 import useOnlineStatus from '@rehooks/online-status';
+import { useHistory, useLocation } from 'react-router-dom';
 
 //--------- Redux
 import { Provider, useDispatch, useSelector } from 'react-redux';
@@ -24,7 +25,8 @@ import {
 	faSearch,
 	faGlobeEurope,
 	faBars,
-	faTimes
+	faTimes,
+	faSpinner
 } from '@fortawesome/free-solid-svg-icons';
 import { faCompass } from '@fortawesome/free-regular-svg-icons';
 
@@ -37,9 +39,15 @@ import bboxPolygon from '@turf/bbox-polygon';
 //--------- my components
 import Switch from '../components/commons/Switch';
 import { getFeatureCollection } from '../core/store/slices/featureCollection';
-import { setBoundingBox, setBoundingBoxAndLoadObjects } from '../core/store/slices/mapping';
+import {
+	getBoundingBox,
+	isDone,
+	setBoundingBox,
+	setBoundingBoxAndLoadObjects
+} from '../core/store/slices/mapping';
 import { getLoadingState, initIndex } from '../core/store/slices/spatialIndex';
-
+import { modifyQueryPart } from '../core/commons/routingHelper';
+import CacheSettings from '../components/CacheSettings';
 //---------
 const backgrounds = {
 	stadtplan: 'wupp-plan-live@90',
@@ -54,7 +62,9 @@ const backgrounds = {
 
 const View = () => {
 	const dispatch = useDispatch();
-	const urlSearchParams = new URLSearchParams('');
+	const history = useHistory();
+	const browserlocation = useLocation();
+	const urlSearchParams = new URLSearchParams(browserlocation.search);
 	const [ width, height ] = useWindowSize();
 	const onlineStatus = useOnlineStatus();
 
@@ -70,18 +80,12 @@ const View = () => {
 	};
 	const [ focus, setFocus ] = useState(false);
 	const [ pale, setPale ] = useState(false);
-
+	const [ cacheSettingsVisible, setCacheSettingsVisible ] = useState(false);
 	const featureCollection = useSelector(getFeatureCollection);
+	const boundingBox = useSelector(getBoundingBox);
+	const fcIsDone = useSelector(isDone);
 	const loadingState = useSelector(getLoadingState);
 
-	useEffect(
-		() => {
-			if (loadingState === undefined) {
-				dispatch(initIndex());
-			}
-		},
-		[ loadingState, dispatch ]
-	);
 	const topNavbar = (
 		<Navbar
 			ref={refUpperToolbar}
@@ -90,7 +94,17 @@ const View = () => {
 		>
 			<Nav className='mr-auto'>
 				<Nav.Link href='#home'>
-					<Icon className='text-primary' icon={faSearch} />
+					{/* <Icon className='text-primary' icon={faSearch} /> */}
+					<div style={{ width: 20 }}>
+						{fcIsDone === false && (
+							<Icon className='text-primary' spin icon={faSpinner} />
+						)}
+						{fcIsDone === true && (
+							<div style={{ fontSize: 9, marginTop: 7 }}>
+								{featureCollection.length}
+							</div>
+						)}
+					</div>
 				</Nav.Link>
 				<NavDropdown className='text-primary' title='Suche nach' id='basic-nav-dropdown'>
 					<NavDropdown.Item>Action</NavDropdown.Item>
@@ -122,7 +136,12 @@ const View = () => {
 					/>
 				</InputGroup>
 			</Form>
-			<Button variant='outline-primary'>
+			<Button
+				onClick={() => {
+					setCacheSettingsVisible(true);
+				}}
+				variant='outline-primary'
+			>
 				<Icon icon={faBars} />
 			</Button>
 		</Navbar>
@@ -130,6 +149,7 @@ const View = () => {
 	const bottomnNavbar = (
 		<Navbar ref={lowerToolbar} bg={background === 'nightplan' ? 'dark' : 'light'} expand='lg'>
 			<Navbar.Brand href='#home'>{onlineStatus ? 'Online' : 'Offline'}</Navbar.Brand>
+
 			<Navbar.Toggle aria-controls='basic-navbar-nav' />
 			<Nav className='mr-auto'>
 				<Nav.Link href='#home'>
@@ -212,19 +232,24 @@ const View = () => {
 			zoomSnap={0.5}
 			zoomDelta={0.5}
 			locationChangedHandler={(location) => {
-				console.log('location', location);
+				console.log('history', history);
+
+				history.push(
+					history.location.pathname + modifyQueryPart(browserlocation.search, location)
+				);
 			}}
 			boundingBoxChangedHandler={(bb) => {
+				console.log('boundingBoxChangedHandler', bb);
+
 				dispatch(setBoundingBoxAndLoadObjects(bb));
-				console.log('location boundingbox', bb);
 				let geom = bboxPolygon([ bb.left, bb.top, bb.right, bb.bottom ]).geometry;
 				geom.srs = 25832;
-				console.log(
-					'location boundingbox',
-					JSON.stringify({
-						polygon: geom
-					})
-				);
+				// console.log(
+				// 	'location boundingbox',
+				// 	JSON.stringify({
+				// 		polygon: geom
+				// 	})
+				// );
 			}}
 		>
 			<FeatureCollectionDisplay
@@ -293,7 +318,15 @@ const View = () => {
 	);
 	return (
 		<div>
+			{cacheSettingsVisible === true && (
+				<CacheSettings
+					hide={() => {
+						setCacheSettingsVisible(false);
+					}}
+				/>
+			)}
 			{topNavbar}
+
 			{map}
 			{bottomnNavbar}
 		</div>

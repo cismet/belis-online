@@ -4,6 +4,7 @@ import { ApolloClient, ApolloProvider, InMemoryCache, useQuery, gql } from '@apo
 
 import queries from '../core/indexeddb/queries';
 import { dbPromise } from '../core/indexeddb/db';
+import { faUserSecret } from '@fortawesome/free-solid-svg-icons';
 
 function timeout(ms) {
 	return new Promise((resolve) => setTimeout(resolve, ms));
@@ -24,6 +25,7 @@ async function fetchGraphQL(operationsDoc, variables) {
 let myHeaders = new Headers();
 myHeaders.append('pragma', 'no-cache');
 myHeaders.append('cache-control', 'no-cache');
+myHeaders.append('x-hasura-admin-faUserSecret', 'Xooquixac5Hae');
 
 const removeEmpty = (obj) => {
 	Object.keys(obj).forEach((key) => {

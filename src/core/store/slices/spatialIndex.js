@@ -30,7 +30,7 @@ export const { startLoading, initialize } = spatialIndexSlice.actions;
 export const getIndex = (state) => state.spatialIndex.index;
 export const getLoadingState = (state) => state.spatialIndex.loading;
 
-export const initIndex = () => async (dispatch) => {
+export const initIndex = (finished = () => {}) => async (dispatch) => {
 	dispatch(startLoading());
 	const db = await dbPromise;
 	const current = new Date().getTime();
@@ -61,4 +61,5 @@ export const initIndex = () => async (dispatch) => {
 
 	// const response = await usersAPI.fetchAll();
 	dispatch(initialize(index));
+	finished();
 };

@@ -1,8 +1,8 @@
 import { createSlice } from '@reduxjs/toolkit';
 
 const slice = createSlice({
-	name: 'uiMessage',
-	initialState: undefined,
+	name: 'xxx',
+	initialState: {},
 	reducers: {
 		set: (state, action) => action.payload
 	}
@@ -14,6 +14,7 @@ export default slice;
 export const { set } = slice.actions;
 
 //selectors
-export const getUIMessage = (state) => state.uiMessage;
+export const get = (state) => state.substatename;
 
-/
+//complex actions
+export const doIt = () => async (dispatch) => {};
