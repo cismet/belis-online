@@ -4,8 +4,7 @@ import useComponentSize from '@rehooks/component-size';
 import { useWindowSize } from '@react-hook/window-size';
 import useOnlineStatus from '@rehooks/online-status';
 import { useHistory, useLocation } from 'react-router-dom';
-import { useStatePersist } from 'use-state-persist';
-
+import useLocalStorage from '../core/commons/hooks/useLocalStorage';
 //--------- Redux
 import { Provider, useDispatch, useSelector } from 'react-redux';
 
@@ -82,12 +81,18 @@ const View = () => {
 	};
 
 	//local state
-	const [ background, setBackground ] = useStatePersist(
+	const [ background, setBackground ] = useLocalStorage(
 		'@belis.app.backgroundlayer',
 		'stadtplan'
 	);
-	const [ inFocusMode, setFocusModeActive ] = useStatePersist('@belis.app.inFocusMode', false);
-	const [ inPaleMode, setPaleModeActive ] = useStatePersist('@belis.app.inPaleMode', false);
+	const [ inFocusMode, setFocusModeActive ] = useLocalStorage('@belis.app.inFocusMode', false);
+	const [ inPaleMode, setPaleModeActive ] = useLocalStorage('@belis.app.inPaleMode', false);
+	const [ inSearchMode, setSearchModeActive ] = useLocalStorage('@belis.app.inSearchMode', true);
+	const [ wouldLikeToBeInSearchMode, setSearchModeWish ] = useLocalStorage(
+		'@belis.app.wouldLikeToBeInSearchMode',
+		true
+	);
+
 	const [ cacheSettingsVisible, setCacheSettingsVisible ] = useState(false);
 	const [ focusBoundingBox, setFocusBoundingBox ] = useState(undefined);
 
@@ -97,6 +102,23 @@ const View = () => {
 	const fcIsDone = useSelector(isDone);
 	const loadingState = useSelector(getLoadingState);
 
+	console.log('inSearchMode', inSearchMode);
+
+	const searchForbidden = () => {
+		let zoom = getZoom();
+
+		return (inFocusMode === true && zoom < 12) || (inFocusMode === false && zoom < 13);
+	};
+
+	const getZoom = () => {
+		try {
+			const routedMap = refRoutedMap.current;
+			const leafletMap = routedMap.leafletMap;
+			return leafletMap.leafletElement.getZoom();
+		} catch (e) {}
+		return -1;
+	};
+
 	const topNavbar = (
 		<Navbar
 			ref={refUpperToolbar}
@@ -104,10 +126,15 @@ const View = () => {
 			expand='lg'
 		>
 			<Nav className='mr-auto'>
-				<Nav.Link href='#home'>
-					{/* <Icon className='text-primary' icon={faSearch} /> */}
-					<div style={{ width: 20 }}>
-						{fcIsDone === false && (
+				<Nav.Link>
+					<div
+						// onClick={() => {
+						// 	window.location.reload();
+						// }}
+						style={{ width: 20 }}
+					>
+						{fcIsDone === false &&
+						inSearchMode === true && (
 							<Icon className='text-primary' spin icon={faSpinner} />
 						)}
 						{fcIsDone === true && (
@@ -117,7 +144,25 @@ const View = () => {
 						)}
 					</div>
 				</Nav.Link>
-				<NavDropdown className='text-primary' title='Suche nach' id='basic-nav-dropdown'>
+				<Nav.Link>
+					<Switch
+						disabled={searchForbidden()}
+						id='search-mode-toggle'
+						key={'search-mode-toggle' + inSearchMode}
+						preLabel='Suche'
+						switched={inSearchMode}
+						stateChanged={(switched) => {
+							setSearchModeActive(switched);
+							if (switched === true) {
+								setSearchModeWish(true);
+								showObjects(refRoutedMap.current.getBoundingBox(), inFocusMode);
+							} else {
+								setSearchModeWish(false);
+							}
+						}}
+					/>
+				</Nav.Link>
+				<NavDropdown className='text-primary' title='nach' id='basic-nav-dropdown'>
 					<NavDropdown.Item>Action</NavDropdown.Item>
 					<NavDropdown.Item href='#action/3.2'>Another action</NavDropdown.Item>
 					<NavDropdown.Item href='#action/3.3'>Something</NavDropdown.Item>
@@ -223,63 +268,97 @@ const View = () => {
 	// console.log('resultingLayer', resultingLayer);
 
 	const boundingBoxChangedHandler = (incomingBoundingBox) => {
+		console.log('xxx boundingBoxChangedHandler');
+
 		let bb = incomingBoundingBox;
 		if (bb === undefined) {
 			bb = refRoutedMap.current.getBoundingBox();
 		}
 
-		console.log('bb', bb);
+		const _searchForbidden = searchForbidden();
+		console.log('xxx searchForbidden', _searchForbidden);
+		console.log('xxx inSearchMode', inSearchMode);
+		console.log('xxx wouldLikeToBeInSearchMode', wouldLikeToBeInSearchMode);
 
-		showObjects(bb, inFocusMode);
+		if (_searchForbidden === true && inSearchMode === true) {
+			setSearchModeWish(true);
+			setSearchModeActive(false);
+		} else if (
+			_searchForbidden === false &&
+			wouldLikeToBeInSearchMode === true &&
+			inSearchMode === false
+		) {
+			console.log('xxx after +');
+
+			setSearchModeWish(true);
+			setSearchModeActive(true);
+			showObjects(bb, inFocusMode);
+		} else if (_searchForbidden === false && inSearchMode === true) {
+			setSearchModeWish(true);
+			showObjects(bb, inFocusMode);
+		}
 	};
 
-	const showObjects = (bb, inFocusMode) => {
-		let geom = bboxPolygon([ bb.left, bb.top, bb.right, bb.bottom ]).geometry;
-		geom.srs = 25832;
-
-		const w = bb.right - bb.left;
-		const h = bb.top - bb.bottom;
-		// const focusBoundingBoxGeom = bboxPolygon([
-		// 	bb.left + w / 4,
-		// 	bb.top - h / 4,
-		// 	bb.right - w / 4,
-		// 	bb.bottom + h / 4
-		// ]);
-		const focusBoundingBoxGeom = bboxPolygon([ bb.left, bb.top, bb.right, bb.bottom ]);
-		focusBoundingBoxGeom.crs = {
-			type: 'name',
-			properties: {
-				name: 'urn:ogc:def:crs:EPSG::25832'
+	const showObjects = (bb, inFocusMode, retried = 0) => {
+		let zoom = getZoom();
+		if (zoom === -1) {
+			console.log('xxx try again #', retried);
+			if (retried < 5) {
+				setTimeout(() => {
+					showObjects(bb, inFocusMode, retried + 1);
+				}, 10);
 			}
-		};
-		setFocusBoundingBox(focusBoundingBoxGeom);
+		}
+		console.log('xxx shoObject in zoom', zoom);
 
-		const focusBB = {
-			left: bb.left + w / 4,
-			top: bb.top - h / 4,
-			right: bb.right - w / 4,
-			bottom: bb.bottom + h / 4
-		};
-		// const focusBB = {
-		// 	left: bb.left,
-		// 	top: bb.top,
-		// 	right: bb.right,
-		// 	bottom: bb.bottom
-		// };
+		if (searchForbidden() === false) {
+			let geom = bboxPolygon([ bb.left, bb.top, bb.right, bb.bottom ]).geometry;
+			geom.srs = 25832;
 
-		// console.log(
-		// 	'location boundingbox',
-		// 	JSON.stringify({
-		// 		polygon: geom,
-		// 		w,
-		// 		h
-		// 	})
-		// );
+			const w = bb.right - bb.left;
+			const h = bb.top - bb.bottom;
+			const focusBoundingBoxGeom = bboxPolygon([
+				bb.left + w / 4,
+				bb.top - h / 4,
+				bb.right - w / 4,
+				bb.bottom + h / 4
+			]);
+			// const focusBoundingBoxGeom = bboxPolygon([ bb.left, bb.top, bb.right, bb.bottom ]);
+			focusBoundingBoxGeom.crs = {
+				type: 'name',
+				properties: {
+					name: 'urn:ogc:def:crs:EPSG::25832'
+				}
+			};
+			setFocusBoundingBox(focusBoundingBoxGeom);
 
-		if (inFocusMode) {
-			dispatch(setBoundingBoxAndLoadObjects(focusBB));
-		} else {
-			dispatch(setBoundingBoxAndLoadObjects(bb));
+			const focusBB = {
+				left: bb.left + w / 4,
+				top: bb.top - h / 4,
+				right: bb.right - w / 4,
+				bottom: bb.bottom + h / 4
+			};
+			// const focusBB = {
+			// 	left: bb.left,
+			// 	top: bb.top,
+			// 	right: bb.right,
+			// 	bottom: bb.bottom
+			// };
+
+			// console.log(
+			// 	'location boundingbox',
+			// 	JSON.stringify({
+			// 		polygon: geom,
+			// 		w,
+			// 		h
+			// 	})
+			// );
+
+			if (inFocusMode) {
+				dispatch(setBoundingBoxAndLoadObjects(focusBB));
+			} else {
+				dispatch(setBoundingBoxAndLoadObjects(bb));
+			}
 		}
 	};
 
@@ -318,12 +397,27 @@ const View = () => {
 			}}
 			boundingBoxChangedHandler={boundingBoxChangedHandler}
 		>
+			{/* <FeatureCollectionDisplay
+				featureCollection={featureCollection}
+				clusteringEnabled={false}
+				style={(feature) => {
+					return {
+						radius: 8,
+						fillColor: 'red',
+						color: 'green',
+						opacity: 1,
+						fillOpacity: 0.8
+					};
+				}}
+				showMarkerCollection={false}
+			/> */}
 			<FeatureCollectionDisplay
 				featureCollection={featureCollection}
 				clusteringEnabled={false}
 				style={(feature) => {
 					const svgs = {
-						tdta_leuchten: `
+						tdta_leuchten: {
+							svg: `
 							<svg width="12px" height="12px" viewBox="0 0 20 20" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
 								<g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
 									<g id="ic-adjust-24px" transform="translate(-2.000000, -2.000000)">
@@ -332,21 +426,30 @@ const View = () => {
 									</g>
 								</g>
 							</svg>`,
-						tdta_standort_mast: `
+							size: 20
+						},
+						tdta_standort_mast: {
+							svg: `
 							<svg width="12px" height="12px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
 								<g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
 									<path d="M12,2 C6.49,2 2,6.49 2,12 C2,17.51 6.49,22 12,22 C17.51,22 22,17.51 22,12 C22,6.49 17.51,2 12,2 Z M12,19 C8.14125,19 5,15.85875 5,12 C5,8.14125 8.14125,5 12,5 C15.85875,5 19,8.14125 19,12 C19,15.85875 15.85875,19 12,19 Z" id="Shape" fill="#000000" fill-rule="nonzero"></path>
 									<polygon id="Path" points="0 0 24 0 24 24 0 24"></polygon>
 								</g>
 							</svg>`,
-						schaltstelle: `
+							size: 20
+						},
+						schaltstelle: {
+							svg: `
 							<svg width="12px" height="12px" viewBox="0 0 48 48" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
 								<g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
 									<path d="M38,6 L10,6 C7.79,6 6,7.79 6,10 L6,38 C6,40.21 7.79,42 10,42 L38,42 C40.21,42 42,40.21 42,38 L42,10 C42,7.79 40.21,6 38,6 Z M28,14 L34,14 L34,34 L28,34 L28,14 Z M14,14 L20,14 L20,34 L14,34 L14,14 Z" id="Shape" fill="#000000" fill-rule="nonzero"></path>
 									<polygon id="Path" points="0 0 48 0 48 48 0 48"></polygon>
 								</g>
 							</svg>`,
-						abzweigdose: `
+							size: 20
+						},
+						abzweigdose: {
+							svg: `
 							<svg width="16px" height="12px" viewBox="0 0 36 26" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
 							<g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
 								<g id="ic-check-box-outline-blank-24px" transform="translate(6.000000, -3.000000)">
@@ -358,14 +461,19 @@ const View = () => {
 								<path d="M35,9 L27,9" id="Line" stroke="#000000" stroke-linecap="square"></path>
 							</g>
 							</svg>`,
-						mauerlasche: `<svg width="7px" height="7px" viewBox="0 0 18 18" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+							size: 20
+						},
+						mauerlasche: {
+							svg: `<svg width="7px" height="7px" viewBox="0 0 18 18" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
 							<g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
 								<g id="ic-check-box-outline-blank-24px" transform="translate(-3.000000, -3.000000)">
 									<path d="M19,5 L19,19 L5,19 L5,5 L19,5 L19,5 Z M19,3 L5,3 C3.9,3 3,3.9 3,5 L3,19 C3,20.1 3.9,21 5,21 L19,21 C20.1,21 21,20.1 21,19 L21,5 C21,3.9 20.1,3 19,3 Z" id="Shape" fill="#000000" fill-rule="nonzero"></path>
 									<polygon id="Path" points="0 0 24 0 24 24 0 24"></polygon>
 								</g>
 							</g>
-							</svg>`
+							</svg>`,
+							size: 20
+						}
 					};
 
 					return {
@@ -374,14 +482,17 @@ const View = () => {
 						color: 'green',
 						opacity: 1,
 						fillOpacity: 0.8,
-						svg: svgs[feature.featuretype]
+						svg: svgs[feature.featuretype].svg,
+						svgSize: svgs[feature.featuretype].size
 					};
 				}}
 				//mapRef={topicMapRef} // commented out because there cannot be a ref in a functional comp and it is bnot needed
 				showMarkerCollection={false}
 			/>
 
-			{/* {inFocusMode === true && (
+			{false &&
+			focusBoundingBox !== undefined &&
+			inFocusMode === true && (
 				<FeatureCollectionDisplay
 					featureCollection={[ focusBoundingBox ]}
 					clusteringEnabled={false}
@@ -399,7 +510,7 @@ const View = () => {
 					//mapRef={topicMapRef} // commented out because there cannot be a ref in a functional comp and it is bnot needed
 					showMarkerCollection={false}
 				/>
-			)} */}
+			)}
 			{inFocusMode === true && (
 				<div
 					style={{
@@ -410,7 +521,8 @@ const View = () => {
 						width: mapStyle.width / 2,
 						height: mapStyle.height / 2,
 						opacity: 0.1,
-						background: '#000000'
+						background: '#000000',
+						mrgin: 10
 					}}
 				/>
 			)}

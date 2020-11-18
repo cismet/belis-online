@@ -38,7 +38,7 @@ export const setBoundingBoxAndLoadObjects = (bb) => async (dispatch, getState) =
 	}, 1);
 
 	const state = getState();
-	if (state.spatialIndex.loading !== undefined) {
+	if (state.spatialIndex.loading === 'done') {
 		let resultIds = state.spatialIndex.index.range(bb.left, bb.bottom, bb.right, bb.top);
 		getFeaturesForHits(state.spatialIndex.index.points, resultIds).then((featureCollection) => {
 			dispatch(setFeatureCollection(featureCollection));
