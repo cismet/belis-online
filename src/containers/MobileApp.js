@@ -104,10 +104,15 @@ const View = () => {
 
 	console.log('inSearchMode', inSearchMode);
 
-	const searchForbidden = () => {
-		let zoom = getZoom();
-
-		return (inFocusMode === true && zoom < 12) || (inFocusMode === false && zoom < 13);
+	const searchForbidden = (overrides = {}) => {
+		let zoom = overrides.zoom || getZoom();
+		let ifm; //= overrides.inFocusMode || inFocusMode;
+		if (overrides.inFocusMode !== undefined) {
+			ifm = overrides.inFocusMode;
+		} else {
+			ifm = inFocusMode;
+		}
+		return (ifm === true && zoom < 12.5) || (ifm === false && zoom < 13.5);
 	};
 
 	const getZoom = () => {
@@ -220,6 +225,7 @@ const View = () => {
 					switched={inFocusMode}
 					stateChanged={(switched) => {
 						setFocusModeActive(switched);
+
 						showObjects(refRoutedMap.current.getBoundingBox(), switched);
 					}}
 				/>
@@ -275,10 +281,33 @@ const View = () => {
 			bb = refRoutedMap.current.getBoundingBox();
 		}
 
-		const _searchForbidden = searchForbidden();
-		console.log('xxx searchForbidden', _searchForbidden);
-		console.log('xxx inSearchMode', inSearchMode);
-		console.log('xxx wouldLikeToBeInSearchMode', wouldLikeToBeInSearchMode);
+		// const _searchForbidden = searchForbidden();
+		// console.log('xxx searchForbidden', _searchForbidden);
+		// console.log('xxx inSearchMode', inSearchMode);
+		// console.log('xxx wouldLikeToBeInSearchMode', wouldLikeToBeInSearchMode);
+
+		// if (_searchForbidden === true && inSearchMode === true) {
+		// 	setSearchModeWish(true);
+		// 	setSearchModeActive(false);
+		// } else if (
+		// 	_searchForbidden === false &&
+		// 	wouldLikeToBeInSearchMode === true &&
+		// 	inSearchMode === false
+		// ) {
+		// 	console.log('xxx after +');
+
+		// 	setSearchModeWish(true);
+		// 	setSearchModeActive(true);
+		// 	showObjects(bb, inFocusMode);
+		// } else if (_searchForbidden === false && inSearchMode === true) {
+		// 	setSearchModeWish(true);
+		// 	showObjects(bb, inFocusMode);
+		// }
+		showObjects(bb, inFocusMode);
+	};
+
+	const showObjects = (bb, inFocusMode) => {
+		const _searchForbidden = searchForbidden({ inFocusMode });
 
 		if (_searchForbidden === true && inSearchMode === true) {
 			setSearchModeWish(true);
@@ -292,73 +321,60 @@ const View = () => {
 
 			setSearchModeWish(true);
 			setSearchModeActive(true);
-			showObjects(bb, inFocusMode);
+			forceShowObjects(bb, inFocusMode);
 		} else if (_searchForbidden === false && inSearchMode === true) {
 			setSearchModeWish(true);
-			showObjects(bb, inFocusMode);
+			forceShowObjects(bb, inFocusMode);
 		}
 	};
 
-	const showObjects = (bb, inFocusMode, retried = 0) => {
-		let zoom = getZoom();
-		if (zoom === -1) {
-			console.log('xxx try again #', retried);
-			if (retried < 5) {
-				setTimeout(() => {
-					showObjects(bb, inFocusMode, retried + 1);
-				}, 10);
+	const forceShowObjects = (bb, inFocusMode, retried = 0) => {
+		let geom = bboxPolygon([ bb.left, bb.top, bb.right, bb.bottom ]).geometry;
+		geom.srs = 25832;
+
+		const w = bb.right - bb.left;
+		const h = bb.top - bb.bottom;
+		const focusBoundingBoxGeom = bboxPolygon([
+			bb.left + w / 4,
+			bb.top - h / 4,
+			bb.right - w / 4,
+			bb.bottom + h / 4
+		]);
+		// const focusBoundingBoxGeom = bboxPolygon([ bb.left, bb.top, bb.right, bb.bottom ]);
+		focusBoundingBoxGeom.crs = {
+			type: 'name',
+			properties: {
+				name: 'urn:ogc:def:crs:EPSG::25832'
 			}
-		}
-		console.log('xxx shoObject in zoom', zoom);
+		};
+		setFocusBoundingBox(focusBoundingBoxGeom);
 
-		if (searchForbidden() === false) {
-			let geom = bboxPolygon([ bb.left, bb.top, bb.right, bb.bottom ]).geometry;
-			geom.srs = 25832;
+		const focusBB = {
+			left: bb.left + w / 4,
+			top: bb.top - h / 4,
+			right: bb.right - w / 4,
+			bottom: bb.bottom + h / 4
+		};
+		// const focusBB = {
+		// 	left: bb.left,
+		// 	top: bb.top,
+		// 	right: bb.right,
+		// 	bottom: bb.bottom
+		// };
 
-			const w = bb.right - bb.left;
-			const h = bb.top - bb.bottom;
-			const focusBoundingBoxGeom = bboxPolygon([
-				bb.left + w / 4,
-				bb.top - h / 4,
-				bb.right - w / 4,
-				bb.bottom + h / 4
-			]);
-			// const focusBoundingBoxGeom = bboxPolygon([ bb.left, bb.top, bb.right, bb.bottom ]);
-			focusBoundingBoxGeom.crs = {
-				type: 'name',
-				properties: {
-					name: 'urn:ogc:def:crs:EPSG::25832'
-				}
-			};
-			setFocusBoundingBox(focusBoundingBoxGeom);
+		// console.log(
+		// 	'location boundingbox',
+		// 	JSON.stringify({
+		// 		polygon: geom,
+		// 		w,
+		// 		h
+		// 	})
+		// );
 
-			const focusBB = {
-				left: bb.left + w / 4,
-				top: bb.top - h / 4,
-				right: bb.right - w / 4,
-				bottom: bb.bottom + h / 4
-			};
-			// const focusBB = {
-			// 	left: bb.left,
-			// 	top: bb.top,
-			// 	right: bb.right,
-			// 	bottom: bb.bottom
-			// };
-
-			// console.log(
-			// 	'location boundingbox',
-			// 	JSON.stringify({
-			// 		polygon: geom,
-			// 		w,
-			// 		h
-			// 	})
-			// );
-
-			if (inFocusMode) {
-				dispatch(setBoundingBoxAndLoadObjects(focusBB));
-			} else {
-				dispatch(setBoundingBoxAndLoadObjects(bb));
-			}
+		if (inFocusMode) {
+			dispatch(setBoundingBoxAndLoadObjects(focusBB));
+		} else {
+			dispatch(setBoundingBoxAndLoadObjects(bb));
 		}
 	};
 
