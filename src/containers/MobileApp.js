@@ -41,9 +41,11 @@ import Switch from '../components/commons/Switch';
 import { getFeatureCollection } from '../core/store/slices/featureCollection';
 import {
 	getBoundingBox,
+	getFilter,
 	isDone,
 	setBoundingBox,
-	setBoundingBoxAndLoadObjects
+	setBoundingBoxAndLoadObjects,
+	setFilter
 } from '../core/store/slices/mapping';
 import { getLoadingState, initIndex } from '../core/store/slices/spatialIndex';
 import { modifyQueryPart } from '../core/commons/routingHelper';
@@ -93,6 +95,8 @@ const View = () => {
 		true
 	);
 
+	// const [ filterState, setFilterState ] = useLocalStorage('@belis.app.filterState', );
+
 	const [ cacheSettingsVisible, setCacheSettingsVisible ] = useState(false);
 	const [ focusBoundingBox, setFocusBoundingBox ] = useState(undefined);
 
@@ -101,6 +105,7 @@ const View = () => {
 	const boundingBox = useSelector(getBoundingBox);
 	const fcIsDone = useSelector(isDone);
 	const loadingState = useSelector(getLoadingState);
+	const filterState = useSelector(getFilter);
 
 	console.log('inSearchMode', inSearchMode);
 
@@ -167,12 +172,37 @@ const View = () => {
 						}}
 					/>
 				</Nav.Link>
-				<NavDropdown className='text-primary' title='nach' id='basic-nav-dropdown'>
-					<NavDropdown.Item>Action</NavDropdown.Item>
-					<NavDropdown.Item href='#action/3.2'>Another action</NavDropdown.Item>
-					<NavDropdown.Item href='#action/3.3'>Something</NavDropdown.Item>
-					<NavDropdown.Divider />
-					<NavDropdown.Item href='#action/3.4'>Separated link</NavDropdown.Item>
+				<NavDropdown
+					className='text-primary'
+					title='nach'
+					id='basic-nav-dropdown'
+					rootCloseEvent='jj'
+				>
+					{Object.keys(filterState).map((key) => {
+						const item = filterState[key];
+						return (
+							<NavDropdown.Item style={{ width: 300 }}>
+								<Switch
+									id={item.key + 'toggle-id'}
+									key={item.key + 'toggle'}
+									preLabel={item.title}
+									switched={item.enabled}
+									toggleStyle={{ float: 'right' }}
+									stateChanged={(switched) => {
+										const _fs = JSON.parse(JSON.stringify(filterState));
+										_fs[key].enabled = switched;
+										dispatch(setFilter(_fs));
+										setTimeout(() => {
+											showObjects(
+												refRoutedMap.current.getBoundingBox(),
+												inFocusMode
+											);
+										}, 50);
+									}}
+								/>
+							</NavDropdown.Item>
+						);
+					})}
 				</NavDropdown>
 				<Nav.Link href='#home'>
 					<Icon className='text-primary' icon={faGlobeEurope} />
