@@ -80,8 +80,6 @@ const View = () => {
 		clear: 'both'
 	};
 
-	console.log('sizeL.height', sizeL.height);
-
 	//local state
 	const [ background, setBackground ] = useStatePersist(
 		'@belis.app.backgroundlayer',
@@ -251,8 +249,6 @@ const View = () => {
 				);
 			}}
 			boundingBoxChangedHandler={(bb) => {
-				console.log('boundingBoxChangedHandler', bb);
-
 				let geom = bboxPolygon([ bb.left, bb.top, bb.right, bb.bottom ]).geometry;
 				geom.srs = 25832;
 

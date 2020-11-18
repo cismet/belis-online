@@ -15,8 +15,6 @@ const spatialIndexSlice = createSlice({
 			}
 		},
 		initialize(state, action) {
-			console.log('in reducer', action);
-
 			state.loading = 'done';
 			state.index = action.payload;
 		}
@@ -38,7 +36,6 @@ export const initIndex = (finished = () => {}) => async (dispatch) => {
 	const getEntityNameForRawEntry = (entry) => entry.tablename;
 
 	const items = await db.getAll('raw_point_index');
-	console.log('items', items.length);
 
 	const coordinatesResolver = (o) => {
 		try {
@@ -48,7 +45,6 @@ export const initIndex = (finished = () => {}) => async (dispatch) => {
 			return [ -1, -1 ];
 		}
 	};
-	console.log('creating index');
 
 	const index = new kdbush(
 		items,
@@ -56,8 +52,13 @@ export const initIndex = (finished = () => {}) => async (dispatch) => {
 		(p) => coordinatesResolver(p)[1]
 	);
 
-	console.log('dauerte ', new Date().getTime() - current);
-	console.log('index ', index);
+	console.log(
+		'Spatial Index mit ' +
+			items.length +
+			' Objekten in ' +
+			(new Date().getTime() - current) +
+			' ms angelegt.'
+	);
 
 	// const response = await usersAPI.fetchAll();
 	dispatch(initialize(index));
