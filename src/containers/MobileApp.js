@@ -4,6 +4,7 @@ import useComponentSize from '@rehooks/component-size';
 import { useWindowSize } from '@react-hook/window-size';
 import useOnlineStatus from '@rehooks/online-status';
 import { useHistory, useLocation } from 'react-router-dom';
+import { useStatePersist } from 'use-state-persist';
 
 //--------- Redux
 import { Provider, useDispatch, useSelector } from 'react-redux';
@@ -65,22 +66,33 @@ const View = () => {
 	const history = useHistory();
 	const browserlocation = useLocation();
 	const urlSearchParams = new URLSearchParams(browserlocation.search);
-	const [ width, height ] = useWindowSize();
+	const [ windowWidth, windowHeight ] = useWindowSize();
 	const onlineStatus = useOnlineStatus();
 
-	const [ background, setBackground ] = useState('stadtplan');
 	let refUpperToolbar = useRef(null);
 	let sizeU = useComponentSize(refUpperToolbar);
 	let lowerToolbar = useRef(null);
 	let sizeL = useComponentSize(lowerToolbar);
 	const mapStyle = {
-		height: height - sizeU.height - sizeL.height,
+		height: windowHeight - (sizeU.height || 56) - (sizeL.height || 56),
+		width: windowWidth,
 		cursor: 'pointer',
 		clear: 'both'
 	};
-	const [ focus, setFocus ] = useState(false);
-	const [ pale, setPale ] = useState(false);
+
+	console.log('sizeL.height', sizeL.height);
+
+	//local state
+	const [ background, setBackground ] = useStatePersist(
+		'@belis.app.backgroundlayer',
+		'stadtplan'
+	);
+	const [ inFocusMode, setFocusModeActive ] = useStatePersist('@belis.app.inFocusMode', false);
+	const [ inPaleMode, setPaleModeActive ] = useStatePersist('@belis.app.inPaleMode', false);
 	const [ cacheSettingsVisible, setCacheSettingsVisible ] = useState(false);
+	const [ focusBoundingBox, setFocusBoundingBox ] = useState(undefined);
+
+	// vars from url
 	const featureCollection = useSelector(getFeatureCollection);
 	const boundingBox = useSelector(getBoundingBox);
 	const fcIsDone = useSelector(isDone);
@@ -158,19 +170,19 @@ const View = () => {
 			</Nav>
 			<Nav className='mr-auto'>
 				<Switch
-					disabled={true}
+					disabled={false}
 					id='focus-toggle'
 					preLabel='Fokus'
-					switched={focus}
-					stateChanged={(switched) => setFocus(switched)}
+					switched={inFocusMode}
+					stateChanged={(switched) => setFocusModeActive(switched)}
 				/>
 
 				<div style={{ width: 30 }} />
 				<Switch
 					id='pale-toggle'
 					preLabel='Blass'
-					switched={pale}
-					stateChanged={(switched) => setPale(switched)}
+					switched={inPaleMode}
+					stateChanged={(switched) => setPaleModeActive(switched)}
 				/>
 			</Nav>
 
@@ -204,7 +216,7 @@ const View = () => {
 			</Form>
 		</Navbar>
 	);
-	const resultingLayer = backgrounds[(pale === true ? 'pale_' : '') + background];
+	const resultingLayer = backgrounds[(inPaleMode === true ? 'pale_' : '') + background];
 	// console.log('resultingLayer index', (pale === true ? 'pale_' : '') + background);
 	// console.log('resultingLayer', resultingLayer);
 
@@ -212,7 +224,7 @@ const View = () => {
 		<RoutedMap
 			editable={false}
 			style={mapStyle}
-			key={'leafletRoutedMap.' + pale + '.' + focus + '.' + background}
+			key={'leafletRoutedMap.' + inPaleMode + '.' + background}
 			referenceSystem={MappingConstants.crs25832}
 			referenceSystemDefinition={MappingConstants.proj4crs25832def}
 			ref={(leafletMap) => {
@@ -241,15 +253,53 @@ const View = () => {
 			boundingBoxChangedHandler={(bb) => {
 				console.log('boundingBoxChangedHandler', bb);
 
-				dispatch(setBoundingBoxAndLoadObjects(bb));
 				let geom = bboxPolygon([ bb.left, bb.top, bb.right, bb.bottom ]).geometry;
 				geom.srs = 25832;
+
+				const w = bb.right - bb.left;
+				const h = bb.top - bb.bottom;
+				// const focusBoundingBoxGeom = bboxPolygon([
+				// 	bb.left + w / 4,
+				// 	bb.top - h / 4,
+				// 	bb.right - w / 4,
+				// 	bb.bottom + h / 4
+				// ]);
+				const focusBoundingBoxGeom = bboxPolygon([ bb.left, bb.top, bb.right, bb.bottom ]);
+				focusBoundingBoxGeom.crs = {
+					type: 'name',
+					properties: {
+						name: 'urn:ogc:def:crs:EPSG::25832'
+					}
+				};
+				setFocusBoundingBox(focusBoundingBoxGeom);
+
+				const focusBB = {
+					left: bb.left + w / 4,
+					top: bb.top - h / 4,
+					right: bb.right - w / 4,
+					bottom: bb.bottom + h / 4
+				};
+				// const focusBB = {
+				// 	left: bb.left,
+				// 	top: bb.top,
+				// 	right: bb.right,
+				// 	bottom: bb.bottom
+				// };
+
 				// console.log(
 				// 	'location boundingbox',
 				// 	JSON.stringify({
-				// 		polygon: geom
+				// 		polygon: geom,
+				// 		w,
+				// 		h
 				// 	})
 				// );
+
+				if (inFocusMode) {
+					dispatch(setBoundingBoxAndLoadObjects(focusBB));
+				} else {
+					dispatch(setBoundingBoxAndLoadObjects(bb));
+				}
 			}}
 		>
 			<FeatureCollectionDisplay
@@ -314,6 +364,40 @@ const View = () => {
 				//mapRef={topicMapRef} // commented out because there cannot be a ref in a functional comp and it is bnot needed
 				showMarkerCollection={false}
 			/>
+
+			{/* {inFocusMode === true && (
+				<FeatureCollectionDisplay
+					featureCollection={[ focusBoundingBox ]}
+					clusteringEnabled={false}
+					style={(feature) => {
+						console.log('featurestyle ', feature);
+
+						return {
+							radius: 8,
+							fillColor: '#000000',
+							color: '#000000',
+							opacity: 0.8,
+							fillOpacity: 0.1
+						};
+					}}
+					//mapRef={topicMapRef} // commented out because there cannot be a ref in a functional comp and it is bnot needed
+					showMarkerCollection={false}
+				/>
+			)} */}
+			{inFocusMode === true && (
+				<div
+					style={{
+						position: 'absolute',
+						top: mapStyle.height / 4,
+						left: mapStyle.width / 4,
+						zIndex: 500,
+						width: mapStyle.width / 2,
+						height: mapStyle.height / 2,
+						opacity: 0.1,
+						background: '#000000'
+					}}
+				/>
+			)}
 		</RoutedMap>
 	);
 	return (
