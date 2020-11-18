@@ -69,6 +69,7 @@ const View = () => {
 	const [ windowWidth, windowHeight ] = useWindowSize();
 	const onlineStatus = useOnlineStatus();
 
+	let refRoutedMap = useRef(null);
 	let refUpperToolbar = useRef(null);
 	let sizeU = useComponentSize(refUpperToolbar);
 	let lowerToolbar = useRef(null);
@@ -90,7 +91,7 @@ const View = () => {
 	const [ cacheSettingsVisible, setCacheSettingsVisible ] = useState(false);
 	const [ focusBoundingBox, setFocusBoundingBox ] = useState(undefined);
 
-	// vars from url
+	// vars from redux state
 	const featureCollection = useSelector(getFeatureCollection);
 	const boundingBox = useSelector(getBoundingBox);
 	const fcIsDone = useSelector(isDone);
@@ -172,7 +173,10 @@ const View = () => {
 					id='focus-toggle'
 					preLabel='Fokus'
 					switched={inFocusMode}
-					stateChanged={(switched) => setFocusModeActive(switched)}
+					stateChanged={(switched) => {
+						setFocusModeActive(switched);
+						showObjects(refRoutedMap.current.getBoundingBox(), switched);
+					}}
 				/>
 
 				<div style={{ width: 30 }} />
@@ -218,6 +222,67 @@ const View = () => {
 	// console.log('resultingLayer index', (pale === true ? 'pale_' : '') + background);
 	// console.log('resultingLayer', resultingLayer);
 
+	const boundingBoxChangedHandler = (incomingBoundingBox) => {
+		let bb = incomingBoundingBox;
+		if (bb === undefined) {
+			bb = refRoutedMap.current.getBoundingBox();
+		}
+
+		console.log('bb', bb);
+
+		showObjects(bb, inFocusMode);
+	};
+
+	const showObjects = (bb, inFocusMode) => {
+		let geom = bboxPolygon([ bb.left, bb.top, bb.right, bb.bottom ]).geometry;
+		geom.srs = 25832;
+
+		const w = bb.right - bb.left;
+		const h = bb.top - bb.bottom;
+		// const focusBoundingBoxGeom = bboxPolygon([
+		// 	bb.left + w / 4,
+		// 	bb.top - h / 4,
+		// 	bb.right - w / 4,
+		// 	bb.bottom + h / 4
+		// ]);
+		const focusBoundingBoxGeom = bboxPolygon([ bb.left, bb.top, bb.right, bb.bottom ]);
+		focusBoundingBoxGeom.crs = {
+			type: 'name',
+			properties: {
+				name: 'urn:ogc:def:crs:EPSG::25832'
+			}
+		};
+		setFocusBoundingBox(focusBoundingBoxGeom);
+
+		const focusBB = {
+			left: bb.left + w / 4,
+			top: bb.top - h / 4,
+			right: bb.right - w / 4,
+			bottom: bb.bottom + h / 4
+		};
+		// const focusBB = {
+		// 	left: bb.left,
+		// 	top: bb.top,
+		// 	right: bb.right,
+		// 	bottom: bb.bottom
+		// };
+
+		// console.log(
+		// 	'location boundingbox',
+		// 	JSON.stringify({
+		// 		polygon: geom,
+		// 		w,
+		// 		h
+		// 	})
+		// );
+
+		if (inFocusMode) {
+			dispatch(setBoundingBoxAndLoadObjects(focusBB));
+		} else {
+			dispatch(setBoundingBoxAndLoadObjects(bb));
+		}
+	};
+
 	const map = (
 		<RoutedMap
 			editable={false}
@@ -225,9 +290,12 @@ const View = () => {
 			key={'leafletRoutedMap.' + inPaleMode + '.' + background}
 			referenceSystem={MappingConstants.crs25832}
 			referenceSystemDefinition={MappingConstants.proj4crs25832def}
-			ref={(leafletMap) => {
+			refX={(leafletMap) => {
+				console.log('leafletMap', leafletMap);
+
 				// this.leafletRoutedMap = leafletMap;
 			}}
+			ref={refRoutedMap}
 			layers=''
 			doubleClickZoom={false}
 			onclick={(e) => console.log('click', e)}
@@ -248,55 +316,7 @@ const View = () => {
 					history.location.pathname + modifyQueryPart(browserlocation.search, location)
 				);
 			}}
-			boundingBoxChangedHandler={(bb) => {
-				let geom = bboxPolygon([ bb.left, bb.top, bb.right, bb.bottom ]).geometry;
-				geom.srs = 25832;
-
-				const w = bb.right - bb.left;
-				const h = bb.top - bb.bottom;
-				// const focusBoundingBoxGeom = bboxPolygon([
-				// 	bb.left + w / 4,
-				// 	bb.top - h / 4,
-				// 	bb.right - w / 4,
-				// 	bb.bottom + h / 4
-				// ]);
-				const focusBoundingBoxGeom = bboxPolygon([ bb.left, bb.top, bb.right, bb.bottom ]);
-				focusBoundingBoxGeom.crs = {
-					type: 'name',
-					properties: {
-						name: 'urn:ogc:def:crs:EPSG::25832'
-					}
-				};
-				setFocusBoundingBox(focusBoundingBoxGeom);
-
-				const focusBB = {
-					left: bb.left + w / 4,
-					top: bb.top - h / 4,
-					right: bb.right - w / 4,
-					bottom: bb.bottom + h / 4
-				};
-				// const focusBB = {
-				// 	left: bb.left,
-				// 	top: bb.top,
-				// 	right: bb.right,
-				// 	bottom: bb.bottom
-				// };
-
-				// console.log(
-				// 	'location boundingbox',
-				// 	JSON.stringify({
-				// 		polygon: geom,
-				// 		w,
-				// 		h
-				// 	})
-				// );
-
-				if (inFocusMode) {
-					dispatch(setBoundingBoxAndLoadObjects(focusBB));
-				} else {
-					dispatch(setBoundingBoxAndLoadObjects(bb));
-				}
-			}}
+			boundingBoxChangedHandler={boundingBoxChangedHandler}
 		>
 			<FeatureCollectionDisplay
 				featureCollection={featureCollection}

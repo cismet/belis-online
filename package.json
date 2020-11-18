@@ -31,7 +31,7 @@
     "react": "^16.13.1",
     "react-bootstrap": "^1.3.0",
     "react-bootstrap-switch": "^15.5.3",
-    "react-cismap": "^0.5.2",
+    "react-cismap": "^0.5.3",
     "react-device-detect": "^1.13.1",
     "react-dom": "^16.13.1",
     "react-hook-form": "^6.8.4",
