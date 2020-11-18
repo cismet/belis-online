@@ -336,7 +336,17 @@ const View = () => {
 		showObjects(bb, inFocusMode);
 	};
 
-	const showObjects = (bb, inFocusMode) => {
+	const showObjects = (bb, inFocusMode, retried = 0) => {
+		let zoom = getZoom();
+		if (zoom === -1) {
+			console.log('xxx try again #', retried);
+			if (retried < 5) {
+				setTimeout(() => {
+					showObjects(bb, inFocusMode, retried + 1);
+				}, 10);
+			}
+		}
+
 		const _searchForbidden = searchForbidden({ inFocusMode });
 
 		if (_searchForbidden === true && inSearchMode === true) {
