@@ -59,6 +59,7 @@ export const setBoundingBoxAndLoadObjects = (bb) => async (dispatch, getState) =
 	const state = getState();
 	if (state.spatialIndex.loading === 'done') {
 		let resultIds = state.spatialIndex.index.range(bb.left, bb.bottom, bb.right, bb.top);
+
 		getFeaturesForHits(
 			state.spatialIndex.index.points,
 			resultIds,
@@ -86,14 +87,12 @@ const getFeaturesForHits = async (points, resultIds, filter) => {
 	for (const id of resultIds) {
 		const hit = points[id];
 		tablenames.add(hit.tablename);
-		console.log('hit.tablename', hit.tablename);
 
-		if (filter[hit.tablename].enabled === true) {
+		if ((filter[hit.tablename] || {}).enabled === true) {
 			const feature = await createFeatureFromHit(hit);
 			featureCollection.push(feature);
 		}
 	}
-	console.log('xxx tablenames', tablenames);
 
 	return featureCollection;
 };

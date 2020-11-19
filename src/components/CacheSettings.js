@@ -22,7 +22,7 @@ function timeout(ms) {
 }
 
 async function fetchGraphQL(operationsDoc, variables) {
-	console.log('headers', myHeaders);
+	console.log('fetchGraphQL', operationsDoc);
 
 	const result = await fetch('https://belis-alpha-graphql-api.cismet.de/v1/graphql', {
 		method: 'POST',
@@ -69,28 +69,36 @@ const getIconForLoadingState = (ls) => {
 	}
 };
 
-async function addToIDB(dbPromise, objectStore, data, setProgress) {
-	const db = await dbPromise;
-	const tx = db.transaction(objectStore, 'readwrite');
-	const promises = [];
-	for (const item of data) {
-		// console.log('item', item);
-		removeEmpty(item);
-		// console.log('after removeEmpty(item)', item);
+async function addToIDB(dbPromise, objectStore, completedata, setProgress) {
+	let i,
+		j,
+		chunk = 1000,
+		counter = 0;
+	for (i = 0, j = completedata.length; i < j; i += chunk) {
+		const data = completedata.slice(i, i + chunk);
+		const db = await dbPromise;
+		const tx = db.transaction(objectStore, 'readwrite');
+		const promises = [];
+		for (const item of data) {
+			// console.log('item', item);
+			removeEmpty(item);
+			// console.log('after removeEmpty(item)', item);
 
-		promises.push(tx.store.put(item));
-	}
-	promises.push(tx.done);
+			promises.push(tx.store.put(item));
+		}
+		promises.push(tx.done);
 
-	let i = 0;
-	for (const p of promises) {
-		await p;
-		setProgress(i);
-		i++;
+		for (const p of promises) {
+			await p;
+			setProgress(counter);
+			counter++;
+		}
 	}
 }
 
-const Loader = ({ itemKey }) => {
+const Loader = ({ loaderInfo }) => {
+	const itemKey = loaderInfo.queryKey;
+	const dataKey = loaderInfo.dataKey || loaderInfo.queryKey;
 	useEffect(
 		() => {
 			setLoadingState('loading');
@@ -104,13 +112,13 @@ const Loader = ({ itemKey }) => {
 						console.log('error in fetch ', error);
 					} else {
 						console.log(
-							itemKey + ' returned with ' + result.data[itemKey].length + ' results'
+							itemKey + ' returned with ' + result.data[dataKey].length + ' results'
 						);
 
 						setLoadingState('caching');
-						setMax(result.data[itemKey].length);
+						setMax(result.data[dataKey].length);
 
-						addToIDB(dbPromise, itemKey, result.data[itemKey], setNumber).then(() => {
+						addToIDB(dbPromise, itemKey, result.data[dataKey], setNumber).then(() => {
 							console.log('XXXX done');
 							setLoadingState('cached');
 						});
@@ -154,7 +162,7 @@ const Loader = ({ itemKey }) => {
 		);
 	} else if (loadingState === 'caching') {
 		return (
-			<tr>
+			<tr key={itemKey + '.' + number}>
 				<td>{getIconForLoadingState(loadingState)}</td>
 				<td>Caching {itemKey}</td>
 				<td>
@@ -189,11 +197,57 @@ const CacheSettings = ({ hide = () => {} }) => {
 
 		overflowY: 'auto',
 		overflowX: 'hidden',
-		maxHeight: height - 250
+		maxHeight: height - 250,
+		width: '80%'
 	};
 
+	const keys = [];
+	// keys.push({ queryKey: 'all_tdta_standort_mast', dataKey: 'tdta_standort_mast' });
+	// keys.push({ queryKey: 'tdta_standort_mast' });
+	keys.push({ queryKey: 'raw_point_index' });
+	// keys.push({ queryKey: 'leitung' });
+	// keys.push({ queryKey: 'mauerlasche' });
+	// keys.push({ queryKey: 'schaltstelle' });
+	// keys.push({ queryKey: 'tdta_leuchten' });
+	// keys.push({ queryKey: 'anlagengruppe' });
+	// keys.push({ queryKey: 'arbeitsprotokollstatus' });
+	// keys.push({ queryKey: 'bauart' });
+	// // keys.push({ queryKey: 'infobaustein' });
+	// keys.push({ queryKey: 'leitungstyp' });
+	// keys.push({ queryKey: 'leuchtmittel' });
+	// keys.push({ queryKey: 'material_leitung' });
+	// keys.push({ queryKey: 'material_mauerlasche' });
+	// keys.push({ queryKey: 'querschnitt' });
+	// keys.push({ queryKey: 'team' });
+	// keys.push({ queryKey: 'tkey_bezirk' });
+	// keys.push({ queryKey: 'tkey_doppelkommando' });
+	// keys.push({ queryKey: 'tkey_energielieferant' });
+	// keys.push({ queryKey: 'tkey_kennziffer' });
+	// keys.push({ queryKey: 'tkey_klassifizierung' });
+	// keys.push({ queryKey: 'tkey_mastart' });
+	// keys.push({ queryKey: 'tkey_strassenschluessel' });
+	// keys.push({ queryKey: 'tkey_unterh_leuchte' });
+	// keys.push({ queryKey: 'tkey_unterh_mast' });
+	// keys.push({ queryKey: 'veranlassungsart' });
+	// // keys.push({ queryKey: 'arbeitsprotokollaktion' });
+	// // keys.push({ queryKey: 'infobaustein_template' });
+	// keys.push({ queryKey: 'rundsteuerempfaenger' });
+	// keys.push({ queryKey: 'abzweigdose' });
+	// keys.push({ queryKey: 'tkey_leuchtentyp' });
+	// keys.push({ queryKey: 'tkey_masttyp' });
+	// // keys.push({ queryKey: 'arbeitsauftrag' });
+	// // keys.push({ queryKey: 'arbeitsprotokoll' });
+	// // keys.push({ queryKey: 'veranlassung' });
+
 	return (
-		<Modal height='100%' bsSize='large' show onHide={hide}>
+		<Modal
+			dialogClassName='modal-lg modal-dialog' //but why???
+			bsSize='large'
+			height='100%'
+			style={{ height: '100%' }}
+			show
+			onHide={hide}
+		>
 			<Modal.Header>
 				<Modal.Title>
 					<h5>Cache Einstellungen</h5>
@@ -207,41 +261,9 @@ const CacheSettings = ({ hide = () => {} }) => {
 						}}
 					>
 						<tbody>
-							<Loader itemKey='tdta_standort_mast' />
-							<Loader itemKey='raw_point_index' />
-							<Loader itemKey='leitung' />
-							<Loader itemKey='mauerlasche' />
-							<Loader itemKey='schaltstelle' />
-							<Loader itemKey='tdta_leuchten' />
-							<Loader itemKey='anlagengruppe' />
-							<Loader itemKey='arbeitsprotokollstatus' />
-							<Loader itemKey='bauart' />
-							{/* <Loader itemKey='infobaustein' /> */}
-							<Loader itemKey='leitungstyp' />
-							<Loader itemKey='leuchtmittel' />
-							<Loader itemKey='material_leitung' />
-							<Loader itemKey='material_mauerlasche' />
-							<Loader itemKey='querschnitt' />
-							<Loader itemKey='team' />
-							<Loader itemKey='tkey_bezirk' />
-							<Loader itemKey='tkey_doppelkommando' />
-							<Loader itemKey='tkey_energielieferant' />
-							<Loader itemKey='tkey_kennziffer' />
-							<Loader itemKey='tkey_klassifizierung' />
-							<Loader itemKey='tkey_mastart' />
-							<Loader itemKey='tkey_strassenschluessel' />
-							<Loader itemKey='tkey_unterh_leuchte' />
-							<Loader itemKey='tkey_unterh_mast' />
-							<Loader itemKey='veranlassungsart' />
-							{/* <Loader itemKey='arbeitsprotokollaktion' /> */}
-							{/* <Loader itemKey='infobaustein_template' /> */}
-							<Loader itemKey='rundsteuerempfaenger' />
-							<Loader itemKey='abzweigdose' />
-							<Loader itemKey='tkey_leuchtentyp' />
-							<Loader itemKey='tkey_masttyp' />
-							{/* <Loader itemKey='arbeitsauftrag' /> */}
-							{/* <Loader itemKey='arbeitsprotokoll' /> */}
-							{/* <Loader itemKey='veranlassung' /> */}
+							{keys.map((item, index) => {
+								return <Loader key={'loader' + index} loaderInfo={item} />;
+							})}
 						</tbody>
 					</table>
 				</div>

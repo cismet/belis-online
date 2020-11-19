@@ -409,7 +409,7 @@ queries.tdta_leuchten = `{
         zaehler
     }
 }`;
-queries.tdta_standort_mast = `{
+queries.all_tdta_standort_mast = `{
     tdta_standort_mast {
         id
         bemerkungen
@@ -461,12 +461,73 @@ queries.tdta_standort_mast = `{
     }
 }`;
 
+queries.tdta_standort_mast =
+	`{
+  tdta_standort_mast(where:{_not:{leuchtenArray:{}}}){
+    id
+    bemerkungen
+    anstrichfarbe
+    dokumenteArray {
+      dms_url {
+        url {
+          object_name
+          url_base {
+            path
+            prot_prefix
+            server
+          }
+        }
+      }
+    }
+    elek_pruefung
+    erdung
+    fk_kennziffer
+    fk_klassifizierung
+    fk_mastart
+    fk_masttyp
+    fk_stadtbezirk
+    fk_strassenschluessel
+    fk_unterhaltspflicht_mast
+    foto
+    gruendung
+    haus_nr
+    inbetriebnahme_mast
+    ist_virtueller_standort
+    letzte_aenderung
+    lfd_nummer
+    mastanstrich
+    mastschutz
+    montagefirma
+    monteur
+    naechstes_pruefdatum
+    plz
+    revision
+    standortangabe
+    standsicherheitspruefung
+    verfahren
+    verrechnungseinheit
+    anbauten
+    anlagengruppeObject {
+      nummer
+      bezeichnung
+    }` +
+	// leuchtenArray_aggregate {
+	//   aggregate {
+	//     count
+	//   }
+	// }
+	`
+  }
+}
+`;
+
 queries.raw_point_index = `{
     raw_point_index {
-        id
-        tablename
-        x
-        y
+      id
+      oid
+      tablename
+      x
+      y
   }
 }`;
 

@@ -107,8 +107,6 @@ const View = () => {
 	const loadingState = useSelector(getLoadingState);
 	const filterState = useSelector(getFilter);
 
-	console.log('inSearchMode', inSearchMode);
-
 	const searchForbidden = (overrides = {}) => {
 		let zoom = overrides.zoom || getZoom();
 		let ifm; //= overrides.inFocusMode || inFocusMode;
@@ -304,8 +302,6 @@ const View = () => {
 	// console.log('resultingLayer', resultingLayer);
 
 	const boundingBoxChangedHandler = (incomingBoundingBox) => {
-		console.log('xxx boundingBoxChangedHandler');
-
 		let bb = incomingBoundingBox;
 		if (bb === undefined) {
 			bb = refRoutedMap.current.getBoundingBox();
@@ -337,13 +333,14 @@ const View = () => {
 	};
 
 	const showObjects = (bb, inFocusMode, retried = 0) => {
-		let zoom = getZoom();
+		const zoom = getZoom();
 		if (zoom === -1) {
-			console.log('xxx try again #', retried);
+			// console.log('xxx try again #', retried);
 			if (retried < 5) {
 				setTimeout(() => {
 					showObjects(bb, inFocusMode, retried + 1);
 				}, 10);
+				return;
 			}
 		}
 
@@ -445,8 +442,6 @@ const View = () => {
 			zoomSnap={0.5}
 			zoomDelta={0.5}
 			locationChangedHandler={(location) => {
-				console.log('history', history);
-
 				history.push(
 					history.location.pathname + modifyQueryPart(browserlocation.search, location)
 				);
@@ -538,8 +533,8 @@ const View = () => {
 						color: 'green',
 						opacity: 1,
 						fillOpacity: 0.8,
-						svg: svgs[feature.featuretype].svg,
-						svgSize: svgs[feature.featuretype].size
+						svg: (svgs[feature.featuretype] || {}).svg,
+						svgSize: (svgs[feature.featuretype] || {}).size
 					};
 				}}
 				//mapRef={topicMapRef} // commented out because there cannot be a ref in a functional comp and it is bnot needed
