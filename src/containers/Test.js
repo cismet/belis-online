@@ -1,11 +1,11 @@
 import React, { useEffect } from 'react';
 import { Provider, useDispatch, useSelector } from 'react-redux';
-import { initIndex, getIndex, getLoadingState } from '../core/store/slices/spatialIndex';
+import { initIndex, getPointIndex, getLoadingState } from '../core/store/slices/spatialIndex';
 import testSlice, { getCounter, inc, dec } from '../core/store/slices/test';
 
 const Test = () => {
 	const dispatch = useDispatch();
-	const index = useSelector(getIndex);
+	const index = useSelector(getPointIndex);
 	const loadingState = useSelector(getLoadingState);
 	const counter = useSelector(getCounter);
 

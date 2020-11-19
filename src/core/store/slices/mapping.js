@@ -58,13 +58,23 @@ export const setBoundingBoxAndLoadObjects = (bb) => async (dispatch, getState) =
 
 	const state = getState();
 	if (state.spatialIndex.loading === 'done') {
-		let resultIds = state.spatialIndex.index.range(bb.left, bb.bottom, bb.right, bb.top);
+		let resultIds = state.spatialIndex.pointIndex.range(bb.left, bb.bottom, bb.right, bb.top);
+
+		let leitungsFeatures = [];
+
+		if (state.mapping.filter.leitung.enabled === true) {
+			leitungsFeatures = state.spatialIndex.lineIndex
+				.search(bb.left, bb.bottom, bb.right, bb.top)
+				.map((i) => state.spatialIndex.lineIndex.features[i]);
+		}
+		// console.log('leitungsFeatures', leitungsFeatures);
 
 		getFeaturesForHits(
-			state.spatialIndex.index.points,
+			state.spatialIndex.pointIndex.points,
 			resultIds,
 			state.mapping.filter
-		).then((featureCollection) => {
+		).then((pointFeatureCollection) => {
+			const featureCollection = leitungsFeatures.concat(pointFeatureCollection);
 			dispatch(setFeatureCollection(featureCollection));
 			setTimeout(() => {
 				dispatch(setDone(true));

@@ -354,8 +354,6 @@ const View = () => {
 			wouldLikeToBeInSearchMode === true &&
 			inSearchMode === false
 		) {
-			console.log('xxx after +');
-
 			setSearchModeWish(true);
 			setSearchModeActive(true);
 			forceShowObjects(bb, inFocusMode);
@@ -530,7 +528,7 @@ const View = () => {
 					return {
 						radius: 8,
 						fillColor: 'red',
-						color: 'green',
+						color: '#D3976C',
 						opacity: 1,
 						fillOpacity: 0.8,
 						svg: (svgs[feature.featuretype] || {}).svg,
