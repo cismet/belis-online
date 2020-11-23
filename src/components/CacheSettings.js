@@ -3,8 +3,6 @@ import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
 
 import { useWindowSize } from '@react-hook/window-size';
-// import IDBCacheFiller from './IDBCacheFiller';
-// import WorkeredIDBCacheFiller from './WorkeredIDBCacheFiller';
 import DexieWorkeredIDBCacheFiller from './DexieWorkeredIDBCacheFiller';
 function timeout(ms) {
 	return new Promise((resolve) => setTimeout(resolve, ms));

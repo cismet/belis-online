@@ -5,7 +5,6 @@ import { BrowserRouter as Router, Switch, Route, Link } from 'react-router-dom';
 import MobileApp from './containers/MobileApp';
 import FillCache from './containers/FillCache';
 import Test from './containers/Test';
-import WT from './core/workers/WorkerTest';
 import { Provider } from 'react-redux';
 import store from './core/store';
 
@@ -25,9 +24,6 @@ function App() {
 						</Route>
 						<Route path='/test'>
 							<Test />
-						</Route>
-						<Route path='/worker'>
-							<WT />
 						</Route>
 
 						<Route path='/'>

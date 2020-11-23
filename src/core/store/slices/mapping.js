@@ -1,6 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { dbPromise } from '../../indexeddb/db';
-import { db as dexiedb } from '../../workers/dexiedb';
+import { db as dexiedb } from '../../indexeddb/dexiedb';
 
 import { setFeatureCollection } from './featureCollection';
 import { initIndex } from './spatialIndex';

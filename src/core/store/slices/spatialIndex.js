@@ -5,10 +5,9 @@ import Flatbush from 'flatbush';
 import bbox from '@turf/bbox';
 import { faFileSignature } from '@fortawesome/free-solid-svg-icons';
 
-// import idbworker from 'workerize-loader!../../workers/idb'; // eslint-disable-line import/no-webpack-loader-syntax
 import dexieworker from 'workerize-loader!../../workers/dexie'; // eslint-disable-line import/no-webpack-loader-syntax
 
-import { db as dexiedb } from '../../workers/dexiedb';
+import { db as dexiedb } from '../../indexeddb/dexiedb';
 
 // const idb = idbworker();
 // idb.init();

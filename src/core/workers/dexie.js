@@ -1,4 +1,4 @@
-import { db } from './dexiedb';
+import { db } from '../indexeddb/dexiedb';
 
 export async function putArray(inputArray, objectstorename) {
 	try {
