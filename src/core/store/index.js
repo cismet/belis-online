@@ -13,7 +13,7 @@ const store = configureStore({
 		featureCollection: featureCollectionSlice.reducer,
 		uiMessage: uiMessageSlice.reducer
 	},
-	devTools: process.env.NODE_ENV !== 'production',
+	devTools: false && process.env.NODE_ENV !== 'production',
 	middleware: [ ...getDefaultMiddleware({ immutableCheck: false, serializableCheck: false }) ]
 });
 

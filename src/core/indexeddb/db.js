@@ -1,6 +1,6 @@
 import { openDB } from 'idb/with-async-ittr.js';
 
-export const dbPromise = openDB('Belis', 9, {
+export const dbPromise = openDB('Belis', 12, {
 	upgrade(db) {
 		createOrClearObjectStore(db, 'anlagengruppe');
 		createOrClearObjectStore(db, 'arbeitsprotokollstatus');

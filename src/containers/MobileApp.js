@@ -51,6 +51,8 @@ import { getLoadingState, initIndex } from '../core/store/slices/spatialIndex';
 import { modifyQueryPart } from '../core/commons/routingHelper';
 import CacheSettings from '../components/CacheSettings';
 //---------
+
+//---
 const backgrounds = {
 	stadtplan: 'wupp-plan-live@90',
 	lbk: 'wupp-plan-live@100|trueOrtho2020@75|rvrSchrift@100',

@@ -1,5 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { dbPromise } from '../../indexeddb/db';
+import { db as dexiedb } from '../../workers/dexiedb';
+
 import { setFeatureCollection } from './featureCollection';
 import { initIndex } from './spatialIndex';
 
@@ -125,7 +127,8 @@ const createFeatureFromHit = async (hit) => {
 		properties: {}
 	};
 
-	const db = await dbPromise;
-	feature.properties = await db.get(hit.tablename, hit.id);
+	// const db = await dbPromise;
+	// feature.properties = await db.get(hit.tablename, hit.id);
+	feature.properties = dexiedb[hit.tablename].get(hit.id);
 	return feature;
 };
