@@ -1,5 +1,4 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { dbPromise } from '../../indexeddb/db';
 import kdbush from 'kdbush';
 import Flatbush from 'flatbush';
 import bbox from '@turf/bbox';
@@ -44,32 +43,13 @@ export const getLoadingState = (state) => state.spatialIndex.loading;
 
 export const initIndex = (finished = () => {}) => async (dispatch) => {
 	dispatch(startLoading());
-	const db = await dbPromise;
 	const current = new Date().getTime();
 
-	const getEntityNameForRawEntry = (entry) => entry.tablename;
 	let pointItems, leitungen;
-	// const option = 'idb';
-	// const option="noworker"
-	// const option = 'dexie';
-	const option = 'directdexie';
 
-	if (option === 'idb') {
-		// await idb.init();
-		// pointItems = await idb.getAll('raw_point_index');
-		// leitungen = await idb.getAll('leitung');
-	} else if (option === 'noworker') {
-		pointItems = await db.getAll('raw_point_index');
-		leitungen = await db.getAll('leitung');
-	} else if (option === 'dexie') {
-		//dexie
-		pointItems = await dexieW.getAll('raw_point_index');
-		leitungen = await dexieW.getAll('leitung');
-	} else if (option === 'directdexie') {
-		//dexie
-		pointItems = await dexiedb['raw_point_index'].toArray();
-		leitungen = await dexiedb['leitung'].toArray();
-	}
+	//dexie
+	pointItems = await dexiedb['raw_point_index'].toArray();
+	leitungen = await dexiedb['leitung'].toArray();
 
 	const coordinatesResolver = (o) => {
 		try {

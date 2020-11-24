@@ -4,7 +4,6 @@ import Button from 'react-bootstrap/Button';
 import ProgressBar from 'react-bootstrap/ProgressBar';
 
 import queries from '../core/indexeddb/queries';
-import { dbPromise } from '../core/indexeddb/db';
 import { useWindowSize } from '@react-hook/window-size';
 import { FontAwesomeIcon as Icon } from '@fortawesome/react-fontawesome';
 import {

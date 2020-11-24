@@ -3,7 +3,6 @@ import logo from './logo.svg';
 import './App.css';
 import { BrowserRouter as Router, Switch, Route, Link } from 'react-router-dom';
 import MobileApp from './containers/MobileApp';
-import FillCache from './containers/FillCache';
 import Test from './containers/Test';
 import { Provider } from 'react-redux';
 import store from './core/store';
@@ -19,9 +18,7 @@ function App() {
 						<Route path='/app'>
 							<MobileApp />
 						</Route>
-						<Route path='/fillCache'>
-							<FillCache />
-						</Route>
+
 						<Route path='/test'>
 							<Test />
 						</Route>

@@ -17,6 +17,7 @@ import FormControl from 'react-bootstrap/FormControl';
 import Button from 'react-bootstrap/Button';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import InputGroup from 'react-bootstrap/InputGroup';
+import ProgressBar from 'react-bootstrap/ProgressBar';
 
 ////--------- Icons
 import { FontAwesomeIcon as Icon } from '@fortawesome/react-fontawesome';
@@ -64,6 +65,12 @@ const backgrounds = {
 		'wupp-plan-live@{"opacity":0.3,"css-filter": "filter:grayscale(0.9)brightness(0.9)invert(1)"}'
 };
 
+const focusedSearchMinimumZoomThreshhold = 12.5;
+const searchMinimumZoomThreshhold = 13.5;
+
+// const focusedSearchMinimumZoomThreshhold = 2.5;
+// const searchMinimumZoomThreshhold = 3.5;
+
 const View = () => {
 	const dispatch = useDispatch();
 	const history = useHistory();
@@ -96,16 +103,19 @@ const View = () => {
 		'@belis.app.wouldLikeToBeInSearchMode',
 		true
 	);
-
+	const [ showObjectBB, setShowObjectBB ] = useState();
+	const [ fc, setFC ] = useState([]);
 	// const [ filterState, setFilterState ] = useLocalStorage('@belis.app.filterState', );
 
 	const [ cacheSettingsVisible, setCacheSettingsVisible ] = useState(false);
 	const [ focusBoundingBox, setFocusBoundingBox ] = useState(undefined);
+	const [ fcIsDone, setFCIsDone ] = useState(true);
 
 	// vars from redux state
-	const featureCollection = useSelector(getFeatureCollection);
+	const featureCollection = fc; //useSelector(getFeatureCollection);
 	const boundingBox = useSelector(getBoundingBox);
-	const fcIsDone = useSelector(isDone);
+	// const fcIsDone = useSelector(isDone);
+
 	const loadingState = useSelector(getLoadingState);
 	const filterState = useSelector(getFilter);
 
@@ -117,16 +127,24 @@ const View = () => {
 		} else {
 			ifm = inFocusMode;
 		}
-		return (ifm === true && zoom < 12.5) || (ifm === false && zoom < 13.5);
+		return (
+			(ifm === true && zoom < focusedSearchMinimumZoomThreshhold) ||
+			(ifm === false && zoom < searchMinimumZoomThreshhold)
+		);
 	};
 
 	const getZoom = () => {
-		try {
-			const routedMap = refRoutedMap.current;
-			const leafletMap = routedMap.leafletMap;
-			return leafletMap.leafletElement.getZoom();
-		} catch (e) {}
-		return -1;
+		return urlSearchParams.get('zoom');
+		// try {
+		// 	const routedMap = refRoutedMap.current;
+		// 	const leafletMap = routedMap.leafletMap;
+		// 	return leafletMap.leafletElement.getZoom();
+		// } catch (e) {
+		// 	console.log('xxx urlSearchParams', urlSearchParams);
+
+		// 	console.log('xxx error in get zoom ', e);
+		// }
+		// return -1;
 	};
 
 	const topNavbar = (
@@ -134,6 +152,7 @@ const View = () => {
 			ref={refUpperToolbar}
 			bg={background === 'nightplan' ? 'dark' : 'light'}
 			expand='lg'
+			key={'navbar.' + fcIsDone}
 		>
 			<Nav className='mr-auto'>
 				<Nav.Link>
@@ -142,6 +161,7 @@ const View = () => {
 						// 	window.location.reload();
 						// }}
 						style={{ width: 20 }}
+						key={'navbar.div.' + fcIsDone}
 					>
 						{fcIsDone === false &&
 						inSearchMode === true && (
@@ -297,6 +317,9 @@ const View = () => {
 					</Button>
 				</ButtonGroup>
 			</Form>
+			<Nav>
+				<ProgressBar style={{ width: 200 }} animated now={100} max={100} />
+			</Nav>
 		</Navbar>
 	);
 	const resultingLayer = backgrounds[(inPaleMode === true ? 'pale_' : '') + background];
@@ -309,33 +332,34 @@ const View = () => {
 			bb = refRoutedMap.current.getBoundingBox();
 		}
 
-		// const _searchForbidden = searchForbidden();
-		// console.log('xxx searchForbidden', _searchForbidden);
-		// console.log('xxx inSearchMode', inSearchMode);
-		// console.log('xxx wouldLikeToBeInSearchMode', wouldLikeToBeInSearchMode);
+		const _searchForbidden = searchForbidden();
+		console.log('xxx searchForbidden', _searchForbidden);
+		console.log('xxx inSearchMode', inSearchMode);
+		console.log('xxx wouldLikeToBeInSearchMode', wouldLikeToBeInSearchMode);
 
-		// if (_searchForbidden === true && inSearchMode === true) {
-		// 	setSearchModeWish(true);
-		// 	setSearchModeActive(false);
-		// } else if (
-		// 	_searchForbidden === false &&
-		// 	wouldLikeToBeInSearchMode === true &&
-		// 	inSearchMode === false
-		// ) {
-		// 	console.log('xxx after +');
+		if (_searchForbidden === true && inSearchMode === true) {
+			setSearchModeWish(true);
+			setSearchModeActive(false);
+		} else if (
+			_searchForbidden === false &&
+			wouldLikeToBeInSearchMode === true &&
+			inSearchMode === false
+		) {
+			console.log('xxx after +');
 
-		// 	setSearchModeWish(true);
-		// 	setSearchModeActive(true);
-		// 	showObjects(bb, inFocusMode);
-		// } else if (_searchForbidden === false && inSearchMode === true) {
-		// 	setSearchModeWish(true);
-		// 	showObjects(bb, inFocusMode);
-		// }
-		showObjects(bb, inFocusMode);
+			setSearchModeWish(true);
+			setSearchModeActive(true);
+			showObjects(bb, inFocusMode);
+		} else if (_searchForbidden === false && inSearchMode === true) {
+			setSearchModeWish(true);
+			showObjects(bb, inFocusMode);
+		}
 	};
 
 	const showObjects = (bb, inFocusMode, retried = 0) => {
 		const zoom = getZoom();
+		console.log('xxx zoom', zoom);
+
 		if (zoom === -1) {
 			// console.log('xxx try again #', retried);
 			if (retried < 5) {
@@ -366,52 +390,47 @@ const View = () => {
 	};
 
 	const forceShowObjects = (bb, inFocusMode, retried = 0) => {
-		let geom = bboxPolygon([ bb.left, bb.top, bb.right, bb.bottom ]).geometry;
-		geom.srs = 25832;
+		if (JSON.stringify(bb) !== JSON.stringify(showObjectBB)) {
+			setShowObjectBB(bb);
+			let geom = bboxPolygon([ bb.left, bb.top, bb.right, bb.bottom ]).geometry;
+			geom.srs = 25832;
 
-		const w = bb.right - bb.left;
-		const h = bb.top - bb.bottom;
-		const focusBoundingBoxGeom = bboxPolygon([
-			bb.left + w / 4,
-			bb.top - h / 4,
-			bb.right - w / 4,
-			bb.bottom + h / 4
-		]);
-		// const focusBoundingBoxGeom = bboxPolygon([ bb.left, bb.top, bb.right, bb.bottom ]);
-		focusBoundingBoxGeom.crs = {
-			type: 'name',
-			properties: {
-				name: 'urn:ogc:def:crs:EPSG::25832'
+			const w = bb.right - bb.left;
+			const h = bb.top - bb.bottom;
+			const focusBoundingBoxGeom = bboxPolygon([
+				bb.left + w / 4,
+				bb.top - h / 4,
+				bb.right - w / 4,
+				bb.bottom + h / 4
+			]);
+			// const focusBoundingBoxGeom = bboxPolygon([ bb.left, bb.top, bb.right, bb.bottom ]);
+			focusBoundingBoxGeom.crs = {
+				type: 'name',
+				properties: {
+					name: 'urn:ogc:def:crs:EPSG::25832'
+				}
+			};
+			setFocusBoundingBox(focusBoundingBoxGeom);
+
+			const focusBB = {
+				left: bb.left + w / 4,
+				top: bb.top - h / 4,
+				right: bb.right - w / 4,
+				bottom: bb.bottom + h / 4
+			};
+
+			let xbb;
+			if (inFocusMode) {
+				xbb = focusBB;
+			} else {
+				xbb = bb;
 			}
-		};
-		setFocusBoundingBox(focusBoundingBoxGeom);
 
-		const focusBB = {
-			left: bb.left + w / 4,
-			top: bb.top - h / 4,
-			right: bb.right - w / 4,
-			bottom: bb.bottom + h / 4
-		};
-		// const focusBB = {
-		// 	left: bb.left,
-		// 	top: bb.top,
-		// 	right: bb.right,
-		// 	bottom: bb.bottom
-		// };
+			console.log('xxx ');
 
-		// console.log(
-		// 	'location boundingbox',
-		// 	JSON.stringify({
-		// 		polygon: geom,
-		// 		w,
-		// 		h
-		// 	})
-		// );
-
-		if (inFocusMode) {
-			dispatch(setBoundingBoxAndLoadObjects(focusBB));
+			dispatch(setBoundingBoxAndLoadObjects(xbb, setFC, setFCIsDone));
 		} else {
-			dispatch(setBoundingBoxAndLoadObjects(bb));
+			console.log('xxx duplicate forceShowObjects');
 		}
 	};
 
@@ -579,6 +598,8 @@ const View = () => {
 			)}
 		</RoutedMap>
 	);
+	// console.log('yyy fcIsDone', fcIsDone);
+
 	return (
 		<div>
 			{cacheSettingsVisible === true && (
@@ -589,7 +610,20 @@ const View = () => {
 				/>
 			)}
 			{topNavbar}
-
+			{fcIsDone === false && (
+				<div
+					style={{
+						position: 'absolute',
+						height: windowHeight,
+						width: windowWidth,
+						background: 'black',
+						left: 0,
+						top: 0,
+						zIndex: 100000,
+						opacity: 0.2
+					}}
+				/>
+			)}
 			{map}
 			{bottomnNavbar}
 		</div>

@@ -72,6 +72,10 @@ async function _template(input) {
 	}
 }
 
+async function createFeatureCollection(pointIds, leitungen, filter) {
+	const featureCollection = [];
+}
+
 //tools
 
 const cleanUpObject = (obj) => {
@@ -89,6 +93,41 @@ const cleanUpObject = (obj) => {
 			delete obj[key]; // delete
 		}
 	});
+};
+
+export const getFeaturesForHits = async (points, resultIds, filter) => {
+	const featureCollection = [];
+
+	const tablenames = new Set();
+	for (const id of resultIds) {
+		const hit = points[id];
+		tablenames.add(hit.tablename);
+
+		if ((filter[hit.tablename] || {}).enabled === true) {
+			let d = new Date().getTime();
+			//const feature = await createFeatureFromHit(hit);
+			const feature = {
+				text: '-',
+				type: 'Feature',
+				featuretype: hit.tablename,
+				geometry: {
+					type: 'Point',
+					coordinates: [ hit.x, hit.y ]
+				},
+				crs: {
+					type: 'name',
+					properties: {
+						name: 'urn:ogc:def:crs:EPSG::25832'
+					}
+				},
+				properties: {}
+			};
+			featureCollection.push(feature);
+			// console.log('xxx Feature gebaut ', new Date().getTime() - d);
+		}
+	}
+
+	return featureCollection;
 };
 
 function timeout(ms) {
