@@ -13,7 +13,14 @@ import { FontAwesomeIcon as Icon } from '@fortawesome/react-fontawesome';
 
 import Switch from '../commons/Switch';
 
-import { setFilter } from '../../core/store/slices/mapping';
+import { setFilter } from '../../core/store/slices/featureCollection';
+
+import { useDispatch, useSelector } from 'react-redux';
+import {
+	setActive as setSearchModeActive,
+	setWished as setSearchModeWish,
+	isSearchModeActive
+} from '../../core/store/slices/search';
 
 //---------
 
@@ -21,18 +28,17 @@ const TopNavbar = ({
 	innerRef,
 	background,
 	fcIsDone,
-	inSearchMode,
 	featureCollection,
 	searchForbidden,
-	setSearchModeActive,
-	setSearchModeWish,
 	showObjects,
 	refRoutedMap,
 	inFocusMode,
 	filterState,
-	dispatch,
 	setCacheSettingsVisible
 }) => {
+	const dispatch = useDispatch();
+	const searchModeActive = useSelector(isSearchModeActive);
+
 	return (
 		<Navbar
 			ref={innerRef}
@@ -50,7 +56,7 @@ const TopNavbar = ({
 						key={'navbar.div.' + fcIsDone}
 					>
 						{fcIsDone === false &&
-						inSearchMode === true && (
+						searchModeActive === true && (
 							// <Icon className='text-primary' spin icon={faSpinner} />
 							<span>-.-</span>
 						)}
@@ -65,16 +71,19 @@ const TopNavbar = ({
 					<Switch
 						disabled={searchForbidden}
 						id='search-mode-toggle'
-						key={'search-mode-toggle' + inSearchMode}
+						key={'search-mode-toggle' + searchModeActive}
 						preLabel='Suche'
-						switched={inSearchMode}
+						switched={searchModeActive}
 						stateChanged={(switched) => {
-							setSearchModeActive(switched);
+							dispatch(setSearchModeActive(switched));
 							if (switched === true) {
-								setSearchModeWish(true);
-								showObjects(refRoutedMap.current.getBoundingBox(), inFocusMode);
+								dispatch(setSearchModeWish(true));
+								showObjects({
+									boundingBox: refRoutedMap.current.getBoundingBox(),
+									inFocusMode
+								});
 							} else {
-								setSearchModeWish(false);
+								dispatch(setSearchModeWish(false));
 							}
 						}}
 					/>
@@ -99,11 +108,13 @@ const TopNavbar = ({
 										const _fs = JSON.parse(JSON.stringify(filterState));
 										_fs[key].enabled = switched;
 										dispatch(setFilter(_fs));
+
 										setTimeout(() => {
-											showObjects(
-												refRoutedMap.current.getBoundingBox(),
-												inFocusMode
-											);
+											showObjects({
+												boundingBox: refRoutedMap.current.getBoundingBox(),
+												inFocusMode,
+												overridingFilterState: _fs
+											});
 										}, 50);
 									}}
 								/>

@@ -44,7 +44,10 @@ const BottomNavbar = ({
 					stateChanged={(switched) => {
 						setFocusModeActive(switched);
 
-						showObjects(refRoutedMap.current.getBoundingBox(), switched);
+						showObjects({
+							boundingBox: refRoutedMap.current.getBoundingBox(),
+							inFocusMode: switched
+						});
 					}}
 				/>
 

@@ -4,7 +4,7 @@ import { useWindowSize } from '@react-hook/window-size';
 import useComponentSize from '@rehooks/component-size';
 import useOnlineStatus from '@rehooks/online-status';
 import bboxPolygon from '@turf/bbox-polygon';
-import { FeatureCollectionDisplay, MappingConstants, RoutedMap } from 'react-cismap';
+import { MappingConstants, RoutedMap } from 'react-cismap';
 import { useDispatch, useSelector } from 'react-redux';
 import { useHistory, useLocation } from 'react-router-dom';
 import BottomNavbar from '../components/app/BottomNavbar';
@@ -13,18 +13,30 @@ import TopNavbar from '../components/app/TopNavbar';
 import CacheSettings from '../components/CacheSettings';
 import useLocalStorage from '../core/commons/hooks/useLocalStorage';
 import { modifyQueryPart } from '../core/commons/routingHelper';
-import {
-	getBoundingBox,
-	getFilter,
-	setBoundingBoxAndLoadObjects,
-	isDone
-} from '../core/store/slices/mapping';
+// import {
+// 	getBoundingBox,
+// 	getFilter,
+// 	setBoundingBoxAndLoadObjects,
+// 	isDone
+// } from '../core/store/slices/mapping';
 
 import { getLoadingState } from '../core/store/slices/spatialIndex';
 import FocusRectangle from '../components/app/FocusRectangle';
 import BelisFeatureCollection from '../components/app/FeatureCollection';
 import { backgrounds } from '../constants/belis';
-import { getFeatureCollection } from '../core/store/slices/featureCollection';
+import {
+	getFeatureCollection,
+	getFilter,
+	isDone,
+	loadObjectsIntoFeatureCollection
+} from '../core/store/slices/featureCollection';
+import {
+	isSearchModeActive,
+	isSearchModeWished,
+	setActive as setSearchModeActive,
+	setWished as setSearchModeWish,
+	setSearchModeState
+} from '../core/store/slices/search';
 import DebugFeature from '../components/app/DebugFocusRectangle';
 //---
 
@@ -62,16 +74,15 @@ const View = () => {
 	);
 	const [ inFocusMode, setFocusModeActive ] = useLocalStorage('@belis.app.inFocusMode', false);
 	const [ inPaleMode, setPaleModeActive ] = useLocalStorage('@belis.app.inPaleMode', false);
-	const [ inSearchMode, setSearchModeActive ] = useLocalStorage('@belis.app.inSearchMode', true);
-	const [ wouldLikeToBeInSearchMode, setSearchModeWish ] = useLocalStorage(
-		'@belis.app.wouldLikeToBeInSearchMode',
-		true
-	);
-	const [ showObjectBB, setShowObjectBB ] = useState();
+	//  const [ inSearchMode, setSearchModeActive ] = useLocalStorage('@belis.app.inSearchMode', true);
+	//  const [ wouldLikeToBeInSearchMode, setSearchModeWish ] = useLocalStorage(
+	// 	'@belis.app.wouldLikeToBeInSearchMode',
+	// 	true
+	// );
+	const [ requestBasis, setRequestBasis ] = useState();
 	// const [ filterState, setFilterState ] = useLocalStorage('@belis.app.filterState', );
 
 	const [ cacheSettingsVisible, setCacheSettingsVisible ] = useState(false);
-	const [ focusBoundingBox, setFocusBoundingBox ] = useState(undefined);
 	// const [ fcIsDone, setFCIsDone ] = useState(true);
 	// const fcIsDoneRef = useRef(null);
 	const [ mapBlockerVisible, setMapBlockerVisible ] = useState(false);
@@ -81,6 +92,9 @@ const View = () => {
 	const featureCollection = useSelector(getFeatureCollection);
 	const fcIsDone = useSelector(isDone);
 	const fcIsDoneRef = useRef(null);
+
+	const searchModeActive = useSelector(isSearchModeActive);
+	const searchModeWished = useSelector(isSearchModeWished);
 
 	const loadingState = useSelector(getLoadingState);
 	const filterState = useSelector(getFilter);
@@ -132,106 +146,92 @@ const View = () => {
 	// console.log('resultingLayer', resultingLayer);
 
 	const boundingBoxChangedHandler = (incomingBoundingBox) => {
-		let bb = incomingBoundingBox;
-		if (bb === undefined) {
-			bb = refRoutedMap.current.getBoundingBox();
+		let boundingBox = incomingBoundingBox;
+		if (boundingBox === undefined) {
+			boundingBox = refRoutedMap.current.getBoundingBox();
 		}
 
 		const _searchForbidden = isSearchForbidden();
 		//console.log('xxx searchForbidden', _searchForbidden);
-		//console.log('xxx inSearchMode', inSearchMode);
-		//console.log('xxx wouldLikeToBeInSearchMode', wouldLikeToBeInSearchMode);
+		//console.log('xxx searchModeActive', searchModeActive);
+		//console.log('xxx searchModeWished', searchModeWished);
 
-		if (_searchForbidden === true && inSearchMode === true) {
-			setSearchModeWish(true);
-			setSearchModeActive(false);
+		if (_searchForbidden === true && searchModeActive === true) {
+			dispatch(setSearchModeState({ active: false, wished: true }));
 		} else if (
 			_searchForbidden === false &&
-			wouldLikeToBeInSearchMode === true &&
-			inSearchMode === false
+			searchModeWished === true &&
+			searchModeActive === false
 		) {
 			//console.log('xxx after +');
-
-			setSearchModeWish(true);
-			setSearchModeActive(true);
-			showObjects(bb, inFocusMode);
-		} else if (_searchForbidden === false && inSearchMode === true) {
-			setSearchModeWish(true);
-			showObjects(bb, inFocusMode);
+			dispatch(setSearchModeState({ active: true, wished: true }));
+			showObjects({ boundingBox, inFocusMode });
+		} else if (_searchForbidden === false && searchModeActive === true) {
+			dispatch(setSearchModeWish(true));
+			showObjects({ boundingBox, inFocusMode });
 		}
 	};
 
-	const showObjects = (bb, inFocusMode, retried = 0) => {
+	const showObjects = ({ boundingBox, inFocusMode, retried = 0, overridingFilterState }) => {
 		const zoom = getZoom();
 
 		if (zoom === -1) {
 			// //console.log('xxx try again #', retried);
 			if (retried < 5) {
 				setTimeout(() => {
-					showObjects(bb, inFocusMode, retried + 1);
+					showObjects({
+						boundingBox,
+						inFocusMode,
+						retried: retried + 1,
+						overridingFilterState
+					});
 				}, 10);
 				return;
 			}
 		}
 		const _searchForbidden = isSearchForbidden({ inFocusMode });
 
-		if (_searchForbidden === true && inSearchMode === true) {
-			setSearchModeWish(true);
-			setSearchModeActive(false);
+		if (_searchForbidden === true && searchModeActive === true) {
+			dispatch(setSearchModeWish(true));
+			dispatch(setSearchModeActive(false));
 		} else if (
 			_searchForbidden === false &&
-			wouldLikeToBeInSearchMode === true &&
-			inSearchMode === false
+			searchModeWished === true &&
+			searchModeActive === false
 		) {
-			setSearchModeWish(true);
-			setSearchModeActive(true);
-			forceShowObjects(bb, inFocusMode);
-		} else if (_searchForbidden === false && inSearchMode === true) {
-			setSearchModeWish(true);
-			forceShowObjects(bb, inFocusMode);
+			dispatch(setSearchModeWish(true));
+			dispatch(setSearchModeActive(true));
+			forceShowObjects({ boundingBox, inFocusMode, overridingFilterState });
+		} else if (_searchForbidden === false && searchModeActive === true) {
+			dispatch(setSearchModeWish(true));
+			forceShowObjects({ boundingBox, inFocusMode, overridingFilterState });
 		}
 	};
 
-	const forceShowObjects = (bb, inFocusMode, retried = 0) => {
-		if (JSON.stringify(bb) !== JSON.stringify(showObjectBB)) {
-			setShowObjectBB(bb);
-			let geom = bboxPolygon([ bb.left, bb.top, bb.right, bb.bottom ]).geometry;
-			geom.srs = 25832;
+	const forceShowObjects = ({ boundingBox, inFocusMode, retried = 0, overridingFilterState }) => {
+		const _filterstate = overridingFilterState || filterState;
+		const reqBasis = JSON.stringify(boundingBox) + '.' + JSON.stringify(_filterstate);
 
-			const w = bb.right - bb.left;
-			const h = bb.top - bb.bottom;
-			const focusBoundingBoxGeom = bboxPolygon([
-				bb.left + w / 4,
-				bb.top - h / 4,
-				bb.right - w / 4,
-				bb.bottom + h / 4
-			]);
-			// const focusBoundingBoxGeom = bboxPolygon([ bb.left, bb.top, bb.right, bb.bottom ]);
-			focusBoundingBoxGeom.crs = {
-				type: 'name',
-				properties: {
-					name: 'urn:ogc:def:crs:EPSG::25832'
-				}
-			};
-			setFocusBoundingBox(focusBoundingBoxGeom);
-
-			const focusBB = {
-				left: bb.left + w / 4,
-				top: bb.top - h / 4,
-				right: bb.right - w / 4,
-				bottom: bb.bottom + h / 4
-			};
+		if (reqBasis !== requestBasis) {
+			setRequestBasis(reqBasis);
 
 			let xbb;
 			if (inFocusMode) {
+				const w = boundingBox.right - boundingBox.left;
+				const h = boundingBox.top - boundingBox.bottom;
+
+				const focusBB = {
+					left: boundingBox.left + w / 4,
+					top: boundingBox.top - h / 4,
+					right: boundingBox.right - w / 4,
+					bottom: boundingBox.bottom + h / 4
+				};
 				xbb = focusBB;
 			} else {
-				xbb = bb;
+				xbb = boundingBox;
 			}
 
-			//console.log('xxx ');
-
-			dispatch(setBoundingBoxAndLoadObjects(xbb));
+			dispatch(loadObjectsIntoFeatureCollection({ boundingBox: xbb }));
 		} else {
 			//console.log('xxx duplicate forceShowObjects');
 		}
@@ -289,11 +289,8 @@ const View = () => {
 				innerRef={refUpperToolbar}
 				background={background}
 				fcIsDone={fcIsDone}
-				inSearchMode={inSearchMode}
 				featureCollection={featureCollection}
 				searchForbidden={isSearchForbidden()}
-				setSearchModeActive={setSearchModeActive}
-				setSearchModeWish={setSearchModeWish}
 				showObjects={showObjects}
 				refRoutedMap={refRoutedMap}
 				inFocusMode={inFocusMode}
@@ -303,7 +300,7 @@ const View = () => {
 			/>
 			<MapBlocker
 				blocking={fcIsDone === false}
-				visible={mapBlockerVisible}
+				visible={false}
 				width={windowWidth}
 				height={windowHeight}
 			/>

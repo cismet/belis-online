@@ -13,11 +13,7 @@ import TopNavbar from '../components/app/TopNavbar';
 import CacheSettings from '../components/CacheSettings';
 import useLocalStorage from '../core/commons/hooks/useLocalStorage';
 import { modifyQueryPart } from '../core/commons/routingHelper';
-import {
-	getBoundingBox,
-	getFilter,
-	setBoundingBoxAndLoadObjects
-} from '../core/store/slices/mapping';
+
 import { getLoadingState } from '../core/store/slices/spatialIndex';
 import FocusRectangle from '../components/app/FocusRectangle';
 import BelisFeatureCollection from '../components/app/FeatureCollection';
