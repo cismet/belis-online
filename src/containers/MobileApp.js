@@ -151,25 +151,7 @@ const View = () => {
 			boundingBox = refRoutedMap.current.getBoundingBox();
 		}
 
-		const _searchForbidden = isSearchForbidden();
-		//console.log('xxx searchForbidden', _searchForbidden);
-		//console.log('xxx searchModeActive', searchModeActive);
-		//console.log('xxx searchModeWished', searchModeWished);
-
-		if (_searchForbidden === true && searchModeActive === true) {
-			dispatch(setSearchModeState({ active: false, wished: true }));
-		} else if (
-			_searchForbidden === false &&
-			searchModeWished === true &&
-			searchModeActive === false
-		) {
-			//console.log('xxx after +');
-			dispatch(setSearchModeState({ active: true, wished: true }));
-			showObjects({ boundingBox, inFocusMode });
-		} else if (_searchForbidden === false && searchModeActive === true) {
-			dispatch(setSearchModeWish(true));
-			showObjects({ boundingBox, inFocusMode });
-		}
+		showObjects({ boundingBox, inFocusMode });
 	};
 
 	const showObjects = ({ boundingBox, inFocusMode, retried = 0, overridingFilterState }) => {
