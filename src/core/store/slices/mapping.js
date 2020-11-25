@@ -33,9 +33,6 @@ const mappingSlice = createSlice({
 		filter: initialFilter
 	},
 	reducers: {
-		setBoundingBox: (state, action) => {
-			state.boundingBox = action.payload;
-		},
 		setDone: (state, action) => {
 			state.done = action.payload;
 		},
@@ -49,7 +46,7 @@ const mappingSlice = createSlice({
 export default mappingSlice;
 
 //actions
-export const { setBoundingBox, setDone, setFilter } = mappingSlice.actions;
+export const { setDone, setFilter } = mappingSlice.actions;
 
 //selectors
 export const getBoundingBox = (state) => state.mapping.boundingBox;
@@ -57,10 +54,10 @@ export const isDone = (state) => state.mapping.done;
 export const getFilter = (state) => state.mapping.filter;
 
 //complex actions
-export const setBoundingBoxAndLoadObjects = (bb, setFC, setDone) => async (dispatch, getState) => {
+export const setBoundingBoxAndLoadObjects = (bb) => async (dispatch, getState) => {
 	//console.log('xxx setBoundingBoxAndLoadObjects');
 	setTimeout(() => {
-		setDone(false);
+		dispatch(setDone(false));
 	}, 1);
 
 	(async () => {
@@ -106,81 +103,22 @@ export const setBoundingBoxAndLoadObjects = (bb, setFC, setDone) => async (dispa
 
 					d = new Date().getTime();
 					//console.log('xxx vor setFeatureCollection');
-					//dispatch(setFeatureCollection(featureCollection));
-					setFC(featureCollection);
+					dispatch(setFeatureCollection(featureCollection));
+					//setFC(featureCollection);
 					//console.log('xxx nach  setFeatureCollection', new Date().getTime() - d);
 
 					//console.log('xxx', '(done = true)');
 					// dispatch(setDone(true));
 					setTimeout(() => {
-						setDone(true);
+						dispatch(setDone(true));
 					}, 25);
 				});
 		} else {
 			dispatch(
 				initIndex(() => {
-					dispatch(setBoundingBoxAndLoadObjects(bb, setFC, setDone));
+					dispatch(setBoundingBoxAndLoadObjects(bb));
 				})
 			);
 		}
 	})();
-};
-
-const getFeaturesForHits = async (points, resultIds, filter) => {
-	const featureCollection = [];
-
-	const tablenames = new Set();
-	for (const id of resultIds) {
-		const hit = points[id];
-		tablenames.add(hit.tablename);
-
-		if ((filter[hit.tablename] || {}).enabled === true) {
-			let d = new Date().getTime();
-			//const feature = await createFeatureFromHit(hit);
-			const feature = {
-				text: '-',
-				type: 'Feature',
-				featuretype: hit.tablename,
-				geometry: {
-					type: 'Point',
-					coordinates: [ hit.x, hit.y ]
-				},
-				crs: {
-					type: 'name',
-					properties: {
-						name: 'urn:ogc:def:crs:EPSG::25832'
-					}
-				},
-				properties: {}
-			};
-			featureCollection.push(feature);
-			//console.log('xxx Feature gebaut ', new Date().getTime() - d);
-		}
-	}
-
-	return featureCollection;
-};
-
-const createFeatureFromHit = async (hit) => {
-	const feature = {
-		text: '-',
-		type: 'Feature',
-		featuretype: hit.tablename,
-		geometry: {
-			type: 'Point',
-			coordinates: [ hit.x, hit.y ]
-		},
-		crs: {
-			type: 'name',
-			properties: {
-				name: 'urn:ogc:def:crs:EPSG::25832'
-			}
-		},
-		properties: {}
-	};
-
-	// const db = await dbPromise;
-	// feature.properties = await db.get(hit.tablename, hit.id);
-	//feature.properties = dexiedb[hit.tablename].get(hit.id);
-	return feature;
 };

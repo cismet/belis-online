@@ -18,6 +18,7 @@ import { setFilter } from '../../core/store/slices/mapping';
 //---------
 
 const TopNavbar = ({
+	innerRef,
 	background,
 	fcIsDone,
 	inSearchMode,
@@ -34,6 +35,7 @@ const TopNavbar = ({
 }) => {
 	return (
 		<Navbar
+			ref={innerRef}
 			bg={background === 'nightplan' ? 'dark' : 'light'}
 			expand='lg'
 			key={'navbar.' + fcIsDone}

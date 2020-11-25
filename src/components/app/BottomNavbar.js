@@ -14,6 +14,7 @@ import Switch from '../commons/Switch';
 //---------
 
 const BottomNavbar = ({
+	innerRef,
 	background,
 	onlineStatus,
 	inFocusMode,
@@ -25,7 +26,7 @@ const BottomNavbar = ({
 	setBackground
 }) => {
 	return (
-		<Navbar bg={background === 'nightplan' ? 'dark' : 'light'} expand='lg'>
+		<Navbar ref={innerRef} bg={background === 'nightplan' ? 'dark' : 'light'} expand='lg'>
 			<Navbar.Brand href='#home'>{onlineStatus ? 'Online' : 'Offline'}</Navbar.Brand>
 
 			<Navbar.Toggle aria-controls='basic-navbar-nav' />
