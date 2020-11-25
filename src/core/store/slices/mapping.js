@@ -114,7 +114,7 @@ export const setBoundingBoxAndLoadObjects = (bb, setFC, setDone) => async (dispa
 					// dispatch(setDone(true));
 					setTimeout(() => {
 						setDone(true);
-					}, 50);
+					}, 25);
 				});
 		} else {
 			dispatch(
