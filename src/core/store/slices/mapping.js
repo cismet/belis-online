@@ -58,7 +58,7 @@ export const getFilter = (state) => state.mapping.filter;
 
 //complex actions
 export const setBoundingBoxAndLoadObjects = (bb, setFC, setDone) => async (dispatch, getState) => {
-	console.log('xxx setBoundingBoxAndLoadObjects');
+	//console.log('xxx setBoundingBoxAndLoadObjects');
 	setTimeout(() => {
 		setDone(false);
 	}, 1);
@@ -68,7 +68,7 @@ export const setBoundingBoxAndLoadObjects = (bb, setFC, setDone) => async (dispa
 		let d = new Date().getTime();
 
 		const state = getState();
-		console.log('xxx nach getState()');
+		//console.log('xxx nach getState()');
 
 		if (state.spatialIndex.loading === 'done') {
 			let resultIds = state.spatialIndex.pointIndex.range(
@@ -78,7 +78,7 @@ export const setBoundingBoxAndLoadObjects = (bb, setFC, setDone) => async (dispa
 				bb.top
 			);
 
-			console.log('xxx alle resultIds da ', new Date().getTime() - d);
+			//console.log('xxx alle resultIds da ', new Date().getTime() - d);
 
 			let leitungsFeatures = [];
 
@@ -87,7 +87,7 @@ export const setBoundingBoxAndLoadObjects = (bb, setFC, setDone) => async (dispa
 				leitungsFeatures = state.spatialIndex.lineIndex
 					.search(bb.left, bb.bottom, bb.right, bb.top)
 					.map((i) => state.spatialIndex.lineIndex.features[i]);
-				console.log('xxx Leitungen ', new Date().getTime() - ld);
+				//console.log('xxx Leitungen ', new Date().getTime() - ld);
 			}
 			// console.log('leitungsFeatures', leitungsFeatures);
 
@@ -100,18 +100,21 @@ export const setBoundingBoxAndLoadObjects = (bb, setFC, setDone) => async (dispa
 					state.mapping.filter
 				)
 				.then((pointFeatureCollection) => {
-					console.log('xxx alle Features da ', new Date().getTime() - d);
+					//console.log('xxx alle Features da ', new Date().getTime() - d);
 					const featureCollection = leitungsFeatures.concat(pointFeatureCollection);
-					console.log('xxx alle Features da nach concat ', new Date().getTime() - d);
+					//console.log('xxx alle Features da nach concat ', new Date().getTime() - d);
 
-					console.log('xxx vor setFeatureCollection');
+					d = new Date().getTime();
+					//console.log('xxx vor setFeatureCollection');
 					//dispatch(setFeatureCollection(featureCollection));
 					setFC(featureCollection);
-					console.log('xxx nach  setFeatureCollection');
+					//console.log('xxx nach  setFeatureCollection', new Date().getTime() - d);
 
-					console.log('xxx', '(done = true)');
+					//console.log('xxx', '(done = true)');
 					// dispatch(setDone(true));
-					setDone(true);
+					setTimeout(() => {
+						setDone(true);
+					}, 50);
 				});
 		} else {
 			dispatch(
@@ -151,7 +154,7 @@ const getFeaturesForHits = async (points, resultIds, filter) => {
 				properties: {}
 			};
 			featureCollection.push(feature);
-			console.log('xxx Feature gebaut ', new Date().getTime() - d);
+			//console.log('xxx Feature gebaut ', new Date().getTime() - d);
 		}
 	}
 

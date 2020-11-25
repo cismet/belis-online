@@ -19,7 +19,9 @@ import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import InputGroup from 'react-bootstrap/InputGroup';
 import ProgressBar from 'react-bootstrap/ProgressBar';
 
-////--------- Icons
+//--------- other
+
+//--------- Icons
 import { FontAwesomeIcon as Icon } from '@fortawesome/react-fontawesome';
 import {
 	faBookOpen,
@@ -110,6 +112,8 @@ const View = () => {
 	const [ cacheSettingsVisible, setCacheSettingsVisible ] = useState(false);
 	const [ focusBoundingBox, setFocusBoundingBox ] = useState(undefined);
 	const [ fcIsDone, setFCIsDone ] = useState(true);
+	const fcIsDoneRef = useRef(null);
+	const [ mapBlockerVisible, setMapBlockerVisible ] = useState(false);
 
 	// vars from redux state
 	const featureCollection = fc; //useSelector(getFeatureCollection);
@@ -118,6 +122,23 @@ const View = () => {
 
 	const loadingState = useSelector(getLoadingState);
 	const filterState = useSelector(getFilter);
+
+	useEffect(
+		() => {
+			fcIsDoneRef.current = fcIsDone;
+			console.log('fcIsDone', fcIsDone);
+
+			if (fcIsDone === true) {
+				setMapBlockerVisible(false);
+			} else {
+				setTimeout(() => {
+					setMapBlockerVisible(fcIsDoneRef.current === false);
+					console.log('setMapBlockerVisible', fcIsDoneRef.current === false);
+				}, 250);
+			}
+		},
+		[ fcIsDone ]
+	);
 
 	const searchForbidden = (overrides = {}) => {
 		let zoom = overrides.zoom || getZoom();
@@ -140,9 +161,9 @@ const View = () => {
 		// 	const leafletMap = routedMap.leafletMap;
 		// 	return leafletMap.leafletElement.getZoom();
 		// } catch (e) {
-		// 	console.log('xxx urlSearchParams', urlSearchParams);
+		// 	//console.log('xxx urlSearchParams', urlSearchParams);
 
-		// 	console.log('xxx error in get zoom ', e);
+		// 	//console.log('xxx error in get zoom ', e);
 		// }
 		// return -1;
 	};
@@ -165,7 +186,8 @@ const View = () => {
 					>
 						{fcIsDone === false &&
 						inSearchMode === true && (
-							<Icon className='text-primary' spin icon={faSpinner} />
+							// <Icon className='text-primary' spin icon={faSpinner} />
+							<span>-.-</span>
 						)}
 						{fcIsDone === true && (
 							<div style={{ fontSize: 9, marginTop: 7 }}>
@@ -333,9 +355,9 @@ const View = () => {
 		}
 
 		const _searchForbidden = searchForbidden();
-		console.log('xxx searchForbidden', _searchForbidden);
-		console.log('xxx inSearchMode', inSearchMode);
-		console.log('xxx wouldLikeToBeInSearchMode', wouldLikeToBeInSearchMode);
+		//console.log('xxx searchForbidden', _searchForbidden);
+		//console.log('xxx inSearchMode', inSearchMode);
+		//console.log('xxx wouldLikeToBeInSearchMode', wouldLikeToBeInSearchMode);
 
 		if (_searchForbidden === true && inSearchMode === true) {
 			setSearchModeWish(true);
@@ -345,7 +367,7 @@ const View = () => {
 			wouldLikeToBeInSearchMode === true &&
 			inSearchMode === false
 		) {
-			console.log('xxx after +');
+			//console.log('xxx after +');
 
 			setSearchModeWish(true);
 			setSearchModeActive(true);
@@ -358,10 +380,10 @@ const View = () => {
 
 	const showObjects = (bb, inFocusMode, retried = 0) => {
 		const zoom = getZoom();
-		console.log('xxx zoom', zoom);
+		//console.log('xxx zoom', zoom);
 
 		if (zoom === -1) {
-			// console.log('xxx try again #', retried);
+			// //console.log('xxx try again #', retried);
 			if (retried < 5) {
 				setTimeout(() => {
 					showObjects(bb, inFocusMode, retried + 1);
@@ -426,11 +448,11 @@ const View = () => {
 				xbb = bb;
 			}
 
-			console.log('xxx ');
+			//console.log('xxx ');
 
 			dispatch(setBoundingBoxAndLoadObjects(xbb, setFC, setFCIsDone));
 		} else {
-			console.log('xxx duplicate forceShowObjects');
+			//console.log('xxx duplicate forceShowObjects');
 		}
 	};
 
@@ -599,6 +621,7 @@ const View = () => {
 		</RoutedMap>
 	);
 	// console.log('yyy fcIsDone', fcIsDone);
+	console.log('mapBlockerVisible', mapBlockerVisible);
 
 	return (
 		<div>
@@ -620,7 +643,8 @@ const View = () => {
 						left: 0,
 						top: 0,
 						zIndex: 100000,
-						opacity: 0.2
+						cursor: 'wait',
+						opacity: mapBlockerVisible === true ? 0.2 : 0
 					}}
 				/>
 			)}

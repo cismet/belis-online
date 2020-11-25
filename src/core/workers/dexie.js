@@ -123,7 +123,7 @@ export const getFeaturesForHits = async (points, resultIds, filter) => {
 				properties: {}
 			};
 			featureCollection.push(feature);
-			// console.log('xxx Feature gebaut ', new Date().getTime() - d);
+			// //console.log('xxx Feature gebaut ', new Date().getTime() - d);
 		}
 	}
 
