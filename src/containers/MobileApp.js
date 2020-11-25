@@ -53,6 +53,8 @@ import {
 import { getLoadingState, initIndex } from '../core/store/slices/spatialIndex';
 import { modifyQueryPart } from '../core/commons/routingHelper';
 import CacheSettings from '../components/CacheSettings';
+import TopNavbar from '../components/app/TopNavbar';
+import BottomNavbar from '../components/app/BottomNavbar';
 //---------
 
 //---
@@ -84,8 +86,8 @@ const View = () => {
 	let refRoutedMap = useRef(null);
 	let refUpperToolbar = useRef(null);
 	let sizeU = useComponentSize(refUpperToolbar);
-	let lowerToolbar = useRef(null);
-	let sizeL = useComponentSize(lowerToolbar);
+	let refLowerToolbar = useRef(null);
+	let sizeL = useComponentSize(refLowerToolbar);
 	const mapStyle = {
 		height: windowHeight - (sizeU.height || 56) - (sizeL.height || 56),
 		width: windowWidth,
@@ -168,182 +170,6 @@ const View = () => {
 		// return -1;
 	};
 
-	const topNavbar = (
-		<Navbar
-			ref={refUpperToolbar}
-			bg={background === 'nightplan' ? 'dark' : 'light'}
-			expand='lg'
-			key={'navbar.' + fcIsDone}
-		>
-			<Nav className='mr-auto'>
-				<Nav.Link>
-					<div
-						// onClick={() => {
-						// 	window.location.reload();
-						// }}
-						style={{ width: 20 }}
-						key={'navbar.div.' + fcIsDone}
-					>
-						{fcIsDone === false &&
-						inSearchMode === true && (
-							// <Icon className='text-primary' spin icon={faSpinner} />
-							<span>-.-</span>
-						)}
-						{fcIsDone === true && (
-							<div style={{ fontSize: 9, marginTop: 7 }}>
-								{featureCollection.length}
-							</div>
-						)}
-					</div>
-				</Nav.Link>
-				<Nav.Link>
-					<Switch
-						disabled={searchForbidden()}
-						id='search-mode-toggle'
-						key={'search-mode-toggle' + inSearchMode}
-						preLabel='Suche'
-						switched={inSearchMode}
-						stateChanged={(switched) => {
-							setSearchModeActive(switched);
-							if (switched === true) {
-								setSearchModeWish(true);
-								showObjects(refRoutedMap.current.getBoundingBox(), inFocusMode);
-							} else {
-								setSearchModeWish(false);
-							}
-						}}
-					/>
-				</Nav.Link>
-				<NavDropdown
-					className='text-primary'
-					title='nach'
-					id='basic-nav-dropdown'
-					rootCloseEvent='jj'
-				>
-					{Object.keys(filterState).map((key) => {
-						const item = filterState[key];
-						return (
-							<NavDropdown.Item style={{ width: 300 }}>
-								<Switch
-									id={item.key + 'toggle-id'}
-									key={item.key + 'toggle'}
-									preLabel={item.title}
-									switched={item.enabled}
-									toggleStyle={{ float: 'right' }}
-									stateChanged={(switched) => {
-										const _fs = JSON.parse(JSON.stringify(filterState));
-										_fs[key].enabled = switched;
-										dispatch(setFilter(_fs));
-										setTimeout(() => {
-											showObjects(
-												refRoutedMap.current.getBoundingBox(),
-												inFocusMode
-											);
-										}, 50);
-									}}
-								/>
-							</NavDropdown.Item>
-						);
-					})}
-				</NavDropdown>
-				<Nav.Link href='#home'>
-					<Icon className='text-primary' icon={faGlobeEurope} />
-				</Nav.Link>
-			</Nav>
-
-			<Nav className='mr-auto text-primary'>Kein Arbeitsauftrag ausgewählt (Erneuerung)</Nav>
-			<Nav.Link href='#home'>
-				<Icon icon={faBookOpen} />
-			</Nav.Link>
-			<Form inline style={{ marginRight: 10 }}>
-				<InputGroup style={{ width: 240 }}>
-					<InputGroup.Prepend>
-						<InputGroup.Text id='basic-addon1'>
-							<Icon icon={faTimes} />
-						</InputGroup.Text>
-					</InputGroup.Prepend>
-					<FormControl
-						placeholder='Stadtteil | Adresse | POI'
-						aria-label='Username'
-						aria-describedby='basic-addon1'
-					/>
-				</InputGroup>
-			</Form>
-			<Button
-				onClick={() => {
-					setCacheSettingsVisible(true);
-				}}
-				variant='outline-primary'
-			>
-				<Icon icon={faBars} />
-			</Button>
-		</Navbar>
-	);
-	const bottomnNavbar = (
-		<Navbar ref={lowerToolbar} bg={background === 'nightplan' ? 'dark' : 'light'} expand='lg'>
-			<Navbar.Brand href='#home'>{onlineStatus ? 'Online' : 'Offline'}</Navbar.Brand>
-
-			<Navbar.Toggle aria-controls='basic-navbar-nav' />
-			<Nav className='mr-auto'>
-				<Nav.Link href='#home'>
-					<Icon className='text-primary' icon={faCompass} />
-				</Nav.Link>
-			</Nav>
-			<Nav className='mr-auto'>
-				<Switch
-					disabled={false}
-					id='focus-toggle'
-					preLabel='Fokus'
-					switched={inFocusMode}
-					stateChanged={(switched) => {
-						setFocusModeActive(switched);
-
-						showObjects(refRoutedMap.current.getBoundingBox(), switched);
-					}}
-				/>
-
-				<div style={{ width: 30 }} />
-				<Switch
-					id='pale-toggle'
-					preLabel='Blass'
-					switched={inPaleMode}
-					stateChanged={(switched) => setPaleModeActive(switched)}
-				/>
-			</Nav>
-
-			<Form inline>
-				<ButtonGroup className='mr-2' aria-label='First group'>
-					<Button
-						variant={background === 'stadtplan' ? 'primary' : 'outline-primary'}
-						onClick={() => {
-							setBackground('stadtplan');
-						}}
-					>
-						Stadtplan
-					</Button>
-					<Button
-						variant={background === 'nightplan' ? 'primary' : 'outline-primary'}
-						onClick={() => {
-							setBackground('nightplan');
-						}}
-					>
-						Stadtplan dunkel
-					</Button>
-					<Button
-						variant={background === 'lbk' ? 'primary' : 'outline-primary'}
-						onClick={() => {
-							setBackground('lbk');
-						}}
-					>
-						Luftbildkarte
-					</Button>
-				</ButtonGroup>
-			</Form>
-			<Nav>
-				<ProgressBar style={{ width: 200 }} animated now={100} max={100} />
-			</Nav>
-		</Navbar>
-	);
 	const resultingLayer = backgrounds[(inPaleMode === true ? 'pale_' : '') + background];
 	// console.log('resultingLayer index', (pale === true ? 'pale_' : '') + background);
 	// console.log('resultingLayer', resultingLayer);
@@ -632,7 +458,22 @@ const View = () => {
 					}}
 				/>
 			)}
-			{topNavbar}
+			<TopNavbar
+				ref={refUpperToolbar}
+				background={background}
+				fcIsDone={fcIsDone}
+				inSearchMode={inSearchMode}
+				featureCollection={featureCollection}
+				searchForbidden={searchForbidden}
+				setSearchModeActive={setSearchModeActive}
+				setSearchModeWish={setSearchModeWish}
+				showObjects={showObjects}
+				refRoutedMap={refRoutedMap}
+				inFocusMode={inFocusMode}
+				filterState={filterState}
+				dispatch={dispatch}
+				setCacheSettingsVisible={setCacheSettingsVisible}
+			/>
 			{fcIsDone === false && (
 				<div
 					style={{
@@ -649,7 +490,18 @@ const View = () => {
 				/>
 			)}
 			{map}
-			{bottomnNavbar}
+			<BottomNavbar
+				ref={refLowerToolbar}
+				background={background}
+				onlineStatus={onlineStatus}
+				inFocusMode={inFocusMode}
+				setFocusModeActive={setFocusModeActive}
+				showObjects={showObjects}
+				refRoutedMap={refRoutedMap}
+				inPaleMode={inPaleMode}
+				setPaleModeActive={setPaleModeActive}
+				setBackground={setBackground}
+			/>
 		</div>
 	);
 };
