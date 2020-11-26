@@ -100,7 +100,7 @@ const TopNavbar = ({ innerRef, refRoutedMap, setCacheSettingsVisible }) => {
 						const item = filterState[key];
 						return (
 							<NavDropdown.Item
-								key={item.key + 'NavDropdown.Item-key'}
+								key={key + 'NavDropdown.Item-key'}
 								style={{ width: 300 }}
 							>
 								<Switch

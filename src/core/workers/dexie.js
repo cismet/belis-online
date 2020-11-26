@@ -72,10 +72,6 @@ async function _template(input) {
 	}
 }
 
-async function createFeatureCollection(pointIds, leitungen, filter) {
-	const featureCollection = [];
-}
-
 //tools
 
 const cleanUpObject = (obj) => {
@@ -104,25 +100,39 @@ export const getFeaturesForHits = async (points, resultIds, filter) => {
 		tablenames.add(hit.tablename);
 
 		if ((filter[hit.tablename] || {}).enabled === true) {
-			let d = new Date().getTime();
-			//const feature = await createFeatureFromHit(hit);
-			const feature = {
-				text: '-',
-				type: 'Feature',
-				featuretype: hit.tablename,
-				geometry: {
-					type: 'Point',
-					coordinates: [ hit.x, hit.y ]
-				},
-				crs: {
-					type: 'name',
-					properties: {
-						name: 'urn:ogc:def:crs:EPSG::25832'
-					}
-				},
-				properties: {}
-			};
-			featureCollection.push(feature);
+			let addFeature;
+			if (hit.tablename === 'tdta_standort_mast') {
+				const o = await db[hit.tablename].get(hit.oid);
+
+				if (o === undefined) {
+					addFeature = false;
+				} else {
+					addFeature = true;
+				}
+			} else {
+				addFeature = true;
+			}
+
+			if (addFeature === true) {
+				let d = new Date().getTime();
+				const feature = {
+					text: '-',
+					type: 'Feature',
+					featuretype: hit.tablename,
+					geometry: {
+						type: 'Point',
+						coordinates: [ hit.x, hit.y ]
+					},
+					crs: {
+						type: 'name',
+						properties: {
+							name: 'urn:ogc:def:crs:EPSG::25832'
+						}
+					},
+					properties: {}
+				};
+				featureCollection.push(feature);
+			}
 			// //console.log('xxx Feature gebaut ', new Date().getTime() - d);
 		}
 	}
