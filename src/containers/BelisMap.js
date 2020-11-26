@@ -1,28 +1,19 @@
-import React, { useEffect, useRef, useState } from 'react';
-
-import { useWindowSize } from '@react-hook/window-size';
-import useComponentSize from '@rehooks/component-size';
-import useOnlineStatus from '@rehooks/online-status';
-import bboxPolygon from '@turf/bbox-polygon';
-import { FeatureCollectionDisplay, MappingConstants, RoutedMap } from 'react-cismap';
+import React from 'react';
+import { MappingConstants, RoutedMap } from 'react-cismap';
 import { useDispatch, useSelector } from 'react-redux';
 import { useHistory, useLocation } from 'react-router-dom';
-import BottomNavbar from '../components/app/BottomNavbar';
-import MapBlocker from '../components/app/MapBlocker';
-import TopNavbar from '../components/app/TopNavbar';
-import CacheSettings from '../components/CacheSettings';
-import useLocalStorage from '../core/commons/hooks/useLocalStorage';
-import { modifyQueryPart } from '../core/commons/routingHelper';
-
-import { getLoadingState } from '../core/store/slices/spatialIndex';
-import FocusRectangle from '../components/app/FocusRectangle';
 import BelisFeatureCollection from '../components/app/FeatureCollection';
+import FocusRectangle from '../components/app/FocusRectangle';
 import { backgrounds } from '../constants/belis';
-import { getFeatureCollection } from '../core/store/slices/featureCollection';
+import { modifyQueryPart } from '../core/commons/routingHelper';
+import { getFeatureCollection, loadObjects } from '../core/store/slices/featureCollection';
+import { getZoom, setZoom } from '../core/store/slices/zoom';
 
 //---
 
 const BelisMap = ({ refRoutedMap, width, height, background, inFocusMode, inPaleMode }) => {
+	const dispatch = useDispatch();
+
 	const mapStyle = {
 		height,
 		width,
@@ -32,8 +23,23 @@ const BelisMap = ({ refRoutedMap, width, height, background, inFocusMode, inPale
 	const featureCollection = useSelector(getFeatureCollection);
 	const history = useHistory();
 	const browserlocation = useLocation();
+
+	const zoom = useSelector(getZoom);
+
 	const urlSearchParams = new URLSearchParams(browserlocation.search);
 	const resultingLayer = backgrounds[(inPaleMode === true ? 'pale_' : '') + background];
+
+	const boundingBoxChangedHandler = (incomingBoundingBox) => {
+		let boundingBox = incomingBoundingBox;
+		if (boundingBox === undefined) {
+			boundingBox = refRoutedMap.current.getBoundingBox();
+		}
+		const z = urlSearchParams.get('zoom');
+		if (zoom !== z) {
+			dispatch(setZoom(z));
+		}
+		dispatch(loadObjects({ boundingBox, inFocusMode, zoom: z }));
+	};
 
 	return (
 		<RoutedMap

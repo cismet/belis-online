@@ -9,22 +9,27 @@ import ProgressBar from 'react-bootstrap/ProgressBar';
 import { faCompass } from '@fortawesome/free-regular-svg-icons';
 import { FontAwesomeIcon as Icon } from '@fortawesome/react-fontawesome';
 
-import Switch from '../commons/Switch';
-
+import Switch from '../components/commons/Switch';
+import { useDispatch, useSelector } from 'react-redux';
+import {
+	loadObjects,
+	isInFocusMode,
+	setFocusModeActive
+} from '../core/store/slices/featureCollection';
 //---------
 
 const BottomNavbar = ({
 	innerRef,
 	background,
 	onlineStatus,
-	inFocusMode,
-	setFocusModeActive,
-	showObjects,
 	refRoutedMap,
 	inPaleMode,
 	setPaleModeActive,
 	setBackground
 }) => {
+	const dispatch = useDispatch();
+	const inFocusMode = useSelector(isInFocusMode);
+
 	return (
 		<Navbar ref={innerRef} bg={background === 'nightplan' ? 'dark' : 'light'} expand='lg'>
 			<Navbar.Brand href='#home'>{onlineStatus ? 'Online' : 'Offline'}</Navbar.Brand>
@@ -42,12 +47,13 @@ const BottomNavbar = ({
 					preLabel='Fokus'
 					switched={inFocusMode}
 					stateChanged={(switched) => {
-						setFocusModeActive(switched);
-
-						showObjects({
-							boundingBox: refRoutedMap.current.getBoundingBox(),
-							inFocusMode: switched
-						});
+						dispatch(setFocusModeActive(switched));
+						dispatch(
+							loadObjects({
+								boundingBox: refRoutedMap.current.getBoundingBox(),
+								inFocusMode: switched
+							})
+						);
 					}}
 				/>
 

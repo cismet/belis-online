@@ -2,7 +2,6 @@ import { createSlice } from '@reduxjs/toolkit';
 import kdbush from 'kdbush';
 import Flatbush from 'flatbush';
 import bbox from '@turf/bbox';
-import { faFileSignature } from '@fortawesome/free-solid-svg-icons';
 
 import dexieworker from 'workerize-loader!../../workers/dexie'; // eslint-disable-line import/no-webpack-loader-syntax
 

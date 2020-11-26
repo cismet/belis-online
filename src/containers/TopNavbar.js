@@ -11,17 +11,16 @@ import NavDropdown from 'react-bootstrap/NavDropdown';
 import { faBars, faBookOpen, faGlobeEurope, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon as Icon } from '@fortawesome/react-fontawesome';
 
-import Switch from '../commons/Switch';
+import Switch from '../components/commons/Switch';
 
-import { setFilter } from '../../core/store/slices/featureCollection';
+import { setFilter, loadObjects } from '../core/store/slices/featureCollection';
 
 import { useDispatch, useSelector } from 'react-redux';
 import {
 	setActive as setSearchModeActive,
 	setWished as setSearchModeWish,
 	isSearchModeActive
-} from '../../core/store/slices/search';
-
+} from '../core/store/slices/search';
 //---------
 
 const TopNavbar = ({
@@ -78,10 +77,13 @@ const TopNavbar = ({
 							dispatch(setSearchModeActive(switched));
 							if (switched === true) {
 								dispatch(setSearchModeWish(true));
-								showObjects({
-									boundingBox: refRoutedMap.current.getBoundingBox(),
-									inFocusMode
-								});
+
+								dispatch(
+									loadObjects({
+										boundingBox: refRoutedMap.current.getBoundingBox(),
+										inFocusMode
+									})
+								);
 							} else {
 								dispatch(setSearchModeWish(false));
 							}
@@ -97,7 +99,10 @@ const TopNavbar = ({
 					{Object.keys(filterState).map((key) => {
 						const item = filterState[key];
 						return (
-							<NavDropdown.Item style={{ width: 300 }}>
+							<NavDropdown.Item
+								key={item.key + 'NavDropdown.Item-key'}
+								style={{ width: 300 }}
+							>
 								<Switch
 									id={item.key + 'toggle-id'}
 									key={item.key + 'toggle'}
@@ -110,11 +115,13 @@ const TopNavbar = ({
 										dispatch(setFilter(_fs));
 
 										setTimeout(() => {
-											showObjects({
-												boundingBox: refRoutedMap.current.getBoundingBox(),
-												inFocusMode,
-												overridingFilterState: _fs
-											});
+											dispatch(
+												loadObjects({
+													boundingBox: refRoutedMap.current.getBoundingBox(),
+													inFocusMode,
+													overridingFilterState: _fs
+												})
+											);
 										}, 50);
 									}}
 								/>

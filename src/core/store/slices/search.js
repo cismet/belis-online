@@ -1,4 +1,3 @@
-import { selectionSetMatchesResult } from '@apollo/client/cache/inmemory/helpers';
 import { createSlice } from '@reduxjs/toolkit';
 
 const slice = createSlice({
