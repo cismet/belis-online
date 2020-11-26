@@ -52,6 +52,12 @@ const BelisMap = ({ refRoutedMap, width, height }) => {
 		}
 		dispatch(loadObjects({ boundingBox, inFocusMode, zoom: z }));
 	};
+	let symbolColor;
+	if (background === 'nightplan') {
+		symbolColor = '#ffffff';
+	} else {
+		symbolColor = '#000000';
+	}
 
 	return (
 		<RoutedMap
@@ -81,7 +87,7 @@ const BelisMap = ({ refRoutedMap, width, height }) => {
 			}}
 			boundingBoxChangedHandler={boundingBoxChangedHandler}
 		>
-			<BelisFeatureCollection featureCollection={featureCollection} />
+			<BelisFeatureCollection featureCollection={featureCollection} fgColor={symbolColor} />
 			{/* <DebugFeature feature={focusBoundingBox} /> */}
 			<FocusRectangle
 				inFocusMode={inFocusMode}

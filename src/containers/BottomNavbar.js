@@ -18,14 +18,20 @@ import {
 } from '../core/store/slices/featureCollection';
 import { isPaleModeActive, setPaleModeActive } from '../core/store/slices/paleMode';
 import { getBackground, setBackground } from '../core/store/slices/background';
+import { useLocation } from 'react-router-dom';
 
 //---------
 
 const BottomNavbar = ({ innerRef, onlineStatus, refRoutedMap }) => {
 	const dispatch = useDispatch();
+	const browserlocation = useLocation();
+
 	const inFocusMode = useSelector(isInFocusMode);
 	const inPaleMode = useSelector(isPaleModeActive);
 	const background = useSelector(getBackground);
+
+	const uiThreadProgressbar =
+		new URLSearchParams(browserlocation.search).get('uiThreadProgressbar') === 'true';
 
 	return (
 		<Navbar ref={innerRef} bg={background === 'nightplan' ? 'dark' : 'light'} expand='lg'>
@@ -91,9 +97,11 @@ const BottomNavbar = ({ innerRef, onlineStatus, refRoutedMap }) => {
 					</Button>
 				</ButtonGroup>
 			</Form>
-			<Nav>
-				<ProgressBar style={{ width: 200 }} animated now={100} max={100} />
-			</Nav>
+			{uiThreadProgressbar === true && (
+				<Nav>
+					<ProgressBar style={{ width: 200 }} animated now={100} max={100} />
+				</Nav>
+			)}
 		</Navbar>
 	);
 };
