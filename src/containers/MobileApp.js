@@ -16,6 +16,7 @@ import {
 	isInFocusMode
 } from '../core/store/slices/featureCollection';
 import BelisMap from './BelisMap';
+import { getBackground } from '../core/store/slices/background';
 
 //---
 
@@ -31,25 +32,16 @@ const View = () => {
 	let sizeL = useComponentSize(refLowerToolbar);
 
 	const mapStyle = {
-		height: windowHeight - sizeU.height - sizeL.height,
+		height: windowHeight - (sizeU.height || 62) - (sizeL.height || 56),
 		width: windowWidth,
 		cursor: 'pointer',
 		clear: 'both'
 	};
 
 	//local state
-	const [ background, setBackground ] = useLocalStorage(
-		'@belis.app.backgroundlayer',
-		'stadtplan'
-	);
-	const [ inPaleMode, setPaleModeActive ] = useLocalStorage('@belis.app.inPaleMode', false);
-
 	const [ cacheSettingsVisible, setCacheSettingsVisible ] = useState(false);
 
-	const featureCollection = useSelector(getFeatureCollection);
 	const fcIsDone = useSelector(isDone);
-	const filterState = useSelector(getFilter);
-	const inFocusMode = useSelector(isInFocusMode);
 	return (
 		<div>
 			{cacheSettingsVisible === true && (
@@ -61,12 +53,7 @@ const View = () => {
 			)}
 			<TopNavbar
 				innerRef={refUpperToolbar}
-				background={background}
-				fcIsDone={fcIsDone}
-				featureCollection={featureCollection}
 				refRoutedMap={refRoutedMap}
-				filterState={filterState}
-				dispatch={dispatch}
 				setCacheSettingsVisible={setCacheSettingsVisible}
 			/>
 			<MapBlocker
@@ -75,22 +62,11 @@ const View = () => {
 				width={windowWidth}
 				height={windowHeight}
 			/>
-			<BelisMap
-				refRoutedMap={refRoutedMap}
-				width={mapStyle.width}
-				height={mapStyle.height}
-				background={background}
-				inFocusMode={inFocusMode}
-				inPaleMode={inPaleMode}
-			/>
+			<BelisMap refRoutedMap={refRoutedMap} width={mapStyle.width} height={mapStyle.height} />
 			<BottomNavbar
 				innerRef={refLowerToolbar}
-				background={background}
 				onlineStatus={onlineStatus}
 				refRoutedMap={refRoutedMap}
-				inPaleMode={inPaleMode}
-				setPaleModeActive={setPaleModeActive}
-				setBackground={setBackground}
 			/>
 		</div>
 	);

@@ -13,7 +13,14 @@ import { FontAwesomeIcon as Icon } from '@fortawesome/react-fontawesome';
 
 import Switch from '../components/commons/Switch';
 
-import { setFilter, loadObjects } from '../core/store/slices/featureCollection';
+import {
+	setFilter,
+	loadObjects,
+	isDone as featureCollectionIsDone,
+	getFilter,
+	getFeatureCollection,
+	isSearchForbidden
+} from '../core/store/slices/featureCollection';
 
 import { useDispatch, useSelector } from 'react-redux';
 import {
@@ -21,23 +28,17 @@ import {
 	setWished as setSearchModeWish,
 	isSearchModeActive
 } from '../core/store/slices/search';
+import { getBackground } from '../core/store/slices/background';
 //---------
 
-const TopNavbar = ({
-	innerRef,
-	background,
-	fcIsDone,
-	featureCollection,
-	searchForbidden,
-	showObjects,
-	refRoutedMap,
-	inFocusMode,
-	filterState,
-	setCacheSettingsVisible
-}) => {
+const TopNavbar = ({ innerRef, refRoutedMap, setCacheSettingsVisible }) => {
 	const dispatch = useDispatch();
 	const searchModeActive = useSelector(isSearchModeActive);
-
+	const fcIsDone = useSelector(featureCollectionIsDone);
+	const filterState = useSelector(getFilter);
+	const background = useSelector(getBackground);
+	const featureCollection = useSelector(getFeatureCollection);
+	const searchForbidden = useSelector(isSearchForbidden);
 	return (
 		<Navbar
 			ref={innerRef}
@@ -80,8 +81,7 @@ const TopNavbar = ({
 
 								dispatch(
 									loadObjects({
-										boundingBox: refRoutedMap.current.getBoundingBox(),
-										inFocusMode
+										boundingBox: refRoutedMap.current.getBoundingBox()
 									})
 								);
 							} else {
@@ -118,7 +118,6 @@ const TopNavbar = ({
 											dispatch(
 												loadObjects({
 													boundingBox: refRoutedMap.current.getBoundingBox(),
-													inFocusMode,
 													overridingFilterState: _fs
 												})
 											);

@@ -6,12 +6,18 @@ import BelisFeatureCollection from '../components/app/FeatureCollection';
 import FocusRectangle from '../components/app/FocusRectangle';
 import { backgrounds } from '../constants/belis';
 import { modifyQueryPart } from '../core/commons/routingHelper';
-import { getFeatureCollection, loadObjects } from '../core/store/slices/featureCollection';
+import { getBackground } from '../core/store/slices/background';
+import {
+	getFeatureCollection,
+	loadObjects,
+	isInFocusMode
+} from '../core/store/slices/featureCollection';
+import { isPaleModeActive } from '../core/store/slices/paleMode';
 import { getZoom, setZoom } from '../core/store/slices/zoom';
 
 //---
 
-const BelisMap = ({ refRoutedMap, width, height, background, inFocusMode, inPaleMode }) => {
+const BelisMap = ({ refRoutedMap, width, height }) => {
 	const dispatch = useDispatch();
 
 	const mapStyle = {
@@ -21,13 +27,19 @@ const BelisMap = ({ refRoutedMap, width, height, background, inFocusMode, inPale
 		clear: 'both'
 	};
 	const featureCollection = useSelector(getFeatureCollection);
+	const inFocusMode = useSelector(isInFocusMode);
 	const history = useHistory();
 	const browserlocation = useLocation();
 
 	const zoom = useSelector(getZoom);
+	const inPaleMode = useSelector(isPaleModeActive);
+	const background = useSelector(getBackground);
 
 	const urlSearchParams = new URLSearchParams(browserlocation.search);
-	const resultingLayer = backgrounds[(inPaleMode === true ? 'pale_' : '') + background];
+
+	const rlKey = (inPaleMode === true ? 'pale_' : '') + background;
+
+	const resultingLayer = backgrounds[rlKey];
 
 	const boundingBoxChangedHandler = (incomingBoundingBox) => {
 		let boundingBox = incomingBoundingBox;

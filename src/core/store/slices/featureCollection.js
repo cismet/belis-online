@@ -5,30 +5,33 @@ import {
 	isSearchModeActive,
 	isSearchModeWished,
 	setActive as setSearchModeActive,
-	setWished as setSearchModeWished,
-	setSearchModeState
+	setWished as setSearchModeWished
 } from './search';
 import { getZoom } from './zoom';
 
 // ----
 
+const LOCALSTORAGE_KEY_IN_FOCUS_MODE = '@belis.app.inFocusMode';
+
 const dexieW = dexieworker();
 const focusedSearchMinimumZoomThreshhold = 12.5;
 const searchMinimumZoomThreshhold = 13.5;
 
-const FILTER_KEY = '@belis.app.filter';
+const LOCALSTORAGE_KEY_FILTER = '@belis.app.filter';
 
 const initialFilter = JSON.parse(
-	localStorage.getItem(FILTER_KEY) ||
+	localStorage.getItem(LOCALSTORAGE_KEY_FILTER) ||
 		JSON.stringify({
 			tdta_leuchten: { title: 'Leuchten', enabled: true },
 			tdta_standort_mast: { title: 'Masten (ohne Leuchten)', enabled: true },
 			mauerlasche: { title: 'Mauerlaschen', enabled: true },
-			leitung: { title: 'Leitungen', enabled: false },
+			leitung: { title: 'Leitungen', enabled: true },
 			schaltstelle: { title: 'Schaltstellen', enabled: true },
 			abzweigdose: { title: 'Abzweigdosen', enabled: true }
 		})
 );
+const initialInFocusMode =
+	JSON.parse(localStorage.getItem(LOCALSTORAGE_KEY_IN_FOCUS_MODE)) || false;
 
 const featureCollectionSlice = createSlice({
 	name: 'featureCollection',
@@ -37,7 +40,7 @@ const featureCollectionSlice = createSlice({
 		done: true,
 		filter: initialFilter,
 		requestBasis: undefined,
-		inFocusMode: false
+		inFocusMode: initialInFocusMode
 	},
 	reducers: {
 		setFeatureCollection: (state, action) => {
@@ -48,13 +51,14 @@ const featureCollectionSlice = createSlice({
 		},
 		setFilter: (state, action) => {
 			state.filter = action.payload;
-			localStorage.setItem(FILTER_KEY, JSON.stringify(action.payload));
+			localStorage.setItem(LOCALSTORAGE_KEY_FILTER, JSON.stringify(action.payload));
 		},
 		setRequestBasis: (state, action) => {
 			state.requestBasis = action.payload;
 		},
 		setFocusModeActive: (state, action) => {
 			state.inFocusMode = action.payload;
+			localStorage.setItem(LOCALSTORAGE_KEY_IN_FOCUS_MODE, JSON.stringify(action.payload));
 		}
 	}
 });
@@ -74,10 +78,11 @@ export const isInFocusMode = (state) => state.featureCollection.inFocusMode;
 
 export default featureCollectionSlice;
 
-export const loadObjects = ({ boundingBox, inFocusMode, zoom, overridingFilterState }) => {
+export const loadObjects = ({ boundingBox, _inFocusMode, zoom, overridingFilterState }) => {
 	return async (dispatch, getState) => {
 		const state = getState();
-		const _searchForbidden = isSearchForbidden({ inFocusMode }, state);
+		const inFocusMode = _inFocusMode || isInFocusMode(state);
+		const _searchForbidden = _isSearchForbidden({ inFocusMode }, state);
 		const _filterState = getFilter(state);
 		const searchModeWished = isSearchModeWished(state);
 		let searchModeActive = isSearchModeActive(state);
@@ -100,7 +105,12 @@ export const loadObjects = ({ boundingBox, inFocusMode, zoom, overridingFilterSt
 		}
 		if (searchModeActive === true) {
 			const _filterstate = overridingFilterState || _filterState;
-			const reqBasis = JSON.stringify(boundingBox) + '.' + JSON.stringify(_filterstate);
+			const reqBasis =
+				JSON.stringify(boundingBox) +
+				'.' +
+				JSON.stringify(_filterstate) +
+				'.' +
+				inFocusMode;
 
 			if (reqBasis !== requestBasis) {
 				dispatch(setRequestBasis(reqBasis));
@@ -206,7 +216,11 @@ function timeout(ms) {
 	return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-const isSearchForbidden = (overrides = {}, state) => {
+export const isSearchForbidden = (state) => {
+	return _isSearchForbidden(undefined, state);
+};
+//this allows us to override certain values in a time critical case
+const _isSearchForbidden = (overrides = {}, state) => {
 	let _zoom = overrides.zoom || getZoom(state);
 	let inFocusMode = isInFocusMode(state);
 	if (_zoom === -1) {

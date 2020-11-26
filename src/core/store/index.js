@@ -7,6 +7,8 @@ import featureCollectionSlice from './slices/featureCollection';
 import searchSlice from './slices/search';
 import zoomSlice from './slices/zoom';
 import testSlice from './slices/test';
+import backgroundSlice from './slices/background';
+import paleModeSlice from './slices/paleMode';
 import uiMessageSlice from './slices/uiMessage';
 import { createLogger } from 'redux-logger';
 
@@ -54,6 +56,8 @@ const store = configureStore({
 		featureCollection: featureCollectionSlice.reducer,
 		search: searchSlice.reducer,
 		zoom: zoomSlice.reducer,
+		background: backgroundSlice.reducer,
+		inPaleMode: paleModeSlice.reducer,
 		uiMessage: uiMessageSlice.reducer
 	},
 	devTools: devToolsEnabled === true && inProduction === false,

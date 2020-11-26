@@ -16,19 +16,16 @@ import {
 	isInFocusMode,
 	setFocusModeActive
 } from '../core/store/slices/featureCollection';
+import { isPaleModeActive, setPaleModeActive } from '../core/store/slices/paleMode';
+import { getBackground, setBackground } from '../core/store/slices/background';
+
 //---------
 
-const BottomNavbar = ({
-	innerRef,
-	background,
-	onlineStatus,
-	refRoutedMap,
-	inPaleMode,
-	setPaleModeActive,
-	setBackground
-}) => {
+const BottomNavbar = ({ innerRef, onlineStatus, refRoutedMap }) => {
 	const dispatch = useDispatch();
 	const inFocusMode = useSelector(isInFocusMode);
+	const inPaleMode = useSelector(isPaleModeActive);
+	const background = useSelector(getBackground);
 
 	return (
 		<Navbar ref={innerRef} bg={background === 'nightplan' ? 'dark' : 'light'} expand='lg'>
@@ -62,7 +59,7 @@ const BottomNavbar = ({
 					id='pale-toggle'
 					preLabel='Blass'
 					switched={inPaleMode}
-					stateChanged={(switched) => setPaleModeActive(switched)}
+					stateChanged={(switched) => dispatch(setPaleModeActive(switched))}
 				/>
 			</Nav>
 
@@ -71,7 +68,7 @@ const BottomNavbar = ({
 					<Button
 						variant={background === 'stadtplan' ? 'primary' : 'outline-primary'}
 						onClick={() => {
-							setBackground('stadtplan');
+							dispatch(setBackground('stadtplan'));
 						}}
 					>
 						Stadtplan
@@ -79,7 +76,7 @@ const BottomNavbar = ({
 					<Button
 						variant={background === 'nightplan' ? 'primary' : 'outline-primary'}
 						onClick={() => {
-							setBackground('nightplan');
+							dispatch(setBackground('nightplan'));
 						}}
 					>
 						Stadtplan dunkel
@@ -87,7 +84,7 @@ const BottomNavbar = ({
 					<Button
 						variant={background === 'lbk' ? 'primary' : 'outline-primary'}
 						onClick={() => {
-							setBackground('lbk');
+							dispatch(setBackground('lbk'));
 						}}
 					>
 						Luftbildkarte
