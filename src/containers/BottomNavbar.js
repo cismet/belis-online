@@ -19,7 +19,12 @@ import {
 import { isPaleModeActive, setPaleModeActive } from '../core/store/slices/paleMode';
 import { getBackground, setBackground } from '../core/store/slices/background';
 import { useLocation } from 'react-router-dom';
-
+import {
+	getCacheInfo,
+	setLoadingState,
+	renewCache,
+	getCacheSettings
+} from '../core/store/slices/cacheControl';
 //---------
 
 const BottomNavbar = ({ innerRef, onlineStatus, refRoutedMap }) => {
@@ -29,13 +34,14 @@ const BottomNavbar = ({ innerRef, onlineStatus, refRoutedMap }) => {
 	const inFocusMode = useSelector(isInFocusMode);
 	const inPaleMode = useSelector(isPaleModeActive);
 	const background = useSelector(getBackground);
-
+	const cacheInfo = useSelector(getCacheInfo('abzweigdose'));
+	const cacheSettings = useSelector(getCacheSettings);
 	const uiThreadProgressbar =
 		new URLSearchParams(browserlocation.search).get('uiThreadProgressbar') === 'true';
 
 	return (
 		<Navbar ref={innerRef} bg={background === 'nightplan' ? 'dark' : 'light'} expand='lg'>
-			<Navbar.Brand href='#home'>{onlineStatus ? 'Online' : 'Offline'}</Navbar.Brand>
+			<Navbar.Brand>{onlineStatus ? 'Online' : 'Offline'}</Navbar.Brand>
 
 			<Navbar.Toggle aria-controls='basic-navbar-nav' />
 			<Nav className='mr-auto'>

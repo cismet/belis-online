@@ -9,6 +9,7 @@ import zoomSlice from './slices/zoom';
 import testSlice from './slices/test';
 import backgroundSlice from './slices/background';
 import paleModeSlice from './slices/paleMode';
+import cacheControlSlice from './slices/cacheControl';
 import uiMessageSlice from './slices/uiMessage';
 import { createLogger } from 'redux-logger';
 
@@ -58,6 +59,7 @@ const store = configureStore({
 		zoom: zoomSlice.reducer,
 		background: backgroundSlice.reducer,
 		inPaleMode: paleModeSlice.reducer,
+		cacheControl: cacheControlSlice.reducer,
 		uiMessage: uiMessageSlice.reducer
 	},
 	devTools: devToolsEnabled === true && inProduction === false,

@@ -4,66 +4,43 @@ import Button from 'react-bootstrap/Button';
 
 import { useWindowSize } from '@react-hook/window-size';
 import DexieWorkeredIDBCacheFiller from './DexieWorkeredIDBCacheFiller';
+import { useDispatch, useSelector } from 'react-redux';
+import { fillCacheInfo, getCacheSettings, renewCache } from '../core/store/slices/cacheControl';
+import CacheItem from './app/cache/CacheItem';
+import AggregatedCacheItem from './app/cache/AggregatedCacheItem';
+import { faDownload, faSync, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon as Icon } from '@fortawesome/react-fontawesome';
+
 function timeout(ms) {
 	return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 const CacheSettings = ({ hide = () => {} }) => {
+	const dispatch = useDispatch();
+	const cacheSettings = useSelector(getCacheSettings);
+	useEffect(() => {
+		dispatch(fillCacheInfo());
+	}, []);
 	const [ width, height ] = useWindowSize();
 
 	const modalBodyStyle = {
 		zIndex: 3000000000,
-
 		overflowY: 'auto',
 		overflowX: 'hidden',
 		maxHeight: height - 250,
-		width: '80%'
+		width: '100%'
 	};
 
-	const keys = [];
-	keys.push({ queryKey: 'all_tdta_standort_mast', dataKey: 'tdta_standort_mast' });
-	keys.push({ queryKey: 'tdta_standort_mast' });
-	keys.push({ queryKey: 'raw_point_index' });
-	keys.push({ queryKey: 'leitung' });
-	keys.push({ queryKey: 'mauerlasche' });
-	keys.push({ queryKey: 'schaltstelle' });
-	keys.push({ queryKey: 'tdta_leuchten' });
-	keys.push({ queryKey: 'anlagengruppe' });
-	keys.push({ queryKey: 'arbeitsprotokollstatus' });
-	keys.push({ queryKey: 'bauart' });
-	keys.push({ queryKey: 'leitungstyp' });
-	keys.push({ queryKey: 'leuchtmittel' });
-	keys.push({ queryKey: 'material_leitung' });
-	keys.push({ queryKey: 'material_mauerlasche' });
-	keys.push({ queryKey: 'querschnitt' });
-	keys.push({ queryKey: 'team' });
-	keys.push({ queryKey: 'tkey_bezirk' });
-	keys.push({ queryKey: 'tkey_doppelkommando' });
-	keys.push({ queryKey: 'tkey_energielieferant' });
-	keys.push({ queryKey: 'tkey_kennziffer' });
-	keys.push({ queryKey: 'tkey_klassifizierung' });
-	keys.push({ queryKey: 'tkey_mastart' });
-	keys.push({ queryKey: 'tkey_strassenschluessel' });
-	keys.push({ queryKey: 'tkey_unterh_leuchte' });
-	keys.push({ queryKey: 'tkey_unterh_mast' });
-	keys.push({ queryKey: 'veranlassungsart' });
-	keys.push({ queryKey: 'rundsteuerempfaenger' });
-	keys.push({ queryKey: 'abzweigdose' });
-	keys.push({ queryKey: 'tkey_leuchtentyp' });
-	keys.push({ queryKey: 'tkey_masttyp' });
-
-	// keys.push({ queryKey: 'infobaustein' });
-
-	// keys.push({ queryKey: 'arbeitsprotokollaktion' });
-	// keys.push({ queryKey: 'infobaustein_temgstplate' });
-	// keys.push({ queryKey: 'arbeitsauftrag' });
-	// keys.push({ queryKey: 'arbeitsprotokoll' });
-	// keys.push({ queryKey: 'veranlassung' });
+	let secondarySettings = [];
+	Object.keys(cacheSettings)
+		.filter((key) => cacheSettings[key].primary === undefined)
+		.forEach((secondaryKey) => {
+			secondarySettings.push(cacheSettings[secondaryKey]);
+		});
 
 	return (
 		<Modal
 			dialogClassName='modal-lg modal-dialog' //but why???
-			bsSize='large'
 			height='100%'
 			style={{ height: '100%' }}
 			show
@@ -76,60 +53,70 @@ const CacheSettings = ({ hide = () => {} }) => {
 			</Modal.Header>
 			<Modal.Body style={modalBodyStyle} id='myMenu'>
 				<div style={{ marginBottom: 5 }}>
+					<div>
+						<Button
+							style={{ margin: 3 }}
+							variant='outline-primary'
+							size='sm'
+							onClick={() => {
+								Object.keys(cacheSettings).map((key, index) => {
+									setTimeout(() => {
+										dispatch(renewCache(key));
+									}, 100 + 100 * index);
+								});
+							}}
+						>
+							<Icon icon={faDownload} /> Kompletten Cache neu füllen
+						</Button>
+
+						<Button style={{ margin: 3 }} variant='outline-success' size='sm'>
+							<Icon icon={faSync} /> Nur neue Objekte laden
+						</Button>
+					</div>
 					<table
+						border={0}
 						style={{
-							width: '100%'
+							width: '100%',
+							padding: 3
 						}}
 					>
 						<tbody>
-							{keys.map((item, index) => {
-								return (
-									<DexieWorkeredIDBCacheFiller
-										// <WorkeredIDBCacheFiller
-										// <IDBCacheFiller
-										//df
-										key={'loader' + index}
-										loaderInfo={item}
-									/>
-								);
+							{Object.keys(cacheSettings).map((key, index) => {
+								if (cacheSettings[key].primary === true) {
+									return (
+										<CacheItem
+											key={'CacheItem.' + index}
+											control={cacheSettings[key]}
+											renew={() => {
+												console.log('renew');
+
+												dispatch(renewCache(key));
+											}}
+										/>
+									);
+								}
 							})}
+							<AggregatedCacheItem
+								controls={secondarySettings}
+								renew={(key) => {
+									dispatch(renewCache(key));
+								}}
+							/>
+
+							{/* <CacheItem
+								control={cacheSettings.mauerlasche}
+								renew={() => {
+									console.log('renew');
+
+									dispatch(renewCache('mauerlasche'));
+								}}
+							/> */}
 						</tbody>
 					</table>
 				</div>
-				{/* <div style={{ marginBottom: 5 }}>
-					<table
-						style={{
-							width: '100%'
-						}}
-					>
-						<tbody>
-							{keys.map((item, index) => {
-								return (
-									<WorkeredIDBCacheFiller
-										key={'loader' + index}
-										loaderInfo={item}
-									/>
-								);
-							})}
-						</tbody>
-					</table>
-				</div> */}
 			</Modal.Body>
 			<Modal.Footer>
-				{/* <Button
-					id='cmdCloseModalApplicationMenu'
-					bsStyle='primary'
-					type='submit'
-					onClick={() => {}}
-				>
-					Cache füllen
-				</Button> */}
-				<Button
-					id='cmdCloseModalApplicationMenu'
-					bsStyle='primary'
-					type='submit'
-					onClick={hide}
-				>
+				<Button id='cmdCloseModalApplicationMenu' type='submit' onClick={hide}>
 					Schließen
 				</Button>
 			</Modal.Footer>
