@@ -39,7 +39,7 @@ const AggregatedCacheItem = ({ controls, renew }) => {
 		}
 		const buttons = (
 			<td style={{ width: 120, whiteSpace: 'nowrap' }}>
-				<Button
+				{/* <Button
 					style={{ margin: 3 }}
 					variant='outline-primary'
 					size='sm'
@@ -52,15 +52,17 @@ const AggregatedCacheItem = ({ controls, renew }) => {
 
 				<Button style={{ margin: 3 }} variant='outline-success' size='sm'>
 					<Icon icon={faSync} />
-				</Button>
+				</Button> */}
 			</td>
 		);
 		if (loadingState === undefined) {
 			return (
 				<tr>
 					{buttons}
-					<td style={{ textAlign: 'right' }}>{controls.length}</td>
-					<td style={{ textAlign: 'left', width: '100%' }}>
+					<td style={{ textAlign: 'right', paddingLeft: '25px', paddingRight: '15px' }}>
+						{controls.length}
+					</td>
+					<td style={{ textAlign: 'left', width: '100%', paddingRight: 5 }}>
 						sonstige Tabellen (<a
 							onClick={() => {
 								setExpanded(true);
@@ -70,7 +72,7 @@ const AggregatedCacheItem = ({ controls, renew }) => {
 							Details
 						</a>)
 					</td>
-					<td style={{ textAlign: 'left', whiteSpace: 'nowrap' }}>
+					<td style={{ textAlign: 'left', whiteSpace: 'nowrap', paddingLeft: '25px' }}>
 						<Icon icon={faCalendarAlt} /> {getUpdateString(lastUpdate)}
 					</td>
 				</tr>
@@ -79,16 +81,22 @@ const AggregatedCacheItem = ({ controls, renew }) => {
 			return (
 				<tr>
 					{buttons}
-					<td style={{ textAlign: 'right' }}>{controls.length}</td>
+					<td style={{ textAlign: 'right', paddingLeft: '25px', paddingRight: '15px' }}>
+						{controls.length}
+					</td>
 					<td style={{ textAlign: 'left', width: '100%' }}>
 						<ProgressBar
 							animated
 							now={cachingProgress}
 							label={'sonstige Tabellen'}
 							max={controls.length}
+							onClick={() => {
+								setExpanded(true);
+							}}
+							style={{ cursor: 'pointer' }}
 						/>
 					</td>
-					<td style={{ textAlign: 'left', whiteSpace: 'nowrap' }}>
+					<td style={{ textAlign: 'left', whiteSpace: 'nowrap', paddingLeft: '25px' }}>
 						<Icon spin icon={faSpinner} /> ... schreiben
 					</td>
 				</tr>
@@ -97,15 +105,21 @@ const AggregatedCacheItem = ({ controls, renew }) => {
 			return (
 				<tr>
 					{buttons}
-					<td style={{ textAlign: 'right' }}>{controls.length}</td>
+					<td style={{ textAlign: 'right', paddingLeft: '25px', paddingRight: '15px' }}>
+						{controls.length}
+					</td>
 					<td style={{ textAlign: 'left', width: '100%' }}>
 						<ProgressBar
 							now={cachingProgress}
 							label={'sonstige Tabellen'}
 							max={controls.length}
+							onClick={() => {
+								setExpanded(true);
+							}}
+							style={{ cursor: 'pointer' }}
 						/>
 					</td>
-					<td style={{ textAlign: 'left', whiteSpace: 'nowrap' }}>
+					<td style={{ textAlign: 'left', whiteSpace: 'nowrap', paddingLeft: '25px' }}>
 						<Icon icon={faCheckCircle} /> alles geschrieben
 					</td>
 				</tr>

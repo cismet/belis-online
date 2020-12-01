@@ -69,7 +69,7 @@ const CacheSettings = ({ hide = () => {} }) => {
 							<Icon icon={faDownload} /> Kompletten Cache neu füllen
 						</Button>
 
-						<Button style={{ margin: 3 }} variant='outline-success' size='sm'>
+						<Button disabled style={{ margin: 3 }} variant='outline-success' size='sm'>
 							<Icon icon={faSync} /> Nur neue Objekte laden
 						</Button>
 					</div>
@@ -81,6 +81,30 @@ const CacheSettings = ({ hide = () => {} }) => {
 						}}
 					>
 						<tbody>
+							<tr>
+								<td />
+								<td
+									style={{
+										textAlign: 'right',
+										paddingLeft: '25px',
+										paddingRight: '15px',
+										whiteSpace: 'nowrap'
+									}}
+								>
+									# Objekte
+								</td>
+								<td>Name</td>
+								<td
+									style={{
+										width: 120,
+										paddingLeft: '25px',
+										paddingRight: '25px',
+										whiteSpace: 'nowrap'
+									}}
+								>
+									letzte Aktualisierung
+								</td>
+							</tr>
 							{Object.keys(cacheSettings).map((key, index) => {
 								if (cacheSettings[key].primary === true) {
 									return (

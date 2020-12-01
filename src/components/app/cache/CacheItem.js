@@ -54,17 +54,22 @@ const CacheItem = ({ control, renew, refresh = () => {} }) => {
 			<Button
 				style={{ margin: 3 }}
 				variant='outline-success'
+				disabled
 				onClick={() => {
 					renew();
 				}}
-				ize='sm'
+				size='sm'
 			>
 				<Icon icon={faSync} />
 			</Button>
 		</td>
 	);
 
-	const counts = <td style={{ textAlign: 'right' }}>{objectCount}</td>;
+	const counts = (
+		<td style={{ textAlign: 'right', paddingLeft: '25px', paddingRight: '15px' }}>
+			{objectCount}
+		</td>
+	);
 	const cols = [];
 	cols[0] = controls;
 	cols[1] = counts;
@@ -72,7 +77,7 @@ const CacheItem = ({ control, renew, refresh = () => {} }) => {
 	if (loadingState === undefined) {
 		cols[3] = <td style={{ textAlign: 'left', width: '100%' }}>{name}</td>;
 		cols[4] = (
-			<td style={{ textAlign: 'left', whiteSpace: 'nowrap' }}>
+			<td style={{ textAlign: 'left', paddingLeft: '25px', whiteSpace: 'nowrap' }}>
 				<Icon icon={faCalendarAlt} /> {getUpdateString(lastUpdate)}
 			</td>
 		);
@@ -80,7 +85,7 @@ const CacheItem = ({ control, renew, refresh = () => {} }) => {
 		// setStartTime(new Date().getTime());
 		cols[3] = <td style={{ textAlign: 'left', width: '100%' }}>{name}</td>;
 		cols[4] = (
-			<td style={{ textAlign: 'left', whiteSpace: 'nowrap' }}>
+			<td style={{ textAlign: 'left', paddingLeft: '25px', whiteSpace: 'nowrap' }}>
 				<Icon spin icon={faSpinner} /> laden
 			</td>
 		);
@@ -91,7 +96,7 @@ const CacheItem = ({ control, renew, refresh = () => {} }) => {
 			</td>
 		);
 		cols[4] = (
-			<td style={{ textAlign: 'left', whiteSpace: 'nowrap' }}>
+			<td style={{ textAlign: 'left', whiteSpace: 'nowrap', paddingLeft: '25px' }}>
 				<Icon spin icon={faSpinner} /> {updateCount} schreiben
 			</td>
 		);
@@ -102,7 +107,7 @@ const CacheItem = ({ control, renew, refresh = () => {} }) => {
 			</td>
 		);
 		cols[4] = (
-			<td style={{ textAlign: 'left', whiteSpace: 'nowrap' }}>
+			<td style={{ textAlign: 'left', whiteSpace: 'nowrap', paddingLeft: '25px' }}>
 				<Icon icon={faCheckCircle} /> {updateCount} geschrieben
 			</td>
 		);
