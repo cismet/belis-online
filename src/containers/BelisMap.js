@@ -6,6 +6,7 @@ import BelisFeatureCollection from '../components/app/FeatureCollection';
 import FocusRectangle from '../components/app/FocusRectangle';
 import { backgrounds } from '../constants/belis';
 import { modifyQueryPart } from '../core/commons/routingHelper';
+import { getConnectionMode } from '../core/store/slices/app';
 import { getBackground } from '../core/store/slices/background';
 import {
 	getFeatureCollection,
@@ -34,6 +35,7 @@ const BelisMap = ({ refRoutedMap, width, height }) => {
 	const zoom = useSelector(getZoom);
 	const inPaleMode = useSelector(isPaleModeActive);
 	const background = useSelector(getBackground);
+	const connectionMode = useSelector(getConnectionMode);
 
 	const urlSearchParams = new URLSearchParams(browserlocation.search);
 

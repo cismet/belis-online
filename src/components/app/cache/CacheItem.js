@@ -1,5 +1,4 @@
 import {
-	faCalendar,
 	faCalendarAlt,
 	faCheckCircle,
 	faCheckSquare,
@@ -7,11 +6,10 @@ import {
 	faDownload,
 	faQuestionCircle,
 	faSpinner,
-	faSync,
-	faTrash
+	faSync
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon as Icon } from '@fortawesome/react-fontawesome';
-import React, { useState } from 'react';
+import React from 'react';
 import { Button } from 'react-bootstrap';
 import ProgressBar from 'react-bootstrap/ProgressBar';
 

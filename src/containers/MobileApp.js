@@ -1,22 +1,15 @@
-import React, { useRef, useState } from 'react';
-
 import { useWindowSize } from '@react-hook/window-size';
 import useComponentSize from '@rehooks/component-size';
 import useOnlineStatus from '@rehooks/online-status';
+import React, { useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import BottomNavbar from './BottomNavbar';
 import MapBlocker from '../components/app/MapBlocker';
-import TopNavbar from './TopNavbar';
 import CacheSettings from '../components/CacheSettings';
-import useLocalStorage from '../core/commons/hooks/useLocalStorage';
-import {
-	getFeatureCollection,
-	getFilter,
-	isDone,
-	isInFocusMode
-} from '../core/store/slices/featureCollection';
+import { CONNECTIONMODE, getConnectionMode } from '../core/store/slices/app';
+import { isDone } from '../core/store/slices/featureCollection';
 import BelisMap from './BelisMap';
-import { getBackground } from '../core/store/slices/background';
+import BottomNavbar from './BottomNavbar';
+import TopNavbar from './TopNavbar';
 
 //---
 
@@ -42,6 +35,8 @@ const View = () => {
 	const [ cacheSettingsVisible, setCacheSettingsVisible ] = useState(false);
 
 	const fcIsDone = useSelector(isDone);
+	const connectionMode = useSelector(getConnectionMode);
+
 	return (
 		<div>
 			{cacheSettingsVisible === true && (
@@ -58,7 +53,7 @@ const View = () => {
 			/>
 			<MapBlocker
 				blocking={fcIsDone === false}
-				visible={false}
+				visible={connectionMode === CONNECTIONMODE.ONLINE}
 				width={windowWidth}
 				height={windowHeight}
 			/>

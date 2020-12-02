@@ -1,5 +1,8 @@
 import React from 'react';
+import { faDatabase, faSpinner } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon as Icon } from '@fortawesome/react-fontawesome';
 
+const size = 150;
 const MapBlocker = ({ blocking, visible, width, height }) => {
 	if (blocking === true) {
 		return (
@@ -8,14 +11,45 @@ const MapBlocker = ({ blocking, visible, width, height }) => {
 					position: 'absolute',
 					height: height,
 					width: width,
-					background: 'black',
+					background: visible === true ? '#00000020' : '#00000000',
 					left: 0,
 					top: 0,
 					zIndex: 100000,
-					cursor: 'wait',
-					opacity: visible === true ? 0.2 : 0
+					cursor: 'wait'
 				}}
-			/>
+			>
+				{visible === true && (
+					<div
+						style={{
+							display: 'flex',
+							justifyContent: 'center',
+							alignItems: 'center',
+							position: 'absolute',
+							borderRadius: '25px',
+							height: size,
+							width: size,
+							background: '#00000099',
+							left: (width - size) / 2,
+							top: (height - size) / 2,
+							zIndex: 100001,
+							cursor: 'wait',
+							opacity: 1 //visible === true ? 0.8 : 0
+						}}
+					>
+						<Icon
+							style={{
+								fontSize: size / 3,
+								color: '#ffffff',
+								cursor: 'pointer',
+								textAlign: 'center',
+								webkitAnimation: 'fa-spin 3s infinite linear',
+								animation: 'fa-spin 3s infinite linear'
+							}}
+							icon={faSpinner}
+						/>
+					</div>
+				)}
+			</div>
 		);
 	} else {
 		return <div />;

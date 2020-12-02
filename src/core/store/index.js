@@ -11,6 +11,7 @@ import backgroundSlice from './slices/background';
 import paleModeSlice from './slices/paleMode';
 import cacheControlSlice from './slices/cacheControl';
 import uiMessageSlice from './slices/uiMessage';
+import appStateSlice from './slices/app';
 import { createLogger } from 'redux-logger';
 
 console.log('store initializing ....');
@@ -52,6 +53,7 @@ if (stateLoggingEnabled === true) {
 }
 const store = configureStore({
 	reducer: {
+		app: appStateSlice.reducer,
 		spatialIndex: spatialIndexSlice.reducer,
 		testCounter: testSlice.reducer,
 		featureCollection: featureCollectionSlice.reducer,

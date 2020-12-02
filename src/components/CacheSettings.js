@@ -1,19 +1,13 @@
-import React, { useEffect, useState } from 'react';
-import Modal from 'react-bootstrap/Modal';
-import Button from 'react-bootstrap/Button';
-
+import { faDownload, faSync } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon as Icon } from '@fortawesome/react-fontawesome';
 import { useWindowSize } from '@react-hook/window-size';
-import DexieWorkeredIDBCacheFiller from './DexieWorkeredIDBCacheFiller';
+import React, { useEffect } from 'react';
+import Button from 'react-bootstrap/Button';
+import Modal from 'react-bootstrap/Modal';
 import { useDispatch, useSelector } from 'react-redux';
 import { fillCacheInfo, getCacheSettings, renewCache } from '../core/store/slices/cacheControl';
-import CacheItem from './app/cache/CacheItem';
 import AggregatedCacheItem from './app/cache/AggregatedCacheItem';
-import { faDownload, faSync, faTrash } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon as Icon } from '@fortawesome/react-fontawesome';
-
-function timeout(ms) {
-	return new Promise((resolve) => setTimeout(resolve, ms));
-}
+import CacheItem from './app/cache/CacheItem';
 
 const CacheSettings = ({ hide = () => {} }) => {
 	const dispatch = useDispatch();

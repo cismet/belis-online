@@ -8,11 +8,13 @@ import {
 	setWished as setSearchModeWished
 } from './search';
 import { getZoom } from './zoom';
-
+import { getConnectionMode, CONNECTIONMODE } from './app';
+import bboxPolygon from '@turf/bbox-polygon';
+import { fetchGraphQL } from '../../commons/graphql';
+import onlineQueryParts, { geomFactories } from '../../queries/online';
 // ----
 
 const LOCALSTORAGE_KEY_IN_FOCUS_MODE = '@belis.app.inFocusMode';
-const modes = { FROMCACHE: 'FROMCACHE', ONLINE: 'ONLINE' };
 
 const dexieW = dexieworker();
 const focusedSearchMinimumZoomThreshhold = 12.5;
@@ -79,13 +81,23 @@ export const isInFocusMode = (state) => state.featureCollection.inFocusMode;
 
 export default featureCollectionSlice;
 
-export const loadObjects = ({
-	mode = 'FROMCACHE',
-	boundingBox,
-	_inFocusMode,
-	zoom,
-	overridingFilterState
-}) => {
+const createQueryGeomFromB = (boundingBox) => {
+	const geom = bboxPolygon([
+		boundingBox.left,
+		boundingBox.top,
+		boundingBox.right,
+		boundingBox.bottom
+	]).geometry;
+	geom.crs = {
+		type: 'name',
+		properties: {
+			name: 'urn:ogc:def:crs:EPSG::25832'
+		}
+	};
+	return geom;
+};
+
+export const loadObjects = ({ boundingBox, _inFocusMode, zoom, overridingFilterState }) => {
 	return async (dispatch, getState) => {
 		const state = getState();
 		const inFocusMode = _inFocusMode || isInFocusMode(state);
@@ -138,7 +150,7 @@ export const loadObjects = ({
 					xbb = boundingBox;
 				}
 
-				dispatch(loadObjectsIntoFeatureCollection({ mode, boundingBox: xbb }));
+				dispatch(loadObjectsIntoFeatureCollection({ boundingBox: xbb }));
 			} else {
 				//console.log('xxx duplicate forceShowObjects');
 			}
@@ -147,7 +159,6 @@ export const loadObjects = ({
 };
 
 export const loadObjectsIntoFeatureCollection = ({
-	mode,
 	boundingBox,
 	_inFocusMode,
 	_zoom,
@@ -159,56 +170,107 @@ export const loadObjectsIntoFeatureCollection = ({
 		let d = new Date().getTime();
 
 		const state = getState();
+		const connectionMode = getConnectionMode(state);
 		const filter = getFilter(state);
 
 		if (state.spatialIndex.loading === 'done') {
-			let resultIds = state.spatialIndex.pointIndex.range(
-				boundingBox.left,
-				boundingBox.bottom,
-				boundingBox.right,
-				boundingBox.top
-			);
+			let resultIds, leitungsFeatures;
+			if (connectionMode === CONNECTIONMODE.FROMCACHE) {
+				resultIds = state.spatialIndex.pointIndex.range(
+					boundingBox.left,
+					boundingBox.bottom,
+					boundingBox.right,
+					boundingBox.top
+				);
 
-			//console.log('xxx alle resultIds da ', new Date().getTime() - d);
+				//console.log('xxx alle resultIds da ', new Date().getTime() - d);
 
-			let leitungsFeatures = [];
+				leitungsFeatures = [];
 
-			if (filter.leitung.enabled === true) {
-				const ld = new Date().getTime();
+				if (filter.leitung.enabled === true) {
+					const ld = new Date().getTime();
 
-				leitungsFeatures = state.spatialIndex.lineIndex
-					.search(
-						boundingBox.left,
-						boundingBox.bottom,
-						boundingBox.right,
-						boundingBox.top
-					)
-					.map((i) => state.spatialIndex.lineIndex.features[i]);
-				//console.log('xxx Leitungen ', new Date().getTime() - ld);
+					leitungsFeatures = state.spatialIndex.lineIndex
+						.search(
+							boundingBox.left,
+							boundingBox.bottom,
+							boundingBox.right,
+							boundingBox.top
+						)
+						.map((i) => state.spatialIndex.lineIndex.features[i]);
+					//console.log('xxx Leitungen ', new Date().getTime() - ld);
+				}
+			} else {
 			}
 			// console.log('leitungsFeatures', leitungsFeatures);
 
 			d = new Date().getTime();
+			if (connectionMode === CONNECTIONMODE.FROMCACHE) {
+				dexieW
+					.getFeaturesForHits(state.spatialIndex.pointIndex.points, resultIds, filter)
+					.then((pointFeatureCollection) => {
+						//console.log('xxx alle Features da ', new Date().getTime() - d);
+						const featureCollection = leitungsFeatures.concat(pointFeatureCollection);
+						//console.log('xxx alle Features da nach concat ', new Date().getTime() - d);
 
-			dexieW
-				.getFeaturesForHits(state.spatialIndex.pointIndex.points, resultIds, filter)
-				.then((pointFeatureCollection) => {
-					//console.log('xxx alle Features da ', new Date().getTime() - d);
-					const featureCollection = leitungsFeatures.concat(pointFeatureCollection);
-					//console.log('xxx alle Features da nach concat ', new Date().getTime() - d);
+						d = new Date().getTime();
+						//console.log('xxx vor setFeatureCollection');
+						dispatch(setFeatureCollection(featureCollection));
+						//setFC(featureCollection);
+						//console.log('xxx nach  setFeatureCollection', new Date().getTime() - d);
 
-					d = new Date().getTime();
-					//console.log('xxx vor setFeatureCollection');
-					dispatch(setFeatureCollection(featureCollection));
-					//setFC(featureCollection);
-					//console.log('xxx nach  setFeatureCollection', new Date().getTime() - d);
+						//console.log('xxx', '(done = true)');
+						// dispatch(setDone(true));
+						setTimeout(() => {
+							dispatch(setDone(true));
+						}, 1);
+					});
+			} else {
+				let queryparts = '';
+				for (const filterKey of Object.keys(filter)) {
+					if (filter[filterKey].enabled === true) {
+						const qp = onlineQueryParts[filterKey];
+						queryparts += qp + '\n';
+					}
+				}
+				const gqlQuery = `query q($bbPoly: geometry!) {${queryparts}}`;
+				const queryParameter = { bbPoly: createQueryGeomFromB(boundingBox) };
+				const response = await fetchGraphQL(gqlQuery, queryParameter);
 
-					//console.log('xxx', '(done = true)');
-					// dispatch(setDone(true));
-					setTimeout(() => {
-						dispatch(setDone(true));
-					}, 1);
-				});
+				const featureCollection = [];
+				for (const key of Object.keys(response.data)) {
+					const objects = response.data[key];
+					for (const o of objects) {
+						const feature = {
+							text: '-',
+							type: 'Feature',
+							featuretype: key,
+							geometry: geomFactories[key](o),
+							crs: {
+								type: 'name',
+								properties: {
+									name: 'urn:ogc:def:crs:EPSG::25832'
+								}
+							},
+							properties: {}
+						};
+
+						//The geometry could be deleted to save some memory
+						//need to be a different approach in the geometryfactory then
+						//not sure beacuse the properties would double up the memoryconsumption though
+						//
+						// const properties=JSON.parse(JSON.stringify(o));
+						// delete propertiesgeomFactories[key](o)
+
+						feature.properties = o;
+
+						featureCollection.push(feature);
+					}
+				}
+				dispatch(setFeatureCollection(featureCollection));
+
+				dispatch(setDone(true));
+			}
 		} else {
 			dispatch(
 				initIndex(() => {

@@ -1,10 +1,8 @@
 import { createSlice } from '@reduxjs/toolkit';
-import kdbush from 'kdbush';
-import Flatbush from 'flatbush';
 import bbox from '@turf/bbox';
-
+import Flatbush from 'flatbush';
+import kdbush from 'kdbush';
 import dexieworker from 'workerize-loader!../../workers/dexie'; // eslint-disable-line import/no-webpack-loader-syntax
-
 import { db as dexiedb } from '../../indexeddb/dexiedb';
 
 // const idb = idbworker();

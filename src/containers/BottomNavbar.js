@@ -1,3 +1,6 @@
+import { faMixcloud } from '@fortawesome/free-brands-svg-icons';
+import { faDatabase } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon as Icon } from '@fortawesome/react-fontawesome';
 import React from 'react';
 import Button from 'react-bootstrap/Button';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
@@ -5,26 +8,19 @@ import Form from 'react-bootstrap/Form';
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
 import ProgressBar from 'react-bootstrap/ProgressBar';
-
-import { faCompass } from '@fortawesome/free-regular-svg-icons';
-import { FontAwesomeIcon as Icon } from '@fortawesome/react-fontawesome';
-
-import Switch from '../components/commons/Switch';
 import { useDispatch, useSelector } from 'react-redux';
+import { useLocation } from 'react-router-dom';
+import Switch from '../components/commons/Switch';
+import { CONNECTIONMODE, getConnectionMode, setConnectionMode } from '../core/store/slices/app';
+import { getBackground, setBackground } from '../core/store/slices/background';
+import { getCacheInfo, getCacheSettings } from '../core/store/slices/cacheControl';
 import {
-	loadObjects,
 	isInFocusMode,
+	loadObjects,
 	setFocusModeActive
 } from '../core/store/slices/featureCollection';
 import { isPaleModeActive, setPaleModeActive } from '../core/store/slices/paleMode';
-import { getBackground, setBackground } from '../core/store/slices/background';
-import { useLocation } from 'react-router-dom';
-import {
-	getCacheInfo,
-	setLoadingState,
-	renewCache,
-	getCacheSettings
-} from '../core/store/slices/cacheControl';
+
 //---------
 
 const BottomNavbar = ({ innerRef, onlineStatus, refRoutedMap }) => {
@@ -36,6 +32,7 @@ const BottomNavbar = ({ innerRef, onlineStatus, refRoutedMap }) => {
 	const background = useSelector(getBackground);
 	const cacheInfo = useSelector(getCacheInfo('abzweigdose'));
 	const cacheSettings = useSelector(getCacheSettings);
+	const connectionMode = useSelector(getConnectionMode);
 	const uiThreadProgressbar =
 		new URLSearchParams(browserlocation.search).get('uiThreadProgressbar') === 'true';
 
@@ -45,9 +42,28 @@ const BottomNavbar = ({ innerRef, onlineStatus, refRoutedMap }) => {
 
 			<Navbar.Toggle aria-controls='basic-navbar-nav' />
 			<Nav className='mr-auto'>
-				<Nav.Link href='#home'>
-					<Icon className='text-primary' icon={faCompass} />
-				</Nav.Link>
+				<div>
+					{connectionMode === CONNECTIONMODE.ONLINE && (
+						<Icon
+							style={{ fontSize: 24, width: '30px', cursor: 'pointer' }}
+							className='text-primary'
+							icon={faMixcloud}
+							onClick={() => {
+								dispatch(setConnectionMode(CONNECTIONMODE.FROMCACHE));
+							}}
+						/>
+					)}
+					{connectionMode === CONNECTIONMODE.FROMCACHE && (
+						<Icon
+							style={{ fontSize: 24, width: '30px', cursor: 'pointer' }}
+							className='text-primary'
+							icon={faDatabase}
+							onClick={() => {
+								dispatch(setConnectionMode(CONNECTIONMODE.ONLINE));
+							}}
+						/>
+					)}
+				</div>
 			</Nav>
 			<Nav className='mr-auto'>
 				<Switch
