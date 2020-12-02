@@ -77,6 +77,8 @@ export const initIndex = (finished = () => {}) => async (dispatch) => {
 	const features = [];
 	for (const l of leitungen) {
 		try {
+			const properties = JSON.parse(JSON.stringify(l));
+			delete properties.geom;
 			const feature = {
 				text: '-',
 				type: 'Feature',
@@ -87,7 +89,7 @@ export const initIndex = (finished = () => {}) => async (dispatch) => {
 						name: 'urn:ogc:def:crs:EPSG::25832'
 					}
 				},
-				properties: {}
+				properties
 			};
 			feature.geometry = {
 				type: 'LineString',

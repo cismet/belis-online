@@ -98,13 +98,11 @@ export const getFeaturesForHits = async (points, resultIds, filter) => {
 	for (const id of resultIds) {
 		const hit = points[id];
 		tablenames.add(hit.tablename);
-
+		const featureObject = await db[hit.tablename].get(hit.oid);
 		if ((filter[hit.tablename] || {}).enabled === true) {
 			let addFeature;
 			if (hit.tablename === 'tdta_standort_mast') {
-				const o = await db[hit.tablename].get(hit.oid);
-
-				if (o === undefined) {
+				if (featureObject === undefined) {
 					addFeature = false;
 				} else {
 					addFeature = true;
@@ -131,6 +129,8 @@ export const getFeaturesForHits = async (points, resultIds, filter) => {
 					},
 					properties: {}
 				};
+				feature.properties = featureObject;
+
 				featureCollection.push(feature);
 			}
 			// //console.log('xxx Feature gebaut ', new Date().getTime() - d);

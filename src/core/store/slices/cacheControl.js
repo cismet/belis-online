@@ -179,14 +179,20 @@ export const renewCache = (key) => {
 					dispatch(setLoadingState({ key, loadingState: 'caching' }));
 					dispatch(setObjectCount({ key, objectCount: result.data[dataKey].length }));
 					dispatch(setUpdateCount({ key, updateCount: result.data[dataKey].length }));
+					//async block
 					(async () => {
+						//put the data in the indexedDB
 						const y = await dexieW.putArray(result.data[dataKey], itemKey);
-						console.log(dataKey + ' done', y);
+
+						//reset loadingState in 1 minute
 						const resetTimer = setTimeout(() => {
 							dispatch(setLoadingState({ key, resetTimer, loadingState: undefined }));
 						}, 60000);
+
+						//set loading state done
 						dispatch(setLoadingState({ key, resetTimer, loadingState: 'cached' }));
 
+						//removeEVent Listener to free memory
 						dexieW.removeEventListener('message', progressListener);
 					})();
 				}

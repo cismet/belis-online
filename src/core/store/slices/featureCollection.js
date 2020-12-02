@@ -78,7 +78,13 @@ export const isInFocusMode = (state) => state.featureCollection.inFocusMode;
 
 export default featureCollectionSlice;
 
-export const loadObjects = ({ boundingBox, _inFocusMode, zoom, overridingFilterState }) => {
+export const loadObjects = ({
+	mode = 'FROMCACHE',
+	boundingBox,
+	_inFocusMode,
+	zoom,
+	overridingFilterState
+}) => {
 	return async (dispatch, getState) => {
 		const state = getState();
 		const inFocusMode = _inFocusMode || isInFocusMode(state);
@@ -131,7 +137,7 @@ export const loadObjects = ({ boundingBox, _inFocusMode, zoom, overridingFilterS
 					xbb = boundingBox;
 				}
 
-				dispatch(loadObjectsIntoFeatureCollection({ boundingBox: xbb }));
+				dispatch(loadObjectsIntoFeatureCollection({ mode, boundingBox: xbb }));
 			} else {
 				//console.log('xxx duplicate forceShowObjects');
 			}
@@ -140,20 +146,19 @@ export const loadObjects = ({ boundingBox, _inFocusMode, zoom, overridingFilterS
 };
 
 export const loadObjectsIntoFeatureCollection = ({
+	mode,
 	boundingBox,
 	_inFocusMode,
 	_zoom,
 	_overridingFilterState
 }) => {
 	return async (dispatch, getState) => {
-		//console.log('xxx setBoundingBoxAndLoadObjects');
 		dispatch(setDone(false));
 
 		let d = new Date().getTime();
 
 		const state = getState();
 		const filter = getFilter(state);
-		//console.log('xxx nach getState()');
 
 		if (state.spatialIndex.loading === 'done') {
 			let resultIds = state.spatialIndex.pointIndex.range(
