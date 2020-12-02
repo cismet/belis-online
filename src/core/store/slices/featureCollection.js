@@ -12,6 +12,7 @@ import { getZoom } from './zoom';
 // ----
 
 const LOCALSTORAGE_KEY_IN_FOCUS_MODE = '@belis.app.inFocusMode';
+const modes = { FROMCACHE: 'FROMCACHE', ONLINE: 'ONLINE' };
 
 const dexieW = dexieworker();
 const focusedSearchMinimumZoomThreshhold = 12.5;
@@ -174,6 +175,7 @@ export const loadObjectsIntoFeatureCollection = ({
 
 			if (filter.leitung.enabled === true) {
 				const ld = new Date().getTime();
+
 				leitungsFeatures = state.spatialIndex.lineIndex
 					.search(
 						boundingBox.left,
@@ -217,9 +219,9 @@ export const loadObjectsIntoFeatureCollection = ({
 	};
 };
 
-function timeout(ms) {
+export const timeout = (ms) => {
 	return new Promise((resolve) => setTimeout(resolve, ms));
-}
+};
 
 export const isSearchForbidden = (state) => {
 	return _isSearchForbidden(undefined, state);

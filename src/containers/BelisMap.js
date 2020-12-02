@@ -75,7 +75,7 @@ const BelisMap = ({ refRoutedMap, width, height }) => {
 			backgroundlayers={resultingLayer}
 			urlSearchParams={urlSearchParams}
 			fullScreenControlEnabled={false}
-			locateControlEnabled={false}
+			locateControlEnabled={true}
 			minZoom={7}
 			maxZoom={18}
 			zoomSnap={0.5}
