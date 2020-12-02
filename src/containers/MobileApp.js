@@ -53,7 +53,7 @@ const View = () => {
 			/>
 			<MapBlocker
 				blocking={fcIsDone === false}
-				visible={connectionMode === CONNECTIONMODE.ONLINE}
+				visible={true || connectionMode === CONNECTIONMODE.ONLINE}
 				width={windowWidth}
 				height={windowHeight}
 			/>
