@@ -116,6 +116,7 @@ export const getFeaturesForHits = async (points, resultIds, filter) => {
 				const feature = {
 					text: '-',
 					type: 'Feature',
+					selected: false,
 					featuretype: hit.tablename,
 					geometry: {
 						type: 'Point',

@@ -42,6 +42,7 @@ const featureCollectionSlice = createSlice({
 		features: [],
 		done: true,
 		filter: initialFilter,
+
 		requestBasis: undefined,
 		inFocusMode: initialInFocusMode
 	},
@@ -244,6 +245,7 @@ export const loadObjectsIntoFeatureCollection = ({
 						const feature = {
 							text: '-',
 							type: 'Feature',
+							selected: false,
 							featuretype: key,
 							geometry: geomFactories[key](o),
 							crs: {
@@ -267,6 +269,7 @@ export const loadObjectsIntoFeatureCollection = ({
 						featureCollection.push(feature);
 					}
 				}
+				//featureCollection[0].selected = true;
 				dispatch(setFeatureCollection(featureCollection));
 
 				dispatch(setDone(true));

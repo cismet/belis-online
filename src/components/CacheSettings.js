@@ -73,7 +73,7 @@ const CacheSettings = ({ hide = () => {} }) => {
 							width: '100%',
 							padding: 3
 						}}
-					>
+					> 
 						<tbody>
 							<tr>
 								<td />

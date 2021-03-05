@@ -81,6 +81,7 @@ export const initIndex = (finished = () => {}) => async (dispatch) => {
 				text: '-',
 				type: 'Feature',
 				featuretype: 'Leitung',
+				selected: false,
 				crs: {
 					type: 'name',
 					properties: {
