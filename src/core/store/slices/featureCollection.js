@@ -42,6 +42,7 @@ const featureCollectionSlice = createSlice({
 		features: [],
 		done: true,
 		filter: initialFilter,
+		selectedFeature: null,
 
 		requestBasis: undefined,
 		inFocusMode: initialInFocusMode
@@ -57,6 +58,9 @@ const featureCollectionSlice = createSlice({
 			state.filter = action.payload;
 			localStorage.setItem(LOCALSTORAGE_KEY_FILTER, JSON.stringify(action.payload));
 		},
+		setSelectedFeature: (state, action) => {
+			state.selectedFeature = action.payload;
+		},
 		setRequestBasis: (state, action) => {
 			state.requestBasis = action.payload;
 		},
@@ -70,6 +74,7 @@ export const {
 	setFeatureCollection,
 	setDone,
 	setFilter,
+	setSelectedFeature,
 	setRequestBasis,
 	setFocusModeActive
 } = featureCollectionSlice.actions;
@@ -77,6 +82,7 @@ export const {
 export const getFeatureCollection = (state) => state.featureCollection.features;
 export const isDone = (state) => state.featureCollection.done;
 export const getFilter = (state) => state.featureCollection.filter;
+export const getSelectedFeature = (state) => state?.featureCollection?.selectedFeature;
 const getRequestBasis = (state) => state.featureCollection.requestBasis;
 export const isInFocusMode = (state) => state.featureCollection.inFocusMode;
 

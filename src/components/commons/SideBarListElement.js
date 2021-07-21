@@ -1,28 +1,29 @@
 import React from 'react';
 import { getVCard } from '../../core/helper/FeatureHelper';
 import ListGroup from 'react-bootstrap/ListGroup';
+import {
+    setSelectedFeature,
+    getSelectedFeature
+} from '../../core/store/slices/featureCollection';
+import { useDispatch, useSelector } from 'react-redux';
 
 //---------
 
 const SideBarListElement = ({ feature, selected }) => {
-	// const dispatch = useDispatch();
-	// const browserlocation = useLocation();
-
-	// const inFocusMode = useSelector(isInFocusMode);
-	// const inPaleMode = useSelector(isPaleModeActive);
-	// const background = useSelector(getBackground);
-	// const cacheInfo = useSelector(getCacheInfo('abzweigdose'));
-	// const cacheSettings = useSelector(getCacheSettings);
-	// const connectionMode = useSelector(getConnectionMode);
-	// const uiThreadProgressbar =
-	// 	new URLSearchParams(browserlocation.search).get('uiThreadProgressbar') === 'true';
-    // console.log(feature.featuretype);
+    const dispatch = useDispatch();
+    const selectedFeature = useSelector(getSelectedFeature);
     let vcard = getVCard(feature);
     const style = (selected ? {background: 'lightgray'} : {});
 
 	return (
         <>
-            <ListGroup.Item style={style}>
+            <ListGroup.Item style={style} onClick={() => {
+                if (selectedFeature !== feature) {
+                    dispatch(setSelectedFeature(feature));
+                } else {
+                    dispatch(setSelectedFeature(undefined));
+                }
+            }} >
             <div>
                 <span style={{float:'left'}}><b>{vcard.title}</b></span>
                 <span style={{float:'right'}}>{vcard.location}</span>
