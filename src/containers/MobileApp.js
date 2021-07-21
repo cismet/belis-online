@@ -10,6 +10,7 @@ import { isDone } from '../core/store/slices/featureCollection';
 import BelisMap from './BelisMap';
 import BottomNavbar from './BottomNavbar';
 import TopNavbar from './TopNavbar';
+import SideBar from './SideBar';
 
 //---
 
@@ -50,6 +51,12 @@ const View = () => {
 				innerRef={refUpperToolbar}
 				refRoutedMap={refRoutedMap}
 				setCacheSettingsVisible={setCacheSettingsVisible}
+			/>
+			<SideBar
+				innerRef={refUpperToolbar}
+				refRoutedMap={refRoutedMap}
+				setCacheSettingsVisible={setCacheSettingsVisible}
+				height={mapStyle.height}
 			/>
 			<MapBlocker
 				blocking={fcIsDone === false}
