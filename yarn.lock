@@ -12533,7 +12533,7 @@ polygon-clipping@^0.15.3:
   dependencies:
     splaytree "^3.1.0"
 
-"polylabel@github:mapbox/polylabel":
+polylabel@mapbox/polylabel:
   version "1.1.0"
   resolved "https://codeload.github.com/mapbox/polylabel/tar.gz/3be1848a9fe0781372ce44adf9b9d3104d50d52f"
   dependencies:

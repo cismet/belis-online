@@ -18,7 +18,7 @@ const mapStyle = {
 
 export const SimpleTopicMapWithDefaultInfoBox = (args) => {
   return (
-    <TopicMapContextProvider items={parkscheinautomatenfeatures}>
+    <TopicMapContextProvider items={parkscheinautomatenfeatures} appKey="SimpleTopicMapWithDefaultInfoBox">
       <TopicMapComponent
         style={mapStyle}
         infoBox={<GenericInfoBoxFromFeature pixelwidth={400} />}

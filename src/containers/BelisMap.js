@@ -25,7 +25,8 @@ const BelisMap = ({ refRoutedMap, width, height }) => {
 		height,
 		width,
 		cursor: 'pointer',
-		clear: 'both'
+		clear: 'both',
+		display: 'flex'
 	};
 	const featureCollection = useSelector(getFeatureCollection);
 	const inFocusMode = useSelector(isInFocusMode);
