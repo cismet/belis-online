@@ -91,6 +91,7 @@ const TopNavbar = ({ innerRef, refRoutedMap, setCacheSettingsVisible }) => {
 					/>
 				</Nav.Link>
 				<NavDropdown
+					style={{zIndex: 10000}}
 					className='text-primary'
 					title='nach'
 					id='basic-nav-dropdown'

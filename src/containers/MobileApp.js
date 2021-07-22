@@ -24,10 +24,12 @@ const View = () => {
 	let sizeU = useComponentSize(refUpperToolbar);
 	let refLowerToolbar = useRef(null);
 	let sizeL = useComponentSize(refLowerToolbar);
+	let refSideBar = useRef(null);
+	let sizeSide = useComponentSize(refSideBar);
 
 	const mapStyle = {
 		height: windowHeight - (sizeU.height || 62) - (sizeL.height || 56),
-		width: windowWidth,
+		width: windowWidth - (sizeSide.width || 300),
 		cursor: 'pointer',
 		clear: 'both'
 	};
@@ -53,7 +55,7 @@ const View = () => {
 				setCacheSettingsVisible={setCacheSettingsVisible}
 			/>
 			<SideBar
-				innerRef={refUpperToolbar}
+				innerRef={refSideBar}
 				refRoutedMap={refRoutedMap}
 				setCacheSettingsVisible={setCacheSettingsVisible}
 				height={mapStyle.height}
