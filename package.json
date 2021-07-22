@@ -26,6 +26,7 @@
     "@testing-library/user-event": "^7.1.2",
     "@turf/bbox": "^6.0.1",
     "@turf/bbox-polygon": "^6.0.1",
+    "@turf/length": "^6.5.0",
     "bootstrap": "4.6.0",
     "dexie": "^3.0.3",
     "flatbush": "^3.3.0",
