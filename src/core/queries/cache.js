@@ -389,6 +389,7 @@ queries.tdta_leuchten = `{
         fk_leuchttyp
         fk_strassenschluessel
         fk_unterhaltspflicht_leuchte
+        fk_standort
         id
         inbetriebnahme_leuchte
         is_deleted
