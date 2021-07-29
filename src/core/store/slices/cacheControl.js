@@ -183,9 +183,6 @@ export const renewCache = (key) => {
 					dispatch(setUpdateCount({ key, updateCount: result.data[dataKey].length }));
 					//async block
 					(async () => {
-						//put the data in the indexedDB
-						const y = await dexieW.putArray(result.data[dataKey], itemKey);
-
 						//reset loadingState in 1 minute
 						const resetTimer = setTimeout(() => {
 							dispatch(setLoadingState({ key, resetTimer, loadingState: undefined }));

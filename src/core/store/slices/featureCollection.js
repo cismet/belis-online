@@ -197,8 +197,6 @@ export const loadObjectsIntoFeatureCollection = ({
   return async (dispatch, getState) => {
     dispatch(setDone(false));
 
-    let d = new Date().getTime();
-
     const state = getState();
     const connectionMode = getConnectionMode(state);
     const filter = getFilter(state);
@@ -218,8 +216,6 @@ export const loadObjectsIntoFeatureCollection = ({
         leitungsFeatures = [];
 
         if (filter.leitung.enabled === true) {
-          const ld = new Date().getTime();
-
           leitungsFeatures = state.spatialIndex.lineIndex
             .search(boundingBox.left, boundingBox.bottom, boundingBox.right, boundingBox.top)
             .map((i) => state.spatialIndex.lineIndex.features[i]);
@@ -229,7 +225,6 @@ export const loadObjectsIntoFeatureCollection = ({
       }
       // console.log('leitungsFeatures', leitungsFeatures);
 
-      d = new Date().getTime();
       if (connectionMode === CONNECTIONMODE.FROMCACHE) {
         dexieW
           .getFeaturesForHits(state.spatialIndex.pointIndex.points, resultIds, filter)
@@ -238,7 +233,6 @@ export const loadObjectsIntoFeatureCollection = ({
             const featureCollection = leitungsFeatures.concat(pointFeatureCollection);
             //console.log('xxx alle Features da nach concat ', new Date().getTime() - d);
 
-            d = new Date().getTime();
             //console.log('xxx vor setFeatureCollection');
             dispatch(setFeatureCollection(featureCollection));
             //setFC(featureCollection);
