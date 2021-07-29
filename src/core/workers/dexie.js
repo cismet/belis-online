@@ -62,15 +62,15 @@ export async function get(id, objectStore) {
 	}
 }
 
-async function _template(input) {
-	try {
-		return await new Promise((resolve, reject) => {
-			resolve({ debugLog: 'dummy answer', data: 'xxx' });
-		});
-	} catch (err) {
-		console.log('worker error in _template', err);
-	}
-}
+// async function _template(input) {
+// 	try {
+// 		return await new Promise((resolve, reject) => {
+// 			resolve({ debugLog: 'dummy answer', data: 'xxx' });
+// 		});
+// 	} catch (err) {
+// 		console.log('worker error in _template', err);
+// 	}
+// }
 
 //tools
 
@@ -112,7 +112,7 @@ export const getFeaturesForHits = async (points, resultIds, filter) => {
 			}
 
 			if (addFeature === true) {
-				let d = new Date().getTime();
+				// let d = new Date().getTime();
 				const feature = {
 					text: '-',
 					type: 'Feature',
@@ -143,6 +143,6 @@ export const getFeaturesForHits = async (points, resultIds, filter) => {
 	return featureCollection;
 };
 
-function timeout(ms) {
-	return new Promise((resolve) => setTimeout(resolve, ms));
-}
+// function timeout(ms) {
+// 	return new Promise((resolve) => setTimeout(resolve, ms));
+// }

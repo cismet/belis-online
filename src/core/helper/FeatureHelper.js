@@ -1,7 +1,6 @@
 import { db } from '../indexeddb/dexiedb';
 import length from "@turf/length"
 import proj4 from "proj4";
-import turflinestring from "turf-linestring";
 
 const calcLength = (geom) => {
     let newCoords = [];

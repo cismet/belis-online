@@ -2,13 +2,11 @@ import { createSlice } from '@reduxjs/toolkit';
 import bbox from '@turf/bbox';
 import Flatbush from 'flatbush';
 import kdbush from 'kdbush';
-import dexieworker from 'workerize-loader!../../workers/dexie'; // eslint-disable-line import/no-webpack-loader-syntax
 import { db as dexiedb } from '../../indexeddb/dexiedb';
 
 // const idb = idbworker();
 // idb.init();
 
-const dexieW = dexieworker();
 
 const spatialIndexSlice = createSlice({
 	name: 'spatialIndex',

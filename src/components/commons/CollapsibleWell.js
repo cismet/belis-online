@@ -1,7 +1,6 @@
 import Icon from "react-cismap/commons/Icon";
 import React from "react";
 import Well from "react-cismap/commons/Well";
-import Button from "react-bootstrap/Button";
 /* eslint-disable jsx-a11y/anchor-is-valid */
 
 const COMP = ({

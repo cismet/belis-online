@@ -7,7 +7,6 @@ import {
   setSelectedFeature,
   setSelectedFeatureVis,
 } from "../../core/store/slices/featureCollection";
-import { getZoom, setZoom } from "../../core/store/slices/zoom";
 import ResponsiveInfoBox from "./ResponsiveInfoBox"
 import { getActionLinksForFeature } from "react-cismap/tools/uiHelper";
 import { getVCard } from '../../core/helper/FeatureHelper';
@@ -37,7 +36,6 @@ const BelisMap = ({ refRoutedMap }) => {
   let additionalInfo = 'info';
   let hideNavigator = false;
   let links = [];
-  let fitAll = () => {};
   let _previous = () => {
     let last = undefined;
     if (featureCollectionVis) {

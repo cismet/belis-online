@@ -1,12 +1,6 @@
-import React, { useContext, useState } from "react";
+import React, { useState } from "react";
 import CollapsibleWell from "./CollapsibleWell";
-//import { ResponsiveTopicMapContext } from "../contexts/ResponsiveTopicMapContextProvider";
 import Control from "react-leaflet-control";
-import {
-	getFeatureCollection,
-    getSelectedFeature
-} from '../../core/store/slices/featureCollection';
-import { useSelector } from 'react-redux';
 import { useWindowSize } from '@react-hook/window-size';
 
 
@@ -28,9 +22,7 @@ const InfoBox = ({
   collapsibleStyle,
   fixedRow,
 }) => {
-  const selectedFeature = useSelector(getSelectedFeature);
-	const featureCollection = useSelector(getFeatureCollection);
-	const [ width, height ] = useWindowSize();
+	const [ width ] = useWindowSize();
   //todo brauche ich das?
   const gap = 0;
   const responsiveState = 'normal';
