@@ -3,7 +3,8 @@ import { getVCard } from '../../core/helper/FeatureHelper';
 import ListGroup from 'react-bootstrap/ListGroup';
 import {
     setSelectedFeature,
-    getSelectedFeature
+    getSelectedFeature,
+    setSelectedFeatureVis,
 } from '../../core/store/slices/featureCollection';
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -20,8 +21,10 @@ const SideBarListElement = ({ feature, selected }) => {
             <ListGroup.Item style={style} onClick={() => {
                 if (selectedFeature !== feature.feature) {
                     dispatch(setSelectedFeature(feature.feature));
+                    dispatch(setSelectedFeatureVis(feature));
                 } else {
                     dispatch(setSelectedFeature(undefined));
+                    dispatch(setSelectedFeatureVis(undefined));
                 }
             }} >
             <div>

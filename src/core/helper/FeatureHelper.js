@@ -1,12 +1,33 @@
 import { db } from '../indexeddb/dexiedb';
 import length from "@turf/length"
+import proj4 from "proj4";
+import turflinestring from "turf-linestring";
+
+const calcLength = (geom) => {
+    let newCoords = [];
+    const proj4crs25832def = "+proj=utm +zone=32 +ellps=GRS80 +units=m +no_defs";
+    const targetCrs = proj4.defs("EPSG:4326");
+
+    for (const coord of geom.coordinates) {
+        const transformedGeom = proj4(proj4crs25832def, targetCrs, coord);
+        newCoords.push(transformedGeom);
+    }
+
+    const geo = {
+        "type": "Feature",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": newCoords
+        },
+        "properties": {}
+      };
+
+    let len  = length(geo, 'kilometers');
+    return len * 1000;
+}
 
 export const getVCard = (item) => {
     const vcard = {};
-
-    if (item.properties !== undefined) {
-        alert('Fehler');
-    }
 
     switch(item.featuretype) {
         case 'tdta_leuchten':
@@ -19,8 +40,9 @@ export const getVCard = (item) => {
             break;
         case 'Leitung':
         case 'leitung':
-            const laengePart = (item?.feature?.geometry !== undefined ? Math.round(length(item.feature.geometry) * 100) / 100 + 'm' : '?m');
-            const aPart = (item?.fk_querschnitt?.groesse !== undefined ? item?.fk_querschnitt?.groesse + 'mm²': '');
+//            const laengePart = (item?.feature?.geometry !== undefined ? Math.round(length(item.feature.geometry) * 100) / 100 + 'm' : '?m');
+            const laengePart = (item?.feature?.geometry !== undefined ? Math.round(calcLength(item.feature.geometry) * 100) / 100 + 'm' : '?m');
+            const aPart = (item?.fk_querschnitt?.groesse !== undefined ? ', ' + item?.fk_querschnitt?.groesse + 'mm²': '');
             vcard['title'] = (item?.fk_leitungstyp?.bezeichnung !== undefined ? item?.fk_leitungstyp?.bezeichnung : 'Leitung');
             vcard['subtitle'] = laengePart + aPart;
             vcard['location'] = item.id;
@@ -60,11 +82,22 @@ export const getVCard = (item) => {
 
 export const convertFeatureToItem = async (feature) => {
     const item = {};
+    item.properties = {};
+    item.properties.tel = '111'
     item.featuretype = feature.featuretype;
     item.feature = feature;
 
     switch(feature.featuretype) {
         case 'tdta_leuchten':
+            copyFields(item, feature, ['plz', 'leuchtennummer', 'id', 'einbaudatum', 'anschlussleistung_1dk', 'vorschaltgeraet', 'anschlussleistung_2dk', 'schaltstelle', 'anzahl_1dk', 'anzahl_2dk', 'lfd_Nummer', 'is_deleted', 'wartungszyklus', 'lebensdauer', 'monteur', 'naechster_wechsel', 'wechselvorschaltgeraet', 'wechseldatum', 'zaehler', 'montagefirma_leuchte', 'inbetriebnahme_leuchte', 'bemerkungen']);
+            await addFieldByFK(db, item, "rundsteuerempfaenger", 'rundsteuerempfaenger', feature.properties.rundsteuerempfaenger);
+            await addFieldByFK(db, item, "tkey_strassenschluessel", 'fk_strassenschluessel', feature.properties.fk_strassenschluessel);
+            await addFieldByFK(db, item, "tkey_kennziffer", 'fk_kennziffer', feature.properties.fk_kennziffer);
+            await addFieldByFK(db, item, "tkey_leuchtentyp", 'fk_leuchttyp', feature.properties.fk_leuchttyp);
+            await addFieldByFK(db, item, "tkey_unterh_leuchte", 'fk_unterhaltspflicht_leuchte', feature.properties.fk_unterhaltspflicht_leuchte);
+            await addFieldByFK(db, item, "tkey_energielieferant", 'fk_energielieferant', feature.properties.fk_energielieferant);
+            await addFieldByFK(db, item, "leuchtmittel", 'leuchtmittel', feature.properties.leuchtmittel);
+            await addFieldByFK(db, item, "tdta_standort_mast", 'fk_standort', feature.properties.fk_standort);
             item.compare = (a,b) => {
                 if (a.fk_strassenschluessel?.strasse === b.fk_strassenschluessel?.strasse) {
                     if (a.kennziffer?.kennziffer === b.kennziffer?.kennziffer) {
@@ -80,19 +113,6 @@ export const convertFeatureToItem = async (feature) => {
                     return compareValue(a.fk_strassenschluessel?.strasse, b.fk_strassenschluessel?.strasse);
                 }
             }
-            if (feature.properties === undefined) {
-                console.log('feature without properties');
-                break;
-            }            
-            copyFields(item, feature, ['plz', 'leuchtennummer', 'id', 'einbaudatum', 'anschlussleistung_1dk', 'vorschaltgeraet', 'anschlussleistung_2dk', 'schaltstelle', 'anzahl_1dk', 'anzahl_2dk', 'lfd_Nummer', 'is_deleted', 'wartungszyklus', 'lebensdauer', 'monteur', 'naechster_wechsel', 'wechselvorschaltgeraet', 'wechseldatum', 'zaehler', 'montagefirma_leuchte', 'inbetriebnahme_leuchte', 'bemerkungen']);
-            await addFieldByFK(db, item, "rundsteuerempfaenger", 'rundsteuerempfaenger', feature.properties.rundsteuerempfaenger);
-            await addFieldByFK(db, item, "tkey_strassenschluessel", 'fk_strassenschluessel', feature.properties.fk_strassenschluessel);
-            await addFieldByFK(db, item, "tkey_kennziffer", 'fk_kennziffer', feature.properties.fk_kennziffer);
-            await addFieldByFK(db, item, "tkey_leuchtentyp", 'fk_leuchttyp', feature.properties.fk_leuchttyp);
-            await addFieldByFK(db, item, "tkey_unterh_leuchte", 'fk_unterhaltspflicht_leuchte', feature.properties.fk_unterhaltspflicht_leuchte);
-            await addFieldByFK(db, item, "tkey_energielieferant", 'fk_energielieferant', feature.properties.fk_energielieferant);
-            await addFieldByFK(db, item, "leuchtmittel", 'leuchtmittel', feature.properties.leuchtmittel);
-            await addFieldByFK(db, item, "tdta_standort_mast", 'fk_standort', feature.properties.fk_standort);
             break;
         case 'Leitung':
         case 'leitung':
@@ -102,10 +122,7 @@ export const convertFeatureToItem = async (feature) => {
             await addFieldByFK(db, item, "querschnitt", 'fk_querschnitt', feature.properties.fk_querschnitt);
             await addFieldByFK(db, item, "leitungstyp", 'fk_geom', feature.properties.fk_geom);
             item.compare = (a,b) => {
-//                let ay=a.getPointOfObject().dimensionY
-//                let by=b.getPointOfObject().dimensionY
-                //todo: anpassen
-                return compareValue(a.id, b.id);
+                return compareValue(a.feature.geometry.coordinates[0][1], b.feature.geometry.coordinates[0][1]);
             }
             break;
         case 'mauerlasche':

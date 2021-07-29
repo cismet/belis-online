@@ -50,6 +50,9 @@ const featureCollectionSlice = createSlice({
     setFeatureCollection: (state, action) => {
       state.features = action.payload;
     },
+    setSortedItems: (state, action) => {
+      state.sortedItems = action.payload;
+    },
     setDone: (state, action) => {
       state.done = action.payload;
     },
@@ -73,6 +76,9 @@ const featureCollectionSlice = createSlice({
       state.selectedFeature = action.payload;
       state.features = newFC;
     },
+    setSelectedFeatureVis: (state, action) => {
+      state.selectedFeatureVis = action.payload;
+    },
     setRequestBasis: (state, action) => {
       state.requestBasis = action.payload;
     },
@@ -84,9 +90,11 @@ const featureCollectionSlice = createSlice({
 });
 export const {
   setFeatureCollection,
+  setSortedItems,
   setDone,
   setFilter,
   setSelectedFeature,
+  setSelectedFeatureVis,
   setRequestBasis,
   setFocusModeActive,
 } = featureCollectionSlice.actions;
@@ -96,9 +104,12 @@ export const getFeatureCollection = (state) => {
 
   return state.featureCollection.features;
 };
+export const getSortedItems = (state) => {
+  return state?.featureCollection?.sortedItems;}
 export const isDone = (state) => state.featureCollection.done;
 export const getFilter = (state) => state.featureCollection.filter;
 export const getSelectedFeature = (state) => state?.featureCollection?.selectedFeature;
+export const getSelectedFeatureVis = (state) => state?.featureCollection?.selectedFeatureVis;
 const getRequestBasis = (state) => state.featureCollection.requestBasis;
 export const isInFocusMode = (state) => state.featureCollection.inFocusMode;
 
