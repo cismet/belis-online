@@ -1,11 +1,12 @@
 import {React, useState, useEffect} from 'react';
 import Nav from 'react-bootstrap/Nav';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import SideBarListElement from '../components/commons/SideBarListElement'
 import ListGroup from 'react-bootstrap/ListGroup';
 import {
 	getFeatureCollection,
-    getSelectedFeature
+    getSelectedFeature,
+    setSortedItems,
 } from '../core/store/slices/featureCollection';
 import { convertFeatureToItem } from '../core/helper/FeatureHelper';
 
@@ -32,7 +33,7 @@ const compareFeature = (a, b) => {
   
 const featuresEqual = (a, b) => {
     if (a && b) {
-        if (a.featuretype == b.featuretype) {
+        if (a.featuretype === b.featuretype) {
             return a.properties.id === b.properties.id;
         }
     }
@@ -41,6 +42,7 @@ const featuresEqual = (a, b) => {
   };
 
 const SideBar = ({ innerRef, height }) => {
+    const dispatch = useDispatch();
     const [allFeatures, setAllFeatures] = useState([]);
     const [hits, setHits] = useState([]);
     const selectedFeature = useSelector(getSelectedFeature);
@@ -91,6 +93,7 @@ const SideBar = ({ innerRef, height }) => {
     }
 
     sortedElements.sort(compareFeature);
+    dispatch(setSortedItems(sortedElements));
     let currentFeatureType = null;
 
 	return (

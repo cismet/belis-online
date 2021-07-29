@@ -118,6 +118,7 @@ export const getFeaturesForHits = async (points, resultIds, filter) => {
 					type: 'Feature',
 					selected: false,
 					featuretype: hit.tablename,
+					id: hit.tablename,
 					geometry: {
 						type: 'Point',
 						coordinates: [ hit.x, hit.y ]
@@ -131,6 +132,7 @@ export const getFeaturesForHits = async (points, resultIds, filter) => {
 					properties: {}
 				};
 				feature.properties = featureObject;
+				feature.id = feature.id + '-' + featureObject.id;
 
 				featureCollection.push(feature);
 			}
