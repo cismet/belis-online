@@ -15,6 +15,7 @@ import {
 } from "../core/store/slices/featureCollection";
 import { isPaleModeActive } from "../core/store/slices/paleMode";
 import { getZoom, setZoom } from "../core/store/slices/zoom";
+import InfoBox from "../components/commons/InfoBox"
 
 //---
 
@@ -95,6 +96,7 @@ const BelisMap = ({ refRoutedMap, width, height }) => {
         mapWidth={mapStyle.width}
         mapHeight={mapStyle.height}
       />
+      <InfoBox refRoutedMap={refRoutedMap}/>
     </RoutedMap>
   );
 };
