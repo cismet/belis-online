@@ -1,16 +1,10 @@
-//import dayjs from "dayjs";
-//import customParseFormat from "dayjs/plugin/customParseFormat";
 import { useWindowSize } from '@react-hook/window-size';
 import localforage from "localforage";
 import { useContext, useEffect, useRef, useState } from "react";
 import { Button, Form, Modal } from "react-bootstrap";
 import IconComp from "react-cismap/commons/Icon";
-import { FeatureCollectionDispatchContext } from "react-cismap/contexts/FeatureCollectionContextProvider";
-import { ResponsiveTopicMapContext } from "react-cismap/contexts/ResponsiveTopicMapContextProvider";
 import { CACHE_JWT } from "react-cismap/tools/fetching";
-//import { appKey, daqKeys, db } from "../App";
 
-//dayjs.extend(customParseFormat);
 
 const LoginForm = ({
   setJWT = (jwt) => {
@@ -23,8 +17,6 @@ const LoginForm = ({
   console.log("xxx loginform mounted");
 
 	const [ windowWidth, windowHeight ] = useWindowSize();
-//  const { windowSize } = useContext(ResponsiveTopicMapContext);
-//  const { setMetaInformation } = useContext(FeatureCollectionDispatchContext);
   const pwFieldRef = useRef();
   const userFieldRef = useRef();
   const _height = windowHeight || 800 - 180;
@@ -44,26 +36,6 @@ const LoginForm = ({
     _setUser(user);
   };
 
-  // useEffect(() => {
-  //   (async () => {
-  //     // eslint-disable-next-line
-  //     const userInCache = await localforage.getItem("@" + appKey + "." + "auth" + "." + "user");
-  //     const dataValueInCache = await offlineDataAvailable(db, daqKeys);
-
-  //     setCacheDataAvailable(dataValueInCache !== null && dataValueInCache !== undefined);
-  //     if (dataValueInCache !== null && dataValueInCache !== undefined) {
-  //       const time = dayjs(dataValueInCache, "YYYY-MM-DD hh:mm:ss").toDate();
-  //       setMetaInformation({ time });
-  //     }
-  //     if (userInCache) {
-  //       setUser(userInCache);
-  //     }
-  //     if (userFieldRef?.current) {
-  //       userFieldRef.current.focus();
-  //       userFieldRef.current.select();
-  //     }
-  //   })();
-  // }, [setMetaInformation]);
 
   /*eslint no-useless-concat: "off"*/
   const login = () => {
