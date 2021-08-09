@@ -13,7 +13,6 @@ import { useLocation } from 'react-router-dom';
 import Switch from '../components/commons/Switch';
 import { CONNECTIONMODE, getConnectionMode, setConnectionMode } from '../core/store/slices/app';
 import { getBackground, setBackground } from '../core/store/slices/background';
-import { getCacheInfo, getCacheSettings } from '../core/store/slices/cacheControl';
 import {
 	isInFocusMode,
 	loadObjects,
@@ -30,8 +29,6 @@ const BottomNavbar = ({ innerRef, onlineStatus, refRoutedMap, jwt }) => {
 	const inFocusMode = useSelector(isInFocusMode);
 	const inPaleMode = useSelector(isPaleModeActive);
 	const background = useSelector(getBackground);
-	const cacheInfo = useSelector(getCacheInfo('abzweigdose'));
-	const cacheSettings = useSelector(getCacheSettings);
 	const connectionMode = useSelector(getConnectionMode);
 	const uiThreadProgressbar =
 		new URLSearchParams(browserlocation.search).get('uiThreadProgressbar') === 'true';

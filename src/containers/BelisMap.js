@@ -37,7 +37,6 @@ const BelisMap = ({ refRoutedMap, width, height, jwt }) => {
   const zoom = useSelector(getZoom);
   const inPaleMode = useSelector(isPaleModeActive);
   const background = useSelector(getBackground);
-  const connectionMode = useSelector(getConnectionMode);
 
   const urlSearchParams = new URLSearchParams(browserlocation.search);
 
