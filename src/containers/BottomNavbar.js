@@ -23,7 +23,7 @@ import { isPaleModeActive, setPaleModeActive } from '../core/store/slices/paleMo
 
 //---------
 
-const BottomNavbar = ({ innerRef, onlineStatus, refRoutedMap }) => {
+const BottomNavbar = ({ innerRef, onlineStatus, refRoutedMap, jwt }) => {
 	const dispatch = useDispatch();
 	const browserlocation = useLocation();
 
@@ -76,7 +76,8 @@ const BottomNavbar = ({ innerRef, onlineStatus, refRoutedMap }) => {
 						dispatch(
 							loadObjects({
 								boundingBox: refRoutedMap.current.getBoundingBox(),
-								inFocusMode: switched
+								inFocusMode: switched,
+								jwt: jwt
 							})
 						);
 					}}

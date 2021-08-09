@@ -100,7 +100,7 @@ export const {
 } = featureCollectionSlice.actions;
 
 export const getFeatureCollection = (state) => {
-  console.log("yyy getFeatureCollection", state.featureCollection.features);
+//  console.log("yyy getFeatureCollection", state.featureCollection.features);
 
   return state.featureCollection.features;
 };
@@ -131,8 +131,11 @@ const createQueryGeomFromB = (boundingBox) => {
   return geom;
 };
 
-export const loadObjects = ({ boundingBox, _inFocusMode, zoom, overridingFilterState }) => {
+export const loadObjects = ({ boundingBox, _inFocusMode, zoom, overridingFilterState, jwt }) => {
   return async (dispatch, getState) => {
+    if (!jwt) {
+      return;
+    }
     const state = getState();
     const inFocusMode = _inFocusMode || isInFocusMode(state);
     const _searchForbidden = _isSearchForbidden({ inFocusMode }, state);
@@ -180,7 +183,7 @@ export const loadObjects = ({ boundingBox, _inFocusMode, zoom, overridingFilterS
           xbb = boundingBox;
         }
 
-        dispatch(loadObjectsIntoFeatureCollection({ boundingBox: xbb }));
+        dispatch(loadObjectsIntoFeatureCollection({ boundingBox: xbb, jwt: jwt }));
       } else {
         //console.log('xxx duplicate forceShowObjects');
       }
@@ -193,6 +196,7 @@ export const loadObjectsIntoFeatureCollection = ({
   _inFocusMode,
   _zoom,
   _overridingFilterState,
+  jwt,
 }) => {
   return async (dispatch, getState) => {
     dispatch(setDone(false));
@@ -254,7 +258,7 @@ export const loadObjectsIntoFeatureCollection = ({
         }
         const gqlQuery = `query q($bbPoly: geometry!) {${queryparts}}`;
         const queryParameter = { bbPoly: createQueryGeomFromB(boundingBox) };
-        const response = await fetchGraphQL(gqlQuery, queryParameter);
+        const response = await fetchGraphQL(gqlQuery, queryParameter, jwt);
 
         const featureCollection = [];
         for (const key of Object.keys(response.data)) {
@@ -295,7 +299,7 @@ export const loadObjectsIntoFeatureCollection = ({
     } else {
       dispatch(
         initIndex(() => {
-          dispatch(loadObjectsIntoFeatureCollection({ boundingBox }));
+          dispatch(loadObjectsIntoFeatureCollection({ boundingBox, jwt: jwt }));
         })
       );
     }

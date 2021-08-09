@@ -19,7 +19,7 @@ import InfoBox from "../components/commons/InfoBox"
 
 //---
 
-const BelisMap = ({ refRoutedMap, width, height }) => {
+const BelisMap = ({ refRoutedMap, width, height, jwt }) => {
   const dispatch = useDispatch();
 
   const mapStyle = {
@@ -54,7 +54,7 @@ const BelisMap = ({ refRoutedMap, width, height }) => {
     if (zoom !== z) {
       dispatch(setZoom(z));
     }
-    dispatch(loadObjects({ boundingBox, inFocusMode, zoom: z }));
+    dispatch(loadObjects({ boundingBox, inFocusMode, zoom: z, jwt: jwt }));
   };
   let symbolColor;
   if (background === "nightplan") {

@@ -151,7 +151,7 @@ export const fillCacheInfo = () => {
 	};
 };
 
-export const renewCache = (key) => {
+export const renewCache = (key, jwt) => {
 	return async (dispatch, getState) => {
 		const state = getState();
 		const cfg = getCacheInfo(key)(state);
@@ -168,7 +168,7 @@ export const renewCache = (key) => {
 			}
 		};
 		dexieW.addEventListener('message', progressListener);
-		fetchGraphQL(cacheQueries[itemKey], {})
+		fetchGraphQL(cacheQueries[itemKey], {}, jwt)
 			.then((result, error) => {
 				if (error !== undefined) {
 					console.log('error in fetch ', error);

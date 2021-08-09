@@ -200,7 +200,8 @@ const BelisFeatureCollection = ({ featureCollection, fgColor = "#000000" }) => {
 
           if (feature.selected) {
             let selectionOffset = (canvasSize - selectionBox) / 2;
-
+/*x="${selectionOffset + 5}" y="${selectionOffset - 4}" */
+/*x="${selectionOffset + innerBadgeOffset + 6}" y="${selectionOffset + innerBadgeOffset - 2}*/
             let badgeDimension = svgSize - (2 * svgSize) / 12;
             let innerBadgeOffset = (selectionBox - badgeDimension) / 2;
             console.log("zzz offsets", { selectionOffset, badgeDimension, innerBadgeOffset });
@@ -222,8 +223,8 @@ const BelisFeatureCollection = ({ featureCollection, fgColor = "#000000" }) => {
 								stroke: white;
 							}
 						/* ]]> */
-						</style>
-					<rect x="${selectionOffset}" y="${selectionOffset}" rx="8" ry="8" width="${selectionBox}" height="${selectionBox}" fill="rgba(67, 149, 254, 0.8)" stroke-width="0"/>
+						</style>/*yOben +6 yUnten-6*/
+					<rect x="${selectionOffset}" y="${selectionOffset} rx="8" ry="8" width="${selectionBox}" height="${selectionBox}" fill="rgba(67, 149, 254, 0.8)" stroke-width="0"/>
 					<svg x="${selectionOffset + innerBadgeOffset}" y="${
                 selectionOffset + innerBadgeOffset
               }" width="${badgeDimension}" height="${badgeDimension}" viewBox="0 0 ` +
@@ -245,7 +246,7 @@ const BelisFeatureCollection = ({ featureCollection, fgColor = "#000000" }) => {
             weight: 4,
             fillOpacity: 0.8,
             svg: svg,
-            svgSize: svgSize,
+            svgSize: svgSize + 52,
           };
         }}
         //mapRef={topicMapRef} // commented out because there cannot be a ref in a functional comp and it is bnot needed
