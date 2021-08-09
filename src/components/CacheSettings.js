@@ -9,7 +9,7 @@ import { fillCacheInfo, getCacheSettings, renewCache } from '../core/store/slice
 import AggregatedCacheItem from './app/cache/AggregatedCacheItem';
 import CacheItem from './app/cache/CacheItem';
 
-const CacheSettings = ({ hide = () => {} }) => {
+const CacheSettings = ({ hide = () => {}, jwt }) => {
 	const dispatch = useDispatch();
 	const cacheSettings = useSelector(getCacheSettings);
 	useEffect(() => {
@@ -55,7 +55,7 @@ const CacheSettings = ({ hide = () => {} }) => {
 							onClick={() => {
 								Object.keys(cacheSettings).map((key, index) => {
 									setTimeout(() => {
-										dispatch(renewCache(key));
+										dispatch(renewCache(key, jwt));
 									}, 100 + 100 * index);
 								});
 							}}
@@ -108,7 +108,7 @@ const CacheSettings = ({ hide = () => {} }) => {
 											renew={() => {
 												console.log('renew');
 
-												dispatch(renewCache(key));
+												dispatch(renewCache(key, jwt));
 											}}
 										/>
 									);
@@ -117,7 +117,7 @@ const CacheSettings = ({ hide = () => {} }) => {
 							<AggregatedCacheItem
 								controls={secondarySettings}
 								renew={(key) => {
-									dispatch(renewCache(key));
+									dispatch(renewCache(key, jwt));
 								}}
 							/>
 

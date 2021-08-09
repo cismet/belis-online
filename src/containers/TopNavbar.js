@@ -31,7 +31,7 @@ import {
 import { getBackground } from '../core/store/slices/background';
 //---------
 
-const TopNavbar = ({ innerRef, refRoutedMap, setCacheSettingsVisible }) => {
+const TopNavbar = ({ innerRef, refRoutedMap, setCacheSettingsVisible, jwt }) => {
 	const dispatch = useDispatch();
 	const searchModeActive = useSelector(isSearchModeActive);
 	const fcIsDone = useSelector(featureCollectionIsDone);
@@ -81,7 +81,8 @@ const TopNavbar = ({ innerRef, refRoutedMap, setCacheSettingsVisible }) => {
 
 								dispatch(
 									loadObjects({
-										boundingBox: refRoutedMap.current.getBoundingBox()
+										boundingBox: refRoutedMap.current.getBoundingBox(),
+										jwt: jwt
 									})
 								);
 							} else {
@@ -119,7 +120,8 @@ const TopNavbar = ({ innerRef, refRoutedMap, setCacheSettingsVisible }) => {
 											dispatch(
 												loadObjects({
 													boundingBox: refRoutedMap.current.getBoundingBox(),
-													overridingFilterState: _fs
+													overridingFilterState: _fs,
+													jwt: jwt
 												})
 											);
 										}, 50);
