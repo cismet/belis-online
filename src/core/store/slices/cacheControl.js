@@ -183,6 +183,9 @@ export const renewCache = (key, jwt) => {
 					dispatch(setUpdateCount({ key, updateCount: result.data[dataKey].length }));
 					//async block
 					(async () => {
+						//put the data in the indexedDB
+						const y = await dexieW.putArray(result.data[dataKey], itemKey);
+
 						//reset loadingState in 1 minute
 						const resetTimer = setTimeout(() => {
 							dispatch(setLoadingState({ key, resetTimer, loadingState: undefined }));
@@ -194,7 +197,8 @@ export const renewCache = (key, jwt) => {
 						//removeEVent Listener to free memory
 						dexieW.removeEventListener('message', progressListener);
 
-						if (itemKey === 'raw_point_index' || itemKey === 'leitung') {
+						if (itemKey === 'raw_point_index') {
+							//todo: the initIndex function shopuld be called, after the cache was completely refreshed
 							//to use the new data for the geometry search
 							dispatch(
 								initIndex(() => {})

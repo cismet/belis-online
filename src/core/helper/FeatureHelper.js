@@ -6,16 +6,32 @@ const calcLength = (geom) => {
     let newCoords = [];
     const proj4crs25832def = "+proj=utm +zone=32 +ellps=GRS80 +units=m +no_defs";
     const targetCrs = proj4.defs("EPSG:4326");
+    let isMulti = false;
 
-    for (const coord of geom.coordinates) {
-        const transformedGeom = proj4(proj4crs25832def, targetCrs, coord);
-        newCoords.push(transformedGeom);
+    try {
+        for (const coord of geom.coordinates) {
+            if (geom.type === 'MultiLineString') {
+                let coordArray = [];
+                isMulti = true;
+
+                for (const coordPair of coord) {
+                    const transformedGeom = proj4(proj4crs25832def, targetCrs, coordPair);
+                    coordArray.push(transformedGeom);
+                }
+                newCoords.push(coordArray);
+            } else {
+                const transformedGeom = proj4(proj4crs25832def, targetCrs, coord);
+                newCoords.push(transformedGeom);
+            }
+        }
+    } catch (o) {
+        console.log('cannot calculate geometry length ' + geom);
     }
 
     const geo = {
         "type": "Feature",
         "geometry": {
-          "type": "LineString",
+          "type": (isMulti === true ? "MultiLineString" : "LineString"),
           "coordinates": newCoords
         },
         "properties": {}
@@ -27,12 +43,13 @@ const calcLength = (geom) => {
 
 export const getVCard = (item) => {
     const vcard = {};
+    console.log(item.id);
 
     switch(item.featuretype) {
         case 'tdta_leuchten':
             const typPart = (item?.fk_leuchttyp?.leuchtentyp !== undefined ? item?.fk_leuchttyp?.leuchtentyp : 'Leuchte');
             const nrPart = '-' + (item?.leuchtennummer !== undefined ? item?.leuchtennummer : '0');
-            const standortPart = (item?.fk_standort?.lfd_nummer !== undefined ? ', ' + item?.standort?.lfd_nummer : '');
+            const standortPart = (item?.fk_standort?.lfd_nummer !== undefined ? ', ' + item?.fk_standort?.lfd_nummer : '');
             vcard['title'] = typPart.concat(nrPart, standortPart);
             vcard['subtitle'] = (item?.fk_leuchttyp?.fabrikat !== undefined ? item?.fk_leuchttyp?.fabrikat : '-ohne Fabrikat-');
             vcard['location'] = item?.fk_strassenschluessel?.strasse;
@@ -40,6 +57,7 @@ export const getVCard = (item) => {
         case 'Leitung':
         case 'leitung':
 //            const laengePart = (item?.feature?.geometry !== undefined ? Math.round(length(item.feature.geometry) * 100) / 100 + 'm' : '?m');
+            console.log((item?.fk_leitungstyp?.bezeichnung !== undefined ? item?.fk_leitungstyp?.bezeichnung : 'Leitung') + ' ' + item.id);
             const laengePart = (item?.feature?.geometry !== undefined ? Math.round(calcLength(item.feature.geometry) * 100) / 100 + 'm' : '?m');
             const aPart = (item?.fk_querschnitt?.groesse !== undefined ? ', ' + item?.fk_querschnitt?.groesse + 'mm²': '');
             vcard['title'] = (item?.fk_leitungstyp?.bezeichnung !== undefined ? item?.fk_leitungstyp?.bezeichnung : 'Leitung');
@@ -96,7 +114,17 @@ export const convertFeatureToItem = async (feature) => {
             await addFieldByFK(db, item, "tkey_unterh_leuchte", 'fk_unterhaltspflicht_leuchte', feature.properties.fk_unterhaltspflicht_leuchte);
             await addFieldByFK(db, item, "tkey_energielieferant", 'fk_energielieferant', feature.properties.fk_energielieferant);
             await addFieldByFK(db, item, "leuchtmittel", 'leuchtmittel', feature.properties.leuchtmittel);
-            await addFieldByFK(db, item, "tdta_standort_mast", 'fk_standort', feature.properties.fk_standort);
+            await addFieldByFK(db, item, "all_tdta_standort_mast", 'fk_standort', feature.properties.fk_standort);
+            await addFieldByFK(db, item, "tkey_doppelkommando", 'fk_dk1', feature.properties.fk_dk1);
+            await addFieldByFK(db, item, "tkey_doppelkommando", 'fk_dk2', feature.properties.fk_dk2);
+            await addFieldByFK(db, item.fk_standort, "tkey_mastart", 'mastart', item.fk_standort.fk_mastart);
+            await addFieldByFK(db, item.fk_standort, "tkey_unterh_mast", 'unterhaltspflicht_mast', item.fk_standort.fk_unterhaltspflicht_mast);
+            await addFieldByFK(db, item.fk_standort, "tkey_masttyp", 'masttyp', item.fk_standort.fk_masttyp);
+            await addFieldByFK(db, item.fk_standort, "tkey_kennziffer", 'kennziffer', item.fk_standort.fk_kennziffer);
+            await addFieldByFK(db, item.fk_standort, "anlagengruppe", 'anlgruppe', item.fk_standort.anlagengruppe);
+            await addFieldByFK(db, item.fk_standort, "tkey_bezirk", 'stadtbezirk', item.fk_standort.fk_stadtbezirk);
+            await addFieldByFK(db, item.fk_standort, "tkey_klassifizierung", 'klassifizierung', item.fk_standort.fk_klassifizierung);
+
             item.compare = (a,b) => {
                 if (a.fk_strassenschluessel?.strasse === b.fk_strassenschluessel?.strasse) {
                     if (a.kennziffer?.kennziffer === b.kennziffer?.kennziffer) {

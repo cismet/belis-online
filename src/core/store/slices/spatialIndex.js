@@ -88,8 +88,9 @@ export const initIndex = (finished = () => {}) => async (dispatch) => {
 				},
 				properties
 			};
+			// use the type l.geom.geo_field.type, because there are also leitungen with a MultiLineString geometry
 			feature.geometry = {
-				type: 'LineString',
+				type: l.geom.geo_field.type,
 				coordinates: l.geom.geo_field.coordinates
 			};
 
