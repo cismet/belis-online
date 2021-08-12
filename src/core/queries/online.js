@@ -157,6 +157,7 @@ tdta_leuchten(where: {tdta_standort_mast: {geom: {geo_field: {_st_intersects: $b
     fk_leuchttyp
     fk_strassenschluessel
     fk_unterhaltspflicht_leuchte
+    fk_standort
     id
     inbetriebnahme_leuchte
     is_deleted

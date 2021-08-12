@@ -74,7 +74,7 @@ const SideBar = ({ innerRef, height }) => {
                 setHits(hi);
             },
             (problem) => {
-                alert('problem');
+                alert('problem' + problem);
                 //todo: do something
             }
         );
