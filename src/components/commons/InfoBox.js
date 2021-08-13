@@ -6,6 +6,8 @@ import {
   getSortedItems,
   setSelectedFeature,
   setSelectedFeatureVis,
+  isSecondaryInfoVisible,
+  setSecondaryInfoVisible,
 } from "../../core/store/slices/featureCollection";
 import ResponsiveInfoBox from "./ResponsiveInfoBox"
 import { getActionLinksForFeature } from "react-cismap/tools/uiHelper";
@@ -15,6 +17,12 @@ import { convertBBox2Bounds } from "react-cismap/tools/gisHelper";
 import { getType } from "@turf/invariant";
 import proj4 from "proj4";
 import envelope from "@turf/envelope";
+import { Button } from "react-bootstrap";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faMap,
+} from "@fortawesome/free-solid-svg-icons";
+import IconLink from "react-cismap/commons/IconLink";
 
 
 //---
@@ -24,6 +32,7 @@ const BelisMap = ({ refRoutedMap }) => {
   const featureCollection = useSelector(getFeatureCollection);
   const selectedFeature = useSelector(getSelectedFeatureVis);
   const featureCollectionVis = useSelector(getSortedItems);
+  const secondaryInfoVisible = useSelector(isSecondaryInfoVisible);
 
   let header = <span>Feature title</span>;
   const minified = undefined;
@@ -92,7 +101,6 @@ const BelisMap = ({ refRoutedMap }) => {
     links = getActionLinksForFeature(selectedFeature, {
       entityClassName: config.navigator.noun.singular,
       displayZoomToFeature: true,
-//      zoomToFeature: () => {alert('aa');},
       zoomToFeature: (feature) => {
         let zoomlevel = 15;
         let refDef;
@@ -124,6 +132,17 @@ const BelisMap = ({ refRoutedMap }) => {
         config.displaySecondaryInfoAction === undefined,
       setVisibleStateOfSecondaryInfo: (vis) => {return false;},
     });
+    links.push(      
+        <IconLink 
+          key={`openInfo`}
+          tooltip={"Öffne Datenblatt"}
+          onClick={() => {
+            dispatch(setSecondaryInfoVisible(!secondaryInfoVisible));
+          }}
+          iconname={"info"}
+          href='#'
+        />
+    )
     header = <span>{vcard?.title || config.header}</span>;
     title = vcard?.title;
     subtitle = vcard?.subtitle;
@@ -192,8 +211,8 @@ const BelisMap = ({ refRoutedMap }) => {
                               <div>{parseHtml(additionalInfo.match(/<html>(.*?)<\/html>/)[1])}</div>
                             )} */}
                           {additionalInfo &&
-                            (!additionalInfo.startsWith || !additionalInfo.startsWith("<html>")) &&
-                            additionalInfo.split("\n").map((item, key) => {
+                            (!additionalInfo.toString().startsWith || !additionalInfo.toString().startsWith("<html>")) &&
+                            additionalInfo.toString().split("\n").map((item, key) => {
                               return (
                                 <span key={key}>
                                   {item}
@@ -266,10 +285,8 @@ const BelisMap = ({ refRoutedMap }) => {
     collapsibleDiv = <div style={{ paddingRight: 2 }}>{noCurrentFeatureContent}</div>;
   }
 
-
   return (
       <ResponsiveInfoBox
-        // panelClick={}
         pixelwidth={350}
         header={llVis}
         collapsedInfoBox={minified}
@@ -277,7 +294,6 @@ const BelisMap = ({ refRoutedMap }) => {
         isCollapsible={false}
         handleResponsiveDesign={false}
         infoStyle={infoStyle}
-        // secondaryInfoBoxElements={secondaryInfoBoxElements}
         alwaysVisibleDiv={alwaysVisibleDiv}
         collapsibleDiv={collapsibleDiv}
         fixedRow={true}
