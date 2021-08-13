@@ -12,10 +12,13 @@ import {
   getFeatureCollection,
   loadObjects,
   isInFocusMode,
+  isSecondaryInfoVisible,
+  getSelectedFeature,
 } from "../core/store/slices/featureCollection";
 import { isPaleModeActive } from "../core/store/slices/paleMode";
 import { getZoom, setZoom } from "../core/store/slices/zoom";
 import InfoBox from "../components/commons/InfoBox"
+import InfoPanel from "../components/commons/secondaryinfo/SecondaryInfo";
 
 //---
 
@@ -31,6 +34,8 @@ const BelisMap = ({ refRoutedMap, width, height, jwt }) => {
   };
   const featureCollection = useSelector(getFeatureCollection);
   const inFocusMode = useSelector(isInFocusMode);
+  const secondaryInfoVisible = useSelector(isSecondaryInfoVisible);
+  const selectedFeature = useSelector(getSelectedFeature);
   const history = useHistory();
   const browserlocation = useLocation();
 
@@ -95,7 +100,12 @@ const BelisMap = ({ refRoutedMap, width, height, jwt }) => {
         mapWidth={mapStyle.width}
         mapHeight={mapStyle.height}
       />
-      <InfoBox refRoutedMap={refRoutedMap}/>
+      {secondaryInfoVisible && 
+      <InfoPanel />
+      }
+      {selectedFeature !== undefined && selectedFeature !== null &&
+      <InfoBox refRoutedMap={refRoutedMap} />
+      }
     </RoutedMap>
   );
 };

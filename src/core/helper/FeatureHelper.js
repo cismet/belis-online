@@ -43,7 +43,6 @@ const calcLength = (geom) => {
 
 export const getVCard = (item) => {
     const vcard = {};
-    console.log(item.id);
 
     switch(item.featuretype) {
         case 'tdta_leuchten':
@@ -57,7 +56,6 @@ export const getVCard = (item) => {
         case 'Leitung':
         case 'leitung':
 //            const laengePart = (item?.feature?.geometry !== undefined ? Math.round(length(item.feature.geometry) * 100) / 100 + 'm' : '?m');
-            console.log((item?.fk_leitungstyp?.bezeichnung !== undefined ? item?.fk_leitungstyp?.bezeichnung : 'Leitung') + ' ' + item.id);
             const laengePart = (item?.feature?.geometry !== undefined ? Math.round(calcLength(item.feature.geometry) * 100) / 100 + 'm' : '?m');
             const aPart = (item?.fk_querschnitt?.groesse !== undefined ? ', ' + item?.fk_querschnitt?.groesse + 'mm²': '');
             vcard['title'] = (item?.fk_leitungstyp?.bezeichnung !== undefined ? item?.fk_leitungstyp?.bezeichnung : 'Leitung');
@@ -100,7 +98,6 @@ export const getVCard = (item) => {
 export const convertFeatureToItem = async (feature) => {
     const item = {};
     item.properties = {};
-    item.properties.tel = '111'
     item.featuretype = feature.featuretype;
     item.feature = feature;
 

@@ -198,7 +198,7 @@ export const renewCache = (key, jwt) => {
 						dexieW.removeEventListener('message', progressListener);
 
 						if (itemKey === 'raw_point_index') {
-							//todo: the initIndex function shopuld be called, after the cache was completely refreshed
+							//todo: the initIndex function should be called, after the cache was completely refreshed
 							//to use the new data for the geometry search
 							dispatch(
 								initIndex(() => {})

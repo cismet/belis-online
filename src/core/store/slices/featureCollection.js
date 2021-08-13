@@ -45,6 +45,7 @@ const featureCollectionSlice = createSlice({
     selectedFeature: null,
     requestBasis: undefined,
     inFocusMode: initialInFocusMode,
+    secondaryInfoVisible: false,
   },
   reducers: {
     setFeatureCollection: (state, action) => {
@@ -86,6 +87,9 @@ const featureCollectionSlice = createSlice({
       state.inFocusMode = action.payload;
       localStorage.setItem(LOCALSTORAGE_KEY_IN_FOCUS_MODE, JSON.stringify(action.payload));
     },
+    setSecondaryInfoVisible: (state, action) => {
+      state.secondaryInfoVisible = action.payload;
+    },
   },
 });
 export const {
@@ -97,6 +101,7 @@ export const {
   setSelectedFeatureVis,
   setRequestBasis,
   setFocusModeActive,
+  setSecondaryInfoVisible,
 } = featureCollectionSlice.actions;
 
 export const getFeatureCollection = (state) => {
@@ -112,6 +117,7 @@ export const getSelectedFeature = (state) => state?.featureCollection?.selectedF
 export const getSelectedFeatureVis = (state) => state?.featureCollection?.selectedFeatureVis;
 const getRequestBasis = (state) => state.featureCollection.requestBasis;
 export const isInFocusMode = (state) => state.featureCollection.inFocusMode;
+export const isSecondaryInfoVisible = (state) => state.featureCollection.secondaryInfoVisible;
 
 export default featureCollectionSlice;
 
