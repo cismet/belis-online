@@ -161,7 +161,7 @@ const BelisFeatureCollection = ({ featureCollection, fgColor = "#000000" }) => {
           };
 
           const badge = (svgs[feature.featuretype] || {}).svg;
-          const svgSize = (svgs[feature.featuretype] || {}).size;
+          let svgSize = (svgs[feature.featuretype] || {}).size;
 
           const badgeWidth = (svgs[feature.featuretype] || {}).width || svgSize;
           const badgeHeight = (svgs[feature.featuretype] || {}).height || svgSize;
@@ -204,6 +204,7 @@ const BelisFeatureCollection = ({ featureCollection, fgColor = "#000000" }) => {
 /*x="${selectionOffset + innerBadgeOffset + 6}" y="${selectionOffset + innerBadgeOffset - 2}*/
             let badgeDimension = svgSize - (2 * svgSize) / 12;
             let innerBadgeOffset = (selectionBox - badgeDimension) / 2;
+            svgSize = svgSize + 22;
             console.log("zzz offsets", { selectionOffset, badgeDimension, innerBadgeOffset });
 
             svg =
@@ -223,9 +224,9 @@ const BelisFeatureCollection = ({ featureCollection, fgColor = "#000000" }) => {
 								stroke: white;
 							}
 						/* ]]> */
-						</style>/*yOben +6 yUnten-6*/
-					<rect x="${selectionOffset}" y="${selectionOffset} rx="8" ry="8" width="${selectionBox}" height="${selectionBox}" fill="rgba(67, 149, 254, 0.8)" stroke-width="0"/>
-					<svg x="${selectionOffset + innerBadgeOffset}" y="${
+						</style>
+            <rect x="${selectionOffset}" y="${selectionOffset}" rx="8" ry="8" width="${selectionBox}" height="${selectionBox}" fill="rgba(67, 149, 254, 0.8)" stroke-width="0"/>
+            <svg x="${selectionOffset + innerBadgeOffset}" y="${
                 selectionOffset + innerBadgeOffset
               }" width="${badgeDimension}" height="${badgeDimension}" viewBox="0 0 ` +
               badgeWidth + //feature.properties.svgBadgeDimension.width +
@@ -246,7 +247,7 @@ const BelisFeatureCollection = ({ featureCollection, fgColor = "#000000" }) => {
             weight: 4,
             fillOpacity: 0.8,
             svg: svg,
-            svgSize: svgSize + 52,
+            svgSize: svgSize,
           };
         }}
         //mapRef={topicMapRef} // commented out because there cannot be a ref in a functional comp and it is bnot needed
