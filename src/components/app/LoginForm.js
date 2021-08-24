@@ -1,11 +1,11 @@
-import { useWindowSize } from '@react-hook/window-size';
+import { useWindowSize } from "@react-hook/window-size";
 import localforage from "localforage";
 import { useContext, useEffect, useRef, useState } from "react";
 import { Button, Form, Modal } from "react-bootstrap";
 import IconComp from "react-cismap/commons/Icon";
 import { CACHE_JWT } from "react-cismap/tools/fetching";
-
-
+import { useDispatch } from "react-redux";
+import { storeJWT } from "../../core/store/slices/auth";
 const LoginForm = ({
   setJWT = (jwt) => {
     console.log("you need to set the attribute setJWT in the <Login> component", jwt);
@@ -15,8 +15,9 @@ const LoginForm = ({
   setLoggedOut,
 }) => {
   console.log("xxx loginform mounted");
+  const dispatch = useDispatch();
 
-	const [ windowWidth, windowHeight ] = useWindowSize();
+  const [windowWidth, windowHeight] = useWindowSize();
   const pwFieldRef = useRef();
   const userFieldRef = useRef();
   const _height = windowHeight || 800 - 180;
@@ -32,17 +33,16 @@ const LoginForm = ({
   window.localforage = localforage;
   const setUser = (user) => {
     // eslint-disable-next-line
-//    localforage.setItem("@" + appKey + "." + "auth" + "." + "user", user);
+    //    localforage.setItem("@" + appKey + "." + "auth" + "." + "user", user);
     _setUser(user);
   };
-
 
   /*eslint no-useless-concat: "off"*/
   const login = () => {
     fetch("http://localhost:8890/users", {
       method: "GET",
       headers: {
-        Authorization: "Basic " + btoa(user + "@" + "WUNDA_BLAU" + ":" + pw),
+        Authorization: "Basic " + btoa(user + "@" + "BELIS2" + ":" + pw),
         "Content-Type": "application/json",
       },
     })
@@ -55,6 +55,9 @@ const LoginForm = ({
               text: "Anmeldung erfolgreich. Daten werden geladen.",
             });
             setTimeout(() => {
+              console.log("yyy  Anmeldung erfolgreich. Daten werden geladen.", jwt);
+
+              dispatch(storeJWT(jwt));
               setJWT(jwt);
               setLoggedOut(false);
               setLoginInfo();
