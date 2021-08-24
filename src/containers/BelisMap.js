@@ -17,7 +17,7 @@ import {
 } from "../core/store/slices/featureCollection";
 import { isPaleModeActive } from "../core/store/slices/paleMode";
 import { getZoom, setZoom } from "../core/store/slices/zoom";
-import InfoBox from "../components/commons/InfoBox"
+import InfoBox from "../components/commons/InfoBox";
 import InfoPanel from "../components/commons/secondaryinfo/SecondaryInfo";
 
 //---
@@ -85,7 +85,7 @@ const BelisMap = ({ refRoutedMap, width, height, jwt }) => {
       fullScreenControlEnabled={false}
       locateControlEnabled={true}
       minZoom={7}
-      maxZoom={18}
+      maxZoom={19}
       zoomSnap={0.5}
       zoomDelta={0.5}
       locationChangedHandler={(location) => {
@@ -100,12 +100,10 @@ const BelisMap = ({ refRoutedMap, width, height, jwt }) => {
         mapWidth={mapStyle.width}
         mapHeight={mapStyle.height}
       />
-      {secondaryInfoVisible && 
-      <InfoPanel />
-      }
-      {selectedFeature !== undefined && selectedFeature !== null &&
-      <InfoBox refRoutedMap={refRoutedMap} />
-      }
+      {secondaryInfoVisible && <InfoPanel />}
+      {selectedFeature !== undefined && selectedFeature !== null && (
+        <InfoBox refRoutedMap={refRoutedMap} />
+      )}
     </RoutedMap>
   );
 };
