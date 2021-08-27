@@ -55,7 +55,7 @@ if (stateLoggingEnabled === true) {
 const store = configureStore({
   reducer: {
     app: appStateSlice.reducer,
-    jwt: authSlice.reducer,
+    auth: authSlice.reducer,
     spatialIndex: spatialIndexSlice.reducer,
     testCounter: testSlice.reducer,
     featureCollection: featureCollectionSlice.reducer,

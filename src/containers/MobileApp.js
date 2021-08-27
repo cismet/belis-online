@@ -51,7 +51,9 @@ const View = () => {
   useEffect(() => {}, [jwt]);
 
   let loginForm = null;
-  if (jwt === undefined) {
+
+  const showLogin = storedJWT === "" || storedJWT === undefined || storedJWT === null;
+  if (showLogin) {
     loginForm = (
       <LoginForm
         key={"login."}
@@ -73,7 +75,7 @@ const View = () => {
           jwt={jwt}
         />
       )}
-      {jwt === undefined && loginForm}
+      {showLogin && loginForm}
       <TopNavbar
         innerRef={refUpperToolbar}
         refRoutedMap={refRoutedMap}

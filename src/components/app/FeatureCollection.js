@@ -1,7 +1,10 @@
 import React from "react";
 import { FeatureCollectionDisplay } from "react-cismap";
 import { useDispatch } from "react-redux";
-import { setSelectedFeature } from "../../core/store/slices/featureCollection";
+import {
+  setSelectedFeature,
+  setSelectedFeatureVis,
+} from "../../core/store/slices/featureCollection";
 
 const DEBUGGING = false;
 const BelisFeatureCollection = ({ featureCollection, fgColor = "#000000" }) => {
@@ -29,9 +32,6 @@ const BelisFeatureCollection = ({ featureCollection, fgColor = "#000000" }) => {
         featureCollection={featureCollection}
         featureClickHandler={(event, feature) => {
           dispatch(setSelectedFeature(feature));
-          console.log("feature", feature);
-
-          console.log("event", event);
         }}
         clusteringEnabled={false}
         style={(feature) => {

@@ -12,8 +12,30 @@ import { getConnectionMode, CONNECTIONMODE } from "./app";
 import bboxPolygon from "@turf/bbox-polygon";
 import { fetchGraphQL } from "../../commons/graphql";
 import onlineQueryParts, { geomFactories } from "../../queries/online";
+import { storeJWT } from "../slices/auth";
+import { addPropertiesToFeature, convertFeatureToItem } from "../../helper/FeatureHelper";
+
 // ----
 
+const compareFeature = (a, b) => {
+  if (a.featuretype < b.featuretype) {
+    return 1;
+  } else if (a.featuretype > b.featuretype) {
+    return -1;
+  } else {
+    return a.properties.compare(a.properties, b.properties);
+  }
+};
+
+const featuresEqual = (a, b) => {
+  if (a && b) {
+    if (a.featuretype === b.featuretype) {
+      return a.properties.id === b.properties.id;
+    }
+  }
+
+  return false;
+};
 const LOCALSTORAGE_KEY_IN_FOCUS_MODE = "@belis.app.inFocusMode";
 
 const dexieW = dexieworker();
@@ -40,6 +62,7 @@ const featureCollectionSlice = createSlice({
   name: "featureCollection",
   initialState: {
     features: [],
+    info: {},
     done: true,
     filter: initialFilter,
     selectedFeature: null,
@@ -51,9 +74,10 @@ const featureCollectionSlice = createSlice({
     setFeatureCollection: (state, action) => {
       state.features = action.payload;
     },
-    setSortedItems: (state, action) => {
-      state.sortedItems = action.payload;
+    setFeatureCollectionInfo: (state, action) => {
+      state.info = action.payload;
     },
+
     setDone: (state, action) => {
       state.done = action.payload;
     },
@@ -63,23 +87,24 @@ const featureCollectionSlice = createSlice({
     },
     setSelectedFeature: (state, action) => {
       const newFC = JSON.parse(JSON.stringify(state.features));
+
       for (const f of newFC) {
         if (
+          action.payload &&
           f.featuretype === action.payload.featuretype &&
           f.properties.id === action.payload.properties.id
         ) {
           f.selected = true;
-          console.log("yyyy f " + f.featuretype + " is selected ", f);
         } else {
           f.selected = false;
         }
       }
-      state.selectedFeature = action.payload;
+
       state.features = newFC;
+
+      state.selectedFeature = action.payload;
     },
-    setSelectedFeatureVis: (state, action) => {
-      state.selectedFeatureVis = action.payload;
-    },
+
     setRequestBasis: (state, action) => {
       state.requestBasis = action.payload;
     },
@@ -94,30 +119,26 @@ const featureCollectionSlice = createSlice({
 });
 export const {
   setFeatureCollection,
-  setSortedItems,
+  setFeatureCollectionInfo,
   setDone,
   setFilter,
   setSelectedFeature,
-  setSelectedFeatureVis,
   setRequestBasis,
   setFocusModeActive,
   setSecondaryInfoVisible,
 } = featureCollectionSlice.actions;
 
 export const getFeatureCollection = (state) => {
-//  console.log("yyy getFeatureCollection", state.featureCollection.features);
-
   return state.featureCollection.features;
 };
-export const getSortedItems = (state) => {
-  return state?.featureCollection?.sortedItems;}
+
 export const isDone = (state) => state.featureCollection.done;
 export const getFilter = (state) => state.featureCollection.filter;
 export const getSelectedFeature = (state) => state?.featureCollection?.selectedFeature;
-export const getSelectedFeatureVis = (state) => state?.featureCollection?.selectedFeatureVis;
 const getRequestBasis = (state) => state.featureCollection.requestBasis;
 export const isInFocusMode = (state) => state.featureCollection.inFocusMode;
 export const isSecondaryInfoVisible = (state) => state.featureCollection.secondaryInfoVisible;
+export const getFeatureCollectionInfo = (state) => state.featureCollection.info;
 
 export default featureCollectionSlice;
 
@@ -206,10 +227,10 @@ export const loadObjectsIntoFeatureCollection = ({
 }) => {
   return async (dispatch, getState) => {
     dispatch(setDone(false));
-
     const state = getState();
     const connectionMode = getConnectionMode(state);
     const filter = getFilter(state);
+    // const selectedFeature=
 
     if (state.spatialIndex.loading === "done") {
       let resultIds, leitungsFeatures;
@@ -229,6 +250,7 @@ export const loadObjectsIntoFeatureCollection = ({
           leitungsFeatures = state.spatialIndex.lineIndex
             .search(boundingBox.left, boundingBox.bottom, boundingBox.right, boundingBox.top)
             .map((i) => state.spatialIndex.lineIndex.features[i]);
+
           //console.log('xxx Leitungen ', new Date().getTime() - ld);
         }
       } else {
@@ -241,18 +263,16 @@ export const loadObjectsIntoFeatureCollection = ({
           .then((pointFeatureCollection) => {
             //console.log('xxx alle Features da ', new Date().getTime() - d);
             const featureCollection = leitungsFeatures.concat(pointFeatureCollection);
-            //console.log('xxx alle Features da nach concat ', new Date().getTime() - d);
-
+            enrichAndSetFeatures(dispatch, state, featureCollection);
             //console.log('xxx vor setFeatureCollection');
-            dispatch(setFeatureCollection(featureCollection));
+            //console.log("updated featureCollection ", featureCollection);
+
+            // dispatch(setFeatureCollection(featureCollection));
             //setFC(featureCollection);
             //console.log('xxx nach  setFeatureCollection', new Date().getTime() - d);
 
             //console.log('xxx', '(done = true)');
             // dispatch(setDone(true));
-            setTimeout(() => {
-              dispatch(setDone(true));
-            }, 1);
           });
       } else {
         let queryparts = "";
@@ -265,40 +285,49 @@ export const loadObjectsIntoFeatureCollection = ({
         const gqlQuery = `query q($bbPoly: geometry!) {${queryparts}}`;
         const queryParameter = { bbPoly: createQueryGeomFromB(boundingBox) };
         const response = await fetchGraphQL(gqlQuery, queryParameter, jwt);
+        console.log("response ", response);
 
-        const featureCollection = [];
-        for (const key of Object.keys(response.data)) {
-          const objects = response.data[key];
-          for (const o of objects) {
-            const feature = {
-              text: "-",
-              type: "Feature",
-              selected: false,
-              featuretype: key,
-              geometry: geomFactories[key](o),
-              crs: {
-                type: "name",
-                properties: {
-                  name: "urn:ogc:def:crs:EPSG::25832",
+        if (response) {
+          const featureCollection = [];
+          for (const key of Object.keys(response.data)) {
+            const objects = response.data[key];
+            for (const o of objects) {
+              const feature = {
+                text: "-",
+                id: key,
+                type: "Feature",
+                selected: false,
+                featuretype: key,
+                geometry: geomFactories[key](o),
+                crs: {
+                  type: "name",
+                  properties: {
+                    name: "urn:ogc:def:crs:EPSG::25832",
+                  },
                 },
-              },
-              properties: {},
-            };
+                properties: {},
+              };
 
-            //The geometry could be deleted to save some memory
-            //need to be a different approach in the geometryfactory then
-            //not sure beacuse the properties would double up the memoryconsumption though
-            //
-            // const properties=JSON.parse(JSON.stringify(o));
-            // delete propertiesgeomFactories[key](o)
+              //The geometry could be deleted to save some memory
+              //need to be a different approach in the geometryfactory then
+              //not sure beacuse the properties would double up the memoryconsumption though
+              //
+              // const properties=JSON.parse(JSON.stringify(o));
+              // delete propertiesgeomFactories[key](o)
 
-            feature.properties = o;
-
-            featureCollection.push(feature);
+              feature.properties = o;
+              feature.id = feature.id + "-" + o.id;
+              featureCollection.push(feature);
+            }
           }
+          //featureCollection[0].selected = true;
+          // dispatch(setFeatureCollection(featureCollection));
+          enrichAndSetFeatures(dispatch, state, featureCollection);
+        } else {
+          console.log("response was undefined");
+
+          dispatch(storeJWT(undefined));
         }
-        //featureCollection[0].selected = true;
-        dispatch(setFeatureCollection(featureCollection));
 
         dispatch(setDone(true));
       }
@@ -310,6 +339,50 @@ export const loadObjectsIntoFeatureCollection = ({
       );
     }
   };
+};
+
+export const enrichAndSetFeatures = (dispatch, state, featureCollection) => {
+  const tasks = [];
+
+  for (const f of featureCollection) {
+    tasks.push(addPropertiesToFeature(f));
+  }
+  const selectedFeature = getSelectedFeature(state);
+  Promise.all(tasks).then(
+    (enrichedFeatureCollection) => {
+      const sortedElements = [];
+      const typeCount = {};
+      let selectionStillInMap = false;
+
+      for (const feature of enrichedFeatureCollection) {
+        if (typeCount[feature.featuretype] === undefined) {
+          typeCount[feature.featuretype] = 1;
+        } else {
+          typeCount[feature.featuretype] = typeCount[feature.featuretype] + 1;
+        }
+        sortedElements.push(feature);
+
+        //
+        if (selectedFeature && feature.id === selectedFeature.id) {
+          selectionStillInMap = true;
+          feature.selected = true;
+        }
+      }
+      setTimeout(() => {
+        dispatch(setDone(true));
+      }, 1);
+      enrichedFeatureCollection.sort(compareFeature);
+      if (!selectionStillInMap) {
+        dispatch(setSelectedFeature(null));
+      }
+      dispatch(setFeatureCollectionInfo({ typeCount }));
+      dispatch(setFeatureCollection(enrichedFeatureCollection));
+    },
+    (problem) => {
+      alert("problem" + problem);
+      //todo: do something
+    }
+  );
 };
 
 export const timeout = (ms) => {

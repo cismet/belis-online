@@ -3,45 +3,42 @@ import { version as reactCismapVersion } from "react-cismap/meta";
 import SecondaryInfo from "./Secondary";
 import SecondaryInfoPanelSection from "react-cismap/topicmaps/SecondaryInfoPanelSection";
 import {
-    getSortedItems,
-    setSecondaryInfoVisible,
-} from '../../../core/store/slices/featureCollection';
-import { useDispatch, useSelector } from 'react-redux';
-import { getVCard } from '../../../core/helper/FeatureHelper';
-import FeatureInfoTitle from './FeatureInfoTitle';
-import FeatureInfoValue from './FeatureInfoValue';
+  getFeatureCollection,
+  setSecondaryInfoVisible,
+} from "../../../core/store/slices/featureCollection";
+import { useDispatch, useSelector } from "react-redux";
+import { getVCard } from "../../../core/helper/FeatureHelper";
+import FeatureInfoTitle from "./FeatureInfoTitle";
+import FeatureInfoValue from "./FeatureInfoValue";
 // import { getApplicationVersion } from "../version";
 
-
-
-const CollComp = ({
-  header = "Header",
-  bsStyle = "success",
-  content,
-  children
-}) => {
-  const [ expanded, setExpanded ] = useState(false);
+const CollComp = ({ header = "Header", bsStyle = "success", content, children }) => {
+  const [expanded, setExpanded] = useState(false);
 
   if (expanded) {
     return (
-      <div onClick={()=>{setExpanded(false)}}>
-        <div style={{fontWeight: 'bold', cursor: 'pointer'}}>
-          {'v ' + header}
-        </div>
-        <div style={{paddingLeft: '5px'}}>
-          {content || children}
-        </div>
+      <div
+        onClick={() => {
+          setExpanded(false);
+        }}
+      >
+        <div style={{ fontWeight: "bold", cursor: "pointer" }}>{"v " + header}</div>
+        <div style={{ paddingLeft: "5px" }}>{content || children}</div>
       </div>
     );
   } else {
     return (
-      <div onClick={()=>{setExpanded(true)}}  style={{fontWeight: 'bold', cursor: 'pointer'}} >
-        {'> ' + header}
+      <div
+        onClick={() => {
+          setExpanded(true);
+        }}
+        style={{ fontWeight: "bold", cursor: "pointer" }}
+      >
+        {"> " + header}
       </div>
     );
   }
 };
-
 
 const objectifyHits = (hits) => {
   const hitObject = {};
@@ -61,10 +58,7 @@ const objectifyHits = (hits) => {
 const footer = (
   <div style={{ fontSize: "11px" }}>
     <div>
-      <b>
-        {/* {document.title} v{getApplicationVersion()} */}
-      </b>
-      :{" "}
+      <b>{/* {document.title} v{getApplicationVersion()} */}</b>:{" "}
       <a href='https://cismet.de/' target='_cismet'>
         cismet GmbH
       </a>{" "}
@@ -88,91 +82,109 @@ const footer = (
   </div>
 );
 
-
-const FeatureInfoTitleValue = ({title, value}) => {
+const FeatureInfoTitleValue = ({ title, value }) => {
   if (value !== undefined) {
     return (
       <div>
-          <FeatureInfoTitle style={{display: 'inline', paddingRight: '5px', fontWeight: 'bold'}} title={title} />
-          <FeatureInfoValue style={{display: 'inline'}} value={value} />
+        <FeatureInfoTitle
+          style={{ display: "inline", paddingRight: "5px", fontWeight: "bold" }}
+          title={title}
+        />
+        <FeatureInfoValue style={{ display: "inline" }} value={value} />
       </div>
-    )
+    );
   } else {
-    return (<div />)
+    return <div />;
   }
-}
+};
 
 const getStandortMast = (strasse, mast) => {
   if (mast.haus_nr === undefined) {
     return (
-      <CollComp header="Straße" bsStyle="def">
-        <FeatureInfoTitleValue title="Straße" value={strasse.strasse} />
-        <FeatureInfoTitleValue title="Schlüssel" value={strasse?.pk} />
-        <FeatureInfoTitleValue title="Stadtbezirk" value={mast.stadtbezirk.bezirk} />
-        <FeatureInfoTitleValue title="Standortangabe" value={mast?.standortangabe} />
+      <CollComp header='Straße' bsStyle='def'>
+        <FeatureInfoTitleValue title='Straße' value={strasse.strasse} />
+        <FeatureInfoTitleValue title='Schlüssel' value={strasse?.pk} />
+        <FeatureInfoTitleValue title='Stadtbezirk' value={mast.stadtbezirk.bezirk} />
+        <FeatureInfoTitleValue title='Standortangabe' value={mast?.standortangabe} />
       </CollComp>
     );
   } else {
     return (
-      <CollComp header="Straße/Hausnummer" bsStyle="def">
-        <FeatureInfoTitleValue title="Straße Hausnummer" value={strasse.strasse + ' ' + mast.haus_nr} />
-        <FeatureInfoTitleValue title="Schlüssel" value={strasse?.pk} />
-        <FeatureInfoTitleValue title="Stadtbezirk" value={mast.stadtbezirk.bezirk} />
-        <FeatureInfoTitleValue title="Standortangabe" value={mast?.standortangabe} />
+      <CollComp header='Straße/Hausnummer' bsStyle='def'>
+        <FeatureInfoTitleValue
+          title='Straße Hausnummer'
+          value={strasse.strasse + " " + mast.haus_nr}
+        />
+        <FeatureInfoTitleValue title='Schlüssel' value={strasse?.pk} />
+        <FeatureInfoTitleValue title='Stadtbezirk' value={mast.stadtbezirk.bezirk} />
+        <FeatureInfoTitleValue title='Standortangabe' value={mast?.standortangabe} />
       </CollComp>
     );
   }
 };
 
-
-
 const getMast = (mast) => {
-    return (
-      <CollComp header="Mast">
-        <FeatureInfoTitleValue title="Masttyp" value={mast?.masttyp?.masttyp} />
-        <FeatureInfoTitleValue title="Klassifizierung" value={mast?.klassifizierung?.klassifizierung} />
-        <FeatureInfoTitleValue title="Anlagengruppe" value={mast?.anlagengruppeObject?.bezeichnung} />
-        <FeatureInfoTitleValue title="Unterhalt" value={mast?.unterhaltspflicht_mast?.unterhalt_mast} />
-        <FeatureInfoTitleValue title="Mastschutz erneuert am" value={mast.mastschutz} />
-        <FeatureInfoTitleValue title="Inbetriebnahme am" value={getDate(mast.inbetriebnahme_mast)} />
-        <FeatureInfoTitleValue title="letzter Mastanstrich am" value={getDate(mast.mastanstrich)} />
-        <FeatureInfoTitleValue title="Montagefirma" value={mast.montagefirma} />
-        {mast.verrechnungseinheit && <FeatureInfoValue value="Verrechnungseinheit" />}
-        <FeatureInfoTitle title="Developerinfo" />
-        <FeatureInfoTitle title="Key" />
-        <FeatureInfoValue value={'tdta_standort_mast/' + mast.id} />
-      </CollComp>
-    );
+  return (
+    <CollComp header='Mast'>
+      <FeatureInfoTitleValue title='Masttyp' value={mast?.masttyp?.masttyp} />
+      <FeatureInfoTitleValue
+        title='Klassifizierung'
+        value={mast?.klassifizierung?.klassifizierung}
+      />
+      <FeatureInfoTitleValue title='Anlagengruppe' value={mast?.anlagengruppeObject?.bezeichnung} />
+      <FeatureInfoTitleValue
+        title='Unterhalt'
+        value={mast?.unterhaltspflicht_mast?.unterhalt_mast}
+      />
+      <FeatureInfoTitleValue title='Mastschutz erneuert am' value={mast.mastschutz} />
+      <FeatureInfoTitleValue title='Inbetriebnahme am' value={getDate(mast.inbetriebnahme_mast)} />
+      <FeatureInfoTitleValue title='letzter Mastanstrich am' value={getDate(mast.mastanstrich)} />
+      <FeatureInfoTitleValue title='Montagefirma' value={mast.montagefirma} />
+      {mast.verrechnungseinheit && <FeatureInfoValue value='Verrechnungseinheit' />}
+      <FeatureInfoTitle title='Developerinfo' />
+      <FeatureInfoTitle title='Key' />
+      <FeatureInfoValue value={"tdta_standort_mast/" + mast.id} />
+    </CollComp>
+  );
 };
-
 
 const getLeuchtmittel = (leuchte) => {
   return (
-    <CollComp header="Leuchtmittel">
-      <FeatureInfoTitleValue title="Masttyp" value={leuchte?.masttyp?.masttyp} />
-      <FeatureInfoTitleValue title="Klassifizierung" value={leuchte?.klassifizierung?.klassifizierung} />
+    <CollComp header='Leuchtmittel'>
+      <FeatureInfoTitleValue title='Masttyp' value={leuchte?.masttyp?.masttyp} />
+      <FeatureInfoTitleValue
+        title='Klassifizierung'
+        value={leuchte?.klassifizierung?.klassifizierung}
+      />
     </CollComp>
   );
 };
 
 const getStrasse = (strasse) => {
   return (
-    <CollComp header="Straße">
-      <FeatureInfoTitleValue title="Strasse" value={strasse?.strasse} />
-      <FeatureInfoTitleValue title="Schlüssel" value={strasse?.pk} />
+    <CollComp header='Straße'>
+      <FeatureInfoTitleValue title='Strasse' value={strasse?.strasse} />
+      <FeatureInfoTitleValue title='Schlüssel' value={strasse?.pk} />
     </CollComp>
   );
 };
 
-const getDoppelkommandos = (anschlussleistung1, anzahlDk1, dk, anschlussleistung2, anzahlDk2, dk2) => {
+const getDoppelkommandos = (
+  anschlussleistung1,
+  anzahlDk1,
+  dk,
+  anschlussleistung2,
+  anzahlDk2,
+  dk2
+) => {
   return (
-    <CollComp header="Doppelkommandos">
-      <FeatureInfoTitleValue title="Doppelkommando 1" value={dk?.pk} />
-      <FeatureInfoTitleValue title="Anzahl Doppelkommando 1" value={anzahlDk1} />
-      <FeatureInfoTitleValue title="Anschlussleistung DK 1" value={anschlussleistung1} />
-      <FeatureInfoTitleValue title="Doppelkommando 2" value={dk2?.pk} />
-      <FeatureInfoTitleValue title="Anzahl Doppelkommando 2" value={anzahlDk2} />
-      <FeatureInfoTitleValue title="Anschlussleistung DK 2" value={anschlussleistung2} />
+    <CollComp header='Doppelkommandos'>
+      <FeatureInfoTitleValue title='Doppelkommando 1' value={dk?.pk} />
+      <FeatureInfoTitleValue title='Anzahl Doppelkommando 1' value={anzahlDk1} />
+      <FeatureInfoTitleValue title='Anschlussleistung DK 1' value={anschlussleistung1} />
+      <FeatureInfoTitleValue title='Doppelkommando 2' value={dk2?.pk} />
+      <FeatureInfoTitleValue title='Anzahl Doppelkommando 2' value={anzahlDk2} />
+      <FeatureInfoTitleValue title='Anschlussleistung DK 2' value={anschlussleistung2} />
     </CollComp>
   );
 };
@@ -181,7 +193,7 @@ const getDate = (d) => {
   if (d !== undefined) {
     return new Date(Date.parse(d)).toLocaleDateString();
   } else {
-    return '';
+    return "";
   }
 };
 
@@ -207,17 +219,17 @@ const getSeparator = (name) => {
 };
 
 const InfoPanel = () => {
-    const dispatch = useDispatch();
-    const hits = useSelector(getSortedItems);
-//    const { history } = useContext(TopicMapContext);
-//    const lat = new URLSearchParams(history.location.search).get("lat");
-//    const long = new URLSearchParams(history.location.search).get("lng");
-   const lat = 51;
-   const long = 7;
-//   const showRawData = new URLSearchParams(history.location.search).get("showRawData") !== null;
-   const showRawData = true;
+  const dispatch = useDispatch();
+  const hits = useSelector(getFeatureCollection);
+  //    const { history } = useContext(TopicMapContext);
+  //    const lat = new URLSearchParams(history.location.search).get("lat");
+  //    const long = new URLSearchParams(history.location.search).get("lng");
+  const lat = 51;
+  const long = 7;
+  //   const showRawData = new URLSearchParams(history.location.search).get("showRawData") !== null;
+  const showRawData = true;
 
-//   const hitObject = objectifyHits(hits);
+  //   const hitObject = objectifyHits(hits);
 
   if (hits !== undefined) {
     const subSections = [];
@@ -261,19 +273,47 @@ const InfoPanel = () => {
                   <div key={"leuchte_" + index}>
                     {index > 0 && <br></br>}
                     <FeatureInfoTitle title={vCard.subtitle} />
-                    <FeatureInfoTitleValue title="Inbetriebnahme" value={getDate(value.inbetriebnahme_leuchte)} />
-                    {value.fk_standort !== undefined && getStandortMast(value.fk_strassenschluessel, value.fk_standort)}
+                    <FeatureInfoTitleValue
+                      title='Inbetriebnahme'
+                      value={getDate(value.inbetriebnahme_leuchte)}
+                    />
+                    {value.fk_standort !== undefined &&
+                      getStandortMast(value.fk_strassenschluessel, value.fk_standort)}
                     {value.fk_standort !== undefined && getMast(value.fk_standort)}
-                    <FeatureInfoTitleValue title="Energielieferant" value={value.energielieferant} />
-                    <FeatureInfoTitleValue title="Rundsteuerempfänger" value={value.rundsteuerempfänger} />
-                    <FeatureInfoTitleValue title="Unterhalt" value={value.energielieferant} />
-                    <FeatureInfoValue value={value.zaehler === true ? 'Zähler vorhanden' : 'kein Zähler vorhanden'} />
-                    {value.anzahl_1dk !== undefined && getDoppelkommandos(value.anschlussleistung_1dk, value.anzahl_1dk, value.fk_dk1, value.anschlussleistung_2dk, value.anzahl_2dk, value.fk_dk2)}
-                    {(value.masttyp?.masttyp !== undefined || value.klassifizierung?.klassifizierung) && getLeuchtmittel(value)}
-                    <FeatureInfoTitleValue title="Montagefirma" value={value.montagefirma_leuchte} />
-                    <FeatureInfoTitleValue title="Bemerkungen" value={value.bemerkungen} />
+                    <FeatureInfoTitleValue
+                      title='Energielieferant'
+                      value={value.energielieferant}
+                    />
+                    <FeatureInfoTitleValue
+                      title='Rundsteuerempfänger'
+                      value={value.rundsteuerempfänger}
+                    />
+                    <FeatureInfoTitleValue title='Unterhalt' value={value.energielieferant} />
+                    <FeatureInfoValue
+                      value={value.zaehler === true ? "Zähler vorhanden" : "kein Zähler vorhanden"}
+                    />
+                    {value.anzahl_1dk !== undefined &&
+                      getDoppelkommandos(
+                        value.anschlussleistung_1dk,
+                        value.anzahl_1dk,
+                        value.fk_dk1,
+                        value.anschlussleistung_2dk,
+                        value.anzahl_2dk,
+                        value.fk_dk2
+                      )}
+                    {(value.masttyp?.masttyp !== undefined ||
+                      value.klassifizierung?.klassifizierung) &&
+                      getLeuchtmittel(value)}
+                    <FeatureInfoTitleValue
+                      title='Montagefirma'
+                      value={value.montagefirma_leuchte}
+                    />
+                    <FeatureInfoTitleValue title='Bemerkungen' value={value.bemerkungen} />
                     {/* todo: Dokumente */}
-                    <FeatureInfoTitleValue title="Developerinfo" value={'TDTA_LEUCHTEN/' + value.id} />
+                    <FeatureInfoTitleValue
+                      title='Developerinfo'
+                      value={"TDTA_LEUCHTEN/" + value.id}
+                    />
                     <br />
                   </div>
                 );
@@ -296,8 +336,14 @@ const InfoPanel = () => {
                   <div key={"mauerlasche_" + index}>
                     {index > 0 && <br></br>}
                     <FeatureInfoValue value={vCard.title} />
-                    <FeatureInfoTitleValue title="Straße" value={value?.fk_strassenschluessel?.strasse} />
-                    <FeatureInfoTitleValue title="Developerinfo" value={'MAUERLASCHE/' + value.id} />
+                    <FeatureInfoTitleValue
+                      title='Straße'
+                      value={value?.fk_strassenschluessel?.strasse}
+                    />
+                    <FeatureInfoTitleValue
+                      title='Developerinfo'
+                      value={"MAUERLASCHE/" + value.id}
+                    />
                     <br />
                   </div>
                 );
@@ -305,7 +351,6 @@ const InfoPanel = () => {
           </SecondaryInfoPanelSection>
         );
       }
-
 
       if (hitObject.Leitung) {
         subSections.push(
@@ -321,9 +366,15 @@ const InfoPanel = () => {
                   <div key={"leitung_" + index}>
                     {index > 0 && <br></br>}
                     <FeatureInfoValue value={vCard.title} />
-                    <FeatureInfoTitleValue title="Material" value={value.fk_material === undefined ? '-' : value.fk_material.bezeichnung} />
-                    <FeatureInfoTitleValue title="Querschnitt" value={value?.fk_querschnitt?.groesse} />
-                    <FeatureInfoTitleValue title="Developerinfo" value={'LEITUNG/' + value.id} />
+                    <FeatureInfoTitleValue
+                      title='Material'
+                      value={value.fk_material === undefined ? "-" : value.fk_material.bezeichnung}
+                    />
+                    <FeatureInfoTitleValue
+                      title='Querschnitt'
+                      value={value?.fk_querschnitt?.groesse}
+                    />
+                    <FeatureInfoTitleValue title='Developerinfo' value={"LEITUNG/" + value.id} />
                     <br />
                   </div>
                 );
@@ -346,8 +397,12 @@ const InfoPanel = () => {
                   <div key={"schaltstelle_" + index}>
                     {index > 0 && <br></br>}
                     <FeatureInfoValue value={vCard.title} />
-                    {value?.fk_strassenschluessel !== undefined && getStrasse(value.fk_strassenschluessel)}
-                    <FeatureInfoTitleValue title="Developerinfo" value={'SCHALTSTELLE/' + value.id} />
+                    {value?.fk_strassenschluessel !== undefined &&
+                      getStrasse(value.fk_strassenschluessel)}
+                    <FeatureInfoTitleValue
+                      title='Developerinfo'
+                      value={"SCHALTSTELLE/" + value.id}
+                    />
                     <br />
                   </div>
                 );
@@ -370,8 +425,12 @@ const InfoPanel = () => {
                   <div key={"schaltstelle_" + index}>
                     {index > 0 && <br></br>}
                     <FeatureInfoValue value={vCard.title} />
-                    {value?.fk_strassenschluessel !== undefined && getStrasse(value.fk_strassenschluessel)}
-                    <FeatureInfoTitleValue title="Developerinfo" value={'SCHALTSTELLE/' + value.id} />
+                    {value?.fk_strassenschluessel !== undefined &&
+                      getStrasse(value.fk_strassenschluessel)}
+                    <FeatureInfoTitleValue
+                      title='Developerinfo'
+                      value={"SCHALTSTELLE/" + value.id}
+                    />
                     <br />
                   </div>
                 );
@@ -407,7 +466,9 @@ const InfoPanel = () => {
     return (
       <SecondaryInfo
         visible={true}
-        setVisibleState={(state) => {dispatch(setSecondaryInfoVisible(state))}}
+        setVisibleState={(state) => {
+          dispatch(setSecondaryInfoVisible(state));
+        }}
         titleIconName='info-circle'
         title={
           "Datenblatt zu: " +

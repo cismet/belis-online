@@ -4,8 +4,9 @@ import { useContext, useEffect, useRef, useState } from "react";
 import { Button, Form, Modal } from "react-bootstrap";
 import IconComp from "react-cismap/commons/Icon";
 import { CACHE_JWT } from "react-cismap/tools/fetching";
-import { useDispatch } from "react-redux";
-import { storeJWT } from "../../core/store/slices/auth";
+import { useDispatch, useSelector } from "react-redux";
+import { getLogin, storeJWT, storeLogin } from "../../core/store/slices/auth";
+import { REST_SERVICE } from "../../constants/belis";
 const LoginForm = ({
   setJWT = (jwt) => {
     console.log("you need to set the attribute setJWT in the <Login> component", jwt);
@@ -20,13 +21,15 @@ const LoginForm = ({
   const [windowWidth, windowHeight] = useWindowSize();
   const pwFieldRef = useRef();
   const userFieldRef = useRef();
+  const storedLogin = useSelector(getLogin);
+
   const _height = windowHeight || 800 - 180;
   const modalBodyStyle = {
     overflowY: "auto",
     overflowX: "hidden",
     maxHeight: _height,
   };
-  const [user, _setUser] = useState("");
+  const [user, _setUser] = useState(storedLogin);
   const [pw, setPw] = useState("");
   const [cacheDataAvailable, setCacheDataAvailable] = useState(false);
 
@@ -39,7 +42,7 @@ const LoginForm = ({
 
   /*eslint no-useless-concat: "off"*/
   const login = () => {
-    fetch("http://localhost:8890/users", {
+    fetch(REST_SERVICE + "/users", {
       method: "GET",
       headers: {
         Authorization: "Basic " + btoa(user + "@" + "BELIS2" + ":" + pw),
@@ -55,9 +58,8 @@ const LoginForm = ({
               text: "Anmeldung erfolgreich. Daten werden geladen.",
             });
             setTimeout(() => {
-              console.log("yyy  Anmeldung erfolgreich. Daten werden geladen.", jwt);
-
               dispatch(storeJWT(jwt));
+              dispatch(storeLogin(user));
               setJWT(jwt);
               setLoggedOut(false);
               setLoginInfo();

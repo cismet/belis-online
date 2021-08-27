@@ -14,6 +14,7 @@ import {
   isInFocusMode,
   isSecondaryInfoVisible,
   getSelectedFeature,
+  setSelectedFeature,
 } from "../core/store/slices/featureCollection";
 import { isPaleModeActive } from "../core/store/slices/paleMode";
 import { getZoom, setZoom } from "../core/store/slices/zoom";
@@ -77,8 +78,18 @@ const BelisMap = ({ refRoutedMap, width, height, jwt }) => {
       ref={refRoutedMap}
       layers=''
       doubleClickZoom={false}
-      onclick={(e) => console.log("click", e)}
-      ondblclick={(e) => console.log("doubleclick", e)}
+      onclick={(e) => {
+        console.log("click");
+      }}
+      ondblclick={(e) => {
+        const classes = e.originalEvent.path[0].getAttribute("class");
+
+        if (classes && classes.split(" ").includes("leaflet-container")) {
+          console.log("unselect feature");
+
+          dispatch(setSelectedFeature(null));
+        }
+      }}
       autoFitProcessedHandler={() => this.props.mappingActions.setAutoFit(false)}
       backgroundlayers={resultingLayer}
       urlSearchParams={urlSearchParams}

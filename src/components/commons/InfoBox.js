@@ -2,36 +2,28 @@ import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   getFeatureCollection,
-  getSelectedFeatureVis,
-  getSortedItems,
+  getSelectedFeature,
   setSelectedFeature,
-  setSelectedFeatureVis,
   isSecondaryInfoVisible,
   setSecondaryInfoVisible,
 } from "../../core/store/slices/featureCollection";
-import ResponsiveInfoBox from "./ResponsiveInfoBox"
+import ResponsiveInfoBox from "./ResponsiveInfoBox";
 import { getActionLinksForFeature } from "react-cismap/tools/uiHelper";
-import { getVCard } from '../../core/helper/FeatureHelper';
+import { getVCard } from "../../core/helper/FeatureHelper";
 import { projectionData } from "react-cismap/constants/gis";
 import { convertBBox2Bounds } from "react-cismap/tools/gisHelper";
 import { getType } from "@turf/invariant";
 import proj4 from "proj4";
 import envelope from "@turf/envelope";
-import { Button } from "react-bootstrap";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faMap,
-} from "@fortawesome/free-solid-svg-icons";
-import IconLink from "react-cismap/commons/IconLink";
 
+import IconLink from "react-cismap/commons/IconLink";
 
 //---
 
 const BelisMap = ({ refRoutedMap }) => {
   const dispatch = useDispatch();
   const featureCollection = useSelector(getFeatureCollection);
-  const selectedFeature = useSelector(getSelectedFeatureVis);
-  const featureCollectionVis = useSelector(getSortedItems);
+  const selectedFeature = useSelector(getSelectedFeature);
   const secondaryInfoVisible = useSelector(isSecondaryInfoVisible);
 
   let header = <span>Feature title</span>;
@@ -40,45 +32,42 @@ const BelisMap = ({ refRoutedMap }) => {
   const infoStyle = {};
   let alwaysVisibleDiv;
   let collapsibleDiv;
-  let title = 'feature title';
-  let subtitle = 'feature subtitle';
-  let additionalInfo = 'info';
+  let title = "feature title";
+  let subtitle = "feature subtitle";
+  let additionalInfo = "info";
   let hideNavigator = false;
   let links = [];
   let _previous = () => {
     let last = undefined;
-    if (featureCollectionVis) {
-      for (const item of featureCollectionVis) {
-          if (item.feature.selected === true) {
-            if (last) {
-                dispatch(setSelectedFeature(last.feature));
-                dispatch(setSelectedFeatureVis(last));
-            }
-            return;
+    if (featureCollection) {
+      for (const feature of featureCollection) {
+        if (feature.selected === true) {
+          if (last) {
+            dispatch(setSelectedFeature(last));
+          }
+          return;
         }
-          last = item;
-        }
-  }
-};
-  let _next = () => {
-      let isNext = false;
-      if (featureCollectionVis) {
-        for (const item of featureCollectionVis) {
-            if (isNext) {
-                dispatch(setSelectedFeature(item.feature));
-                dispatch(setSelectedFeatureVis(item));
-                return;
-            }
-            if (item.feature.selected === true) {
-                isNext = true;
-            }
-        }
+        last = feature;
+      }
     }
   };
-  let currentlyShownCountLabel = featureCollection.length + ' Objekte gefunden';
-  let noCurrentFeatureTitle = 'no title';
-  let noCurrentFeatureContent = 'no content';
-
+  let _next = () => {
+    let isNext = false;
+    if (featureCollection) {
+      for (const feature of featureCollection) {
+        if (isNext) {
+          dispatch(setSelectedFeature(feature));
+          return;
+        }
+        if (feature.selected === true) {
+          isNext = true;
+        }
+      }
+    }
+  };
+  let currentlyShownCountLabel = featureCollection.length + " Objekte gefunden";
+  let noCurrentFeatureTitle = "no title";
+  let noCurrentFeatureContent = "no content";
 
   const config = {
     city: "gesamtem Bereich verfügbar",
@@ -105,18 +94,18 @@ const BelisMap = ({ refRoutedMap }) => {
         let zoomlevel = 15;
         let refDef;
         if (feature.crs) {
-          const code = feature?.feature?.crs?.properties?.name?.split("EPSG::")[1];
+          const code = feature?.crs?.properties?.name?.split("EPSG::")[1];
           refDef = projectionData[code].def;
         } else {
-          refDef = projectionData['25832'].def;
+          refDef = projectionData["25832"].def;
         }
 
         if (refRoutedMap !== undefined) {
           const type = getType(feature);
           if (type === "Point") {
             const pos = proj4(refDef, proj4.defs("EPSG:4326"), [
-              feature.feature.geometry.coordinates[0],
-              feature.feature.geometry.coordinates[1],
+              feature.geometry.coordinates[0],
+              feature.geometry.coordinates[1],
             ]);
 
             refRoutedMap.current.leafletMap.leafletElement.setView([pos[1], pos[0]], zoomlevel);
@@ -130,19 +119,21 @@ const BelisMap = ({ refRoutedMap }) => {
       displaySecondaryInfoAction:
         config.displaySecondaryInfoAction === true ||
         config.displaySecondaryInfoAction === undefined,
-      setVisibleStateOfSecondaryInfo: (vis) => {return false;},
+      setVisibleStateOfSecondaryInfo: (vis) => {
+        return false;
+      },
     });
-    links.push(      
-        <IconLink 
-          key={`openInfo`}
-          tooltip={"Öffne Datenblatt"}
-          onClick={() => {
-            dispatch(setSecondaryInfoVisible(!secondaryInfoVisible));
-          }}
-          iconname={"info"}
-          href='#'
-        />
-    )
+    links.push(
+      <IconLink
+        key={`openInfo`}
+        tooltip={"Öffne Datenblatt"}
+        onClick={() => {
+          dispatch(setSecondaryInfoVisible(!secondaryInfoVisible));
+        }}
+        iconname={"info"}
+        href='#'
+      />
+    );
     header = <span>{vcard?.title || config.header}</span>;
     title = vcard?.title;
     subtitle = vcard?.subtitle;
@@ -211,15 +202,19 @@ const BelisMap = ({ refRoutedMap }) => {
                               <div>{parseHtml(additionalInfo.match(/<html>(.*?)<\/html>/)[1])}</div>
                             )} */}
                           {additionalInfo &&
-                            (!additionalInfo.toString().startsWith || !additionalInfo.toString().startsWith("<html>")) &&
-                            additionalInfo.toString().split("\n").map((item, key) => {
-                              return (
-                                <span key={key}>
-                                  {item}
-                                  <br />
-                                </span>
-                              );
-                            })}
+                            (!additionalInfo.toString().startsWith ||
+                              !additionalInfo.toString().startsWith("<html>")) &&
+                            additionalInfo
+                              .toString()
+                              .split("\n")
+                              .map((item, key) => {
+                                return (
+                                  <span key={key}>
+                                    {item}
+                                    <br />
+                                  </span>
+                                );
+                              })}
                         </h6>
                         {/* {subtitle && subtitle.startsWith && subtitle.startsWith("<html>") && (
                           <div> {parseHtml(subtitle.match(/<html>(.*?)<\/html>/)[1])}</div>
@@ -254,10 +249,10 @@ const BelisMap = ({ refRoutedMap }) => {
               <tbody>
                 <tr>
                   <td
-                    title="vorheriger Treffer"
+                    title='vorheriger Treffer'
                     style={{ textAlign: "left", verticalAlign: "center" }}
                   >
-                    <a className="renderAsProperLink" onClick={(_previous)}>
+                    <a className='renderAsProperLink' onClick={_previous}>
                       &lt;&lt;
                     </a>
                   </td>
@@ -266,10 +261,10 @@ const BelisMap = ({ refRoutedMap }) => {
                   </td>
 
                   <td
-                    title="nächster Treffer"
+                    title='nächster Treffer'
                     style={{ textAlign: "right", verticalAlign: "center" }}
                   >
-                    <a className="renderAsProperLink" onClick={_next}>
+                    <a className='renderAsProperLink' onClick={_next}>
                       &gt;&gt;
                     </a>
                   </td>
@@ -286,18 +281,18 @@ const BelisMap = ({ refRoutedMap }) => {
   }
 
   return (
-      <ResponsiveInfoBox
-        pixelwidth={350}
-        header={llVis}
-        collapsedInfoBox={minified}
-        setCollapsedInfoBox={minify}
-        isCollapsible={false}
-        handleResponsiveDesign={false}
-        infoStyle={infoStyle}
-        alwaysVisibleDiv={alwaysVisibleDiv}
-        collapsibleDiv={collapsibleDiv}
-        fixedRow={true}
-      />
+    <ResponsiveInfoBox
+      pixelwidth={350}
+      header={llVis}
+      collapsedInfoBox={minified}
+      setCollapsedInfoBox={minify}
+      isCollapsible={false}
+      handleResponsiveDesign={false}
+      infoStyle={infoStyle}
+      alwaysVisibleDiv={alwaysVisibleDiv}
+      collapsibleDiv={collapsibleDiv}
+      fixedRow={true}
+    />
   );
 };
 
