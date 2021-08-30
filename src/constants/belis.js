@@ -1,5 +1,5 @@
 export const backgrounds = {
-  stadtplan: "wupp-plan-live@90",
+  stadtplan: "OMT_Klokantech_basic@90",
   lbk: "wupp-plan-live@100|trueOrtho2020@75|rvrSchrift@100",
   nightplan:
     'wupp-plan-live@{"opacity":0.9,"css-filter": "filter:grayscale(0.9)brightness(0.9)invert(1)"}',
