@@ -14,6 +14,8 @@ import { fetchGraphQL } from "../../commons/graphql";
 import onlineQueryParts, { geomFactories } from "../../queries/online";
 import { storeJWT } from "../slices/auth";
 import { addPropertiesToFeature, convertFeatureToItem } from "../../helper/FeatureHelper";
+import proj4 from "proj4";
+import { MappingConstants } from "react-cismap";
 
 // ----
 
@@ -39,8 +41,8 @@ const featuresEqual = (a, b) => {
 const LOCALSTORAGE_KEY_IN_FOCUS_MODE = "@belis.app.inFocusMode";
 
 const dexieW = dexieworker();
-const focusedSearchMinimumZoomThreshhold = 12.5;
-const searchMinimumZoomThreshhold = 13.5;
+const focusedSearchMinimumZoomThreshhold = 17.5;
+const searchMinimumZoomThreshhold = 18.5;
 
 const LOCALSTORAGE_KEY_FILTER = "@belis.app.filter";
 
@@ -152,7 +154,7 @@ const createQueryGeomFromB = (boundingBox) => {
   geom.crs = {
     type: "name",
     properties: {
-      name: "urn:ogc:def:crs:EPSG::25832",
+      name: "urn:ogc:def:crs:EPSG::3857",
     },
   };
   return geom;
@@ -218,6 +220,16 @@ export const loadObjects = ({ boundingBox, _inFocusMode, zoom, overridingFilterS
   };
 };
 
+export function convertBoundingBox(
+  bbox,
+  refDefIn = MappingConstants.proj4crs3857def,
+  refDefOut = MappingConstants.proj4crs25832def
+) {
+  const [left, top] = proj4(refDefIn, refDefOut, [bbox.left, bbox.top]);
+  const [right, bottom] = proj4(refDefIn, refDefOut, [bbox.right, bbox.bottom]);
+  return { left, top, right, bottom };
+}
+
 export const loadObjectsIntoFeatureCollection = ({
   boundingBox,
   _inFocusMode,
@@ -225,6 +237,9 @@ export const loadObjectsIntoFeatureCollection = ({
   _overridingFilterState,
   jwt,
 }) => {
+  const convertedBoundingBox = convertBoundingBox(boundingBox);
+
+  //const boundingBox=
   return async (dispatch, getState) => {
     dispatch(setDone(false));
     const state = getState();
@@ -236,10 +251,10 @@ export const loadObjectsIntoFeatureCollection = ({
       let resultIds, leitungsFeatures;
       if (connectionMode === CONNECTIONMODE.FROMCACHE) {
         resultIds = state.spatialIndex.pointIndex.range(
-          boundingBox.left,
-          boundingBox.bottom,
-          boundingBox.right,
-          boundingBox.top
+          convertedBoundingBox.left,
+          convertedBoundingBox.bottom,
+          convertedBoundingBox.right,
+          convertedBoundingBox.top
         );
 
         //console.log('xxx alle resultIds da ', new Date().getTime() - d);
@@ -248,7 +263,12 @@ export const loadObjectsIntoFeatureCollection = ({
 
         if (filter.leitung.enabled === true) {
           leitungsFeatures = state.spatialIndex.lineIndex
-            .search(boundingBox.left, boundingBox.bottom, boundingBox.right, boundingBox.top)
+            .search(
+              convertedBoundingBox.left,
+              convertedBoundingBox.bottom,
+              convertedBoundingBox.right,
+              convertedBoundingBox.top
+            )
             .map((i) => state.spatialIndex.lineIndex.features[i]);
 
           //console.log('xxx Leitungen ', new Date().getTime() - ld);
@@ -283,7 +303,7 @@ export const loadObjectsIntoFeatureCollection = ({
           }
         }
         const gqlQuery = `query q($bbPoly: geometry!) {${queryparts}}`;
-        const queryParameter = { bbPoly: createQueryGeomFromB(boundingBox) };
+        const queryParameter = { bbPoly: createQueryGeomFromB(convertedBoundingBox) };
         const response = await fetchGraphQL(gqlQuery, queryParameter, jwt);
         console.log("response ", response);
 
@@ -334,7 +354,9 @@ export const loadObjectsIntoFeatureCollection = ({
     } else {
       dispatch(
         initIndex(() => {
-          dispatch(loadObjectsIntoFeatureCollection({ boundingBox, jwt: jwt }));
+          dispatch(
+            loadObjectsIntoFeatureCollection({ boundingBox: convertedBoundingBox, jwt: jwt })
+          );
         })
       );
     }

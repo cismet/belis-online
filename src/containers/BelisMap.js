@@ -73,8 +73,8 @@ const BelisMap = ({ refRoutedMap, width, height, jwt }) => {
       editable={false}
       style={mapStyle}
       key={"leafletRoutedMap." + inPaleMode + "." + background}
-      referenceSystem={MappingConstants.crs25832}
-      referenceSystemDefinition={MappingConstants.proj4crs25832def}
+      referenceSystem={MappingConstants.crs3857}
+      referenceSystemDefinition={MappingConstants.proj4crs3857def}
       ref={refRoutedMap}
       layers=''
       doubleClickZoom={false}
@@ -95,8 +95,8 @@ const BelisMap = ({ refRoutedMap, width, height, jwt }) => {
       urlSearchParams={urlSearchParams}
       fullScreenControlEnabled={false}
       locateControlEnabled={true}
-      minZoom={7}
-      maxZoom={19}
+      minZoom={11}
+      maxZoom={22}
       zoomSnap={0.5}
       zoomDelta={0.5}
       locationChangedHandler={(location) => {
