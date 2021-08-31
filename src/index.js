@@ -3,7 +3,10 @@ import ReactDOM from "react-dom";
 import "./index.css";
 import App from "./App";
 import * as serviceWorker from "./serviceWorker";
+import "react-bootstrap-typeahead/css/Typeahead.css";
 import "bootstrap/dist/css/bootstrap.min.css";
+import "leaflet/dist/leaflet.css";
+import "react-cismap/topicMaps.css";
 
 // don't know yet
 // import "react-cismap/topicMaps.css";

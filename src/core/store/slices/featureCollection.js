@@ -71,6 +71,8 @@ const featureCollectionSlice = createSlice({
     requestBasis: undefined,
     inFocusMode: initialInFocusMode,
     secondaryInfoVisible: false,
+    overlayFeature: undefined,
+    gazeteerHit: undefined,
   },
   reducers: {
     setFeatureCollection: (state, action) => {
@@ -82,6 +84,12 @@ const featureCollectionSlice = createSlice({
 
     setDone: (state, action) => {
       state.done = action.payload;
+    },
+    setOverlayFeature: (state, action) => {
+      state.overlayFeature = action.payload;
+    },
+    setGazetteerHit: (state, action) => {
+      state.gazetteerHit = action.payload;
     },
     setFilter: (state, action) => {
       state.filter = action.payload;
@@ -128,6 +136,8 @@ export const {
   setRequestBasis,
   setFocusModeActive,
   setSecondaryInfoVisible,
+  setOverlayFeature,
+  setGazetteerHit,
 } = featureCollectionSlice.actions;
 
 export const getFeatureCollection = (state) => {
@@ -141,6 +151,8 @@ const getRequestBasis = (state) => state.featureCollection.requestBasis;
 export const isInFocusMode = (state) => state.featureCollection.inFocusMode;
 export const isSecondaryInfoVisible = (state) => state.featureCollection.secondaryInfoVisible;
 export const getFeatureCollectionInfo = (state) => state.featureCollection.info;
+export const getOverlayFeature = (state) => state.featureCollection.overlayFeature;
+export const getGazetteerHit = (state) => state.featureCollection.gazetteerHit;
 
 export default featureCollectionSlice;
 

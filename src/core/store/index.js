@@ -13,6 +13,7 @@ import cacheControlSlice from "./slices/cacheControl";
 import uiMessageSlice from "./slices/uiMessage";
 import appStateSlice from "./slices/app";
 import authSlice from "./slices/auth";
+import gazetteerDataSlice from "./slices/gazetteerData";
 import { createLogger } from "redux-logger";
 
 console.log("store initializing ....");
@@ -65,6 +66,7 @@ const store = configureStore({
     inPaleMode: paleModeSlice.reducer,
     cacheControl: cacheControlSlice.reducer,
     uiMessage: uiMessageSlice.reducer,
+    gazetteerData: gazetteerDataSlice.reducer,
   },
   devTools: devToolsEnabled === true && inProduction === false,
   middleware,

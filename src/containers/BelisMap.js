@@ -15,11 +15,15 @@ import {
   isSecondaryInfoVisible,
   getSelectedFeature,
   setSelectedFeature,
+  getOverlayFeature,
+  getGazetteerHit,
 } from "../core/store/slices/featureCollection";
 import { isPaleModeActive } from "../core/store/slices/paleMode";
 import { getZoom, setZoom } from "../core/store/slices/zoom";
 import InfoBox from "../components/commons/InfoBox";
 import InfoPanel from "../components/commons/secondaryinfo/SecondaryInfo";
+import ProjSingleGeoJson from "react-cismap/ProjSingleGeoJson";
+import GazetteerHitDisplay from "react-cismap/GazetteerHitDisplay";
 
 //---
 
@@ -37,6 +41,8 @@ const BelisMap = ({ refRoutedMap, width, height, jwt }) => {
   const inFocusMode = useSelector(isInFocusMode);
   const secondaryInfoVisible = useSelector(isSecondaryInfoVisible);
   const selectedFeature = useSelector(getSelectedFeature);
+  const overlayFeature = useSelector(getOverlayFeature);
+  const gazetteerHit = useSelector(getGazetteerHit);
   const history = useHistory();
   const browserlocation = useLocation();
 
@@ -67,6 +73,7 @@ const BelisMap = ({ refRoutedMap, width, height, jwt }) => {
   } else {
     symbolColor = "#000000";
   }
+  console.log("gazetteerHit", gazetteerHit);
 
   return (
     <RoutedMap
@@ -114,6 +121,20 @@ const BelisMap = ({ refRoutedMap, width, height, jwt }) => {
       {secondaryInfoVisible && <InfoPanel />}
       {selectedFeature !== undefined && selectedFeature !== null && (
         <InfoBox refRoutedMap={refRoutedMap} />
+      )}
+      {overlayFeature && (
+        <ProjSingleGeoJson
+          key={JSON.stringify(overlayFeature)}
+          geoJson={overlayFeature}
+          masked={true}
+          mapRef={refRoutedMap}
+        />
+      )}
+      {gazetteerHit && (
+        <GazetteerHitDisplay
+          key={"gazHit" + JSON.stringify(gazetteerHit)}
+          gazetteerHit={gazetteerHit}
+        />
       )}
     </RoutedMap>
   );
