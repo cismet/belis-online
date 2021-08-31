@@ -1,23 +1,29 @@
 {
-    // Use IntelliSense to learn about possible attributes.
-    // Hover to view descriptions of existing attributes.
-    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
-    "version": "0.2.0",
-    "configurations": [
-
-        {
-            "type": "chrome",
-            "request": "launch",
-            "name": "TestPage",
-            "url": "http://localhost:3000/test",
-            "webRoot": "${workspaceFolder}"
-        },
-        {
-            "type": "chrome",
-            "request": "launch",
-            "name": "App",
-            "url": "http://localhost:3000/?lat=51.27230794118779&lng=7.208208770249522&zoom=14.5&stateLoggingEnabled=true",
-            "webRoot": "${workspaceFolder}"
-        }
-    ]
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "chrome",
+      "request": "launch",
+      "name": "TestPage",
+      "url": "http://localhost:3000/test",
+      "webRoot": "${workspaceFolder}"
+    },
+    {
+      "type": "chrome",
+      "request": "launch",
+      "name": "App",
+      "url": "http://localhost:3000/?lat=51.27230794118779&lng=7.208208770249522&zoom=14.5&stateLoggingEnabled=true",
+      "webRoot": "${workspaceFolder}"
+    },
+    {
+      "type": "chrome",
+      "request": "launch",
+      "name": "App 3001",
+      "url": "http://localhost:3001/?lat=51.27282917803476&lng=7.202492952346803&stateLoggingEnabled=true&zoom=19",
+      "webRoot": "${workspaceFolder}"
+    }
+  ]
 }

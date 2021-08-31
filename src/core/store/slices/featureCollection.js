@@ -172,7 +172,14 @@ const createQueryGeomFromB = (boundingBox) => {
   return geom;
 };
 
-export const loadObjects = ({ boundingBox, _inFocusMode, zoom, overridingFilterState, jwt }) => {
+export const loadObjects = ({
+  boundingBox,
+  _inFocusMode,
+  zoom,
+  overridingFilterState,
+  jwt,
+  force = false,
+}) => {
   return async (dispatch, getState) => {
     if (!jwt) {
       return;
@@ -205,7 +212,7 @@ export const loadObjects = ({ boundingBox, _inFocusMode, zoom, overridingFilterS
       const reqBasis =
         JSON.stringify(boundingBox) + "." + JSON.stringify(_filterstate) + "." + inFocusMode;
 
-      if (reqBasis !== requestBasis) {
+      if (reqBasis !== requestBasis || force) {
         dispatch(setRequestBasis(reqBasis));
 
         let xbb;

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { MappingConstants, RoutedMap } from "react-cismap";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory, useLocation } from "react-router-dom";
@@ -24,6 +24,7 @@ import InfoBox from "../components/commons/InfoBox";
 import InfoPanel from "../components/commons/secondaryinfo/SecondaryInfo";
 import ProjSingleGeoJson from "react-cismap/ProjSingleGeoJson";
 import GazetteerHitDisplay from "react-cismap/GazetteerHitDisplay";
+import { getLineIndex, getLoadingState, getPointIndex } from "../core/store/slices/spatialIndex";
 
 //---
 
@@ -43,6 +44,9 @@ const BelisMap = ({ refRoutedMap, width, height, jwt }) => {
   const selectedFeature = useSelector(getSelectedFeature);
   const overlayFeature = useSelector(getOverlayFeature);
   const gazetteerHit = useSelector(getGazetteerHit);
+  const loadingState = useSelector(getLoadingState);
+  const pointIndex = useSelector(getPointIndex);
+  const lineIndex = useSelector(getLineIndex);
   const history = useHistory();
   const browserlocation = useLocation();
 
@@ -56,7 +60,7 @@ const BelisMap = ({ refRoutedMap, width, height, jwt }) => {
 
   const resultingLayer = backgrounds[rlKey];
 
-  const boundingBoxChangedHandler = (incomingBoundingBox) => {
+  const boundingBoxChangedHandler = (incomingBoundingBox, force = false) => {
     let boundingBox = incomingBoundingBox;
     if (boundingBox === undefined) {
       boundingBox = refRoutedMap.current.getBoundingBox();
@@ -65,7 +69,11 @@ const BelisMap = ({ refRoutedMap, width, height, jwt }) => {
     if (zoom !== z) {
       dispatch(setZoom(z));
     }
-    dispatch(loadObjects({ boundingBox, inFocusMode, zoom: z, jwt: jwt }));
+    console.log("zz loadObjects");
+    console.log("zz loadingState", loadingState);
+    console.log("zz lineIndex", lineIndex);
+    console.log("zz pointIndex", pointIndex);
+    dispatch(loadObjects({ boundingBox, inFocusMode, zoom: z, jwt: jwt, force }));
   };
   let symbolColor;
   if (background === "nightplan") {
@@ -73,7 +81,12 @@ const BelisMap = ({ refRoutedMap, width, height, jwt }) => {
   } else {
     symbolColor = "#000000";
   }
-  console.log("gazetteerHit", gazetteerHit);
+
+  useEffect(() => {
+    if (loadingState === "done" && lineIndex && pointIndex) {
+      boundingBoxChangedHandler(undefined, true);
+    }
+  }, [loadingState, lineIndex, pointIndex]);
 
   return (
     <RoutedMap

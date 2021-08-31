@@ -33,6 +33,7 @@ export default spatialIndexSlice;
 export const { startLoading, initialize } = spatialIndexSlice.actions;
 
 export const getPointIndex = (state) => state.spatialIndex.pointIndex;
+export const getLineIndex = (state) => state.spatialIndex.lineIndex;
 export const getLoadingState = (state) => state.spatialIndex.loading;
 
 export const initIndex = (finished = () => {}) => async (dispatch) => {
