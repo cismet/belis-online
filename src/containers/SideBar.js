@@ -1,4 +1,4 @@
-import { createRef, React, useEffect, useState } from "react";
+import { createRef, React, useEffect, useRef, useState } from "react";
 import Nav from "react-bootstrap/Nav";
 import { useSelector } from "react-redux";
 import SideBarListElement from "../components/commons/SideBarListElement";
@@ -8,7 +8,7 @@ import {
   getFeatureCollectionInfo,
   getSelectedFeature,
 } from "../core/store/slices/featureCollection";
-
+import useIsOnScreen from "../core/commons/hooks/useIsOnScreen";
 //---------
 
 const featureTypeToName = {};
@@ -25,7 +25,7 @@ const SideBar = ({ innerRef, height }) => {
   const selectedFeature = useSelector(getSelectedFeature);
   const featureCollectionInfo = useSelector(getFeatureCollectionInfo);
   const [refs, setRefs] = useState({});
-
+  const listRef = useRef();
   useEffect(() => {
     const _refs = {};
     for (const f of featureCollection) {
@@ -35,15 +35,22 @@ const SideBar = ({ innerRef, height }) => {
     setRefs(_refs);
   }, [featureCollection]);
 
+  //
+
   useEffect(() => {
     if (selectedFeature !== null) {
-      refs &&
-        refs[selectedFeature.id] &&
-        refs[selectedFeature.id]?.current?.scrollIntoView &&
-        refs[selectedFeature.id].current.scrollIntoView({
-          behavior: "smooth",
-          block: "start",
-        });
+      if (refs && refs[selectedFeature.id] && refs[selectedFeature.id]?.current?.scrollIntoView) {
+        const { top: topOfListItem, height: heightOfListItem } = refs[
+          selectedFeature.id
+        ].current.getBoundingClientRect();
+        const { height: heightOfList } = listRef?.current.getBoundingClientRect();
+        if (topOfListItem < heightOfListItem || topOfListItem + heightOfListItem > heightOfList) {
+          refs[selectedFeature.id].current.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+          });
+        }
+      }
     }
   }, [selectedFeature, refs]);
 
@@ -69,7 +76,7 @@ const SideBar = ({ innerRef, height }) => {
           activeKey='/home'
           onSelect={(selectedKey) => alert(`selected ${selectedKey}`)}
         >
-          <div style={mapStyle}>
+          <div ref={listRef} style={mapStyle}>
             <ListGroup>
               {featureCollection.map((feature, index) => {
                 if (currentFeatureType === null || currentFeatureType !== feature.featuretype) {
