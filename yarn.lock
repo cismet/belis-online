@@ -14567,10 +14567,10 @@ react-chartkick@^0.4.1:
   dependencies:
     chartkick "^3.2.0"
 
-react-cismap@^1.2.42:
-  version "1.2.42"
-  resolved "https://registry.yarnpkg.com/react-cismap/-/react-cismap-1.2.42.tgz#8ecf56f2e600db2112f690e375fae3e40448293d"
-  integrity sha512-xQulQtGVvOs7NejQempeQ7xxFipoYcXQ9O9w6W/V5yLeLRZiM7KAEsnsw/TR8W6urj7pIweXv4G6iNqWY5AYQw==
+react-cismap@^1.2.43:
+  version "1.2.43"
+  resolved "https://registry.yarnpkg.com/react-cismap/-/react-cismap-1.2.43.tgz#3b4922e9df52ad4ccfa1aa833a02b53d692e94be"
+  integrity sha512-Kv66urenp97ahPhEm2/p/YLwk2N7uEVHYi7tsWe8B0Shu5HbKUrRQlvMMqbjDJhxwrn8/8SHy1ukFEyOGcYd/Q==
   dependencies:
     "@fortawesome/fontawesome-free" "^5.12.0"
     "@fortawesome/fontawesome-svg-core" "^1.2.26"
@@ -17323,7 +17323,7 @@ uncontrollable@^7.2.1:
     invariant "^2.2.4"
     react-lifecycles-compat "^3.0.4"
 
-unfetch@^4.1.0, unfetch@^4.2.0:
+unfetch@^4.2.0:
   version "4.2.0"
   resolved "https://registry.yarnpkg.com/unfetch/-/unfetch-4.2.0.tgz#7e21b0ef7d363d8d9af0fb929a5555f6ef97a3be"
   integrity sha512-F9p7yYCn6cIW9El1zi0HI6vqpeIvBsr3dSuRO6Xuppb1u5rXpCPmMvLSyECLhybr9isec8Ohl0hPekMVrEinDA==
@@ -18060,7 +18060,7 @@ whatwg-encoding@^1.0.5:
   dependencies:
     iconv-lite "0.4.24"
 
-whatwg-fetch@>=0.10.0, whatwg-fetch@^3.4.1:
+whatwg-fetch@>=0.10.0, whatwg-fetch@^3.4.1, whatwg-fetch@^3.6.2:
   version "3.6.2"
   resolved "https://registry.yarnpkg.com/whatwg-fetch/-/whatwg-fetch-3.6.2.tgz#dced24f37f2624ed0281725d51d0e2e3fe677f8c"
   integrity sha512-bJlen0FcuU/0EMLrdbJ7zOnW6ITZLrZMIarMUVmdKtsGvZna8vxKYaexICWPfZ8qwf9fzNq+UEIZrnSaApt6RA==
