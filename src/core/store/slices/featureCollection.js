@@ -222,9 +222,9 @@ export const loadObjects = ({
 
       if (reqBasis !== requestBasis || force) {
         if (force) {
-          console.log("xxx forced request ", boundingBox, new Error());
+          // console.log("xxx forced request ", boundingBox, new Error());
         } else {
-          console.log("xxx ordinary request", boundingBox, new Error());
+          // console.log("xxx ordinary request", boundingBox, new Error());
         }
         dispatch(setRequestBasis(reqBasis));
 
@@ -246,7 +246,7 @@ export const loadObjects = ({
 
         dispatch(loadObjectsIntoFeatureCollection({ boundingBox: xbb, jwt: jwt }));
       } else {
-        console.log("xxx duplicate requestBasis", boundingBox, new Error());
+        // console.log("xxx duplicate requestBasis", boundingBox, new Error());
       }
     }
   };
