@@ -21,6 +21,14 @@
     {
       "type": "chrome",
       "request": "launch",
+      "name": "App Färberstrasse 1 Leuchte",
+      "url": "http://localhost:3000/?lat=51.27626092471301&lng=7.211879259302806&stateLoggingEnabled=true&zoom=22",
+      "webRoot": "${workspaceFolder}"
+    },
+
+    {
+      "type": "chrome",
+      "request": "launch",
       "name": "App 3001",
       "url": "http://localhost:3001/?lat=51.27282917803476&lng=7.202492952346803&stateLoggingEnabled=true&zoom=19",
       "webRoot": "${workspaceFolder}"
