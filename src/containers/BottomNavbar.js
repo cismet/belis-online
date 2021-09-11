@@ -14,6 +14,7 @@ import Switch from "../components/commons/Switch";
 import { CONNECTIONMODE, getConnectionMode, setConnectionMode } from "../core/store/slices/app";
 import { getLogin } from "../core/store/slices/auth";
 import { getBackground, setBackground } from "../core/store/slices/background";
+import { isCacheFullUsable } from "../core/store/slices/cacheControl";
 import {
   isInFocusMode,
   loadObjects,
@@ -32,6 +33,8 @@ const BottomNavbar = ({ innerRef, onlineStatus, refRoutedMap, jwt }) => {
   const inPaleMode = useSelector(isPaleModeActive);
   const background = useSelector(getBackground);
   const connectionMode = useSelector(getConnectionMode);
+
+  const isCacheReady = useSelector(isCacheFullUsable);
   const uiThreadProgressbar =
     new URLSearchParams(browserlocation.search).get("uiThreadProgressbar") === "true";
 
@@ -73,6 +76,7 @@ const BottomNavbar = ({ innerRef, onlineStatus, refRoutedMap, jwt }) => {
               Live-Daten
             </Button>
             <Button
+              disabled={isCacheReady === false}
               variant={connectionMode === CONNECTIONMODE.FROMCACHE ? "primary" : "outline-primary"}
               onClick={() => {
                 dispatch(setConnectionMode(CONNECTIONMODE.FROMCACHE));
