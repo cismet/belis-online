@@ -72,8 +72,6 @@ const BelisMap = ({ refRoutedMap, width, height, jwt }) => {
   const resultingLayer = backgrounds[rlKey];
 
   const boundingBoxChangedHandler = (incomingBoundingBox, force = false) => {
-    console.log("xxx boundingBoxChanged");
-
     let boundingBox = incomingBoundingBox;
     if (boundingBox === undefined) {
       boundingBox = refRoutedMap.current.getBoundingBox();
@@ -95,7 +93,9 @@ const BelisMap = ({ refRoutedMap, width, height, jwt }) => {
       if (loadingState === undefined) {
         dispatch(
           initIndex(() => {
-            boundingBoxChangedHandler(undefined, false);
+            if (!featureCollection.length) {
+              boundingBoxChangedHandler(undefined, true);
+            }
           })
         );
       }
