@@ -9,7 +9,7 @@ import {
 } from "../../core/store/slices/featureCollection";
 import ResponsiveInfoBox from "./ResponsiveInfoBox";
 import { getActionLinksForFeature } from "react-cismap/tools/uiHelper";
-import { getVCard } from "../../core/helper/FeatureHelper";
+import { getVCard } from "../../core/helper/featureHelper";
 import { projectionData } from "react-cismap/constants/gis";
 import { convertBBox2Bounds } from "react-cismap/tools/gisHelper";
 import { getType } from "@turf/invariant";
@@ -91,7 +91,7 @@ const BelisMap = ({ refRoutedMap }) => {
       entityClassName: config.navigator.noun.singular,
       displayZoomToFeature: true,
       zoomToFeature: (feature) => {
-        let zoomlevel = 15;
+        let zoomlevel = 22;
         let refDef;
         if (feature.crs) {
           const code = feature?.crs?.properties?.name?.split("EPSG::")[1];

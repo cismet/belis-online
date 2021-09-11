@@ -1,24 +1,30 @@
-import React from 'react';
-import { faSpinner } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon as Icon } from '@fortawesome/react-fontawesome';
+import React, { useEffect, useState } from "react";
+import { faSpinner } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon as Icon } from "@fortawesome/react-fontawesome";
 
 const size = 150;
 const MapBlocker = ({ blocking, visible, width, height }) => {
-	if (blocking === true) {
-		return (
-			<div
-				style={{
-					position: 'absolute',
-					height: height,
-					width: width,
-					background: visible === true ? '#00000020' : '#00000000',
-					left: 0,
-					top: 0,
-					zIndex: 100000,
-					cursor: 'wait'
-				}}
-			>
-				{visible === true && (
+  const [dark, setDark] = useState(false);
+
+  //   useEffect(() => {
+  //     setTimeout(() => {}, 500);
+  //   }, [blocking, dark]);
+
+  if (blocking === true) {
+    return (
+      <div
+        style={{
+          position: "absolute",
+          height: height,
+          width: width,
+          background: visible === true ? "#00000050" : "#00000000",
+          left: 0,
+          top: 0,
+          zIndex: 100000,
+          cursor: "wait",
+        }}
+      >
+        {/* {visible === true && (
 					<div
 						style={{
 							display: 'flex',
@@ -48,11 +54,11 @@ const MapBlocker = ({ blocking, visible, width, height }) => {
 							icon={faSpinner}
 						/>
 					</div>
-				)}
-			</div>
-		);
-	} else {
-		return <div />;
-	}
+				)} */}
+      </div>
+    );
+  } else {
+    return <div />;
+  }
 };
 export default MapBlocker;

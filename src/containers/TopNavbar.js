@@ -8,7 +8,17 @@ import Nav from "react-bootstrap/Nav";
 import Navbar from "react-bootstrap/Navbar";
 import NavDropdown from "react-bootstrap/NavDropdown";
 
-import { faBars, faBookOpen, faGlobeEurope, faTimes } from "@fortawesome/free-solid-svg-icons";
+import {
+  faBars,
+  faBookOpen,
+  faCertificate,
+  faGlobeEurope,
+  faLock,
+  faLockOpen,
+  faSpinner,
+  faTimes,
+  faVial,
+} from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon as Icon } from "@fortawesome/react-fontawesome";
 
 import Switch from "../components/commons/Switch";
@@ -37,6 +47,11 @@ import {
 import { getBackground } from "../core/store/slices/background";
 import GazetteerSearchComponent from "react-cismap/GazetteerSearchComponent";
 import { MappingConstants } from "react-cismap";
+import { REST_SERVICE } from "../constants/belis";
+import {
+  renewAllPrimaryInfoCache,
+  renewAllSecondaryInfoCache,
+} from "../core/store/slices/cacheControl";
 //---------
 
 const TopNavbar = ({ innerRef, refRoutedMap, setCacheSettingsVisible, jwt }) => {
@@ -71,11 +86,11 @@ const TopNavbar = ({ innerRef, refRoutedMap, setCacheSettingsVisible, jwt }) => 
             key={"navbar.div." + fcIsDone}
           >
             {fcIsDone === false && searchModeActive === true && (
-              // <Icon className='text-primary' spin icon={faSpinner} />
-              <span>-.-</span>
+              <Icon style={{ marginTop: 10 }} className='text-primary' spin icon={faSpinner} />
+              // <span>-.-</span>
             )}
             {fcIsDone === true && (
-              <div style={{ fontSize: 9, marginTop: 7 }}>{featureCollection.length}</div>
+              <div style={{ fontSize: 9, marginTop: 10 }}>{featureCollection.length}</div>
             )}
           </div>
         </Nav.Link>
@@ -146,7 +161,15 @@ const TopNavbar = ({ innerRef, refRoutedMap, setCacheSettingsVisible, jwt }) => 
       </Nav>
 
       <Nav className='mr-auto text-primary'>Kein Arbeitsauftrag ausgewählt (Erneuerung)</Nav>
-      <Nav.Link href='#home'>
+
+      <Nav.Link
+        onClick={() => {
+          dispatch(renewAllPrimaryInfoCache(jwt));
+        }}
+      >
+        <Icon icon={faVial} />
+      </Nav.Link>
+      <Nav.Link>
         <Icon icon={faBookOpen} />
       </Nav.Link>
       <Form style={{ marginRight: 10 }}>
@@ -166,6 +189,7 @@ const TopNavbar = ({ innerRef, refRoutedMap, setCacheSettingsVisible, jwt }) => 
           enabled={gazData.length > 0}
           referenceSystem={MappingConstants.crs3857}
           referenceSystemDefinition={MappingConstants.proj4crs3857def}
+          autoFocus={false}
         />
       </Form>
 

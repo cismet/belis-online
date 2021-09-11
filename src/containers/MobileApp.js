@@ -13,11 +13,14 @@ import TopNavbar from "./TopNavbar";
 import SideBar from "./SideBar";
 import LoginForm from "../components/app/LoginForm";
 import { getJWT } from "../core/store/slices/auth";
+import { useHistory, useLocation } from "react-router-dom/cjs/react-router-dom.min";
+import { modifyQueryPart } from "../core/commons/routingHelper";
 
 //---
 
 const View = () => {
   const dispatch = useDispatch();
+  const history = useHistory();
   const [windowWidth, windowHeight] = useWindowSize();
   const onlineStatus = useOnlineStatus();
 
@@ -32,7 +35,7 @@ const View = () => {
   const storedJWT = useSelector(getJWT);
 
   const mapStyle = {
-    height: windowHeight - (sizeU.height || 62) - (sizeL.height || 56),
+    height: windowHeight - (sizeU.height || 58) - (sizeL.height || 48),
     width: windowWidth - (sizeSide.width || 300),
     cursor: "pointer",
     clear: "both",
@@ -47,8 +50,9 @@ const View = () => {
 
   const fcIsDone = useSelector(isDone);
   const connectionMode = useSelector(getConnectionMode);
+  const browserlocation = useLocation();
 
-  useEffect(() => {}, [jwt]);
+  // useEffect(() => {}, [jwt]);
 
   let loginForm = null;
 
@@ -64,6 +68,15 @@ const View = () => {
       />
     );
   }
+
+  useEffect(() => {
+    console.log("xxx browserlocation.search", browserlocation.search === "");
+    if (browserlocation.search === "") {
+      history.push(
+        history.location.pathname + "?lat=51.27185783523219&lng=7.200121618952836&zoom=19"
+      );
+    }
+  }, [history, browserlocation]);
 
   return (
     <div>

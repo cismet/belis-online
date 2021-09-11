@@ -142,7 +142,9 @@ export const getFeaturesForHits = async (points, resultIds, filter) => {
         // //console.log('xxx Feature gebaut ', new Date().getTime() - d);
       }
     } else {
-      console.log("could not find " + hit.tablename + "." + hit.oid);
+      if (hit.tablename !== "tdta_standort_mast") {
+        console.log("could not find " + hit.tablename + "." + hit.oid);
+      }
     }
   }
 

@@ -8,7 +8,6 @@ import {
   getFeatureCollectionInfo,
   getSelectedFeature,
 } from "../core/store/slices/featureCollection";
-import useIsOnScreen from "../core/commons/hooks/useIsOnScreen";
 //---------
 
 const featureTypeToName = {};
@@ -20,7 +19,6 @@ featureTypeToName["Leitung"] = "Leitungen";
 featureTypeToName["tdta_standort_mast"] = "Masten";
 
 const SideBar = ({ innerRef, height }) => {
-  const [allFeatures, setAllFeatures] = useState([]);
   const featureCollection = useSelector(getFeatureCollection);
   const selectedFeature = useSelector(getSelectedFeature);
   const featureCollectionInfo = useSelector(getFeatureCollectionInfo);
@@ -60,10 +58,6 @@ const SideBar = ({ innerRef, height }) => {
     overflowY: "auto",
   };
 
-  if (allFeatures !== featureCollection) {
-    setAllFeatures(featureCollection);
-  }
-
   let currentFeatureType = null;
 
   if (featureCollectionInfo) {
@@ -83,8 +77,9 @@ const SideBar = ({ innerRef, height }) => {
                   currentFeatureType = feature.featuretype;
 
                   return (
-                    <div ref={refs[feature.id]}>
+                    <div key={"listItemDiv." + feature.id} ref={refs[feature.id]}>
                       <ListGroup.Item
+                        key={"listItem." + feature.id}
                         style={{
                           textAlign: "left",
                           padding: "0px 0px 0px 10px",
@@ -107,8 +102,9 @@ const SideBar = ({ innerRef, height }) => {
                   );
                 } else {
                   return (
-                    <div ref={refs[feature.id]}>
+                    <div key={"listItemDiv." + feature.id} ref={refs[feature.id]}>
                       <SideBarListElement
+                        key={"SideBarListElement." + feature.id}
                         feature={feature}
                         selected={feature.selected}
                       ></SideBarListElement>

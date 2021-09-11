@@ -7,11 +7,10 @@ import "react-bootstrap-typeahead/css/Typeahead.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "leaflet/dist/leaflet.css";
 import "react-cismap/topicMaps.css";
+import "whatwg-fetch";
 
-// don't know yet
-// import "react-cismap/topicMaps.css";
+// import * as InfoboxStories from "./_stories/InfoBox.stories";
 
-import * as InfoboxStories from "./_stories/InfoBox.stories";
 ReactDOM.render(
   <React.StrictMode>
     <App />

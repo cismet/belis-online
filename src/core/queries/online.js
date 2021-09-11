@@ -129,6 +129,61 @@ queries.schaltstelle = `
   `;
 geomFactories.schaltstelle = defaultGeomFactory;
 
+queries.tdta_leuchten_ohne_mast = `
+tdta_leuchten(where: {tdta_standort_mast: {geom: {geo_field: {_st_intersects: $bbPoly}}}}) {
+    leuchtennummer
+    anschlussleistung_1dk
+    anschlussleistung_2dk
+    anzahl_1dk
+    anzahl_2dk
+    bemerkungen
+    dokumenteArray {
+      dms_url {
+        url {
+          object_name
+          url_base {
+            path
+            prot_prefix
+            server
+          }
+        }
+      }
+    }
+    einbaudatum
+    fk_dk1
+    fk_dk2
+    fk_energielieferant
+    fk_kennziffer
+    fk_leuchttyp
+    fk_strassenschluessel
+    fk_unterhaltspflicht_leuchte
+    fk_standort
+    id
+    inbetriebnahme_leuchte
+    is_deleted
+    kabeluebergangskasten_sk_ii
+    lebensdauer
+    leuchtmittel
+    lfd_nummer
+    montagefirma_leuchte
+    monteur
+    naechster_wechsel
+    plz
+    rundsteuerempfaenger
+    schaltstelle
+    vorschaltgeraet
+    wartungszyklus
+    wechseldatum
+    wechselvorschaltgeraet
+    zaehler
+    tdta_standort_mast {
+      geom {
+        geo_field
+      }
+    }
+  }
+`;
+
 queries.tdta_leuchten = `
 tdta_leuchten(where: {tdta_standort_mast: {geom: {geo_field: {_st_intersects: $bbPoly}}}}) {
     leuchtennummer
@@ -177,6 +232,58 @@ tdta_leuchten(where: {tdta_standort_mast: {geom: {geo_field: {_st_intersects: $b
     wechselvorschaltgeraet
     zaehler
     tdta_standort_mast {
+      geom {
+        geo_field
+      }
+    }
+    full_tdta_standort_mast: tdta_standort_mast {
+      id
+      bemerkungen
+      anstrichfarbe
+      dokumenteArray {
+        dms_url {
+          url {
+            object_name
+            url_base {
+              path
+              prot_prefix
+              server
+            }
+          }
+        }
+      }
+      elek_pruefung
+      erdung
+      fk_kennziffer
+      fk_klassifizierung
+      fk_mastart
+      fk_masttyp
+      fk_stadtbezirk
+      fk_strassenschluessel
+      fk_unterhaltspflicht_mast
+      foto
+      gruendung
+      haus_nr
+      inbetriebnahme_mast
+      ist_virtueller_standort
+      letzte_aenderung
+      lfd_nummer
+      mastanstrich
+      mastschutz
+      montagefirma
+      monteur
+      naechstes_pruefdatum
+      plz
+      revision
+      standortangabe
+      standsicherheitspruefung
+      verfahren
+      verrechnungseinheit
+      anbauten
+      anlagengruppeObject {
+        nummer
+        bezeichnung
+      }
       geom {
         geo_field
       }

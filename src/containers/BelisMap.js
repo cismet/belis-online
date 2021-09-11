@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { MappingConstants, RoutedMap } from "react-cismap";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory, useLocation } from "react-router-dom";
@@ -6,7 +6,7 @@ import BelisFeatureCollection from "../components/app/FeatureCollection";
 import FocusRectangle from "../components/app/FocusRectangle";
 import { backgrounds } from "../constants/belis";
 import { modifyQueryPart } from "../core/commons/routingHelper";
-import { getConnectionMode } from "../core/store/slices/app";
+import { CONNECTIONMODE, getConnectionMode } from "../core/store/slices/app";
 import { getBackground } from "../core/store/slices/background";
 import {
   getFeatureCollection,
@@ -24,13 +24,21 @@ import InfoBox from "../components/commons/InfoBox";
 import InfoPanel from "../components/commons/secondaryinfo/SecondaryInfo";
 import ProjSingleGeoJson from "react-cismap/ProjSingleGeoJson";
 import GazetteerHitDisplay from "react-cismap/GazetteerHitDisplay";
-import { getLineIndex, getLoadingState, getPointIndex } from "../core/store/slices/spatialIndex";
+import {
+  getLineIndex,
+  getLoadingState,
+  getPointIndex,
+  initIndex,
+} from "../core/store/slices/spatialIndex";
+import {
+  isSecondaryCacheUsable,
+  renewAllSecondaryInfoCache,
+} from "../core/store/slices/cacheControl";
 
 //---
 
 const BelisMap = ({ refRoutedMap, width, height, jwt }) => {
   const dispatch = useDispatch();
-
   const mapStyle = {
     height,
     width,
@@ -47,6 +55,9 @@ const BelisMap = ({ refRoutedMap, width, height, jwt }) => {
   const loadingState = useSelector(getLoadingState);
   const pointIndex = useSelector(getPointIndex);
   const lineIndex = useSelector(getLineIndex);
+  const isSecondaryCacheReady = useSelector(isSecondaryCacheUsable);
+  const connectionMode = useSelector(getConnectionMode);
+
   const history = useHistory();
   const browserlocation = useLocation();
 
@@ -61,6 +72,8 @@ const BelisMap = ({ refRoutedMap, width, height, jwt }) => {
   const resultingLayer = backgrounds[rlKey];
 
   const boundingBoxChangedHandler = (incomingBoundingBox, force = false) => {
+    console.log("xxx boundingBoxChanged");
+
     let boundingBox = incomingBoundingBox;
     if (boundingBox === undefined) {
       boundingBox = refRoutedMap.current.getBoundingBox();
@@ -69,10 +82,6 @@ const BelisMap = ({ refRoutedMap, width, height, jwt }) => {
     if (zoom !== z) {
       dispatch(setZoom(z));
     }
-    console.log("zz loadObjects");
-    console.log("zz loadingState", loadingState);
-    console.log("zz lineIndex", lineIndex);
-    console.log("zz pointIndex", pointIndex);
     dispatch(loadObjects({ boundingBox, inFocusMode, zoom: z, jwt: jwt, force }));
   };
   let symbolColor;
@@ -81,12 +90,42 @@ const BelisMap = ({ refRoutedMap, width, height, jwt }) => {
   } else {
     symbolColor = "#000000";
   }
+  useEffect(() => {
+    if (connectionMode === CONNECTIONMODE.FROMCACHE) {
+      if (loadingState === undefined) {
+        dispatch(
+          initIndex(() => {
+            boundingBoxChangedHandler(undefined, true);
+          })
+        );
+      }
+    }
+  }, [dispatch, connectionMode, loadingState]);
 
   useEffect(() => {
-    if (loadingState === "done" && lineIndex && pointIndex) {
+    dispatch(renewAllSecondaryInfoCache(jwt));
+    if (isSecondaryCacheReady === true) {
       boundingBoxChangedHandler(undefined, true);
     }
-  }, [loadingState, lineIndex, pointIndex]);
+  }, [dispatch, jwt, isSecondaryCacheReady]);
+
+  // useEffect(() => {
+  //   console.log("useEffect BelisMap", {
+  //     loadingState,
+  //     isSecondaryCacheReady,
+  //     connectionMode,
+  //   });
+  //   if (connectionMode === CONNECTIONMODE.ONLINE) {
+  //     if (isSecondaryCacheReady) {
+  //       boundingBoxChangedHandler(undefined);
+  //     }
+  //   } else {
+  //     if (loadingState === "done" && lineIndex && pointIndex) {
+  //       boundingBoxChangedHandler(undefined, true);
+  //     }
+  //   }
+  //   //this is the initial load
+  // }, [loadingState, isSecondaryCacheReady, connectionMode]);
 
   return (
     <RoutedMap
@@ -102,13 +141,15 @@ const BelisMap = ({ refRoutedMap, width, height, jwt }) => {
         console.log("click");
       }}
       ondblclick={(e) => {
-        const classes = e.originalEvent.path[0].getAttribute("class");
+        try {
+          const classes = e.originalEvent.path[0].getAttribute("class");
 
-        if (classes && classes.split(" ").includes("leaflet-container")) {
-          console.log("unselect feature");
+          if (classes && classes.split(" ").includes("leaflet-container")) {
+            console.log("unselect feature");
 
-          dispatch(setSelectedFeature(null));
-        }
+            dispatch(setSelectedFeature(null));
+          }
+        } catch (e) {}
       }}
       autoFitProcessedHandler={() => this.props.mappingActions.setAutoFit(false)}
       backgroundlayers={resultingLayer}
@@ -119,6 +160,11 @@ const BelisMap = ({ refRoutedMap, width, height, jwt }) => {
       maxZoom={22}
       zoomSnap={0.5}
       zoomDelta={0.5}
+      fallbackPosition={{
+        lat: 51.272399,
+        lng: 7.199712,
+      }}
+      fallbackZoom={18}
       locationChangedHandler={(location) => {
         history.push(history.location.pathname + modifyQueryPart(browserlocation.search, location));
       }}

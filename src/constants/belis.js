@@ -9,4 +9,5 @@ export const backgrounds = {
     'wupp-plan-live@{"opacity":0.3,"css-filter": "filter:grayscale(0.9)brightness(0.9)invert(1)"}',
 };
 
-export const REST_SERVICE = "http://bender:8890";
+// export const REST_SERVICE = "http://bender:8890";
+export const REST_SERVICE = "https://belis-testapi.cismet.de";

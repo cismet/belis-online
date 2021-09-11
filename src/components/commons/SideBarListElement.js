@@ -1,5 +1,5 @@
 import React from "react";
-import { getVCard } from "../../core/helper/FeatureHelper";
+import { getVCard } from "../../core/helper/featureHelper";
 import ListGroup from "react-bootstrap/ListGroup";
 import { setSelectedFeature, getSelectedFeature } from "../../core/store/slices/featureCollection";
 import { useDispatch, useSelector } from "react-redux";

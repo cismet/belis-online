@@ -15,7 +15,6 @@ const LoginForm = ({
   setLoginInfo = () => {},
   setLoggedOut,
 }) => {
-  console.log("xxx loginform mounted");
   const dispatch = useDispatch();
 
   const [windowWidth, windowHeight] = useWindowSize();

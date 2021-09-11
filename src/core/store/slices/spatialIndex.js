@@ -39,6 +39,7 @@ export const getLoadingState = (state) => state.spatialIndex.loading;
 export const initIndex = (finished = () => {}) => async (dispatch) => {
   dispatch(startLoading());
   const current = new Date().getTime();
+  console.log("yyy initIndex", new Error());
 
   let pointItems, leitungen;
 
@@ -62,7 +63,7 @@ export const initIndex = (finished = () => {}) => async (dispatch) => {
   );
 
   console.log(
-    "Spatial PointIndex mit " +
+    "yyy Spatial PointIndex mit " +
       pointItems.length +
       " Objekten in " +
       (new Date().getTime() - current) +
@@ -114,7 +115,7 @@ export const initIndex = (finished = () => {}) => async (dispatch) => {
     lineIndex.finish();
 
     console.log(
-      "Spatial LineIndex mit " +
+      "yyy Spatial LineIndex mit " +
         features.length +
         " Objekten in " +
         (new Date().getTime() - currentL) +
@@ -131,5 +132,7 @@ export const initIndex = (finished = () => {}) => async (dispatch) => {
 
   // const response = await usersAPI.fetchAll();
   dispatch(initialize({ pointIndex, lineIndex }));
+
   finished();
+  console.log("yyy index inited", new Error());
 };

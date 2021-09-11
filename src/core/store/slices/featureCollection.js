@@ -13,21 +13,29 @@ import bboxPolygon from "@turf/bbox-polygon";
 import { fetchGraphQL } from "../../commons/graphql";
 import onlineQueryParts, { geomFactories } from "../../queries/online";
 import { storeJWT } from "../slices/auth";
-import { addPropertiesToFeature } from "../../helper/featureHelper";
+import { addPropertiesToFeature, compareFeature } from "../../helper/featureHelper";
 import proj4 from "proj4";
 import { MappingConstants } from "react-cismap";
 
 // ----
 
-const compareFeature = (a, b) => {
-  if (a.featuretype < b.featuretype) {
-    return 1;
-  } else if (a.featuretype > b.featuretype) {
-    return -1;
-  } else {
-    return a.properties.compare(a.properties, b.properties);
-  }
-};
+// const compareFeature = (a, b) => {
+//   try {
+//     if (a.featuretype < b.featuretype) {
+//       return 1;
+//     } else if (a.featuretype > b.featuretype) {
+//       return -1;
+//     } else {
+//       return a.properties.compare(a.properties, b.properties);
+//     }
+//   } catch (e) {
+//     console.log("error", e);
+//     console.log("a", a);
+//     console.log("b", b);
+
+//     return -1;
+//   }
+// };
 
 const featuresEqual = (a, b) => {
   if (a && b) {
@@ -213,6 +221,11 @@ export const loadObjects = ({
         JSON.stringify(boundingBox) + "." + JSON.stringify(_filterstate) + "." + inFocusMode;
 
       if (reqBasis !== requestBasis || force) {
+        if (force) {
+          console.log("xxx forced request ", boundingBox, new Error());
+        } else {
+          console.log("xxx ordinary request", boundingBox, new Error());
+        }
         dispatch(setRequestBasis(reqBasis));
 
         let xbb;
@@ -233,7 +246,7 @@ export const loadObjects = ({
 
         dispatch(loadObjectsIntoFeatureCollection({ boundingBox: xbb, jwt: jwt }));
       } else {
-        //console.log('xxx duplicate forceShowObjects');
+        console.log("xxx duplicate requestBasis", boundingBox, new Error());
       }
     }
   };
@@ -268,7 +281,7 @@ export const loadObjectsIntoFeatureCollection = ({
       // const selectedFeature=
       const convertedBoundingBox = convertBoundingBox(boundingBox);
 
-      if (state.spatialIndex.loading === "done") {
+      if (state.spatialIndex.loading === "done" || connectionMode === CONNECTIONMODE.ONLINE) {
         let resultIds, leitungsFeatures;
         if (connectionMode === CONNECTIONMODE.FROMCACHE) {
           resultIds = state.spatialIndex.pointIndex.range(
@@ -369,23 +382,26 @@ export const loadObjectsIntoFeatureCollection = ({
 
             dispatch(storeJWT(undefined));
           }
-
-          dispatch(setDone(true));
         }
-      } else {
-        dispatch(
-          initIndex(() => {
-            dispatch(
-              loadObjectsIntoFeatureCollection({ boundingBox: convertedBoundingBox, jwt: jwt })
-            );
-          })
-        );
       }
+      // else {
+      //   console.log("xxx loadObjects with index not done");
+
+      //   dispatch(
+      //     initIndex(() => {
+      //       dispatch(
+      //         loadObjectsIntoFeatureCollection({ boundingBox: convertedBoundingBox, jwt: jwt })
+      //       );
+      //     })
+      //   );
+      // }
     };
   }
 };
 
 export const enrichAndSetFeatures = (dispatch, state, featureCollectionIn) => {
+  console.log("enrichAndSetFeatures", new Error());
+
   const tasks = [];
 
   const newFeatures = [];
@@ -405,7 +421,7 @@ export const enrichAndSetFeatures = (dispatch, state, featureCollectionIn) => {
 
   // prerendering featureCollection
   // needs to change listitems defauklt attributes to "... wird geladen"
-  // dispatch(setFeatureCollection(featureCollection));
+  //dispatch(setFeatureCollection(featureCollection));
 
   for (const f of featureCollection) {
     tasks.push(addPropertiesToFeature(f));
@@ -428,7 +444,7 @@ export const enrichAndSetFeatures = (dispatch, state, featureCollectionIn) => {
         //
         if (selectedFeature && feature.id === selectedFeature.id) {
           selectionStillInMap = true;
-          feature.selected = true;
+          // feature.selected = true;
         }
       }
 
@@ -438,9 +454,7 @@ export const enrichAndSetFeatures = (dispatch, state, featureCollectionIn) => {
       }
       dispatch(setFeatureCollectionInfo({ typeCount }));
       dispatch(setFeatureCollection(enrichedFeatureCollection));
-      setTimeout(() => {
-        dispatch(setDone(true));
-      }, 1);
+      dispatch(setDone(true));
     },
     (error) => {
       alert("problem" + error);

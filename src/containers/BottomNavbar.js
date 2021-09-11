@@ -1,5 +1,5 @@
 import { faMixcloud } from "@fortawesome/free-brands-svg-icons";
-import { faDatabase } from "@fortawesome/free-solid-svg-icons";
+import { faDatabase, faUser, faWifi } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon as Icon } from "@fortawesome/react-fontawesome";
 import React from "react";
 import Button from "react-bootstrap/Button";
@@ -12,6 +12,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
 import Switch from "../components/commons/Switch";
 import { CONNECTIONMODE, getConnectionMode, setConnectionMode } from "../core/store/slices/app";
+import { getLogin } from "../core/store/slices/auth";
 import { getBackground, setBackground } from "../core/store/slices/background";
 import {
   isInFocusMode,
@@ -27,6 +28,7 @@ const BottomNavbar = ({ innerRef, onlineStatus, refRoutedMap, jwt }) => {
   const browserlocation = useLocation();
 
   const inFocusMode = useSelector(isInFocusMode);
+  const user = useSelector(getLogin);
   const inPaleMode = useSelector(isPaleModeActive);
   const background = useSelector(getBackground);
   const connectionMode = useSelector(getConnectionMode);
@@ -35,8 +37,6 @@ const BottomNavbar = ({ innerRef, onlineStatus, refRoutedMap, jwt }) => {
 
   return (
     <Navbar ref={innerRef} bg={background === "nightplan" ? "dark" : "light"} expand='lg'>
-      <Navbar.Brand>{onlineStatus ? "Online" : "Offline"}</Navbar.Brand>
-
       <Navbar.Toggle aria-controls='basic-navbar-nav' />
       <Nav className='mr-auto'>
         <div>
@@ -44,7 +44,7 @@ const BottomNavbar = ({ innerRef, onlineStatus, refRoutedMap, jwt }) => {
             <Icon
               style={{ fontSize: 24, width: "30px", cursor: "pointer" }}
               className='text-primary'
-              icon={faMixcloud}
+              icon={faUser}
               onClick={() => {
                 dispatch(setConnectionMode(CONNECTIONMODE.FROMCACHE));
               }}
@@ -60,8 +60,39 @@ const BottomNavbar = ({ innerRef, onlineStatus, refRoutedMap, jwt }) => {
               }}
             />
           )}
+          {user && <span style={{ marginLeft: 10 }}>{user}</span>}
         </div>
+        <div style={{ marginLeft: 10 }}>
+          <ButtonGroup className='mr-2' aria-label='ModusGroup'>
+            <Button
+              variant={connectionMode === CONNECTIONMODE.ONLINE ? "primary" : "outline-primary"}
+              onClick={() => {
+                dispatch(setConnectionMode(CONNECTIONMODE.ONLINE));
+              }}
+            >
+              Live-Daten
+            </Button>
+            <Button
+              variant={connectionMode === CONNECTIONMODE.FROMCACHE ? "primary" : "outline-primary"}
+              onClick={() => {
+                dispatch(setConnectionMode(CONNECTIONMODE.FROMCACHE));
+              }}
+            >
+              lokale Daten
+            </Button>
+          </ButtonGroup>
+        </div>
+        <Button
+          variant={"outline-primary"}
+          style={{ marginLeft: 20 }}
+          onClick={() => {
+            dispatch(setConnectionMode(CONNECTIONMODE.FROMCACHE));
+          }}
+        >
+          Daten aktualisieren
+        </Button>
       </Nav>
+
       <Nav className='mr-auto'>
         <Switch
           disabled={false}
@@ -92,7 +123,7 @@ const BottomNavbar = ({ innerRef, onlineStatus, refRoutedMap, jwt }) => {
       <Form inline>
         <ButtonGroup className='mr-2' aria-label='First group'>
           <Button
-            variant={background === "OMT_OSM_bright" ? "primary" : "outline-primary"}
+            variant={background === "stadtplan" ? "primary" : "outline-primary"}
             onClick={() => {
               dispatch(setBackground("stadtplan"));
             }}
@@ -122,6 +153,22 @@ const BottomNavbar = ({ innerRef, onlineStatus, refRoutedMap, jwt }) => {
           <ProgressBar style={{ width: 200 }} animated now={100} max={100} />
         </Nav>
       )}
+      <Nav>
+        <div>
+          {onlineStatus ? (
+            <Icon
+              style={{ fontSize: 24, width: "30px", cursor: "pointer" }}
+              className='text-primary'
+              icon={faWifi}
+            />
+          ) : (
+            <Icon
+              style={{ fontSize: 24, width: "30px", cursor: "pointer", color: "#dddddd" }}
+              icon={faWifi}
+            />
+          )}
+        </div>
+      </Nav>
     </Navbar>
   );
 };

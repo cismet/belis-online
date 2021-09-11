@@ -7,7 +7,7 @@ import {
   setSecondaryInfoVisible,
 } from "../../../core/store/slices/featureCollection";
 import { useDispatch, useSelector } from "react-redux";
-import { getVCard } from "../../../core/helper/FeatureHelper";
+import { getVCard } from "../../../core/helper/featureHelper";
 import FeatureInfoTitle from "./FeatureInfoTitle";
 import FeatureInfoValue from "./FeatureInfoValue";
 // import { getApplicationVersion } from "../version";
