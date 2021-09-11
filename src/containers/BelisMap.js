@@ -95,7 +95,7 @@ const BelisMap = ({ refRoutedMap, width, height, jwt }) => {
       if (loadingState === undefined) {
         dispatch(
           initIndex(() => {
-            boundingBoxChangedHandler(undefined, true);
+            boundingBoxChangedHandler(undefined, false);
           })
         );
       }
@@ -105,7 +105,7 @@ const BelisMap = ({ refRoutedMap, width, height, jwt }) => {
   useEffect(() => {
     dispatch(renewAllSecondaryInfoCache(jwt));
     if (isSecondaryCacheReady === true) {
-      boundingBoxChangedHandler(undefined, true);
+      boundingBoxChangedHandler(undefined, false);
     }
   }, [dispatch, jwt, isSecondaryCacheReady]);
 
