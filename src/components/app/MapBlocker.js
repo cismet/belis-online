@@ -10,6 +10,8 @@ const MapBlocker = ({ blocking, visible, width, height }) => {
   //     setTimeout(() => {}, 500);
   //   }, [blocking, dark]);
 
+  const x = {};
+
   if (blocking === true) {
     return (
       <div
@@ -18,6 +20,18 @@ const MapBlocker = ({ blocking, visible, width, height }) => {
           height: height,
           width: width,
           background: visible === true ? "#00000050" : "#00000000",
+          //   backgroundColor: "#AD310B !important",
+          //   backgroundImage: "none !important",
+          WebkitTransition: "background-color 1000ms linear",
+          MozTransition: "background-color 1000ms linear",
+          OTransition: "background-color 1000ms linear",
+          MsTransition: "background-color 1000ms linear",
+          transition: "background-color 1000ms linear",
+          WebkitAnimationDirection: "alternate",
+          animationDirection: "alternate",
+          WebkitAnimationIterationCount: "2",
+          animationIterationCount: "2",
+
           left: 0,
           top: 0,
           zIndex: 100000,
