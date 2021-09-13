@@ -12,9 +12,16 @@ import { useDispatch, useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
 import Switch from "../components/commons/Switch";
 import { CONNECTIONMODE, getConnectionMode, setConnectionMode } from "../core/store/slices/app";
-import { getLogin } from "../core/store/slices/auth";
+import { getLogin, getLoginFromJWT } from "../core/store/slices/auth";
 import { getBackground, setBackground } from "../core/store/slices/background";
-import { isCacheFullUsable } from "../core/store/slices/cacheControl";
+import {
+  getCacheDate,
+  getCacheUpdatingProgress,
+  getCacheUser,
+  isCacheFullUsable,
+  renewAllPrimaryInfoCache,
+  renewAllSecondaryInfoCache,
+} from "../core/store/slices/cacheControl";
 import {
   isInFocusMode,
   loadObjects,
@@ -29,14 +36,23 @@ const BottomNavbar = ({ innerRef, onlineStatus, refRoutedMap, jwt }) => {
   const browserlocation = useLocation();
 
   const inFocusMode = useSelector(isInFocusMode);
-  const user = useSelector(getLogin);
+  const cacheDate = useSelector(getCacheDate);
+  const cacheUser = useSelector(getCacheUser);
   const inPaleMode = useSelector(isPaleModeActive);
   const background = useSelector(getBackground);
   const connectionMode = useSelector(getConnectionMode);
-
+  const cachingProgress = useSelector(getCacheUpdatingProgress);
   const isCacheReady = useSelector(isCacheFullUsable);
   const uiThreadProgressbar =
     new URLSearchParams(browserlocation.search).get("uiThreadProgressbar") === "true";
+  let user;
+
+  if (connectionMode === CONNECTIONMODE.FROMCACHE) {
+    user = cacheUser;
+  } else {
+    user = getLoginFromJWT(jwt);
+  }
+  console.log("cachingProgress", cachingProgress);
 
   return (
     <Navbar ref={innerRef} bg={background === "nightplan" ? "dark" : "light"} expand='lg'>
@@ -82,19 +98,52 @@ const BottomNavbar = ({ innerRef, onlineStatus, refRoutedMap, jwt }) => {
                 dispatch(setConnectionMode(CONNECTIONMODE.FROMCACHE));
               }}
             >
-              lokale Daten
+              <span>
+                lokale Daten{" "}
+                {cacheDate !== -1 && (
+                  <span>
+                    (
+                    {isToday(cacheDate)
+                      ? new Date(cacheDate).toLocaleTimeString([], {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })
+                      : new Date(cacheDate)}
+                    )
+                  </span>
+                )}
+              </span>
             </Button>
           </ButtonGroup>
         </div>
-        <Button
-          variant={"outline-primary"}
-          style={{ marginLeft: 20 }}
-          onClick={() => {
-            dispatch(setConnectionMode(CONNECTIONMODE.FROMCACHE));
-          }}
-        >
-          Daten aktualisieren
-        </Button>
+        {cachingProgress >= 1 && (
+          <Button
+            variant={"outline-primary"}
+            style={{ marginLeft: 20 }}
+            onClick={() => {
+              dispatch(renewAllSecondaryInfoCache(jwt));
+              dispatch(renewAllPrimaryInfoCache(jwt));
+            }}
+          >
+            Daten aktualisieren
+          </Button>
+        )}
+        {cachingProgress < 1 && (
+          <ProgressBar
+            style={{
+              marginLeft: 29,
+              minHeight: 31.5,
+              minWidth: 141,
+              fontSize: 14,
+              borderWidth: 1,
+              borderStyle: "solid",
+              borderColor: "#377CF6",
+            }}
+            animated
+            now={cachingProgress * 100 + 10}
+            max={110}
+          />
+        )}
       </Nav>
 
       <Nav className='mr-auto'>
@@ -177,3 +226,12 @@ const BottomNavbar = ({ innerRef, onlineStatus, refRoutedMap, jwt }) => {
   );
 };
 export default BottomNavbar;
+const isToday = (someDateMS) => {
+  const someDate = new Date(someDateMS);
+  const today = new Date();
+  return (
+    someDate.getDate() == today.getDate() &&
+    someDate.getMonth() == today.getMonth() &&
+    someDate.getFullYear() == today.getFullYear()
+  );
+};

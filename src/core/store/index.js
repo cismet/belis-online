@@ -20,8 +20,11 @@ console.log("store initializing ....");
 const devToolsEnabled =
   new URLSearchParams(window.location.search).get("devToolsEnabled") === "true";
 console.log("devToolsEnabled:", devToolsEnabled);
+const stateLoggingEnabledFromSearch = new URLSearchParams(window.location.search).get(
+  "stateLoggingEnabled"
+);
 const stateLoggingEnabled =
-  new URLSearchParams(window.location.search).get("stateLoggingEnabled") === "true";
+  stateLoggingEnabledFromSearch !== undefined && stateLoggingEnabledFromSearch !== "false";
 
 console.log("stateLoggingEnabled:", stateLoggingEnabled);
 

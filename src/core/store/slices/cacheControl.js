@@ -3,8 +3,9 @@ import cacheQueries from "../../queries/cache";
 import dexieworker from "workerize-loader!../../workers/dexie"; // eslint-disable-line import/no-webpack-loader-syntax
 import { fetchGraphQL } from "../../commons/graphql";
 import { initIndex } from "./spatialIndex";
+import { getLoginFromJWT } from "./auth";
 
-const LOCALSTORAGE_KEY = "@belis.app.cacheControl";
+const LOCALSTORAGE_KEY = "@belis.app.cacheControl.v2";
 
 const dexieW = dexieworker();
 const keys = [];
@@ -59,18 +60,22 @@ const objectStoreDefaultState = {
   updateCount: -1, //# of all retrieved objects
   cachingProgress: -1, //# of objects added to cache
 };
-const initialStateIfNotInLocalStorage = {};
+const initialTypeStateIfNotInLocalStorage = {};
 for (const key of keys) {
-  initialStateIfNotInLocalStorage[key.queryKey] = JSON.parse(
+  initialTypeStateIfNotInLocalStorage[key.queryKey] = JSON.parse(
     JSON.stringify(objectStoreDefaultState)
   );
-  initialStateIfNotInLocalStorage[key.queryKey].primary = key.primary;
-  initialStateIfNotInLocalStorage[key.queryKey].dataKey = key.dataKey;
-  initialStateIfNotInLocalStorage[key.queryKey].key = key.queryKey;
-  initialStateIfNotInLocalStorage[key.queryKey].name = key.name || key.queryKey;
+  initialTypeStateIfNotInLocalStorage[key.queryKey].primary = key.primary;
+  initialTypeStateIfNotInLocalStorage[key.queryKey].dataKey = key.dataKey;
+  initialTypeStateIfNotInLocalStorage[key.queryKey].key = key.queryKey;
+  initialTypeStateIfNotInLocalStorage[key.queryKey].name = key.name || key.queryKey;
 }
 const initialState = JSON.parse(
-  localStorage.getItem(LOCALSTORAGE_KEY) || JSON.stringify(initialStateIfNotInLocalStorage)
+  localStorage.getItem(LOCALSTORAGE_KEY) ||
+    JSON.stringify({
+      types: initialTypeStateIfNotInLocalStorage,
+      user: undefined,
+    })
 );
 
 const cacheSlice = createSlice({
@@ -79,43 +84,47 @@ const cacheSlice = createSlice({
   reducers: {
     setLoadingState(state, action) {
       if (
-        state[action.payload.key].resetTimer !== undefined &&
+        state.types[action.payload.key].resetTimer !== undefined &&
         action.payload.loadingState === "loading"
       ) {
-        clearTimeout(state[action.payload.key].resetTimer);
-        state[action.payload.key].resetTimer = undefined;
+        clearTimeout(state.types[action.payload.key].resetTimer);
+        state.types[action.payload.key].resetTimer = undefined;
       }
-      state[action.payload.key].loadingState = action.payload.loadingState;
+      state.types[action.payload.key].loadingState = action.payload.loadingState;
       if (action.payload.resetTimer !== undefined) {
-        state[action.payload.key].resetTimer = action.payload.resetTimer;
+        state.types[action.payload.key].resetTimer = action.payload.resetTimer;
       }
       saveState(state);
       return state;
     },
     setLastUpdate(state, action) {
-      state[action.payload.key].lastUpdate = action.payload.lastUpdate;
+      state.types[action.payload.key].lastUpdate = action.payload.lastUpdate;
       saveState(state);
       return state;
     },
     setObjectCount(state, action) {
-      state[action.payload.key].objectCount = action.payload.objectCount;
+      state.types[action.payload.key].objectCount = action.payload.objectCount;
       saveState(state);
       return state;
     },
     setUpdateCount(state, action) {
-      state[action.payload.key].updateCount = action.payload.updateCount;
+      state.types[action.payload.key].updateCount = action.payload.updateCount;
       return state;
     },
     setCachingProgress(state, action) {
-      state[action.payload.key].cachingProgress = action.payload.cachingProgress;
+      state.types[action.payload.key].cachingProgress = action.payload.cachingProgress;
+      return state;
+    },
+    setCacheUser(state, action) {
+      state.user = action.payload;
       return state;
     },
   },
 });
 const saveState = (state) => {
   const storedState = JSON.parse(JSON.stringify(state));
-  Object.keys(storedState).forEach((key) => {
-    delete storedState[key].loadingState;
+  Object.keys(storedState.types).forEach((key) => {
+    delete storedState.types[key].loadingState;
   });
   localStorage.setItem(LOCALSTORAGE_KEY, JSON.stringify(storedState));
 };
@@ -128,21 +137,29 @@ export const {
   setObjectCount,
   setUpdateCount,
   setCachingProgress,
+  setCacheUser,
 } = cacheSlice.actions;
 
 export const getCacheSettings = (state) => {
-  return state.cacheControl;
+  return state.cacheControl.types;
+};
+export const getCacheUser = (state) => {
+  return state.cacheControl.user;
 };
 
 export const getCacheInfo = (key) => {
   return (state) => {
-    return state.cacheControl[key];
+    return state.cacheControl.types[key];
   };
 };
 
 export const isCacheFullUsable = (state) => {
   for (const key of getAllInfoKeys(state)) {
-    if (state.cacheControl[key].lastUpdate === -1) {
+    if (
+      state.cacheControl.types[key].lastUpdate === -1 ||
+      state.cacheControl.types[key].loadingState === "loading" ||
+      state.cacheControl.types[key].loadingState === "caching"
+    ) {
       return false;
     }
   }
@@ -151,7 +168,7 @@ export const isCacheFullUsable = (state) => {
 
 export const isSecondaryCacheUsable = (state) => {
   for (const key of getSecondaryInfoKeys(state)) {
-    if (state.cacheControl[key].lastUpdate === -1) {
+    if (state.cacheControl.types[key].lastUpdate === -1) {
       return false;
     }
   }
@@ -159,18 +176,48 @@ export const isSecondaryCacheUsable = (state) => {
 };
 
 const getPrimaryInfoKeys = (state) => {
-  return Object.keys(state.cacheControl).filter((key) => state.cacheControl[key].primary === true);
+  return Object.keys(state.cacheControl.types).filter(
+    (key) => state.cacheControl.types[key].primary === true
+  );
 };
 const getSecondaryInfoKeys = (state) => {
-  return Object.keys(state.cacheControl).filter((key) => state.cacheControl[key].primary !== true);
+  return Object.keys(state.cacheControl.types).filter(
+    (key) => state.cacheControl.types[key].primary !== true
+  );
 };
 const getAllInfoKeys = (state) => {
-  return Object.keys(state.cacheControl);
+  return Object.keys(state.cacheControl.types);
 };
 
-export const getCacheDate = (state) => {};
+export const getCacheDate = (state) => {
+  let oldestUpdate = -1;
+  for (const key of getAllInfoKeys(state)) {
+    const update = state.cacheControl.types[key].lastUpdate;
+    if (update === -1) {
+      return -1;
+    }
+    if (oldestUpdate === -1 || oldestUpdate > update) {
+      oldestUpdate = update;
+    }
+  }
+  return oldestUpdate;
+};
 
-export const getCacheUser = (state) => {};
+export const getCacheUpdatingProgress = (state) => {
+  let progressCounter = 0;
+  const keys = getPrimaryInfoKeys(state);
+  for (const key of keys) {
+    const loadingState = state.cacheControl.types[key].loadingState;
+    if (loadingState === "cached" || loadingState === undefined) {
+      progressCounter++;
+    } else {
+      console.log("loadingState " + key, loadingState);
+    }
+  }
+  console.log("progressCounter", progressCounter);
+
+  return progressCounter / keys.length;
+};
 
 export const fillCacheInfo = () => {
   return async (dispatch, getState) => {
@@ -187,10 +234,9 @@ export const renewAllSecondaryInfoCache = (jwt) => {
     const state = getState();
 
     let index = 0;
-    for (const key of Object.keys(state.cacheControl)) {
-      if (state.cacheControl[key].primary !== true) {
+    for (const key of Object.keys(state.cacheControl.types)) {
+      if (state.cacheControl.types[key].primary !== true) {
         dispatch(renewCache(key, jwt));
-        // console.log("key ", key + "..." + state.cacheControl[key].key);
       }
     }
   };
@@ -200,11 +246,12 @@ export const renewAllPrimaryInfoCache = (jwt) => {
     const state = getState();
 
     let index = 0;
-    for (const key of Object.keys(state.cacheControl)) {
-      if (state.cacheControl[key].primary === true) {
+    for (const key of Object.keys(state.cacheControl.types)) {
+      if (state.cacheControl.types[key].primary === true) {
         dispatch(renewCache(key, jwt));
       }
     }
+    dispatch(setCacheUser(getLoginFromJWT(jwt)));
   };
 };
 

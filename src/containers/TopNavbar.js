@@ -38,7 +38,7 @@ import {
 
 import { getGazData, loadGazeteerEntries } from "../core/store/slices/gazetteerData";
 
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch, useSelector, useStore } from "react-redux";
 import {
   setActive as setSearchModeActive,
   setWished as setSearchModeWish,
@@ -49,9 +49,11 @@ import GazetteerSearchComponent from "react-cismap/GazetteerSearchComponent";
 import { MappingConstants } from "react-cismap";
 import { REST_SERVICE } from "../constants/belis";
 import {
+  getCacheDate,
   renewAllPrimaryInfoCache,
   renewAllSecondaryInfoCache,
 } from "../core/store/slices/cacheControl";
+import { getLoginFromJWT } from "../core/store/slices/auth";
 //---------
 
 const TopNavbar = ({ innerRef, refRoutedMap, setCacheSettingsVisible, jwt }) => {
@@ -164,7 +166,8 @@ const TopNavbar = ({ innerRef, refRoutedMap, setCacheSettingsVisible, jwt }) => 
 
       <Nav.Link
         onClick={() => {
-          dispatch(renewAllPrimaryInfoCache(jwt));
+          // dispatch(renewAllPrimaryInfoCache(jwt));
+          getLoginFromJWT(jwt);
         }}
       >
         <Icon icon={faVial} />
@@ -181,7 +184,7 @@ const TopNavbar = ({ innerRef, refRoutedMap, setCacheSettingsVisible, jwt }) => 
           }}
           overlayFeature={overlayFeature}
           setOverlayFeature={(feature) => {
-            dispatch(setOverlayFeature(feature));
+            getCacheDate();
           }}
           gazData={gazData}
           pixelwidth={350}

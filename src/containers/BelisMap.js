@@ -137,19 +137,25 @@ const BelisMap = ({ refRoutedMap, width, height, jwt }) => {
       ref={refRoutedMap}
       layers=''
       doubleClickZoom={false}
-      onclick={(e) => {
-        console.log("click");
-      }}
+      onclick={(e) => {}}
       ondblclick={(e) => {
         try {
-          const classes = e.originalEvent.path[0].getAttribute("class");
+          const classesString = e.originalEvent.path[0].getAttribute("class");
 
-          if (classes && classes.split(" ").includes("leaflet-container")) {
-            console.log("unselect feature");
+          if (classesString) {
+            const classes = classesString.split(" ");
 
-            dispatch(setSelectedFeature(null));
+            if (classes.includes("leaflet-gl-layer") || classes.includes("leaflet-container")) {
+              console.log("unselect feature");
+
+              dispatch(setSelectedFeature(null));
+            } else {
+              // console.log("classes", classesString);
+            }
           }
-        } catch (e) {}
+        } catch (e) {
+          console.log("error in dbl click", e);
+        }
       }}
       autoFitProcessedHandler={() => this.props.mappingActions.setAutoFit(false)}
       backgroundlayers={resultingLayer}

@@ -54,7 +54,7 @@ const searchMinimumZoomThreshhold = 17.5;
 
 const LOCALSTORAGE_KEY_FILTER = "@belis.app.filter";
 
-const initialFilter = JSON.parse(
+export const initialFilter = JSON.parse(
   localStorage.getItem(LOCALSTORAGE_KEY_FILTER) ||
     JSON.stringify({
       tdta_leuchten: { title: "Leuchten", enabled: true },
@@ -379,7 +379,7 @@ export const loadObjectsIntoFeatureCollection = ({
             enrichAndSetFeatures(dispatch, state, featureCollection);
           } else {
             console.log("response was undefined");
-
+            // dispatch(setRequestBasis(undefined));
             dispatch(storeJWT(undefined));
           }
         }
@@ -400,8 +400,6 @@ export const loadObjectsIntoFeatureCollection = ({
 };
 
 export const enrichAndSetFeatures = (dispatch, state, featureCollectionIn) => {
-  console.log("enrichAndSetFeatures", new Error());
-
   const tasks = [];
 
   const newFeatures = [];

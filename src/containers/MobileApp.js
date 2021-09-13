@@ -1,10 +1,9 @@
 import { useWindowSize } from "@react-hook/window-size";
 import useComponentSize from "@rehooks/component-size";
 import useOnlineStatus from "@rehooks/online-status";
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState, useEffect, useContext } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import MapBlocker from "../components/app/MapBlocker";
-import CacheSettings from "../components/CacheSettings";
 import { CONNECTIONMODE, getConnectionMode } from "../core/store/slices/app";
 import { isDone } from "../core/store/slices/featureCollection";
 import BelisMap from "./BelisMap";
@@ -15,6 +14,9 @@ import LoginForm from "../components/app/LoginForm";
 import { getJWT } from "../core/store/slices/auth";
 import { useHistory, useLocation } from "react-router-dom/cjs/react-router-dom.min";
 import { modifyQueryPart } from "../core/commons/routingHelper";
+import Menu from "../components/app/menu/Menu";
+import UIContextProvider, { UIDispatchContext } from "react-cismap/contexts/UIContextProvider";
+import ResponsiveTopicMapContextProvider from "react-cismap/contexts/ResponsiveTopicMapContextProvider";
 
 //---
 
@@ -40,9 +42,9 @@ const View = () => {
     cursor: "pointer",
     clear: "both",
   };
-
+  //
   //local state
-  const [cacheSettingsVisible, setCacheSettingsVisible] = useState(false);
+  const [menuVisible, setMenuVisible] = useState(false);
   const [loginInfo, setLoginInfo] = useState();
   const [jwt, setJwt] = useState(storedJWT);
   const [loggedOut, setLoggedOut] = useState();
@@ -53,6 +55,7 @@ const View = () => {
   const browserlocation = useLocation();
 
   // useEffect(() => {}, [jwt]);
+  const { setAppMenuActiveMenuSection, setAppMenuVisible } = useContext(UIDispatchContext);
 
   let loginForm = null;
 
@@ -70,7 +73,6 @@ const View = () => {
   }
 
   useEffect(() => {
-    console.log("xxx browserlocation.search", browserlocation.search === "");
     if (browserlocation.search === "") {
       history.push(
         history.location.pathname + "?lat=51.27185783523219&lng=7.200121618952836&zoom=19"
@@ -80,25 +82,24 @@ const View = () => {
 
   return (
     <div>
-      {cacheSettingsVisible === true && (
-        <CacheSettings
-          hide={() => {
-            setCacheSettingsVisible(false);
-          }}
-          jwt={jwt}
-        />
-      )}
+      <Menu
+        hide={() => {
+          setAppMenuVisible(false);
+        }}
+        jwt={jwt}
+      />
+
       {showLogin && loginForm}
       <TopNavbar
         innerRef={refUpperToolbar}
         refRoutedMap={refRoutedMap}
-        setCacheSettingsVisible={setCacheSettingsVisible}
+        setCacheSettingsVisible={setAppMenuVisible}
         jwt={jwt}
       />
       <SideBar
         innerRef={refSideBar}
         refRoutedMap={refRoutedMap}
-        setCacheSettingsVisible={setCacheSettingsVisible}
+        setCacheSettingsVisible={setAppMenuVisible}
         height={mapStyle.height}
       />
       <MapBlocker
