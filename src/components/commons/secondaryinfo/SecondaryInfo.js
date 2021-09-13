@@ -4,6 +4,7 @@ import SecondaryInfo from "./Secondary";
 import SecondaryInfoPanelSection from "react-cismap/topicmaps/SecondaryInfoPanelSection";
 import {
   getFeatureCollection,
+  getSelectedFeature,
   setSecondaryInfoVisible,
 } from "../../../core/store/slices/featureCollection";
 import { useDispatch, useSelector } from "react-redux";
@@ -220,7 +221,8 @@ const getSeparator = (name) => {
 
 const InfoPanel = () => {
   const dispatch = useDispatch();
-  const hits = useSelector(getFeatureCollection);
+  const hit = useSelector(getSelectedFeature);
+  const hits = [hit];
   //    const { history } = useContext(TopicMapContext);
   //    const lat = new URLSearchParams(history.location.search).get("lat");
   //    const long = new URLSearchParams(history.location.search).get("lng");
@@ -231,7 +233,7 @@ const InfoPanel = () => {
 
   //   const hitObject = objectifyHits(hits);
 
-  if (hits !== undefined) {
+  if (hit !== undefined) {
     const subSections = [];
 
     const display = (desc, value, valFunc) => {

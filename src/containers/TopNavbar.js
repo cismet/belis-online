@@ -184,7 +184,7 @@ const TopNavbar = ({ innerRef, refRoutedMap, setCacheSettingsVisible, jwt }) => 
           }}
           overlayFeature={overlayFeature}
           setOverlayFeature={(feature) => {
-            getCacheDate();
+            dispatch(setOverlayFeature(feature));
           }}
           gazData={gazData}
           pixelwidth={350}

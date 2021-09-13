@@ -15,7 +15,7 @@ import { getJWT } from "../core/store/slices/auth";
 import { useHistory, useLocation } from "react-router-dom/cjs/react-router-dom.min";
 import { modifyQueryPart } from "../core/commons/routingHelper";
 import Menu from "../components/app/menu/Menu";
-import UIContextProvider, { UIDispatchContext } from "react-cismap/contexts/UIContextProvider";
+import { UIDispatchContext } from "react-cismap/contexts/UIContextProvider";
 import ResponsiveTopicMapContextProvider from "react-cismap/contexts/ResponsiveTopicMapContextProvider";
 
 //---
@@ -44,7 +44,6 @@ const View = () => {
   };
   //
   //local state
-  const [menuVisible, setMenuVisible] = useState(false);
   const [loginInfo, setLoginInfo] = useState();
   const [jwt, setJwt] = useState(storedJWT);
   const [loggedOut, setLoggedOut] = useState();

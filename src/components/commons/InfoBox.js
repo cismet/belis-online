@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   getFeatureCollection,
@@ -7,7 +7,9 @@ import {
   isSecondaryInfoVisible,
   setSecondaryInfoVisible,
 } from "../../core/store/slices/featureCollection";
-import ResponsiveInfoBox from "./ResponsiveInfoBox";
+// import ResponsiveInfoBox from "./ResponsiveInfoBox";
+import ResponsiveInfoBox, { MODES } from "react-cismap/topicmaps/ResponsiveInfoBox";
+
 import { getActionLinksForFeature } from "react-cismap/tools/uiHelper";
 import { getVCard } from "../../core/helper/featureHelper";
 import { projectionData } from "react-cismap/constants/gis";
@@ -17,20 +19,25 @@ import proj4 from "proj4";
 import envelope from "@turf/envelope";
 
 import IconLink from "react-cismap/commons/IconLink";
+import { UIContext, UIDispatchContext } from "react-cismap/contexts/UIContextProvider";
 
 //---
 
-const BelisMap = ({ refRoutedMap }) => {
+const InfoBox = ({ refRoutedMap }) => {
   const dispatch = useDispatch();
   const featureCollection = useSelector(getFeatureCollection);
   const selectedFeature = useSelector(getSelectedFeature);
   const secondaryInfoVisible = useSelector(isSecondaryInfoVisible);
+  const { setCollapsedInfoBox } = useContext(UIDispatchContext);
+  const { collapsedInfoBox } = useContext(UIContext);
 
   let header = <span>Feature title</span>;
-  const minified = undefined;
-  const minify = undefined;
+  const minified = collapsedInfoBox;
+  const minify = setCollapsedInfoBox;
   const infoStyle = {};
-  let alwaysVisibleDiv;
+  let divWhenLarge;
+  let divWhenCollapsed;
+
   let collapsibleDiv;
   let title = "feature title";
   let subtitle = "feature subtitle";
@@ -164,119 +171,102 @@ const BelisMap = ({ refRoutedMap }) => {
   );
 
   if (selectedFeature) {
-    alwaysVisibleDiv = (
-      <table border={0} style={{ width: "100%" }}>
+    const navigator = (
+      <table style={{ width: "100%", marginBottom: 9 }}>
         <tbody>
           <tr>
-            <td
-              style={{
-                textAlign: "left",
-                padding: "5px",
-                maxWidth: "160px",
-                overflowWrap: "break-word",
-              }}
-            >
-              <h5>
-                <b>{title}</b>
-              </h5>
+            <td title='vorheriger Treffer' style={{ textAlign: "left", verticalAlign: "center" }}>
+              <a className='renderAsProperLink' onClick={_previous}>
+                &lt;&lt;
+              </a>
             </td>
-            <td style={{ textAlign: "right", paddingRight: 7 }}>{[links]}</td>
+            <td style={{ textAlign: "center", verticalAlign: "center" }}>
+              {currentlyShownCountLabel}
+            </td>
+
+            <td title='nächster Treffer' style={{ textAlign: "right", verticalAlign: "center" }}>
+              <a className='renderAsProperLink' onClick={_next}>
+                &gt;&gt;
+              </a>
+            </td>
           </tr>
         </tbody>
       </table>
     );
-    collapsibleDiv = (
-      <div style={{ marginRight: 9 }}>
-        <table style={{ width: "100%" }}>
+
+    divWhenCollapsed = (
+      <div>
+        <table border={0} style={{ width: "100%" }}>
           <tbody>
             <tr>
-              <td style={{ textAlign: "left", verticalAlign: "top" }}>
-                <table style={{ width: "100%" }}>
-                  <tbody>
-                    <tr>
-                      <td style={{ textAlign: "left" }}>
-                        <h6>
-                          {/* {additionalInfo &&
+              <td
+                style={{
+                  textAlign: "left",
+                  padding: "1px",
+                  maxWidth: "160px",
+                  overflowWrap: "break-word",
+                }}
+              >
+                <h5>
+                  <b>{title}</b>
+                </h5>
+              </td>
+              <td style={{ textAlign: "right", paddingRight: 7 }}>{[links]}</td>
+            </tr>
+          </tbody>
+        </table>
+        <div style={{ marginRight: 9, backgrosundColor: "red" }}>
+          <table style={{ width: "100%" }}>
+            <tbody>
+              <tr>
+                <td style={{ textAlign: "left", verticalAlign: "top" }}>
+                  <table style={{ width: "100%" }}>
+                    <tbody>
+                      <tr>
+                        <td style={{ textAlign: "left" }}>
+                          <h6>
+                            {/* {additionalInfo &&
                             additionalInfo.startsWith &&
                             additionalInfo.startsWith("<html>") && (
                               <div>{parseHtml(additionalInfo.match(/<html>(.*?)<\/html>/)[1])}</div>
                             )} */}
-                          {additionalInfo &&
-                            (!additionalInfo.toString().startsWith ||
-                              !additionalInfo.toString().startsWith("<html>")) &&
-                            additionalInfo
-                              .toString()
-                              .split("\n")
-                              .map((item, key) => {
-                                return (
-                                  <span key={key}>
-                                    {item}
-                                    <br />
-                                  </span>
-                                );
-                              })}
-                        </h6>
-                        {/* {subtitle && subtitle.startsWith && subtitle.startsWith("<html>") && (
+                            {additionalInfo &&
+                              (!additionalInfo.toString().startsWith ||
+                                !additionalInfo.toString().startsWith("<html>")) &&
+                              additionalInfo
+                                .toString()
+                                .split("\n")
+                                .map((item, key) => {
+                                  return (
+                                    <span key={key}>
+                                      {item}
+                                      <br />
+                                    </span>
+                                  );
+                                })}
+                          </h6>
+                          {/* {subtitle && subtitle.startsWith && subtitle.startsWith("<html>") && (
                           <div> {parseHtml(subtitle.match(/<html>(.*?)<\/html>/)[1])}</div>
                         )} */}
-                        {subtitle && (!subtitle.startsWith || !subtitle.startsWith("<html>")) && (
-                          <p>{subtitle}</p>
-                        )}
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-        {hideNavigator === false && (
-          <div>
-            {/* <table style={{ width: "100%" }}>
-              <tbody>
-                <tr>
-                  <td />
-                  <td style={{ textAlign: "center", verticalAlign: "center" }}>
-                    <a className="renderAsProperLink" onClick={fitAll}>
-                      ZoomToAll
-                    </a>
-                  </td>
-                  <td />
-                </tr>
-              </tbody>
-            </table> */}
-            <table style={{ width: "100%", marginBottom: 9 }}>
-              <tbody>
-                <tr>
-                  <td
-                    title='vorheriger Treffer'
-                    style={{ textAlign: "left", verticalAlign: "center" }}
-                  >
-                    <a className='renderAsProperLink' onClick={_previous}>
-                      &lt;&lt;
-                    </a>
-                  </td>
-                  <td style={{ textAlign: "center", verticalAlign: "center" }}>
-                    {currentlyShownCountLabel}
-                  </td>
-
-                  <td
-                    title='nächster Treffer'
-                    style={{ textAlign: "right", verticalAlign: "center" }}
-                  >
-                    <a className='renderAsProperLink' onClick={_next}>
-                      &gt;&gt;
-                    </a>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        )}
+                          {subtitle && (!subtitle.startsWith || !subtitle.startsWith("<html>")) && (
+                            <p>{subtitle}</p>
+                          )}
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <div>{navigator}</div>
+        </div>
       </div>
     );
+
+    divWhenLarge = divWhenCollapsed;
   } else {
-    alwaysVisibleDiv = noCurrentFeatureTitle;
+    divWhenCollapsed = noCurrentFeatureTitle;
     collapsibleDiv = <div style={{ paddingRight: 2 }}>{noCurrentFeatureContent}</div>;
   }
 
@@ -284,16 +274,17 @@ const BelisMap = ({ refRoutedMap }) => {
     <ResponsiveInfoBox
       pixelwidth={350}
       header={llVis}
+      mode={MODES.AB}
       collapsedInfoBox={minified}
       setCollapsedInfoBox={minify}
-      isCollapsible={false}
+      isCollapsible={true}
       handleResponsiveDesign={false}
       infoStyle={infoStyle}
-      alwaysVisibleDiv={alwaysVisibleDiv}
-      collapsibleDiv={collapsibleDiv}
+      divWhenCollapsed={divWhenCollapsed}
+      divWhenLarge={divWhenLarge}
       fixedRow={true}
     />
   );
 };
 
-export default BelisMap;
+export default InfoBox;
