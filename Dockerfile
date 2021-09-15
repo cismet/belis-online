@@ -3,6 +3,8 @@
 
 # Use an official node image
 FROM node:12-alpine AS builder
+RUN apk update && apk upgrade && \
+    apk add --no-cache bash git openssh
 
 # Reads args and use them to configure the build, setting
 # them as env vars
