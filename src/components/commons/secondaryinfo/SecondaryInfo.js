@@ -221,7 +221,13 @@ const getSeparator = (name) => {
 
 const InfoPanel = () => {
   const dispatch = useDispatch();
-  const hit = useSelector(getSelectedFeature);
+  const selectedFeature = useSelector(getSelectedFeature);
+  const hit = JSON.parse(JSON.stringify(selectedFeature));
+
+  //remove geometry and feature reference
+  delete hit.geometry;
+  delete hit.properties.feature;
+
   const hits = [hit];
   //    const { history } = useContext(TopicMapContext);
   //    const lat = new URLSearchParams(history.location.search).get("lat");
