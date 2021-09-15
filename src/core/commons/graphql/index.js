@@ -21,6 +21,7 @@ export async function fetchGraphQL(operationsDoc, variables, jwt) {
     return await result.json();
   } catch (e) {
     console.log("error in fetch", e);
+    throw new Error(e);
   }
 }
 

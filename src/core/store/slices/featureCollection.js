@@ -338,48 +338,54 @@ export const loadObjectsIntoFeatureCollection = ({
           }
           const gqlQuery = `query q($bbPoly: geometry!) {${queryparts}}`;
           const queryParameter = { bbPoly: createQueryGeomFromBB(convertedBoundingBox) };
-
-          const response = await fetchGraphQL(gqlQuery, queryParameter, jwt);
-          // alert(JSON.stringify(response));
-          if (response) {
-            const featureCollection = [];
-            for (const key of Object.keys(response.data || {})) {
-              const objects = response.data[key];
-              for (const o of objects) {
-                const feature = {
-                  text: "-",
-                  id: key,
-                  type: "Feature",
-                  selected: false,
-                  featuretype: key,
-                  geometry: geomFactories[key](o),
-                  crs: {
-                    type: "name",
-                    properties: {
-                      name: "urn:ogc:def:crs:EPSG::25832",
+          try {
+            const response = await fetchGraphQL(gqlQuery, queryParameter, jwt);
+            // alert(JSON.stringify(response));
+            if (response) {
+              const featureCollection = [];
+              for (const key of Object.keys(response.data || {})) {
+                const objects = response.data[key];
+                for (const o of objects) {
+                  const feature = {
+                    text: "-",
+                    id: key,
+                    type: "Feature",
+                    selected: false,
+                    featuretype: key,
+                    geometry: geomFactories[key](o),
+                    crs: {
+                      type: "name",
+                      properties: {
+                        name: "urn:ogc:def:crs:EPSG::25832",
+                      },
                     },
-                  },
-                  properties: {},
-                };
+                    properties: {},
+                  };
 
-                //The geometry could be deleted to save some memory
-                //need to be a different approach in the geometryfactory then
-                //not sure beacuse the properties would double up the memoryconsumption though
-                //
-                // const properties=JSON.parse(JSON.stringify(o));
-                // delete propertiesgeomFactories[key](o)
+                  //The geometry could be deleted to save some memory
+                  //need to be a different approach in the geometryfactory then
+                  //not sure beacuse the properties would double up the memoryconsumption though
+                  //
+                  // const properties=JSON.parse(JSON.stringify(o));
+                  // delete propertiesgeomFactories[key](o)
 
-                feature.properties = o;
-                feature.id = feature.id + "-" + o.id;
-                featureCollection.push(feature);
+                  feature.properties = o;
+                  feature.id = feature.id + "-" + o.id;
+                  featureCollection.push(feature);
+                }
               }
+              //featureCollection[0].selected = true;
+              // dispatch(setFeatureCollection(featureCollection));
+              enrichAndSetFeatures(dispatch, state, featureCollection);
+            } else {
+              console.log("response was undefined");
+              // dispatch(setRequestBasis(undefined));
+              dispatch(storeJWT(undefined));
             }
-            //featureCollection[0].selected = true;
-            // dispatch(setFeatureCollection(featureCollection));
-            enrichAndSetFeatures(dispatch, state, featureCollection);
-          } else {
-            console.log("response was undefined");
+          } catch (e) {
+            console.log("rerror was thrown", e);
             // dispatch(setRequestBasis(undefined));
+            dispatch(setRequestBasis(undefined));
             dispatch(storeJWT(undefined));
           }
         }

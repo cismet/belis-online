@@ -54,7 +54,7 @@ keys.push({ name: "Masttypen", queryKey: "tkey_masttyp" });
 // keys.push({ name:"", queryKey: 'veranlassung' });
 
 const objectStoreDefaultState = {
-  loadingState: undefined, //"loading", "caching","cached"
+  loadingState: undefined, //"loading", "caching","cached", "problem"
   lastUpdate: -1, //new Date().getTime() Unix Epoch in UTC (Worldtime)
   objectCount: -1, //# of all objects
   updateCount: -1, //# of all retrieved objects
@@ -214,8 +214,6 @@ export const getCacheUpdatingProgress = (state) => {
       console.log("loadingState " + key, loadingState);
     }
   }
-  console.log("progressCounter", progressCounter);
-
   return progressCounter / keys.length;
 };
 
@@ -277,42 +275,42 @@ export const renewCache = (key, jwt) => {
     };
     dexieW.addEventListener("message", progressListener);
     fetchGraphQL(cacheQueries[itemKey], {}, jwt)
-      .then((result, error) => {
-        if (error !== undefined) {
-          console.log("error in fetch ", error);
-        } else {
+      .then((result) => {
+        console.log(itemKey + " returned with " + result.data[dataKey].length + " results");
+        dispatch(setLoadingState({ key, loadingState: "caching" }));
+        dispatch(setObjectCount({ key, objectCount: result.data[dataKey].length }));
+        dispatch(setUpdateCount({ key, updateCount: result.data[dataKey].length }));
+        //async block
+        (async () => {
+          //put the data in the indexedDB
+          const y = await dexieW.putArray(result.data[dataKey], itemKey);
+
+          //reset loadingState in 1 minute
+          const resetTimer = setTimeout(() => {
+            dispatch(setLoadingState({ key, resetTimer, loadingState: undefined }));
+          }, 30000);
+
+          //set loading state done
+          dispatch(setLoadingState({ key, resetTimer, loadingState: "cached" }));
           dispatch(setLastUpdate({ key, lastUpdate: new Date().getTime() }));
 
-          console.log(itemKey + " returned with " + result.data[dataKey].length + " results");
-          dispatch(setLoadingState({ key, loadingState: "caching" }));
-          dispatch(setObjectCount({ key, objectCount: result.data[dataKey].length }));
-          dispatch(setUpdateCount({ key, updateCount: result.data[dataKey].length }));
-          //async block
-          (async () => {
-            //put the data in the indexedDB
-            const y = await dexieW.putArray(result.data[dataKey], itemKey);
+          //removeEVent Listener to free memory
+          dexieW.removeEventListener("message", progressListener);
 
-            //reset loadingState in 1 minute
-            const resetTimer = setTimeout(() => {
-              dispatch(setLoadingState({ key, resetTimer, loadingState: undefined }));
-            }, 60000);
-
-            //set loading state done
-            dispatch(setLoadingState({ key, resetTimer, loadingState: "cached" }));
-
-            //removeEVent Listener to free memory
-            dexieW.removeEventListener("message", progressListener);
-
-            if (itemKey === "raw_point_index") {
-              //todo: the initIndex function should be called, after the cache was completely refreshed
-              //to use the new data for the geometry search
-              dispatch(initIndex(() => {}));
-            }
-          })();
-        }
+          if (itemKey === "raw_point_index") {
+            //todo: the initIndex function should be called, after the cache was completely refreshed
+            //to use the new data for the geometry search
+            dispatch(initIndex(() => {}));
+          }
+        })();
+        // }
       })
       .catch(function (error) {
-        console.log("error in fetch ", error);
+        console.log("xxx error in fetch ", error);
+        dispatch(setLoadingState({ key, loadingState: "problem" }));
+        const resetTimer = setTimeout(() => {
+          dispatch(setLoadingState({ key, resetTimer, loadingState: undefined }));
+        }, 30000);
       });
   };
 };

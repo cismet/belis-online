@@ -52,7 +52,6 @@ const BottomNavbar = ({ innerRef, onlineStatus, refRoutedMap, jwt }) => {
   } else {
     user = getLoginFromJWT(jwt);
   }
-  console.log("cachingProgress", cachingProgress);
 
   return (
     <Navbar ref={innerRef} bg={background === "nightplan" ? "dark" : "light"} expand='lg'>
@@ -108,7 +107,7 @@ const BottomNavbar = ({ innerRef, onlineStatus, refRoutedMap, jwt }) => {
                           hour: "2-digit",
                           minute: "2-digit",
                         })
-                      : new Date(cacheDate)}
+                      : new Date(cacheDate).toLocaleDateString()}
                     )
                   </span>
                 )}

@@ -172,7 +172,7 @@ const InfoBox = ({ refRoutedMap }) => {
 
   if (selectedFeature) {
     const navigator = (
-      <table style={{ width: "100%", marginBottom: 9 }}>
+      <table style={{ width: "100%", marginBottom: 0 }}>
         <tbody>
           <tr>
             <td title='vorheriger Treffer' style={{ textAlign: "left", verticalAlign: "center" }}>
