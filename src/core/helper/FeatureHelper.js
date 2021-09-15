@@ -475,7 +475,8 @@ export const addPropertiesToFeature = async (feature) => {
     newFeature.enriched = true;
     return newFeature;
   } else {
-    return feature;
+    //otherwise the setting of the index cannot be done
+    return JSON.parse(JSON.stringify(feature));
   }
 };
 
