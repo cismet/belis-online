@@ -1,4 +1,9 @@
-import { faCalendarAlt, faCheckCircle, faSpinner } from "@fortawesome/free-solid-svg-icons";
+import {
+  faCalendarAlt,
+  faCheckCircle,
+  faExclamationCircle,
+  faSpinner,
+} from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon as Icon } from "@fortawesome/react-fontawesome";
 import React, { useState } from "react";
 import ProgressBar from "react-bootstrap/ProgressBar";
@@ -16,6 +21,10 @@ const AggregatedCacheItem = ({ controls, renew }) => {
       }
       if (control.loadingState === "loading" || control.loadingState === "caching") {
         loadingState = "progress";
+      }
+      if (control.loadingState === "problem") {
+        loadingState = "problem";
+        break;
       }
       if (control.loadingState === "cached") {
         cachingProgress++;
@@ -111,6 +120,30 @@ const AggregatedCacheItem = ({ controls, renew }) => {
           </td>
           <td style={{ textAlign: "left", whiteSpace: "nowrap", paddingLeft: "25px" }}>
             <Icon icon={faCheckCircle} /> alles geschrieben
+          </td>
+        </tr>
+      );
+    } else if (loadingState === "problem") {
+      return (
+        <tr>
+          {buttons}
+          <td style={{ textAlign: "right", paddingLeft: "25px", paddingRight: "15px" }}>
+            {controls.length}
+          </td>
+          <td style={{ textAlign: "left", width: "100%" }}>
+            <ProgressBar
+              now={controls.length}
+              label={"sonstige Tabellen"}
+              max={controls.length}
+              onClick={() => {
+                setExpanded(true);
+              }}
+              // variant='warning'
+              style={{ cursor: "pointer" }}
+            />
+          </td>
+          <td style={{ textAlign: "left", whiteSpace: "nowrap", paddingLeft: "25px" }}>
+            <Icon icon={faExclamationCircle} /> Probleme
           </td>
         </tr>
       );
