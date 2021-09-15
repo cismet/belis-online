@@ -61,34 +61,6 @@ const InfoBox = ({ refRoutedMap }) => {
     }
   };
 
-  // let _previous = () => {
-  //   let last = undefined;
-  //   if (featureCollection) {
-  //     for (const feature of featureCollection) {
-  //       if (feature.selected === true) {
-  //         if (last) {
-  //           dispatch(setSelectedFeature(last));
-  //         }
-  //         return;
-  //       }
-  //       last = feature;
-  //     }
-  //   }
-  // };
-  // let _next = () => {
-  //   let isNext = false;
-  //   if (featureCollection) {
-  //     for (const feature of featureCollection) {
-  //       if (isNext) {
-  //         dispatch(setSelectedFeature(feature));
-  //         return;
-  //       }
-  //       if (feature.selected === true) {
-  //         isNext = true;
-  //       }
-  //     }
-  //   }
-  // };
   let currentlyShownCountLabel = featureCollection.length + " Objekte gefunden";
   let noCurrentFeatureTitle = "no title";
   let noCurrentFeatureContent = "no content";
