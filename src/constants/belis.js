@@ -1,6 +1,8 @@
 export const backgrounds = {
   stadtplan: "OMT_Klokantech_basic@90",
-  lbk: "wupp-plan-live@100|trueOrtho2020@75|rvrSchrift@100",
+  lbk_: "cismetText|trueOrtho2020@40",
+
+  lbk: "wupp-plan-live@100|trueOrtho2020@60", //|rvrSchrift@100",
   nightplan:
     'wupp-plan-live@{"opacity":0.9,"css-filter": "filter:grayscale(0.9)brightness(0.9)invert(1)"}',
   pale_stadtplan: "wupp-plan-live@30",
