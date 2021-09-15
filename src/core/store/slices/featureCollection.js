@@ -456,6 +456,10 @@ export const enrichAndSetFeatures = (dispatch, state, featureCollectionIn) => {
       if (!selectionStillInMap) {
         dispatch(setSelectedFeature(null));
       }
+      let index = 0;
+      for (const f of enrichedFeatureCollection) {
+        f.index = index++;
+      }
       dispatch(setFeatureCollectionInfo({ typeCount }));
       dispatch(setFeatureCollection(enrichedFeatureCollection));
       dispatch(setDone(true));
