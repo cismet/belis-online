@@ -92,52 +92,59 @@ const MyMenu = () => {
           sectionBsStyle='warning'
           sectionContent={<Teams />}
         />,
-        // <Section
-        //   key='filter'
-        //   sectionKey='filter'
-        //   sectionTitle={"Filter"}
-        //   sectionBsStyle='primary'
-        //   sectionContent={
-        //     <div>
-        //       {" "}
-        //       {Object.keys(filterState).map((key) => {
-        //         const item = filterState[key];
-        //         return (
-        //           <div key={key + "NavDropdown.Item-key"} style={{ width: 300 }}>
-        //             <Switch
-        //               id={item.key + "toggle-id"}
-        //               key={item.key + "toggle"}
-        //               preLabel={item.title}
-        //               switched={item.enabled}
-        //               toggleStyle={{ float: "right" }}
-        //               stateChanged={(switched) => {
-        //                 const _fs = JSON.parse(JSON.stringify(filterState));
-        //                 _fs[key].enabled = switched;
-        //                 dispatch(setFilter(_fs));
+        <Section
+          key='filter'
+          sectionKey='filter'
+          sectionTitle={"Filter"}
+          sectionBsStyle='info'
+          sectionContent={
+            <div>
+              {/* {" "}
+              {Object.keys(filterState).map((key) => {
+                const item = filterState[key];
+                return (
+                  <div key={key + "NavDropdown.Item-key"} style={{ width: 300 }}>
+                    <Switch
+                      id={item.key + "toggle-id"}
+                      key={item.key + "toggle"}
+                      preLabel={item.title}
+                      switched={item.enabled}
+                      toggleStyle={{ float: "right" }}
+                      stateChanged={(switched) => {
+                        const _fs = JSON.parse(JSON.stringify(filterState));
+                        _fs[key].enabled = switched;
+                        dispatch(setFilter(_fs));
 
-        //                 // setTimeout(() => {
-        //                 //   dispatch(
-        //                 //     loadObjects({
-        //                 //       boundingBox: refRoutedMap.current.getBoundingBox(),
-        //                 //       overridingFilterState: _fs,
-        //                 //       jwt: jwt,
-        //                 //     })
-        //                 //   );
-        //                 // }, 50);
-        //               }}
-        //             />
-        //           </div>
-        //         );
-        //       })}
-        //     </div>
-        //   }
+                        // setTimeout(() => {
+                        //   dispatch(
+                        //     loadObjects({
+                        //       boundingBox: refRoutedMap.current.getBoundingBox(),
+                        //       overridingFilterState: _fs,
+                        //       jwt: jwt,
+                        //     })
+                        //   );
+                        // }, 50);
+                      }}
+                    /> */}
+              {/* </div>
+                );
+              })} */}
+            </div>
+          }
+        />,
+        // <DefaultSettingsPanel
+        //   key='settings'
+        //   skipFilterTitleSettings={true}
+        //   skipClusteringSettings={true}
+        //   skipSymbolsizeSetting={true}
         // />,
-        // // <DefaultSettingsPanel
-        // //   key='settings'
-        // //   skipFilterTitleSettings={true}
-        // //   skipClusteringSettings={true}
-        // //   skipSymbolsizeSetting={true}
-        // // />,
+        <Section
+          key='settings'
+          sectionKey='settings'
+          sectionTitle={"Einstellungen"}
+          sectionBsStyle='danger'
+          sectionContent={<div></div>}
+        />,
 
         <Section
           key='help'
