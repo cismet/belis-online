@@ -44,34 +44,51 @@ const InfoBox = ({ refRoutedMap }) => {
   let additionalInfo = "info";
   let hideNavigator = false;
   let links = [];
-  let _previous = () => {
-    let last = undefined;
+
+  const _next = () => {
     if (featureCollection) {
-      for (const feature of featureCollection) {
-        if (feature.selected === true) {
-          if (last) {
-            dispatch(setSelectedFeature(last));
-          }
-          return;
-        }
-        last = feature;
-      }
+      const newIndex = (selectedFeature.index + 1) % featureCollection.length;
+      dispatch(setSelectedFeature(featureCollection[newIndex]));
     }
   };
-  let _next = () => {
-    let isNext = false;
+  const _previous = () => {
     if (featureCollection) {
-      for (const feature of featureCollection) {
-        if (isNext) {
-          dispatch(setSelectedFeature(feature));
-          return;
-        }
-        if (feature.selected === true) {
-          isNext = true;
-        }
+      let newIndex = (selectedFeature.index - 1) % featureCollection.length;
+      if (newIndex === -1) {
+        newIndex = featureCollection.length - 1;
       }
+      dispatch(setSelectedFeature(featureCollection[newIndex]));
     }
   };
+
+  // let _previous = () => {
+  //   let last = undefined;
+  //   if (featureCollection) {
+  //     for (const feature of featureCollection) {
+  //       if (feature.selected === true) {
+  //         if (last) {
+  //           dispatch(setSelectedFeature(last));
+  //         }
+  //         return;
+  //       }
+  //       last = feature;
+  //     }
+  //   }
+  // };
+  // let _next = () => {
+  //   let isNext = false;
+  //   if (featureCollection) {
+  //     for (const feature of featureCollection) {
+  //       if (isNext) {
+  //         dispatch(setSelectedFeature(feature));
+  //         return;
+  //       }
+  //       if (feature.selected === true) {
+  //         isNext = true;
+  //       }
+  //     }
+  //   }
+  // };
   let currentlyShownCountLabel = featureCollection.length + " Objekte gefunden";
   let noCurrentFeatureTitle = "no title";
   let noCurrentFeatureContent = "no content";
