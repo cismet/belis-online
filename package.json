@@ -70,6 +70,7 @@
     "updateAlpha": "ssh -t docker@$npm_package_config_alphaHost \"cd $npm_package_config_alphaFolder ; docker-compose pull && docker-compose down && docker-compose up -d\"",
     "build:docker": "VERSION=`echo $npm_package_version| sed 's/\\.[0-9]*-SNAPSHOT.*$/-SNAPSHOT/'`; docker build  -t cismet/$npm_package_name -t cismet/$npm_package_name:$VERSION .",
     "publish:docker": "yarn run build:docker; VERSION=`echo $npm_package_version| sed 's/\\.[0-9]*-SNAPSHOT.*$/-SNAPSHOT/'`; docker tag cismet/$npm_package_name:$VERSION $npm_package_config_dockerRegistryPath/$npm_package_name:$VERSION && docker push $npm_package_config_dockerRegistryPath/$npm_package_name:$VERSION",
+    "bumpAndUpdateAlpha": "yarn run bumpSnapshot && yarn run publish:docker && yarn run updateAlpha && say -v Petra  Belis alpha aktualisiert",
     "storybook": "start-storybook -p 6006 -s public",
     "build-storybook": "build-storybook -s public"
   },
