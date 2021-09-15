@@ -15,7 +15,7 @@ import MenuFooter from "./MenuFooter";
 import CacheSettings from "./CacheSettings";
 import { getFilter, initialFilter, setFilter } from "../../../core/store/slices/featureCollection";
 import { useDispatch, useSelector } from "react-redux";
-
+import Teams from "./Teams";
 const MyMenu = () => {
   const { setAppMenuActiveMenuSection } = useContext(UIDispatchContext);
   const filterState = useSelector(getFilter);
@@ -84,6 +84,13 @@ const MyMenu = () => {
           sectionTitle={"Lokale Daten"}
           sectionBsStyle='success'
           sectionContent={<CacheSettings />}
+        />,
+        <Section
+          key='teams'
+          sectionKey='teams'
+          sectionTitle={"Teams"}
+          sectionBsStyle='warning'
+          sectionContent={<Teams />}
         />,
         // <Section
         //   key='filter'

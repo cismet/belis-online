@@ -37,7 +37,7 @@ import {
 } from "../core/store/slices/featureCollection";
 
 import { getGazData, loadGazeteerEntries } from "../core/store/slices/gazetteerData";
-
+import { getTeam } from "../core/store/slices/team";
 import { useDispatch, useSelector, useStore } from "react-redux";
 import {
   setActive as setSearchModeActive,
@@ -59,6 +59,7 @@ import { getLoginFromJWT } from "../core/store/slices/auth";
 const TopNavbar = ({ innerRef, refRoutedMap, setCacheSettingsVisible, jwt }) => {
   const dispatch = useDispatch();
   const searchModeActive = useSelector(isSearchModeActive);
+  const selectedTeam = useSelector(getTeam);
   const gazetteerHit = useSelector(getGazetteerHit);
   const overlayFeature = useSelector(getOverlayFeature);
   const fcIsDone = useSelector(featureCollectionIsDone);
@@ -162,7 +163,9 @@ const TopNavbar = ({ innerRef, refRoutedMap, setCacheSettingsVisible, jwt }) => 
         </Nav.Link>
       </Nav>
 
-      <Nav className='mr-auto text-primary'>Kein Arbeitsauftrag ausgewählt (Erneuerung)</Nav>
+      <Nav className='mr-auto text-primary'>
+        Kein Arbeitsauftrag ausgewählt ({selectedTeam.name})
+      </Nav>
 
       <Nav.Link
         onClick={() => {
