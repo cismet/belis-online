@@ -27,6 +27,7 @@ const View = () => {
   const onlineStatus = useOnlineStatus();
 
   let refRoutedMap = useRef(null);
+  let refApp = useRef(null);
   let refUpperToolbar = useRef(null);
   let sizeU = useComponentSize(refUpperToolbar);
   let refLowerToolbar = useRef(null);
@@ -50,10 +51,27 @@ const View = () => {
   //	let jwt = 'eyJhbGciOiJSUzI1NiJ9.eyJqdGkiOiIwIiwic3ViIjoiYWRtaW4iLCJkb21haW4iOiJXVU5EQV9CTEFVIn0.E3eZbW0lp6QrEyaDuGgtKpUqwi7WBp-mChecAej2wqutBcXD6utYCiKeAUMar5kIjgKdiZG5v7R-0uUekeTOp6_MuEysuGL4l-61VKLJwl31Tiw40JIzB3_saVky9bfZ_ntnR6Fkb4FuXe0T1Y2qqKwZd0NI-pCzLb98K6AQn41p7_LunusIxAewXUZm20UtsMhSYDNBLqVqi1GYiv_knNKo1iWnFPT37FuF_Rsx9MkWToHuRFXg1J790ghaJQRH5ky1xNYjiOhdK0k5E4zSZBXI7xnuK0fGdjGnJ2wVkfdGDb65e5H3EP3MEiBX1qRpCDEBstq_bOrKs-MTo464sQ'
 
   const fcIsDone = useSelector(isDone);
+  const fcIsDoneRef = useRef(fcIsDone);
+
   const connectionMode = useSelector(getConnectionMode);
   const browserlocation = useLocation();
-
-  // useEffect(() => {}, [jwt]);
+  useEffect(() => {
+    fcIsDoneRef.current = fcIsDone;
+  }, [fcIsDone]);
+  useEffect(() => {
+    if (refApp?.current) {
+      const appRef = refApp.current;
+      const blockingHandler = (e) => {
+        if (fcIsDoneRef.current === false) {
+          e.preventDefault();
+        }
+      };
+      appRef.addEventListener("touchmove", blockingHandler);
+      return () => {
+        appRef.removeEventListener("touchmove", blockingHandler);
+      };
+    }
+  }, [refApp]);
   const { setAppMenuActiveMenuSection, setAppMenuVisible } = useContext(UIDispatchContext);
 
   let loginForm = null;
@@ -80,7 +98,7 @@ const View = () => {
   }, [history, browserlocation]);
 
   return (
-    <div>
+    <div ref={refApp}>
       <Menu
         hide={() => {
           setAppMenuVisible(false);
