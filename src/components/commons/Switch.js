@@ -1,5 +1,7 @@
 import React, { useState } from "react";
-import Switch from "react-ios-switch";
+// import Switch from "react-ios-switch";
+import { Switch } from "antd";
+import { CloseOutlined, CheckOutlined } from "@ant-design/icons";
 
 const Comp = (props) => {
   const [switched, setSwitched] = useState(props.switched || false);
@@ -9,6 +11,7 @@ const Comp = (props) => {
       props.stateChanged(!switched);
     }
   };
+  const size = props.size;
   return (
     <div>
       <span>
@@ -27,6 +30,7 @@ const Comp = (props) => {
           style={props.toggleStyle || { verticalAlign: "middle" }}
           onChange={change}
           checked={switched}
+          size={size}
         />
         <span
           onClick={(e) => {
