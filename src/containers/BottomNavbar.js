@@ -54,18 +54,20 @@ const BottomNavbar = ({ innerRef, onlineStatus, refRoutedMap, jwt }) => {
   } else {
     user = getLoginFromJWT(jwt);
   }
-  let fontSize, narrow, fontSizeIconPixel, iconWidth;
+  let fontSize, narrow, fontSizeIconPixel, iconWidth, toggleSize;
 
   if (windowWidth <= 1200) {
     fontSize = "0.8rem";
     narrow = true;
     fontSizeIconPixel = 18;
     iconWidth = "24px";
+    toggleSize = "small";
   } else {
     fontSize = "1rem";
     narrow = false;
     fontSizeIconPixel = 24;
     iconWidth = "24px";
+    toggleSize = "large";
   }
 
   return (
@@ -178,15 +180,18 @@ const BottomNavbar = ({ innerRef, onlineStatus, refRoutedMap, jwt }) => {
             id='focus-toggle'
             preLabel='Fokus'
             switched={inFocusMode}
+            size={toggleSize}
             stateChanged={(switched) => {
               dispatch(setFocusModeActive(switched));
-              dispatch(
-                loadObjects({
-                  boundingBox: refRoutedMap.current.getBoundingBox(),
-                  inFocusMode: switched,
-                  jwt: jwt,
-                })
-              );
+              setTimeout(() => {
+                dispatch(
+                  loadObjects({
+                    boundingBox: refRoutedMap.current.getBoundingBox(),
+                    inFocusMode: switched,
+                    jwt: jwt,
+                  })
+                );
+              }, 300);
             }}
           />
           <div style={{ width: 10 }} />
@@ -195,6 +200,7 @@ const BottomNavbar = ({ innerRef, onlineStatus, refRoutedMap, jwt }) => {
             preLabel='Blass'
             switched={inPaleMode}
             stateChanged={(switched) => dispatch(setPaleModeActive(switched))}
+            size={toggleSize}
           />
         </Nav>
 

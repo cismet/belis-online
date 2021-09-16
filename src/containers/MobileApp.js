@@ -72,6 +72,7 @@ const View = () => {
       };
     }
   }, [refApp]);
+
   const { setAppMenuActiveMenuSection, setAppMenuVisible } = useContext(UIDispatchContext);
 
   let loginForm = null;

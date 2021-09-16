@@ -16,6 +16,7 @@ import authSlice from "./slices/auth";
 import gazetteerDataSlice from "./slices/gazetteerData";
 import teamSlice from "./slices/team";
 import { createLogger } from "redux-logger";
+import "antd/dist/antd.css";
 
 console.log("store initializing ....");
 const devToolsEnabled =

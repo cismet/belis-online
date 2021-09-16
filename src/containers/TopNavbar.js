@@ -54,6 +54,7 @@ import {
   renewAllSecondaryInfoCache,
 } from "../core/store/slices/cacheControl";
 import { getLoginFromJWT } from "../core/store/slices/auth";
+import { useWindowSize } from "@react-hook/window-size";
 //---------
 
 const TopNavbar = ({ innerRef, refRoutedMap, setCacheSettingsVisible, jwt }) => {
@@ -71,143 +72,171 @@ const TopNavbar = ({ innerRef, refRoutedMap, setCacheSettingsVisible, jwt }) => 
   useEffect(() => {
     dispatch(loadGazeteerEntries());
   }, []);
+  const [windowWidth, windowHeight] = useWindowSize();
+
+  let fontSize, narrow, fontSizeIconPixel, iconWidth, toggleSize;
+
+  if (windowWidth <= 1200) {
+    fontSize = "0.8rem";
+    narrow = true;
+    fontSizeIconPixel = 18;
+    iconWidth = "24px";
+    toggleSize = "small";
+  } else {
+    fontSize = "1rem";
+    narrow = false;
+    fontSizeIconPixel = 24;
+    iconWidth = "24px";
+    toggleSize = "large";
+  }
 
   return (
-    <Navbar
-      ref={innerRef}
-      bg={background === "nightplan" ? "dark" : "light"}
-      expand='lg'
-      key={"navbar." + fcIsDone}
-    >
-      <Nav className='mr-auto'>
-        <Nav.Link>
-          <div
-            // onClick={() => {
-            // 	window.location.reload();
-            // }}
-            style={{ width: 20 }}
-            key={"navbar.div." + fcIsDone}
+    <div style={{ fontSize }}>
+      <Navbar
+        ref={innerRef}
+        bg={background === "nightplan" ? "dark" : "light"}
+        expand='lg'
+        key={"navbar." + fcIsDone}
+      >
+        <Nav className='mr-auto'>
+          <Nav.Link>
+            <div
+              // onClick={() => {
+              // 	window.location.reload();
+              // }}
+              style={{
+                width: 20,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                backgroundColor_: "red",
+                height: "100%",
+              }}
+              key={"navbar.div." + fcIsDone}
+            >
+              {fcIsDone === false && searchModeActive === true && (
+                <Icon className='text-primary' spin icon={faSpinner} />
+                // <span>-.-</span>
+              )}
+              {fcIsDone === true && <div style={{ fontSize: 9 }}>{featureCollection.length}</div>}
+            </div>
+          </Nav.Link>
+          <Nav.Link>
+            <Switch
+              disabled={searchForbidden}
+              id='search-mode-toggle'
+              key={"search-mode-toggle" + searchModeActive}
+              preLabel='Suche'
+              switched={searchModeActive}
+              stateChanged={(switched) => {
+                dispatch(setSearchModeActive(switched));
+                if (switched === true) {
+                  dispatch(setSearchModeWish(true));
+
+                  dispatch(
+                    loadObjects({
+                      boundingBox: refRoutedMap.current.getBoundingBox(),
+                      jwt: jwt,
+                    })
+                  );
+                } else {
+                  dispatch(setSearchModeWish(false));
+                }
+              }}
+            />
+          </Nav.Link>
+          <NavDropdown
+            style={{ zIndex: 10000 }}
+            className='text-primary'
+            title='nach'
+            id='basic-nav-dropdown'
+            rootCloseEvent='jj'
           >
-            {fcIsDone === false && searchModeActive === true && (
-              <Icon style={{ marginTop: 10 }} className='text-primary' spin icon={faSpinner} />
-              // <span>-.-</span>
-            )}
-            {fcIsDone === true && (
-              <div style={{ fontSize: 9, marginTop: 10 }}>{featureCollection.length}</div>
-            )}
-          </div>
+            {Object.keys(filterState).map((key) => {
+              const item = filterState[key];
+              return (
+                <NavDropdown.Item key={key + "NavDropdown.Item-key"} style={{ width: 300 }}>
+                  <Switch
+                    id={item.key + "toggle-id"}
+                    key={item.key + "toggle"}
+                    preLabel={item.title}
+                    switched={item.enabled}
+                    toggleStyle={{ float: "right" }}
+                    stateChanged={(switched) => {
+                      const _fs = JSON.parse(JSON.stringify(filterState));
+                      _fs[key].enabled = switched;
+                      dispatch(setFilter(_fs));
+
+                      setTimeout(() => {
+                        dispatch(
+                          loadObjects({
+                            boundingBox: refRoutedMap.current.getBoundingBox(),
+                            overridingFilterState: _fs,
+                            jwt: jwt,
+                          })
+                        );
+                      }, 50);
+                    }}
+                  />
+                </NavDropdown.Item>
+              );
+            })}
+          </NavDropdown>
+          <Nav.Link href='#home'>
+            <Icon className='text-primary' icon={faGlobeEurope} />
+          </Nav.Link>
+        </Nav>
+
+        <Nav className='mr-auto text-primary'>
+          Kein Arbeitsauftrag ausgewählt ({selectedTeam.name})
+        </Nav>
+
+        <Nav.Link
+          onClick={() => {
+            // dispatch(renewAllPrimaryInfoCache(jwt));
+            getLoginFromJWT(jwt);
+          }}
+        >
+          <Icon icon={faVial} />
         </Nav.Link>
         <Nav.Link>
-          <Switch
-            disabled={searchForbidden}
-            id='search-mode-toggle'
-            key={"search-mode-toggle" + searchModeActive}
-            preLabel='Suche'
-            switched={searchModeActive}
-            stateChanged={(switched) => {
-              dispatch(setSearchModeActive(switched));
-              if (switched === true) {
-                dispatch(setSearchModeWish(true));
-
-                dispatch(
-                  loadObjects({
-                    boundingBox: refRoutedMap.current.getBoundingBox(),
-                    jwt: jwt,
-                  })
-                );
-              } else {
-                dispatch(setSearchModeWish(false));
-              }
-            }}
-          />
+          <Icon icon={faBookOpen} />
         </Nav.Link>
-        <NavDropdown
-          style={{ zIndex: 10000 }}
-          className='text-primary'
-          title='nach'
-          id='basic-nav-dropdown'
-          rootCloseEvent='jj'
+        <Form
+          className={narrow ? "reducedSizeInputComponnet" : undefined}
+          style={{ marginRight: 10 }}
         >
-          {Object.keys(filterState).map((key) => {
-            const item = filterState[key];
-            return (
-              <NavDropdown.Item key={key + "NavDropdown.Item-key"} style={{ width: 300 }}>
-                <Switch
-                  id={item.key + "toggle-id"}
-                  key={item.key + "toggle"}
-                  preLabel={item.title}
-                  switched={item.enabled}
-                  toggleStyle={{ float: "right" }}
-                  stateChanged={(switched) => {
-                    const _fs = JSON.parse(JSON.stringify(filterState));
-                    _fs[key].enabled = switched;
-                    dispatch(setFilter(_fs));
+          <GazetteerSearchComponent
+            mapRef={refRoutedMap}
+            gazetteerHit={gazetteerHit}
+            setGazetteerHit={(hit) => {
+              dispatch(setGazetteerHit(hit));
+            }}
+            overlayFeature={overlayFeature}
+            setOverlayFeature={(feature) => {
+              dispatch(setOverlayFeature(feature));
+            }}
+            gazData={gazData}
+            pixelwidth={narrow ? 250 : 350}
+            dropup={false}
+            enabled={gazData.length > 0}
+            referenceSystem={MappingConstants.crs3857}
+            referenceSystemDefinition={MappingConstants.proj4crs3857def}
+            autoFocus={false}
+          />
+        </Form>
 
-                    setTimeout(() => {
-                      dispatch(
-                        loadObjects({
-                          boundingBox: refRoutedMap.current.getBoundingBox(),
-                          overridingFilterState: _fs,
-                          jwt: jwt,
-                        })
-                      );
-                    }, 50);
-                  }}
-                />
-              </NavDropdown.Item>
-            );
-          })}
-        </NavDropdown>
-        <Nav.Link href='#home'>
-          <Icon className='text-primary' icon={faGlobeEurope} />
-        </Nav.Link>
-      </Nav>
-
-      <Nav className='mr-auto text-primary'>
-        Kein Arbeitsauftrag ausgewählt ({selectedTeam.name})
-      </Nav>
-
-      <Nav.Link
-        onClick={() => {
-          // dispatch(renewAllPrimaryInfoCache(jwt));
-          getLoginFromJWT(jwt);
-        }}
-      >
-        <Icon icon={faVial} />
-      </Nav.Link>
-      <Nav.Link>
-        <Icon icon={faBookOpen} />
-      </Nav.Link>
-      <Form style={{ marginRight: 10 }}>
-        <GazetteerSearchComponent
-          mapRef={refRoutedMap}
-          gazetteerHit={gazetteerHit}
-          setGazetteerHit={(hit) => {
-            dispatch(setGazetteerHit(hit));
+        <Button
+          size={narrow ? "sm" : ""}
+          onClick={() => {
+            setCacheSettingsVisible(true);
           }}
-          overlayFeature={overlayFeature}
-          setOverlayFeature={(feature) => {
-            dispatch(setOverlayFeature(feature));
-          }}
-          gazData={gazData}
-          pixelwidth={350}
-          dropup={false}
-          enabled={gazData.length > 0}
-          referenceSystem={MappingConstants.crs3857}
-          referenceSystemDefinition={MappingConstants.proj4crs3857def}
-          autoFocus={false}
-        />
-      </Form>
-
-      <Button
-        onClick={() => {
-          setCacheSettingsVisible(true);
-        }}
-        variant='outline-primary'
-      >
-        <Icon icon={faBars} />
-      </Button>
-    </Navbar>
+          variant='outline-primary'
+        >
+          <Icon icon={faBars} />
+        </Button>
+      </Navbar>
+    </div>
   );
 };
 
