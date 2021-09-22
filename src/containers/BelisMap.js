@@ -34,6 +34,10 @@ import {
   isSecondaryCacheUsable,
   renewAllSecondaryInfoCache,
 } from "../core/store/slices/cacheControl";
+import LightBoxContextProvider, {
+  LightBoxDispatchContext,
+} from "react-cismap/contexts/LightBoxContextProvider";
+import { useContext } from "react";
 
 //---
 
@@ -57,7 +61,6 @@ const BelisMap = ({ refRoutedMap, width, height, jwt }) => {
   const lineIndex = useSelector(getLineIndex);
   const isSecondaryCacheReady = useSelector(isSecondaryCacheUsable);
   const connectionMode = useSelector(getConnectionMode);
-
   const history = useHistory();
   const browserlocation = useLocation();
 
@@ -184,9 +187,11 @@ const BelisMap = ({ refRoutedMap, width, height, jwt }) => {
         mapHeight={mapStyle.height}
       />
       {secondaryInfoVisible && <InfoPanel />}
+
       {selectedFeature !== undefined && selectedFeature !== null && (
         <InfoBox refRoutedMap={refRoutedMap} />
       )}
+
       {overlayFeature && (
         <ProjSingleGeoJson
           key={JSON.stringify(overlayFeature)}

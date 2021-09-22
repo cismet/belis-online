@@ -126,7 +126,7 @@ export const getVCard = (feature) => {
 export const addPropertiesToFeature = async (feature) => {
   if (feature?.enriched !== true) {
     const item = {};
-    item.feature = feature;
+
     switch (feature.featuretype) {
       case "tdta_leuchten":
         copyFields(item, feature, [
@@ -327,14 +327,15 @@ export const addPropertiesToFeature = async (feature) => {
           "dokumente",
           feature.properties.dokumente
         );
-        await addFieldByFK(
-          db,
-          item,
-          "dms_url",
-          "fk_leifototungstyp",
-          feature.properties.fk_leifototungstyp
-        );
+        await addFieldByFK(db, item, "dms_url", "foto", feature.properties.foto);
 
+        // const tester = JSON.stringify(item);
+        // if (tester.indexOf("http") > -1) {
+        //   console.log("schaltstelle item string", tester);
+        //   console.log("schaltstelle item object", item);
+        // } else {
+        //   console.log("kein Bild in ", feature.properties.id);
+        // }
         break;
       case "schaltstelle":
         copyFields(item, feature, [
@@ -470,6 +471,8 @@ export const addPropertiesToFeature = async (feature) => {
         break;
       default:
     }
+
+    item.feature = feature;
     const newFeature = JSON.parse(JSON.stringify(feature));
     newFeature.properties = item;
     newFeature.enriched = true;

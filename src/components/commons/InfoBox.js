@@ -21,6 +21,10 @@ import envelope from "@turf/envelope";
 import IconLink from "react-cismap/commons/IconLink";
 import { UIContext, UIDispatchContext } from "react-cismap/contexts/UIContextProvider";
 
+import PhotoLightBox from "react-cismap/topicmaps/PhotoLightbox";
+import { useEffect } from "react";
+import { useState } from "react";
+
 //---
 
 const InfoBox = ({ refRoutedMap }) => {
@@ -44,6 +48,11 @@ const InfoBox = ({ refRoutedMap }) => {
   let additionalInfo = "info";
   let hideNavigator = false;
   let links = [];
+
+  let [lightBoxVisible, setLightBoxVisible] = useState(false);
+  let [lightBoxIndex, setLightBoxIndex] = useState(0);
+
+  // const lightBoxDispatchContext = useContext(LightBoxDispatchContext);
 
   const _next = () => {
     if (featureCollection) {
@@ -78,10 +87,13 @@ const InfoBox = ({ refRoutedMap }) => {
     noCurrentFeatureContent: "",
     displaySecondaryInfoAction: false,
   };
+  let vcard;
+  let imageUrls = [];
+  let imageCaptions = [];
 
   if (selectedFeature !== undefined && selectedFeature !== null) {
-    let vcard = getVCard(selectedFeature);
-    header = <span>Feature{vcard?.title}</span>;
+    vcard = getVCard(selectedFeature);
+    header = <span>Feature{vcard}</span>;
 
     links = getActionLinksForFeature(selectedFeature, {
       entityClassName: config.navigator.noun.singular,
@@ -260,19 +272,52 @@ const InfoBox = ({ refRoutedMap }) => {
   }
 
   return (
-    <ResponsiveInfoBox
-      pixelwidth={350}
-      header={llVis}
-      mode={MODES.AB}
-      collapsedInfoBox={minified}
-      setCollapsedInfoBox={minify}
-      isCollapsible={true}
-      handleResponsiveDesign={false}
-      infoStyle={infoStyle}
-      divWhenCollapsed={divWhenCollapsed}
-      divWhenLarge={divWhenLarge}
-      fixedRow={true}
-    />
+    <div>
+      <PhotoLightBox
+        defaultContextValues={{
+          title: vcard?.title,
+          photourls: [
+            "https://i.picsum.photos/id/1/5616/3744.jpg?hmac=kKHwwU8s46oNettHKwJ24qOlIAsWN9d2TtsXDoCWWsQ",
+            "https://i.picsum.photos/id/10/2500/1667.jpg?hmac=J04WWC_ebchx3WwzbM-Z4_KC_LeLBWr5LZMaAkWkF68",
+          ],
+          caption: "lsdfjhk",
+          index: lightBoxIndex,
+          visible: lightBoxVisible,
+          setVisible: (vis) => {
+            setLightBoxVisible(vis);
+          },
+          setIndex: (i) => {
+            setLightBoxIndex(i);
+          },
+        }}
+      />
+      <ResponsiveInfoBox
+        pixelwidth={350}
+        header={llVis}
+        mode={MODES.AB}
+        collapsedInfoBox={minified}
+        setCollapsedInfoBox={minify}
+        isCollapsible={true}
+        handleResponsiveDesign={false}
+        infoStyle={infoStyle}
+        divWhenCollapsed={divWhenCollapsed}
+        divWhenLarge={divWhenLarge}
+        fixedRow={true}
+        secondaryInfoBoxElements={[
+          <div>
+            <img
+              alt='Preview'
+              width='150'
+              style={{ paddingBottom: "5px", opacity: 0.9 }}
+              onClick={() => {
+                setLightBoxVisible(true);
+              }}
+              src='https://i.picsum.photos/id/1/5616/3744.jpg?hmac=kKHwwU8s46oNettHKwJ24qOlIAsWN9d2TtsXDoCWWsQ'
+            />
+          </div>,
+        ]}
+      />
+    </div>
   );
 };
 

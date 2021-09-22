@@ -134,5 +134,4 @@ export const initIndex = (finished = () => {}) => async (dispatch) => {
   dispatch(initialize({ pointIndex, lineIndex }));
 
   finished();
-  console.log("yyy index inited", new Error());
 };

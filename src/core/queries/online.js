@@ -236,6 +236,9 @@ tdta_leuchten(where: {tdta_standort_mast: {geom: {geo_field: {_st_intersects: $b
         geo_field
       }
     }
+
+
+    
     full_tdta_standort_mast: tdta_standort_mast {
       id
       bemerkungen
