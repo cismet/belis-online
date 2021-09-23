@@ -337,7 +337,10 @@ export const loadObjectsIntoFeatureCollection = ({
             }
           }
           const gqlQuery = `query q($bbPoly: geometry!) {${queryparts}}`;
+
           const queryParameter = { bbPoly: createQueryGeomFromBB(convertedBoundingBox) };
+          // console.log("query", { gqlQuery, queryParameter });
+
           try {
             const response = await fetchGraphQL(gqlQuery, queryParameter, jwt);
             // alert(JSON.stringify(response));

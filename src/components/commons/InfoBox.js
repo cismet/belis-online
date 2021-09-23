@@ -20,16 +20,22 @@ import envelope from "@turf/envelope";
 
 import IconLink from "react-cismap/commons/IconLink";
 import { UIContext, UIDispatchContext } from "react-cismap/contexts/UIContextProvider";
+import Icon from "react-cismap/commons/Icon";
 
 import PhotoLightBox from "react-cismap/topicmaps/PhotoLightbox";
 import { useEffect } from "react";
 import { useState } from "react";
+import { getJWT } from "../../core/store/slices/auth";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+// import { faFilePdf } from "@fortawesome/free-solid-svg-icons";
+import { faFilePdf } from "@fortawesome/free-regular-svg-icons";
 
 //---
 
 const InfoBox = ({ refRoutedMap }) => {
   const dispatch = useDispatch();
   const featureCollection = useSelector(getFeatureCollection);
+  const jwt = useSelector(getJWT);
   const selectedFeature = useSelector(getSelectedFeature);
   const secondaryInfoVisible = useSelector(isSecondaryInfoVisible);
   const { setCollapsedInfoBox } = useContext(UIDispatchContext);
@@ -54,6 +60,9 @@ const InfoBox = ({ refRoutedMap }) => {
 
   // const lightBoxDispatchContext = useContext(LightBoxDispatchContext);
 
+  useEffect(() => {
+    setLightBoxIndex(0);
+  }, [selectedFeature]);
   const _next = () => {
     if (featureCollection) {
       const newIndex = (selectedFeature.index + 1) % featureCollection.length;
@@ -271,16 +280,31 @@ const InfoBox = ({ refRoutedMap }) => {
     collapsibleDiv = <div style={{ paddingRight: 2 }}>{noCurrentFeatureContent}</div>;
   }
 
+  const photourls = [];
+  const originalPhotourls = [];
+  const captions = [];
+  for (const doc of selectedFeature.properties.docs || []) {
+    let url = "https://belis-testapi.cismet.de/secres/" + jwt + "/beliswebdav/" + doc.doc;
+
+    if (url.endsWith(".jpg")) {
+      url += ".thumbnail.jpg";
+    } else if (url.endsWith(".png")) {
+      url += ".thumbnail.png";
+    } else if (url.endsWith(".pdf")) {
+      url += ".thumbnail.jpg";
+    } else {
+    }
+    photourls.push(url);
+    captions.push(doc.caption);
+  }
+
   return (
     <div>
       <PhotoLightBox
         defaultContextValues={{
           title: vcard?.title,
-          photourls: [
-            "https://i.picsum.photos/id/1/5616/3744.jpg?hmac=kKHwwU8s46oNettHKwJ24qOlIAsWN9d2TtsXDoCWWsQ",
-            "https://i.picsum.photos/id/10/2500/1667.jpg?hmac=J04WWC_ebchx3WwzbM-Z4_KC_LeLBWr5LZMaAkWkF68",
-          ],
-          caption: "lsdfjhk",
+          photourls,
+          captions,
           index: lightBoxIndex,
           visible: lightBoxVisible,
           setVisible: (vis) => {
@@ -304,17 +328,35 @@ const InfoBox = ({ refRoutedMap }) => {
         divWhenLarge={divWhenLarge}
         fixedRow={true}
         secondaryInfoBoxElements={[
-          <div>
-            <img
-              alt='Preview'
-              width='150'
-              style={{ paddingBottom: "5px", opacity: 0.9 }}
-              onClick={() => {
-                setLightBoxVisible(true);
-              }}
-              src='https://i.picsum.photos/id/1/5616/3744.jpg?hmac=kKHwwU8s46oNettHKwJ24qOlIAsWN9d2TtsXDoCWWsQ'
-            />
-          </div>,
+          photourls?.length > 0 ? (
+            <div style={{ position: "relative" }}>
+              {selectedFeature.properties.docs[0].doc.endsWith(".pdf") && (
+                <FontAwesomeIcon
+                  style={{
+                    position: "absolute",
+                    bottom: "15",
+                    left: "15",
+                    zIndex: 100,
+                    fontSize: "40px",
+                    opacity: "60%",
+                  }}
+                  icon={faFilePdf}
+                  fontSize={30}
+                />
+              )}
+              <img
+                alt='Preview'
+                width='150'
+                style={{ paddingBottom: "5px", opacity: 0.9, display: "block" }}
+                onClick={() => {
+                  setLightBoxVisible(true);
+                }}
+                src={photourls[0]}
+              />
+            </div>
+          ) : (
+            <div />
+          ),
         ]}
       />
     </div>
