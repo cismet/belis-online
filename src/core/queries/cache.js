@@ -151,6 +151,7 @@ queries.rundsteuerempfaenger = `{
       id
       anschlusswert
       dms_url {
+        description
         url {
           url_base {
             path
@@ -173,6 +174,7 @@ queries.abzweigdose = `{
        
         dokumenteArray {
             dms_url {
+              description
                 url {
                     object_name
                     url_base {
@@ -190,6 +192,7 @@ queries.tkey_leuchtentyp = `{
       bestueckung
       dokumenteArray {
         dms_url {
+          description
           url {
             object_name
             url_base {
@@ -203,6 +206,7 @@ queries.tkey_leuchtentyp = `{
         id
       }
       dms_url {
+        description
         url {
           object_name
           url_base {
@@ -233,6 +237,7 @@ queries.tkey_masttyp = `{
     tkey_masttyp {
       bezeichnung
       dms_url {
+        description
         url {
           object_name
           url_base {
@@ -244,6 +249,7 @@ queries.tkey_masttyp = `{
       }
       dokumenteArray {
         dms_url {
+          description
           url {
             object_name
             url_base {
@@ -277,6 +283,7 @@ queries.leitung = `{
       id
       dokumenteArray {
         dms_url {
+          description
           url {
             object_name
             url_base {
@@ -295,6 +302,7 @@ queries.mauerlasche = `{
       bemerkung
       dokumenteArray {
         dms_url {
+          description
           url {
             object_name
             url_base {
@@ -322,6 +330,7 @@ queries.schaltstelle = `{
       bemerkung
       dokumenteArray {
         dms_url {
+          description
           url {
             object_name
             url_base {
@@ -334,6 +343,7 @@ queries.schaltstelle = `{
         id
       }
       dms_url {
+        description
         url {
           object_name
           url_base {
@@ -371,6 +381,7 @@ queries.tdta_leuchten = `{
         bemerkungen
         dokumenteArray {
             dms_url {
+              description
                 url {
                     object_name
                     url_base {
@@ -417,6 +428,7 @@ queries.all_tdta_standort_mast = `{
         anstrichfarbe
         dokumenteArray {
             dms_url {
+              description
                 url {
                     object_name
                     url_base {
@@ -463,13 +475,14 @@ queries.all_tdta_standort_mast = `{
 }`;
 
 queries.tdta_standort_mast =
-	`{
+  `{
   tdta_standort_mast(where:{_not:{leuchtenArray:{}}}){
     id
     bemerkungen
     anstrichfarbe
     dokumenteArray {
       dms_url {
+        description
         url {
           object_name
           url_base {
@@ -512,12 +525,12 @@ queries.tdta_standort_mast =
       nummer
       bezeichnung
     }` +
-	// leuchtenArray_aggregate {
-	//   aggregate {
-	//     count
-	//   }
-	// }
-	`
+  // leuchtenArray_aggregate {
+  //   aggregate {
+  //     count
+  //   }
+  // }
+  `
   }
 }
 `;

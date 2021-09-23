@@ -13282,9 +13282,9 @@ polygon-clipping@^0.15.3:
   dependencies:
     splaytree "^3.1.0"
 
-polylabel@mapbox/polylabel:
+"polylabel@github:mapbox/polylabel":
   version "1.1.0"
-  resolved "https://codeload.github.com/mapbox/polylabel/tar.gz/3be1848a9fe0781372ce44adf9b9d3104d50d52f"
+  resolved "https://codeload.github.com/mapbox/polylabel/tar.gz/983b565ae32668412df47bfb9b05cd80ab705360"
   dependencies:
     tinyqueue "^2.0.3"
 
@@ -15036,10 +15036,10 @@ react-chartkick@^0.4.1:
   dependencies:
     chartkick "^3.2.0"
 
-react-cismap@^1.2.48:
-  version "1.2.48"
-  resolved "https://registry.yarnpkg.com/react-cismap/-/react-cismap-1.2.48.tgz#396b7c5370db11bd46f2a168dd2457fbf93c3656"
-  integrity sha512-IyW4ID935Ed+3DH0WS9SyzYnhKVSVwuUGzApT4nA+Sd/6l18ZdeE3CPNkSfWfW6Jr4dC95lKfRt8paZdFtSQMg==
+react-cismap@^1.2.49:
+  version "1.2.49"
+  resolved "https://registry.yarnpkg.com/react-cismap/-/react-cismap-1.2.49.tgz#508f4961960ccf1ce2880b29222655f80dcfc78b"
+  integrity sha512-njYpXwJEeMzEc/a/nRl0eeNfk/nMhjxjJfUogx6nUqV3/pBlx813KmKNT9lkywxVpalzKcgxOZB/uzkuM62LMg==
   dependencies:
     "@fortawesome/fontawesome-free" "^5.12.0"
     "@fortawesome/fontawesome-svg-core" "^1.2.26"

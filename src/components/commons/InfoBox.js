@@ -295,7 +295,30 @@ const InfoBox = ({ refRoutedMap }) => {
     } else {
     }
     photourls.push(url);
-    captions.push(doc.caption);
+    let openPDFLink;
+    if (doc?.doc && doc?.doc.endsWith(".pdf")) {
+      openPDFLink = (
+        <span style={{ marginLeft: 30 }}>
+          <a
+            href={"https://belis-testapi.cismet.de/secres/" + jwt + "/beliswebdav/" + doc.doc}
+            target='_pdf'
+          >
+            PDF extern öffnen
+          </a>
+        </span>
+      );
+    }
+    captions.push(
+      doc.description ? (
+        <div>
+          {doc.description} ({doc.caption}) {openPDFLink}
+        </div>
+      ) : (
+        <div>
+          {doc.caption} {openPDFLink}
+        </div>
+      )
+    );
   }
 
   return (

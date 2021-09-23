@@ -9,6 +9,7 @@ queries.abzweigdose = `
         }
         dokumenteArray(where: {}) {
         dms_url {
+          descripton
             url {
             object_name
             url_base {
@@ -34,6 +35,7 @@ queries.leitung = `
       id
       dokumenteArray {
         dms_url {
+          descripton
           url {
             object_name
             url_base {
@@ -53,6 +55,7 @@ queries.mauerlasche = `
       bemerkung
       dokumenteArray {
         dms_url {
+          descripton
           url {
             object_name
             url_base {
@@ -85,6 +88,7 @@ queries.schaltstelle = `
       bemerkung
       dokumenteArray {
         dms_url {
+          descripton
           url {
             object_name
             url_base {
@@ -97,6 +101,7 @@ queries.schaltstelle = `
         id
       }
       dms_url {
+        descripton
         url {
           object_name
           url_base {
@@ -139,6 +144,7 @@ tdta_leuchten(where: {tdta_standort_mast: {geom: {geo_field: {_st_intersects: $b
     bemerkungen
     dokumenteArray {
       dms_url {
+        descripton
         url {
           object_name
           url_base {
@@ -194,6 +200,7 @@ tdta_leuchten(where: {tdta_standort_mast: {geom: {geo_field: {_st_intersects: $b
     bemerkungen
     dokumenteArray {
       dms_url {
+        descripton
         url {
           object_name
           url_base {
@@ -238,13 +245,14 @@ tdta_leuchten(where: {tdta_standort_mast: {geom: {geo_field: {_st_intersects: $b
     }
 
 
-    
+
     full_tdta_standort_mast: tdta_standort_mast {
       id
       bemerkungen
       anstrichfarbe
       dokumenteArray {
         dms_url {
+          descripton
           url {
             object_name
             url_base {
@@ -302,6 +310,7 @@ tdta_standort_mast(where: {_and: {_not: {leuchtenArray: {}}}, geom: {geo_field: 
     anstrichfarbe
     dokumenteArray {
       dms_url {
+        descripton
         url {
           object_name
           url_base {

@@ -126,7 +126,11 @@ export const getVCard = (feature) => {
 const addDmsUrl = (docs, dmsUrl, caption) => {
   if (dmsUrl?.url?.object_name) {
     try {
-      docs.push({ caption: caption + " ", doc: dmsUrl.url.object_name });
+      docs.push({
+        caption: caption + " ",
+        doc: dmsUrl.url.object_name,
+        description: dmsUrl?.description,
+      });
     } catch (e) {
       console.log("error" + e, dmsUrl);
     }
