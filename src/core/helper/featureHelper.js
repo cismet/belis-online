@@ -144,7 +144,6 @@ export const getVCard = (feature) => {
       // }
 
       const title = "S-" + item?.id;
-      console.log("item", item);
 
       const l =
         item?.fk_strassenschluessel?.strasse !== undefined
