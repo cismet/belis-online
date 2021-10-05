@@ -26,13 +26,13 @@ const SideBarListElement = ({ feature, selected }) => {
       >
         <div>
           <span style={{ float: "left" }}>
-            <b>{vcard.title}</b>
+            <b>{vcard.list.main}</b>
           </span>
-          <span style={{ float: "right" }}>{vcard.location}</span>
+          <span style={{ float: "right" }}>{vcard.list.upperright}</span>
         </div>
         <br />
         <div style={{ position: "relative", bottom: "0px", textAlign: "left" }}>
-          {vcard.subtitle}
+          {vcard.list.subtitle}
         </div>
       </ListGroup.Item>
     </>

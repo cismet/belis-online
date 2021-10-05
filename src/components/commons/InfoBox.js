@@ -29,6 +29,7 @@ import { getJWT } from "../../core/store/slices/auth";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 // import { faFilePdf } from "@fortawesome/free-solid-svg-icons";
 import { faFilePdf } from "@fortawesome/free-regular-svg-icons";
+import Button from "react-bootstrap/Button";
 
 //---
 
@@ -59,7 +60,7 @@ const InfoBox = ({ refRoutedMap }) => {
   let [lightBoxIndex, setLightBoxIndex] = useState(0);
 
   // const lightBoxDispatchContext = useContext(LightBoxDispatchContext);
-
+  const pixelwidth = 350;
   useEffect(() => {
     setLightBoxIndex(0);
   }, [selectedFeature]);
@@ -151,10 +152,32 @@ const InfoBox = ({ refRoutedMap }) => {
         href='#'
       />
     );
-    header = <span>{vcard?.title || config.header}</span>;
-    title = vcard?.title;
-    subtitle = vcard?.subtitle;
-    additionalInfo = vcard?.location;
+    // links.push(
+    //   <IconLink
+    //     key={`addPhot`}
+    //     tooltip={"Foto hinzufügen"}
+    //     onClick={() => {
+    //       dispatch(setSecondaryInfoVisible(!secondaryInfoVisible));
+    //     }}
+    //     iconname={"camera"}
+    //     href='#'
+    //   />
+    // );
+    // links.push(
+    //   <IconLink
+    //     key={`addPhot`}
+    //     tooltip={"Störung melden"}
+    //     onClick={() => {
+    //       dispatch(setSecondaryInfoVisible(!secondaryInfoVisible));
+    //     }}
+    //     iconname={"exclamation-triangle"}
+    //     href='#'
+    //   />
+    // );
+    header = <span>{vcard?.infobox?.header || config.header}</span>;
+    title = vcard?.infobox?.title;
+    subtitle = vcard?.infobox?.subtitle;
+    additionalInfo = vcard?.infobox?.more;
   }
 
   let llVis = (
@@ -221,7 +244,13 @@ const InfoBox = ({ refRoutedMap }) => {
                   <b>{title}</b>
                 </h5>
               </td>
-              <td style={{ textAlign: "right", paddingRight: 7 }}>{[links]}</td>
+              {minified === true && (
+                <td style={{ textAlign: "right", paddingRight: 7 }}>
+                  {links.map((link, index) => {
+                    return <span style={{ paddingLeft: index > 0 ? 3 : 0 }}>{link}</span>;
+                  })}
+                </td>
+              )}
             </tr>
           </tbody>
         </table>
@@ -339,7 +368,7 @@ const InfoBox = ({ refRoutedMap }) => {
         }}
       />
       <ResponsiveInfoBox
-        pixelwidth={350}
+        pixelwidth={pixelwidth}
         header={llVis}
         mode={MODES.AB}
         collapsedInfoBox={minified}
@@ -351,6 +380,36 @@ const InfoBox = ({ refRoutedMap }) => {
         divWhenLarge={divWhenLarge}
         fixedRow={true}
         secondaryInfoBoxElements={[
+          minified === false ? (
+            <div
+              style={{
+                width: pixelwidth,
+                background_: "red",
+                display: "flex",
+                justifyContent: "space-between",
+                paddingBottom: 5,
+              }}
+            >
+              {links.map((link, index) => {
+                return (
+                  <Button
+                    style={{
+                      opacity: 0.7,
+                      marginLeft: index === 0 ? 0 : 5,
+                      marginRight: index === links.length - 1 ? 0 : 5,
+                      width: "100%",
+                    }}
+                    size='lg'
+                    variant='light'
+                  >
+                    {link}
+                  </Button>
+                );
+              })}
+            </div>
+          ) : (
+            <div />
+          ),
           photourls?.length > 0 ? (
             <div style={{ position: "relative" }}>
               {selectedFeature.properties.docs[0].doc.endsWith(".pdf") && (

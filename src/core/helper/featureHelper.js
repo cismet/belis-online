@@ -42,7 +42,8 @@ const calcLength = (geom) => {
 };
 
 export const getVCard = (feature) => {
-  const vcard = {};
+  const vcard = { list: {}, infobox: {} };
+
   const item = feature.properties;
   switch (feature.featuretype) {
     case "tdta_leuchten":
@@ -51,12 +52,35 @@ export const getVCard = (feature) => {
       const nrPart = "-" + (item?.leuchtennummer !== undefined ? item?.leuchtennummer : "0");
       const standortPart =
         item?.fk_standort?.lfd_nummer !== undefined ? ", " + item?.fk_standort?.lfd_nummer : "";
-      vcard["title"] = typPart.concat(nrPart, standortPart);
-      vcard["subtitle"] =
+
+      // Infobox
+      const mastinfo = [];
+
+      const mastart = item?.fk_standort?.mastart?.mastart;
+      const masttyp = item?.fk_standort?.masttyp?.masttyp;
+
+      if (mastart) {
+        mastinfo.push(mastart);
+      }
+      if (masttyp) {
+        mastinfo.push(masttyp);
+      }
+
+      vcard.infobox.header = item?.fk_leuchttyp?.fabrikat || "Leuchte ohne Fabrikat";
+      if (mastinfo.length > 0) {
+        vcard.infobox.header += "  (" + mastinfo.join(" - ") + ")";
+      }
+      vcard.infobox.title = typPart.concat(nrPart, standortPart);
+      vcard.infobox.subtitle = item?.fk_strassenschluessel?.strasse;
+      vcard.infobox.more = "";
+      // List
+      vcard.list.main = typPart.concat(nrPart, standortPart);
+      vcard.list.upperright = item?.fk_strassenschluessel?.strasse;
+      vcard.list.subtitle =
         item?.fk_leuchttyp?.fabrikat !== undefined
           ? item?.fk_leuchttyp?.fabrikat
           : "-ohne Fabrikat-";
-      vcard["location"] = item?.fk_strassenschluessel?.strasse;
+
       break;
     case "Leitung":
     case "leitung":
@@ -69,54 +93,110 @@ export const getVCard = (feature) => {
         item?.fk_querschnitt?.groesse !== undefined
           ? ", " + item?.fk_querschnitt?.groesse + "mm²"
           : "";
-      vcard["title"] =
+
+      // Infobox
+      vcard.infobox.header =
         item?.fk_leitungstyp?.bezeichnung !== undefined
           ? item?.fk_leitungstyp?.bezeichnung
           : "Leitung";
-      vcard["subtitle"] = laengePart + aPart;
-      vcard["location"] = feature.id;
+      vcard.infobox.title = "L-" + item.id;
+      vcard.infobox.subtitle = laengePart + aPart;
+      vcard.infobox.more = undefined;
+
+      // List
+      vcard.list.main = "L-" + item.id;
+
+      vcard.list.upperright = laengePart + aPart;
+      vcard.list.subtitle =
+        item?.fk_leitungstyp?.bezeichnung !== undefined
+          ? item?.fk_leitungstyp?.bezeichnung
+          : "Leitung";
+
       break;
-    case "mauerlasche":
-      vcard["title"] = "M-" + item.laufende_nummer;
-      vcard["subtitle"] =
+    case "mauerlasche": {
+      const location =
+        item?.fk_strassenschluessel?.strasse !== undefined
+          ? item?.fk_strassenschluessel?.strasse
+          : "-";
+      // Infobox
+      vcard.infobox.header =
         item?.fk_material?.bezeichnung !== undefined
           ? item?.fk_material?.bezeichnung
           : "Mauerlasche";
-      vcard["location"] =
-        item?.fk_strassenschluessel?.strasse !== undefined
-          ? item?.fk_strassenschluessel?.strasse
-          : "-";
+      vcard.infobox.title = "M-" + item.laufende_nummer;
+      vcard.infobox.subtitle = location;
+      vcard.infobox.more = undefined;
+
+      // List
+      vcard.list.main = "M-" + item.laufende_nummer;
+      vcard.list.upperright = location;
+      vcard.list.subtitle = vcard.infobox.header;
+
       break;
-    case "schaltstelle":
-      let title =
+    }
+
+    case "schaltstelle": {
+      let header =
         item?.fk_bauart?.bezeichnung !== undefined ? item?.fk_bauart?.bezeichnung : "Schaltstelle";
 
-      if (item?.schaltstellen_nummer !== undefined) {
-        title = title.concat(" - ", item?.schaltstellen_nummer);
-      }
+      // if (item?.schaltstellen_nummer !== undefined) {
+      //   title = title.concat(" - ", item?.schaltstellen_nummer);
+      // }
 
-      vcard["title"] = title;
-      vcard["subtitle"] = "-";
-      vcard["location"] =
+      const title = "S-" + item?.id;
+      console.log("item", item);
+
+      const l =
         item?.fk_strassenschluessel?.strasse !== undefined
           ? item?.fk_strassenschluessel?.strasse
           : "-";
+      // Infobox
+      vcard.infobox.header = header;
+      vcard.infobox.title = title;
+      vcard.infobox.subtitle = l;
+      vcard.infobox.more = undefined;
+
+      // List
+      vcard.list.main = title;
+      vcard.list.upperright = l;
+      vcard.list.subtitle = header;
+
       break;
-    case "abzweigdose":
-      vcard["title"] = "AZD " + item.id;
-      vcard["subtitle"] = "Abzweigdose";
-      vcard["location"] = "";
+    }
+    case "abzweigdose": {
+      // Infobox
+      vcard.infobox.header = "Abzweigdose";
+      vcard.infobox.title = "AZD-" + item.id;
+      vcard.infobox.subtitle = undefined;
+      vcard.infobox.more = undefined;
+      // List
+      vcard.list.main = "AZD-" + item.id;
+      vcard.list.upperright = undefined;
+      vcard.list.subtitle = "Abzweigdose";
+
       break;
-    case "tdta_standort_mast":
+    }
+    case "tdta_standort_mast": {
       const mastStandortPart = item?.lfd_nummer !== undefined ? item?.lfd_nummer : "";
-      vcard["title"] = "Mast - " + mastStandortPart;
-      vcard["subtitle"] =
-        item?.fk_mastart?.mastart !== undefined ? item?.fk_mastart?.mastart : "-ohne Mastart-";
-      vcard["location"] =
+      const title = "Mast - " + mastStandortPart;
+
+      const location =
         item?.fk_strassenschluessel?.strasse !== undefined
           ? item?.fk_strassenschluessel?.strasse
           : "-";
+      // Infobox
+      vcard.infobox.header =
+        item?.fk_mastart?.mastart !== undefined ? item?.fk_mastart?.mastart : "Mast ohne Mastart";
+      vcard.infobox.title = title;
+      vcard.infobox.subtitle = location;
+
+      // List
+      vcard.list.main = title;
+      vcard.list.upperright = location;
+      vcard.list.subtitle =
+        item?.fk_mastart?.mastart !== undefined ? item?.fk_mastart?.mastart : "-ohne Mastart-";
       break;
+    }
     default:
   }
 
