@@ -12,9 +12,12 @@ const slice = createSlice({
       return state;
     },
     storeLogin(state, action) {
-      console.log("yyy store login", action);
       state.login = action.payload;
       localStorage.setItem(LOCALSTORAGE_KEY, JSON.stringify(state));
+      return state;
+    },
+    showDialog(state, action) {
+      state.dialog = action.payload;
       return state;
     },
   },

@@ -12,12 +12,12 @@ import TopNavbar from "./TopNavbar";
 import SideBar from "./SideBar";
 import LoginForm from "../components/app/LoginForm";
 import { getJWT } from "../core/store/slices/auth";
+import { getDialog } from "../core/store/slices/app";
 import { useHistory, useLocation } from "react-router-dom/cjs/react-router-dom.min";
 import { modifyQueryPart } from "../core/commons/routingHelper";
 import Menu from "../components/app/menu/Menu";
 import { UIDispatchContext } from "react-cismap/contexts/UIContextProvider";
 import ResponsiveTopicMapContextProvider from "react-cismap/contexts/ResponsiveTopicMapContextProvider";
-
 //---
 
 const View = () => {
@@ -52,6 +52,8 @@ const View = () => {
 
   const fcIsDone = useSelector(isDone);
   const fcIsDoneRef = useRef(fcIsDone);
+
+  const appDialog = useSelector(getDialog);
 
   const connectionMode = useSelector(getConnectionMode);
   const browserlocation = useLocation();
@@ -106,6 +108,7 @@ const View = () => {
         }}
         jwt={jwt}
       />
+      {appDialog}
 
       {showLogin && loginForm}
       <TopNavbar

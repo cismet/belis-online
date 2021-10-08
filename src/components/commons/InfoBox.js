@@ -26,10 +26,12 @@ import PhotoLightBox from "react-cismap/topicmaps/PhotoLightbox";
 import { useEffect } from "react";
 import { useState } from "react";
 import { getJWT } from "../../core/store/slices/auth";
+import { showDialog } from "../../core/store/slices/app";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 // import { faFilePdf } from "@fortawesome/free-solid-svg-icons";
 import { faFilePdf } from "@fortawesome/free-regular-svg-icons";
 import Button from "react-bootstrap/Button";
+import AddImageDialog from "../app/dialogs/AddImage";
 
 //---
 
@@ -152,17 +154,30 @@ const InfoBox = ({ refRoutedMap }) => {
         href='#'
       />
     );
-    // links.push(
-    //   <IconLink
-    //     key={`addPhot`}
-    //     tooltip={"Foto hinzufügen"}
-    //     onClick={() => {
-    //       dispatch(setSecondaryInfoVisible(!secondaryInfoVisible));
-    //     }}
-    //     iconname={"camera"}
-    //     href='#'
-    //   />
-    // );
+    links.push(
+      // <input accept='image/*' id='icon-button-file' type='file' capture='environment' />
+      <IconLink
+        key={`addPhoto`}
+        tooltip={"Foto hinzufügen"}
+        onClick={() => {
+          dispatch(
+            showDialog(
+              <AddImageDialog
+                close={() => {
+                  dispatch(showDialog());
+                }}
+                input={{ selectedFeature, vcard }}
+                onClose={(output) => {
+                  console.log("add Photo output", output);
+                }}
+              />
+            )
+          );
+        }}
+        iconname={"camera"}
+        href='#'
+      />
+    );
     // links.push(
     //   <IconLink
     //     key={`addPhot`}
@@ -354,7 +369,7 @@ const InfoBox = ({ refRoutedMap }) => {
     <div>
       <PhotoLightBox
         defaultContextValues={{
-          title: vcard?.title,
+          title: vcard?.infobox?.title,
           photourls,
           captions,
           index: lightBoxIndex,
