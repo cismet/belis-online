@@ -16,10 +16,6 @@ const slice = createSlice({
       localStorage.setItem(LOCALSTORAGE_KEY, JSON.stringify(state));
       return state;
     },
-    showDialog(state, action) {
-      state.dialog = action.payload;
-      return state;
-    },
   },
 });
 
