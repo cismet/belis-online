@@ -109,65 +109,32 @@ export const InfoPanelComponent = ({ selectedFeature, dispatch }) => {
     };
     let rawDataDesc = "Rohdaten ";
     const item = hit.properties;
-    let subSections, mainSection, title;
+    let subSections = [],
+      mainSection = <div />,
+      title = "Info";
     switch (hit.featuretype) {
       case "tdta_leuchten":
-        ({ subSections, mainSection, title } = getLayout4Leuchte({ feature: hit, jwt }));
+        // ({ subSections, mainSection, title } = getLayout4Leuchte({ feature: hit, jwt }));
         rawDataDesc += "der Leuchte";
         break;
       case "Leitung":
       case "leitung":
-        subSections.push(
-          <SecondaryInfoPanelSection
-            key={"leuchten" + hit.id}
-            bsStyle='success'
-            header={"Leuchten"}
-          ></SecondaryInfoPanelSection>
-        );
         rawDataDesc += "der Leitung";
 
         break;
       case "mauerlasche":
-        subSections.push(
-          <SecondaryInfoPanelSection
-            key={"leuchten" + hit.id}
-            bsStyle='success'
-            header={"Leuchten"}
-          ></SecondaryInfoPanelSection>
-        );
         rawDataDesc += "der Mauerlasche";
 
         break;
       case "schaltstelle":
-        subSections.push(
-          <SecondaryInfoPanelSection
-            key={"leuchten" + hit.id}
-            bsStyle='success'
-            header={"Leuchten"}
-          ></SecondaryInfoPanelSection>
-        );
         rawDataDesc += "der Schaltstelle";
 
         break;
       case "abzweigdose":
-        subSections.push(
-          <SecondaryInfoPanelSection
-            key={"leuchten" + hit.id}
-            bsStyle='success'
-            header={"Leuchten"}
-          ></SecondaryInfoPanelSection>
-        );
         rawDataDesc += "der Abzweigdose";
 
         break;
       case "tdta_standort_mast":
-        subSections.push(
-          <SecondaryInfoPanelSection
-            key={"leuchten" + hit.id}
-            bsStyle='success'
-            header={"Leuchten"}
-          ></SecondaryInfoPanelSection>
-        );
         rawDataDesc += "des Masts/Standorts";
 
         break;

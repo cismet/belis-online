@@ -144,17 +144,17 @@ const InfoBox = ({ refRoutedMap }) => {
         return false;
       },
     });
-    // links.push(
-    //   <IconLink
-    //     key={`openInfo`}
-    //     tooltip={"Öffne Datenblatt"}
-    //     onClick={() => {
-    //       dispatch(setSecondaryInfoVisible(!secondaryInfoVisible));
-    //     }}
-    //     iconname={"info"}
-    //     href='#'
-    //   />
-    // );
+    links.push(
+      <IconLink
+        key={`openInfo`}
+        tooltip={"Öffne Datenblatt"}
+        onClick={() => {
+          dispatch(setSecondaryInfoVisible(!secondaryInfoVisible));
+        }}
+        iconname={"info"}
+        href='#'
+      />
+    );
 
     // links.push(
     //   // <input accept='image/*' id='icon-button-file' type='file' capture='environment' />
