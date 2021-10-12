@@ -69,8 +69,8 @@ const getSeparator = (name) => {
 
 const InfoPanel = () => {
   const dispatch = useDispatch();
-  // const selectedFeature = useSelector(getSelectedFeature, dispatch);
-  const selectedFeature = leuchteMitAllenAttributen;
+  const selectedFeature = useSelector(getSelectedFeature, dispatch);
+  // const selectedFeature = leuchteMitAllenAttributen;
   return <InfoPanelComponent selectedFeature={selectedFeature} dispatch={dispatch} />;
 };
 
