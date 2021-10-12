@@ -13,3 +13,8 @@ export const backgrounds = {
 
 // export const REST_SERVICE = "http://bender:8890";
 export const REST_SERVICE = "https://belis-testapi.cismet.de";
+export const getWebDavUrl = (jwt, doc) => {
+  return REST_SERVICE + "/secres/" + jwt + "/beliswebdav/" + doc.doc;
+};
+
+export const DOMAIN = "BELIS2-TEST";

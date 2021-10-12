@@ -9,52 +9,15 @@ import {
 } from "../../../core/store/slices/featureCollection";
 import { useDispatch, useSelector } from "react-redux";
 import { getVCard } from "../../../core/helper/featureHelper";
-import FeatureInfoTitle from "./FeatureInfoTitle";
-import FeatureInfoValue from "./FeatureInfoValue";
+import { getSecondaryInfo } from "../../../core/helper/secondaryInfoHelper";
 // import { getApplicationVersion } from "../version";
 
-const CollComp = ({ header = "Header", bsStyle = "success", content, children }) => {
-  const [expanded, setExpanded] = useState(false);
+import { Descriptions } from "antd";
+import { getDate, getDoppelkommandos } from "./helper";
+import { leuchteMitAllenAttributen } from "./devData";
 
-  if (expanded) {
-    return (
-      <div
-        onClick={() => {
-          setExpanded(false);
-        }}
-      >
-        <div style={{ fontWeight: "bold", cursor: "pointer" }}>{"v " + header}</div>
-        <div style={{ paddingLeft: "5px" }}>{content || children}</div>
-      </div>
-    );
-  } else {
-    return (
-      <div
-        onClick={() => {
-          setExpanded(true);
-        }}
-        style={{ fontWeight: "bold", cursor: "pointer" }}
-      >
-        {"> " + header}
-      </div>
-    );
-  }
-};
-
-const objectifyHits = (hits) => {
-  const hitObject = {};
-
-  if (hits) {
-    for (const hit of hits) {
-      if (hitObject[hit.featuretype]) {
-        hitObject[hit.featuretype].push(hit);
-      } else {
-        hitObject[hit.featuretype] = [hit];
-      }
-    }
-  }
-  return hitObject;
-};
+import getLayout4Leuchte from "./components/Leuchte";
+import { getJWT } from "../../../core/store/slices/auth";
 
 const footer = (
   <div style={{ fontSize: "11px" }}>
@@ -83,121 +46,6 @@ const footer = (
   </div>
 );
 
-const FeatureInfoTitleValue = ({ title, value }) => {
-  if (value !== undefined) {
-    return (
-      <div>
-        <FeatureInfoTitle
-          style={{ display: "inline", paddingRight: "5px", fontWeight: "bold" }}
-          title={title}
-        />
-        <FeatureInfoValue style={{ display: "inline" }} value={value} />
-      </div>
-    );
-  } else {
-    return <div />;
-  }
-};
-
-const getStandortMast = (strasse, mast) => {
-  if (mast.haus_nr === undefined) {
-    return (
-      <CollComp header='Straße' bsStyle='def'>
-        <FeatureInfoTitleValue title='Straße' value={strasse.strasse} />
-        <FeatureInfoTitleValue title='Schlüssel' value={strasse?.pk} />
-        <FeatureInfoTitleValue title='Stadtbezirk' value={mast.stadtbezirk.bezirk} />
-        <FeatureInfoTitleValue title='Standortangabe' value={mast?.standortangabe} />
-      </CollComp>
-    );
-  } else {
-    return (
-      <CollComp header='Straße/Hausnummer' bsStyle='def'>
-        <FeatureInfoTitleValue
-          title='Straße Hausnummer'
-          value={strasse.strasse + " " + mast.haus_nr}
-        />
-        <FeatureInfoTitleValue title='Schlüssel' value={strasse?.pk} />
-        <FeatureInfoTitleValue title='Stadtbezirk' value={mast.stadtbezirk.bezirk} />
-        <FeatureInfoTitleValue title='Standortangabe' value={mast?.standortangabe} />
-      </CollComp>
-    );
-  }
-};
-
-const getMast = (mast) => {
-  return (
-    <CollComp header='Mast'>
-      <FeatureInfoTitleValue title='Masttyp' value={mast?.masttyp?.masttyp} />
-      <FeatureInfoTitleValue
-        title='Klassifizierung'
-        value={mast?.klassifizierung?.klassifizierung}
-      />
-      <FeatureInfoTitleValue title='Anlagengruppe' value={mast?.anlagengruppeObject?.bezeichnung} />
-      <FeatureInfoTitleValue
-        title='Unterhalt'
-        value={mast?.unterhaltspflicht_mast?.unterhalt_mast}
-      />
-      <FeatureInfoTitleValue title='Mastschutz erneuert am' value={mast.mastschutz} />
-      <FeatureInfoTitleValue title='Inbetriebnahme am' value={getDate(mast.inbetriebnahme_mast)} />
-      <FeatureInfoTitleValue title='letzter Mastanstrich am' value={getDate(mast.mastanstrich)} />
-      <FeatureInfoTitleValue title='Montagefirma' value={mast.montagefirma} />
-      {mast.verrechnungseinheit && <FeatureInfoValue value='Verrechnungseinheit' />}
-      <FeatureInfoTitle title='Developerinfo' />
-      <FeatureInfoTitle title='Key' />
-      <FeatureInfoValue value={"tdta_standort_mast/" + mast.id} />
-    </CollComp>
-  );
-};
-
-const getLeuchtmittel = (leuchte) => {
-  return (
-    <CollComp header='Leuchtmittel'>
-      <FeatureInfoTitleValue title='Masttyp' value={leuchte?.masttyp?.masttyp} />
-      <FeatureInfoTitleValue
-        title='Klassifizierung'
-        value={leuchte?.klassifizierung?.klassifizierung}
-      />
-    </CollComp>
-  );
-};
-
-const getStrasse = (strasse) => {
-  return (
-    <CollComp header='Straße'>
-      <FeatureInfoTitleValue title='Strasse' value={strasse?.strasse} />
-      <FeatureInfoTitleValue title='Schlüssel' value={strasse?.pk} />
-    </CollComp>
-  );
-};
-
-const getDoppelkommandos = (
-  anschlussleistung1,
-  anzahlDk1,
-  dk,
-  anschlussleistung2,
-  anzahlDk2,
-  dk2
-) => {
-  return (
-    <CollComp header='Doppelkommandos'>
-      <FeatureInfoTitleValue title='Doppelkommando 1' value={dk?.pk} />
-      <FeatureInfoTitleValue title='Anzahl Doppelkommando 1' value={anzahlDk1} />
-      <FeatureInfoTitleValue title='Anschlussleistung DK 1' value={anschlussleistung1} />
-      <FeatureInfoTitleValue title='Doppelkommando 2' value={dk2?.pk} />
-      <FeatureInfoTitleValue title='Anzahl Doppelkommando 2' value={anzahlDk2} />
-      <FeatureInfoTitleValue title='Anschlussleistung DK 2' value={anschlussleistung2} />
-    </CollComp>
-  );
-};
-
-const getDate = (d) => {
-  if (d !== undefined) {
-    return new Date(Date.parse(d)).toLocaleDateString();
-  } else {
-    return "";
-  }
-};
-
 const getSeparator = (name) => {
   return (
     <div
@@ -221,27 +69,23 @@ const getSeparator = (name) => {
 
 const InfoPanel = () => {
   const dispatch = useDispatch();
-  const selectedFeature = useSelector(getSelectedFeature);
+  // const selectedFeature = useSelector(getSelectedFeature, dispatch);
+  const selectedFeature = leuchteMitAllenAttributen;
+  return <InfoPanelComponent selectedFeature={selectedFeature} dispatch={dispatch} />;
+};
+
+export const InfoPanelComponent = ({ selectedFeature, dispatch }) => {
   const hit = JSON.parse(JSON.stringify(selectedFeature));
+  const jwt = useSelector(getJWT);
 
   //remove geometry and feature reference
-  delete hit.geometry;
-  delete hit.properties.feature;
-
-  const hits = [hit];
-  //    const { history } = useContext(TopicMapContext);
-  //    const lat = new URLSearchParams(history.location.search).get("lat");
-  //    const long = new URLSearchParams(history.location.search).get("lng");
-  const lat = 51;
-  const long = 7;
-  //   const showRawData = new URLSearchParams(history.location.search).get("showRawData") !== null;
+  try {
+    delete hit.geometry;
+    delete hit.properties.feature;
+  } catch (e) {}
   const showRawData = true;
 
-  //   const hitObject = objectifyHits(hits);
-
   if (hit !== undefined) {
-    const subSections = [];
-
     const display = (desc, value, valFunc) => {
       if (value && valFunc === undefined && Array.isArray(value) === false) {
         return (
@@ -263,214 +107,90 @@ const InfoPanel = () => {
         );
       }
     };
-
-    const hitObject = objectifyHits(hits);
-
-    if (hits !== undefined) {
-      if (hitObject.tdta_leuchten) {
+    let rawDataDesc = "Rohdaten ";
+    const item = hit.properties;
+    let subSections, mainSection, title;
+    switch (hit.featuretype) {
+      case "tdta_leuchten":
+        ({ subSections, mainSection, title } = getLayout4Leuchte({ feature: hit, jwt }));
+        rawDataDesc += "der Leuchte";
+        break;
+      case "Leitung":
+      case "leitung":
         subSections.push(
           <SecondaryInfoPanelSection
-            key={"leuchten" + hitObject.id}
+            key={"leuchten" + hit.id}
             bsStyle='success'
             header={"Leuchten"}
-          >
-            {hitObject.tdta_leuchten &&
-              hitObject.tdta_leuchten.map((value, index) => {
-                let vCard = getVCard(value);
-                return (
-                  <div key={"leuchte_" + index}>
-                    {index > 0 && <br></br>}
-                    <FeatureInfoTitle title={vCard.subtitle} />
-                    <FeatureInfoTitleValue
-                      title='Inbetriebnahme'
-                      value={getDate(value.inbetriebnahme_leuchte)}
-                    />
-                    {value.fk_standort !== undefined &&
-                      getStandortMast(value.fk_strassenschluessel, value.fk_standort)}
-                    {value.fk_standort !== undefined && getMast(value.fk_standort)}
-                    <FeatureInfoTitleValue
-                      title='Energielieferant'
-                      value={value.energielieferant}
-                    />
-                    <FeatureInfoTitleValue
-                      title='Rundsteuerempfänger'
-                      value={value.rundsteuerempfänger}
-                    />
-                    <FeatureInfoTitleValue title='Unterhalt' value={value.energielieferant} />
-                    <FeatureInfoValue
-                      value={value.zaehler === true ? "Zähler vorhanden" : "kein Zähler vorhanden"}
-                    />
-                    {value.anzahl_1dk !== undefined &&
-                      getDoppelkommandos(
-                        value.anschlussleistung_1dk,
-                        value.anzahl_1dk,
-                        value.fk_dk1,
-                        value.anschlussleistung_2dk,
-                        value.anzahl_2dk,
-                        value.fk_dk2
-                      )}
-                    {(value.masttyp?.masttyp !== undefined ||
-                      value.klassifizierung?.klassifizierung) &&
-                      getLeuchtmittel(value)}
-                    <FeatureInfoTitleValue
-                      title='Montagefirma'
-                      value={value.montagefirma_leuchte}
-                    />
-                    <FeatureInfoTitleValue title='Bemerkungen' value={value.bemerkungen} />
-                    {/* todo: Dokumente */}
-                    <FeatureInfoTitleValue
-                      title='Developerinfo'
-                      value={"TDTA_LEUCHTEN/" + value.id}
-                    />
-                    <br />
-                  </div>
-                );
-              })}
-          </SecondaryInfoPanelSection>
+          ></SecondaryInfoPanelSection>
         );
-      }
+        rawDataDesc += "der Leitung";
 
-      if (hitObject.mauerlasche) {
+        break;
+      case "mauerlasche":
         subSections.push(
           <SecondaryInfoPanelSection
-            key={"mauerlasche" + hitObject.id}
+            key={"leuchten" + hit.id}
             bsStyle='success'
-            header={"Mauerlaschen"}
-          >
-            {hitObject.mauerlasche &&
-              hitObject.mauerlasche.map((value, index) => {
-                let vCard = getVCard(value);
-                return (
-                  <div key={"mauerlasche_" + index}>
-                    {index > 0 && <br></br>}
-                    <FeatureInfoValue value={vCard.title} />
-                    <FeatureInfoTitleValue
-                      title='Straße'
-                      value={value?.fk_strassenschluessel?.strasse}
-                    />
-                    <FeatureInfoTitleValue
-                      title='Developerinfo'
-                      value={"MAUERLASCHE/" + value.id}
-                    />
-                    <br />
-                  </div>
-                );
-              })}
-          </SecondaryInfoPanelSection>
+            header={"Leuchten"}
+          ></SecondaryInfoPanelSection>
         );
-      }
+        rawDataDesc += "der Mauerlasche";
 
-      if (hitObject.Leitung) {
+        break;
+      case "schaltstelle":
         subSections.push(
           <SecondaryInfoPanelSection
-            key={"leitung" + hitObject.id}
+            key={"leuchten" + hit.id}
             bsStyle='success'
-            header={"Leitungen"}
-          >
-            {hitObject.Leitung &&
-              hitObject.Leitung.map((value, index) => {
-                let vCard = getVCard(value);
-                return (
-                  <div key={"leitung_" + index}>
-                    {index > 0 && <br></br>}
-                    <FeatureInfoValue value={vCard.title} />
-                    <FeatureInfoTitleValue
-                      title='Material'
-                      value={value.fk_material === undefined ? "-" : value.fk_material.bezeichnung}
-                    />
-                    <FeatureInfoTitleValue
-                      title='Querschnitt'
-                      value={value?.fk_querschnitt?.groesse}
-                    />
-                    <FeatureInfoTitleValue title='Developerinfo' value={"LEITUNG/" + value.id} />
-                    <br />
-                  </div>
-                );
-              })}
-          </SecondaryInfoPanelSection>
+            header={"Leuchten"}
+          ></SecondaryInfoPanelSection>
         );
-      }
+        rawDataDesc += "der Schaltstelle";
 
-      if (hitObject.schaltstelle) {
+        break;
+      case "abzweigdose":
         subSections.push(
           <SecondaryInfoPanelSection
-            key={"schaltstelle" + hitObject.id}
+            key={"leuchten" + hit.id}
             bsStyle='success'
-            header={"Schaltstellen"}
-          >
-            {hitObject.schaltstelle &&
-              hitObject.schaltstelle.map((value, index) => {
-                let vCard = getVCard(value);
-                return (
-                  <div key={"schaltstelle_" + index}>
-                    {index > 0 && <br></br>}
-                    <FeatureInfoValue value={vCard.title} />
-                    {value?.fk_strassenschluessel !== undefined &&
-                      getStrasse(value.fk_strassenschluessel)}
-                    <FeatureInfoTitleValue
-                      title='Developerinfo'
-                      value={"SCHALTSTELLE/" + value.id}
-                    />
-                    <br />
-                  </div>
-                );
-              })}
-          </SecondaryInfoPanelSection>
+            header={"Leuchten"}
+          ></SecondaryInfoPanelSection>
         );
-      }
+        rawDataDesc += "der Abzweigdose";
 
-      if (hitObject.schaltstelle) {
+        break;
+      case "tdta_standort_mast":
         subSections.push(
           <SecondaryInfoPanelSection
-            key={"schaltstelle" + hitObject.id}
+            key={"leuchten" + hit.id}
             bsStyle='success'
-            header={"Schaltstellen"}
-          >
-            {hitObject.schaltstelle &&
-              hitObject.schaltstelle.map((value, index) => {
-                let vCard = getVCard(value);
-                return (
-                  <div key={"schaltstelle_" + index}>
-                    {index > 0 && <br></br>}
-                    <FeatureInfoValue value={vCard.title} />
-                    {value?.fk_strassenschluessel !== undefined &&
-                      getStrasse(value.fk_strassenschluessel)}
-                    <FeatureInfoTitleValue
-                      title='Developerinfo'
-                      value={"SCHALTSTELLE/" + value.id}
-                    />
-                    <br />
-                  </div>
-                );
-              })}
-          </SecondaryInfoPanelSection>
+            header={"Leuchten"}
+          ></SecondaryInfoPanelSection>
         );
-      }
+        rawDataDesc += "des Masts/Standorts";
 
-      if (showRawData) {
-        //remove the geometries
-        const hitsForRawDisplay = JSON.parse(JSON.stringify(hits));
-
-        for (const hit of hitsForRawDisplay) {
-          delete hit.geojson;
-        }
-
-        const hitObjectForRawDisplay = objectifyHits(hitsForRawDisplay);
-
-        subSections.push(
-          <SecondaryInfoPanelSection
-            key='standort'
-            bsStyle='info'
-            header={"Trefferobjekte (Raw Data ohne Geometrie): " + hits.length + " Treffer"}
-          >
-            <div style={{ fontSize: "115%", padding: "10px", paddingTop: "0px" }}>
-              <pre key='hitObject'>{JSON.stringify(hitObjectForRawDisplay, null, 2)}</pre>
-              {/* <pre key='hits'>{JSON.stringify(hitsForRawDisplay, null, 2)}</pre> */}
-            </div>
-          </SecondaryInfoPanelSection>
-        );
-      }
+        break;
+      default:
     }
+
+    if (showRawData) {
+      //remove the geometries
+      const hitForRawDisplay = JSON.parse(JSON.stringify(hit.properties));
+
+      delete hitForRawDisplay.geojson;
+      delete hitForRawDisplay.full_tdta_standort_mast;
+
+      subSections.push(
+        <SecondaryInfoPanelSection key='standort' bsStyle='light' header={rawDataDesc}>
+          <div style={{ fontSize: "115%", padding: "10px", paddingTop: "0px" }}>
+            <pre key='hitObject'>{JSON.stringify(hitForRawDisplay, null, 2)}</pre>
+            {/* <pre key='hits'>{JSON.stringify(hitsForRawDisplay, null, 2)}</pre> */}
+          </div>
+        </SecondaryInfoPanelSection>
+      );
+    }
+
     return (
       <SecondaryInfo
         visible={true}
@@ -478,28 +198,9 @@ const InfoPanel = () => {
           dispatch(setSecondaryInfoVisible(state));
         }}
         titleIconName='info-circle'
-        title={
-          "Datenblatt zu: " +
-          Math.round(lat * 10000) / 10000 +
-          ", " +
-          Math.round(long * 1000) / 1000
-        }
+        title={title}
         mainSection={
-          <div style={{ fontSize: "115%", padding: "10px", paddingTop: "0px" }}>
-            <div>
-              Die Suche an der angegebene Position hat insgesamt {hits.length} Treffer ergeben:
-              {display("Bezeichnung", hits?.bezeichnung)}
-              {display("Flächengröße", hits?.groesse, (a) => (
-                <span>
-                  {a.toLocaleString()} m² (circa{" "}
-                  {(Math.round((a / 10000) * 10) / 10).toLocaleString()} ha)
-                </span>
-              ))}
-              {display("Stadtbezirk(e)", hits?.stadtbezirke, (sb) => sb.join(", "))}
-              {display("Quartier(e)", hits?.quartiere, (q) => q.join(", "))}
-              {display("Eigentümer", hits?.eigentuemer, (e) => e.join(", "))}
-            </div>
-          </div>
+          <div style={{ fontSize: "115%", padding: "10px", paddingTop: "0px" }}>{mainSection}</div>
         }
         subSections={subSections}
         footer={footer}

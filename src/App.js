@@ -8,8 +8,6 @@ import { Provider } from "react-redux";
 import store from "./core/store";
 import "antd/dist/antd.css";
 
-console.log();
-
 function App() {
   return (
     <Provider store={store}>
@@ -33,9 +31,5 @@ function App() {
     </Provider>
   );
 }
-const Home = () => (
-  <div>
-    <h2>Home</h2>
-  </div>
-);
+
 export default App;

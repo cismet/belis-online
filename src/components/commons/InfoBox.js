@@ -32,6 +32,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFilePdf } from "@fortawesome/free-regular-svg-icons";
 import Button from "react-bootstrap/Button";
 import AddImageDialog from "../app/dialogs/AddImage";
+import { getWebDavUrl } from "../../constants/belis";
 
 //---
 
@@ -143,41 +144,43 @@ const InfoBox = ({ refRoutedMap }) => {
         return false;
       },
     });
-    links.push(
-      <IconLink
-        key={`openInfo`}
-        tooltip={"Öffne Datenblatt"}
-        onClick={() => {
-          dispatch(setSecondaryInfoVisible(!secondaryInfoVisible));
-        }}
-        iconname={"info"}
-        href='#'
-      />
-    );
-    links.push(
-      // <input accept='image/*' id='icon-button-file' type='file' capture='environment' />
-      <IconLink
-        key={`addPhoto`}
-        tooltip={"Foto hinzufügen"}
-        onClick={() => {
-          dispatch(
-            showDialog(
-              <AddImageDialog
-                close={() => {
-                  dispatch(showDialog());
-                }}
-                input={{ selectedFeature, vcard }}
-                onClose={(output) => {
-                  console.log("add Photo output", output);
-                }}
-              />
-            )
-          );
-        }}
-        iconname={"camera"}
-        href='#'
-      />
-    );
+    // links.push(
+    //   <IconLink
+    //     key={`openInfo`}
+    //     tooltip={"Öffne Datenblatt"}
+    //     onClick={() => {
+    //       dispatch(setSecondaryInfoVisible(!secondaryInfoVisible));
+    //     }}
+    //     iconname={"info"}
+    //     href='#'
+    //   />
+    // );
+
+    // links.push(
+    //   // <input accept='image/*' id='icon-button-file' type='file' capture='environment' />
+    //   <IconLink
+    //     key={`addPhoto`}
+    //     tooltip={"Foto hinzufügen"}
+    //     onClick={() => {
+    //       dispatch(
+    //         showDialog(
+    //           <AddImageDialog
+    //             close={() => {
+    //               dispatch(showDialog());
+    //             }}
+    //             input={{ selectedFeature, vcard }}
+    //             onClose={(output) => {
+    //               console.log("add Photo output", output);
+    //             }}
+    //           />
+    //         )
+    //       );
+    //     }}
+    //     iconname={"camera"}
+    //     href='#'
+    //   />
+    // );
+
     // links.push(
     //   <IconLink
     //     key={`addPhot`}
@@ -328,7 +331,7 @@ const InfoBox = ({ refRoutedMap }) => {
   const originalPhotourls = [];
   const captions = [];
   for (const doc of selectedFeature.properties.docs || []) {
-    let url = "https://belis-testapi.cismet.de/secres/" + jwt + "/beliswebdav/" + doc.doc;
+    let url = getWebDavUrl(jwt, doc);
 
     if (url.endsWith(".jpg")) {
       url += ".thumbnail.jpg";
@@ -343,10 +346,7 @@ const InfoBox = ({ refRoutedMap }) => {
     if (doc?.doc && doc?.doc.endsWith(".pdf")) {
       openPDFLink = (
         <span style={{ marginLeft: 30 }}>
-          <a
-            href={"https://belis-testapi.cismet.de/secres/" + jwt + "/beliswebdav/" + doc.doc}
-            target='_pdf'
-          >
+          <a href={getWebDavUrl(jwt, doc)} target='_pdf'>
             PDF extern öffnen
           </a>
         </span>

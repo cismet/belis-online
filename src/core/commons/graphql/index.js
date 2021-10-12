@@ -1,4 +1,4 @@
-import { REST_SERVICE } from "../../../constants/belis";
+import { DOMAIN, REST_SERVICE } from "../../../constants/belis";
 
 export async function fetchGraphQL(operationsDoc, variables, jwt) {
   //	const result = await fetch('http:// localhost:8890/actions/WUNDA_BLAU.graphQl/tasks?resultingInstanceType=result', {
@@ -12,7 +12,7 @@ export async function fetchGraphQL(operationsDoc, variables, jwt) {
   });
 
   try {
-    const result = await fetch(REST_SERVICE + "/graphql/BELIS2/execute", {
+    const result = await fetch(REST_SERVICE + "/graphql/" + DOMAIN + "/execute", {
       method: "POST",
       headers: myHeaders,
       body,

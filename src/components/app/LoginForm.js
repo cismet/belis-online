@@ -6,7 +6,7 @@ import IconComp from "react-cismap/commons/Icon";
 import { CACHE_JWT } from "react-cismap/tools/fetching";
 import { useDispatch, useSelector } from "react-redux";
 import { getLogin, storeJWT, storeLogin } from "../../core/store/slices/auth";
-import { REST_SERVICE } from "../../constants/belis";
+import { DOMAIN, REST_SERVICE } from "../../constants/belis";
 const LoginForm = ({
   setJWT = (jwt) => {
     console.log("you need to set the attribute setJWT in the <Login> component", jwt);
@@ -44,7 +44,7 @@ const LoginForm = ({
     fetch(REST_SERVICE + "/users", {
       method: "GET",
       headers: {
-        Authorization: "Basic " + btoa(user + "@" + "BELIS2" + ":" + pw),
+        Authorization: "Basic " + btoa(user + "@" + DOMAIN + ":" + pw),
         "Content-Type": "application/json",
       },
     })
