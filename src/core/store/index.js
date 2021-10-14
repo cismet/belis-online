@@ -15,6 +15,7 @@ import appStateSlice from "./slices/app";
 import authSlice from "./slices/auth";
 import gazetteerDataSlice from "./slices/gazetteerData";
 import teamSlice from "./slices/team";
+import photoLightboxSlice from "./slices/photoLightbox";
 import { createLogger } from "redux-logger";
 import "antd/dist/antd.css";
 
@@ -26,9 +27,9 @@ const stateLoggingEnabledFromSearch = new URLSearchParams(window.location.search
   "stateLoggingEnabled"
 );
 const stateLoggingEnabled =
-  stateLoggingEnabledFromSearch !== undefined && stateLoggingEnabledFromSearch !== "false";
+  stateLoggingEnabledFromSearch !== null && stateLoggingEnabledFromSearch !== "false";
 
-console.log("stateLoggingEnabled:", stateLoggingEnabled);
+console.log("stateLoggingEnabled:", stateLoggingEnabledFromSearch, "x", stateLoggingEnabled);
 
 const inProduction = process.env.NODE_ENV === "production";
 console.log("in Production Mode:", inProduction);
@@ -73,6 +74,7 @@ const store = configureStore({
     uiMessage: uiMessageSlice.reducer,
     gazetteerData: gazetteerDataSlice.reducer,
     team: teamSlice.reducer,
+    photoLightbox: photoLightboxSlice.reducer,
   },
   devTools: devToolsEnabled === true && inProduction === false,
   middleware,

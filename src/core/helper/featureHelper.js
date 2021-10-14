@@ -56,8 +56,8 @@ export const getVCard = (feature) => {
       // Infobox
       const mastinfo = [];
 
-      const mastart = item?.fk_standort?.mastart?.mastart;
-      const masttyp = item?.fk_standort?.masttyp?.masttyp;
+      const mastart = item?.fk_standort?.fk_mastart?.mastart;
+      const masttyp = item?.fk_standort?.fk_masttyp?.masttyp;
 
       if (mastart) {
         mastinfo.push(mastart);
@@ -139,11 +139,12 @@ export const getVCard = (feature) => {
       let header =
         item?.fk_bauart?.bezeichnung !== undefined ? item?.fk_bauart?.bezeichnung : "Schaltstelle";
 
-      // if (item?.schaltstellen_nummer !== undefined) {
-      //   title = title.concat(" - ", item?.schaltstellen_nummer);
-      // }
-
-      const title = "S-" + item?.id;
+      let title;
+      if (item?.schaltstellen_nummer) {
+        title = "S " + item?.schaltstellen_nummer;
+      } else {
+        title = "Schaltstelle ohne Nummer (ID: " + item?.id + ")";
+      }
 
       const l =
         item?.fk_strassenschluessel?.strasse !== undefined
@@ -206,7 +207,7 @@ const addDmsUrl = (docs, dmsUrl, caption) => {
   if (dmsUrl?.url?.object_name) {
     try {
       docs.push({
-        caption: caption + " ",
+        caption: caption,
         doc: dmsUrl.url.object_name,
         description: dmsUrl?.description,
       });
@@ -304,6 +305,7 @@ export const addPropertiesToFeature = async (feature) => {
           feature.properties.leuchtmittel
         );
 
+        //hier kommt der standort
         if (item.full_tdta_standort_mast) {
           item.fk_standort = item.full_tdta_standort_mast;
         } else {
@@ -315,53 +317,61 @@ export const addPropertiesToFeature = async (feature) => {
             feature.properties.fk_standort
           );
         }
+
         await addFieldByFK(
           db,
           item.fk_standort,
           "tkey_mastart",
-          "mastart",
+          "fk_mastart",
           item.fk_standort.fk_mastart
         );
         await addFieldByFK(
           db,
           item.fk_standort,
+          "tkey_strassenschluessel",
+          "fk_strassenschluessel",
+          item.fk_standort.fk_strassenschluessel
+        );
+        await addFieldByFK(
+          db,
+          item.fk_standort,
           "tkey_unterh_mast",
-          "unterhaltspflicht_mast",
+          "fk_unterhaltspflicht_mast",
           item.fk_standort.fk_unterhaltspflicht_mast
         );
         await addFieldByFK(
           db,
           item.fk_standort,
           "tkey_masttyp",
-          "masttyp",
+          "fk_masttyp",
           item.fk_standort.fk_masttyp
         );
         await addFieldByFK(
           db,
           item.fk_standort,
           "tkey_kennziffer",
-          "kennziffer",
+          "fk_kennziffer",
           item.fk_standort.fk_kennziffer
         );
         await addFieldByFK(
           db,
           item.fk_standort,
           "anlagengruppe",
-          "anlgruppe",
+          "anlagengruppe",
           item.fk_standort.anlagengruppe
         );
         await addFieldByFK(
           db,
           item.fk_standort,
           "tkey_bezirk",
-          "stadtbezirk",
+          "fk_stadtbezirk",
           item.fk_standort.fk_stadtbezirk
         );
         await addFieldByFK(
           db,
           item.fk_standort,
           "tkey_klassifizierung",
-          "klassifizierung",
+          "fk_klassifizierung",
           item.fk_standort.fk_klassifizierung
         );
 
@@ -641,7 +651,7 @@ export const compareFeature = (a, b) => {
             return -1;
           }
 
-        case "mauerlasche":
+        case "schaltstelle":
           if (a.fk_strassenschluessel?.strasse === b.fk_strassenschluessel?.strasse) {
             let titleA =
               a?.fk_bauart?.bezeichnung !== undefined ? a?.fk_bauart?.bezeichnung : "Schaltstelle";

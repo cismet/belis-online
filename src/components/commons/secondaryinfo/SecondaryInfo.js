@@ -13,59 +13,14 @@ import { getSecondaryInfo } from "../../../core/helper/secondaryInfoHelper";
 // import { getApplicationVersion } from "../version";
 
 import { Descriptions } from "antd";
-import { getDate, getDoppelkommandos } from "./helper";
+import { getDate, getDoppelkommandos } from "./components/helper";
 import { leuchteMitAllenAttributen } from "./devData";
 
 import getLayout4Leuchte from "./components/Leuchte";
 import { getJWT } from "../../../core/store/slices/auth";
-
-const footer = (
-  <div style={{ fontSize: "11px" }}>
-    <div>
-      <b>{/* {document.title} v{getApplicationVersion()} */}</b>:{" "}
-      <a href='https://cismet.de/' target='_cismet'>
-        cismet GmbH
-      </a>{" "}
-      auf Basis von{" "}
-      <a href='http://leafletjs.com/' target='_more'>
-        Leaflet
-      </a>{" "}
-      und{" "}
-      <a href='https://cismet.de/#refs' target='_cismet'>
-        {/* cids | react-cismap v{reactCismapVersion} */}
-      </a>{" "}
-      |{" "}
-      <a
-        target='_blank'
-        rel='noopener noreferrer'
-        href='https://cismet.de/datenschutzerklaerung.html'
-      >
-        Datenschutzerklärung (Privacy Policy)
-      </a>
-    </div>
-  </div>
-);
-
-const getSeparator = (name) => {
-  return (
-    <div
-      style={{
-        width: "100%",
-        height: "12px",
-        borderBottom: "1px solid #eeeeee",
-        textAlign: "center",
-        marginBottom: "15px",
-        marginTop: "5px",
-      }}
-    >
-      <span
-        style={{ fontSize: "16px", backgroundColor: "#FFFFFF", xcolor: "#aaa", padding: "0 10px" }}
-      >
-        {name}
-      </span>
-    </div>
-  );
-};
+import getLayout4Standort from "./components/Standort";
+import getLayout4Schaltstelle from "./components/Schaltstelle";
+import getLayout4Mauerlasche from "./components/Mauerlasche";
 
 const InfoPanel = () => {
   const dispatch = useDispatch();
@@ -77,13 +32,46 @@ const InfoPanel = () => {
 export const InfoPanelComponent = ({ selectedFeature, dispatch }) => {
   const hit = JSON.parse(JSON.stringify(selectedFeature));
   const jwt = useSelector(getJWT);
+  const [showRawData, setShowRawData] = useState(false);
 
+  const footer = (
+    <div style={{ fontSize: "11px" }}>
+      <div
+        onClick={(e) => {
+          if (e.detail === 2) {
+            setShowRawData((old) => !old);
+          }
+        }}
+      >
+        <b>{/* {document.title} v{getApplicationVersion()} */}</b>:{" "}
+        <a href='https://cismet.de/' target='_cismet'>
+          cismet GmbH
+        </a>{" "}
+        auf Basis von{" "}
+        <a href='http://leafletjs.com/' target='_more'>
+          Leaflet
+        </a>{" "}
+        und{" "}
+        <a href='https://cismet.de/#refs' target='_cismet'>
+          {/* cids | react-cismap v{reactCismapVersion} */}
+        </a>{" "}
+        |{" "}
+        <a
+          target='_blank'
+          rel='noopener noreferrer'
+          href='https://cismet.de/datenschutzerklaerung.html'
+        >
+          Datenschutzerklärung (Privacy Policy)
+        </a>
+      </div>
+    </div>
+  );
   //remove geometry and feature reference
   try {
     delete hit.geometry;
     delete hit.properties.feature;
   } catch (e) {}
-  const showRawData = true;
+  const showRawDataFromUrl = new URLSearchParams(window.location.href).get("showRawData");
 
   if (hit !== undefined) {
     const display = (desc, value, valFunc) => {
@@ -114,7 +102,7 @@ export const InfoPanelComponent = ({ selectedFeature, dispatch }) => {
       title = "Info";
     switch (hit.featuretype) {
       case "tdta_leuchten":
-        // ({ subSections, mainSection, title } = getLayout4Leuchte({ feature: hit, jwt }));
+        ({ subSections, mainSection, title } = getLayout4Leuchte({ feature: hit, jwt, dispatch }));
         rawDataDesc += "der Leuchte";
         break;
       case "Leitung":
@@ -123,11 +111,22 @@ export const InfoPanelComponent = ({ selectedFeature, dispatch }) => {
 
         break;
       case "mauerlasche":
+        ({ subSections, mainSection, title } = getLayout4Mauerlasche({
+          feature: hit,
+          jwt,
+          dispatch,
+        }));
+
         rawDataDesc += "der Mauerlasche";
 
         break;
       case "schaltstelle":
         rawDataDesc += "der Schaltstelle";
+        ({ subSections, mainSection, title } = getLayout4Schaltstelle({
+          feature: hit,
+          jwt,
+          dispatch,
+        }));
 
         break;
       case "abzweigdose":
@@ -135,13 +134,19 @@ export const InfoPanelComponent = ({ selectedFeature, dispatch }) => {
 
         break;
       case "tdta_standort_mast":
+        ({ subSections, mainSection, title } = getLayout4Standort({
+          feature: hit,
+          jwt,
+          dispatch,
+        }));
+
         rawDataDesc += "des Masts/Standorts";
 
         break;
       default:
     }
 
-    if (showRawData) {
+    if (showRawData || showRawDataFromUrl === "") {
       //remove the geometries
       const hitForRawDisplay = JSON.parse(JSON.stringify(hit.properties));
 

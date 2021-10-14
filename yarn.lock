@@ -7004,7 +7004,7 @@ date-fns@2.x:
   resolved "https://registry.yarnpkg.com/date-fns/-/date-fns-2.23.0.tgz#4e886c941659af0cf7b30fafdd1eaa37e88788a9"
   integrity sha512-5ycpauovVyAk0kXNZz6ZoB9AYMZB4DObse7P3BPWmyEjXNORTI8EJ6X0uaSAq4sCHzM1uajzrkr6HnsLQpxGXA==
 
-dayjs@1.x:
+dayjs@1.x, dayjs@^1.10.7:
   version "1.10.7"
   resolved "https://registry.yarnpkg.com/dayjs/-/dayjs-1.10.7.tgz#2cf5f91add28116748440866a0a1d26f3a6ce468"
   integrity sha512-P6twpd70BcPK34K26uJ1KT3wlhpuOAPoMwJzpsIWUxHZ7wpmbdZL/hQqBDfz7hGurYSa5PhzdhDHtt319hL3ig==
@@ -13282,7 +13282,7 @@ polygon-clipping@^0.15.3:
   dependencies:
     splaytree "^3.1.0"
 
-polylabel@mapbox/polylabel:
+"polylabel@github:mapbox/polylabel":
   version "1.1.0"
   resolved "https://codeload.github.com/mapbox/polylabel/tar.gz/983b565ae32668412df47bfb9b05cd80ab705360"
   dependencies:
@@ -15036,10 +15036,10 @@ react-chartkick@^0.4.1:
   dependencies:
     chartkick "^3.2.0"
 
-react-cismap@^1.2.49:
-  version "1.2.49"
-  resolved "https://registry.yarnpkg.com/react-cismap/-/react-cismap-1.2.49.tgz#508f4961960ccf1ce2880b29222655f80dcfc78b"
-  integrity sha512-njYpXwJEeMzEc/a/nRl0eeNfk/nMhjxjJfUogx6nUqV3/pBlx813KmKNT9lkywxVpalzKcgxOZB/uzkuM62LMg==
+react-cismap@^1.2.50:
+  version "1.2.50"
+  resolved "https://registry.yarnpkg.com/react-cismap/-/react-cismap-1.2.50.tgz#01fa292950fee61652e9e143c95f9aaf37798ecb"
+  integrity sha512-Hwy7x3G1yrGw9pA//Scw47mAFLHpYSvZucwYfUmBliNPnRBBt2ixyhs4JhAoYprCfVdoCxXzwelOxCNkgA+fmg==
   dependencies:
     "@fortawesome/fontawesome-free" "^5.12.0"
     "@fortawesome/fontawesome-svg-core" "^1.2.26"

@@ -22,7 +22,6 @@ import IconLink from "react-cismap/commons/IconLink";
 import { UIContext, UIDispatchContext } from "react-cismap/contexts/UIContextProvider";
 import Icon from "react-cismap/commons/Icon";
 
-import PhotoLightBox from "react-cismap/topicmaps/PhotoLightbox";
 import { useEffect } from "react";
 import { useState } from "react";
 import { getJWT } from "../../core/store/slices/auth";
@@ -33,13 +32,21 @@ import { faFilePdf } from "@fortawesome/free-regular-svg-icons";
 import Button from "react-bootstrap/Button";
 import AddImageDialog from "../app/dialogs/AddImage";
 import { getWebDavUrl } from "../../constants/belis";
+import {
+  getPhotoUrls,
+  setPhotoLightBoxData,
+  setVisible,
+} from "../../core/store/slices/photoLightbox";
+import { addDotThumbnail } from "./secondaryinfo/components/helper";
 
 //---
 
 const InfoBox = ({ refRoutedMap }) => {
+  let vcard;
   const dispatch = useDispatch();
   const featureCollection = useSelector(getFeatureCollection);
   const jwt = useSelector(getJWT);
+  const photourls = useSelector(getPhotoUrls);
   const selectedFeature = useSelector(getSelectedFeature);
   const secondaryInfoVisible = useSelector(isSecondaryInfoVisible);
   const { setCollapsedInfoBox } = useContext(UIDispatchContext);
@@ -59,14 +66,61 @@ const InfoBox = ({ refRoutedMap }) => {
   let hideNavigator = false;
   let links = [];
 
-  let [lightBoxVisible, setLightBoxVisible] = useState(false);
-  let [lightBoxIndex, setLightBoxIndex] = useState(0);
-
   // const lightBoxDispatchContext = useContext(LightBoxDispatchContext);
   const pixelwidth = 350;
+
   useEffect(() => {
-    setLightBoxIndex(0);
-  }, [selectedFeature]);
+    const photourls = [];
+
+    const captions = [];
+    for (const doc of selectedFeature.properties.docs || []) {
+      let url = getWebDavUrl(jwt, doc);
+
+      if (url.endsWith(".jpg")) {
+        url += ".thumbnail.jpg";
+      } else if (url.endsWith(".png")) {
+        url += ".thumbnail.png";
+      } else if (url.endsWith(".pdf")) {
+        url += ".thumbnail.jpg";
+      } else {
+      }
+      photourls.push(url);
+      let openPDFLink;
+      if (doc?.doc && doc?.doc.endsWith(".pdf")) {
+        openPDFLink = (
+          <span style={{ marginLeft: 30 }}>
+            <a href={getWebDavUrl(jwt, doc)} target='_pdf'>
+              PDF extern öffnen
+            </a>
+          </span>
+        );
+      }
+      captions.push(
+        doc.description ? (
+          <div>
+            {doc.description} ({doc.caption}) {openPDFLink}
+          </div>
+        ) : (
+          <div>
+            {doc.caption} {openPDFLink}
+          </div>
+        )
+      );
+    }
+    dispatch(
+      setPhotoLightBoxData({
+        title: vcard?.infobox?.title,
+        index: 0,
+        photourls,
+        captions,
+      })
+    );
+  }, [selectedFeature, jwt, dispatch, vcard]);
+
+  const setLightBoxVisible = (visible) => {
+    dispatch(setVisible(visible));
+  };
+
   const _next = () => {
     if (featureCollection) {
       const newIndex = (selectedFeature.index + 1) % featureCollection.length;
@@ -100,9 +154,6 @@ const InfoBox = ({ refRoutedMap }) => {
     noCurrentFeatureContent: "",
     displaySecondaryInfoAction: false,
   };
-  let vcard;
-  let imageUrls = [];
-  let imageCaptions = [];
 
   if (selectedFeature !== undefined && selectedFeature !== null) {
     vcard = getVCard(selectedFeature);
@@ -144,54 +195,59 @@ const InfoBox = ({ refRoutedMap }) => {
         return false;
       },
     });
+
+    if (
+      selectedFeature?.featuretype !== "Leitung" &&
+      selectedFeature?.featuretype !== "abzweigdose"
+    )
+      links.push(
+        <IconLink
+          key={`openInfo`}
+          tooltip={"Öffne Datenblatt"}
+          onClick={() => {
+            dispatch(setSecondaryInfoVisible(!secondaryInfoVisible));
+          }}
+          iconname={"info"}
+          href='#'
+        />
+      );
+
     links.push(
+      // <input accept='image/*' id='icon-button-file' type='file' capture='environment' />
       <IconLink
-        key={`openInfo`}
-        tooltip={"Öffne Datenblatt"}
+        key={`addPhoto`}
+        tooltip={"Foto hinzufügen"}
         onClick={() => {
-          dispatch(setSecondaryInfoVisible(!secondaryInfoVisible));
+          dispatch(
+            showDialog(
+              <AddImageDialog
+                close={() => {
+                  dispatch(showDialog());
+                }}
+                input={{ selectedFeature, vcard }}
+                onClose={(output) => {
+                  console.log("add Photo output", output);
+                }}
+              />
+            )
+          );
         }}
-        iconname={"info"}
+        iconname={"camera"}
         href='#'
       />
     );
 
-    // links.push(
-    //   // <input accept='image/*' id='icon-button-file' type='file' capture='environment' />
-    //   <IconLink
-    //     key={`addPhoto`}
-    //     tooltip={"Foto hinzufügen"}
-    //     onClick={() => {
-    //       dispatch(
-    //         showDialog(
-    //           <AddImageDialog
-    //             close={() => {
-    //               dispatch(showDialog());
-    //             }}
-    //             input={{ selectedFeature, vcard }}
-    //             onClose={(output) => {
-    //               console.log("add Photo output", output);
-    //             }}
-    //           />
-    //         )
-    //       );
-    //     }}
-    //     iconname={"camera"}
-    //     href='#'
-    //   />
-    // );
-
-    // links.push(
-    //   <IconLink
-    //     key={`addPhot`}
-    //     tooltip={"Störung melden"}
-    //     onClick={() => {
-    //       dispatch(setSecondaryInfoVisible(!secondaryInfoVisible));
-    //     }}
-    //     iconname={"exclamation-triangle"}
-    //     href='#'
-    //   />
-    // );
+    links.push(
+      <IconLink
+        key={`addIncident`}
+        tooltip={"Störung melden"}
+        onClick={() => {
+          // dispatch(setSecondaryInfoVisible(!secondaryInfoVisible));
+        }}
+        iconname={"exclamation-triangle"}
+        href='#'
+      />
+    );
     header = <span>{vcard?.infobox?.header || config.header}</span>;
     title = vcard?.infobox?.title;
     subtitle = vcard?.infobox?.subtitle;
@@ -327,61 +383,8 @@ const InfoBox = ({ refRoutedMap }) => {
     collapsibleDiv = <div style={{ paddingRight: 2 }}>{noCurrentFeatureContent}</div>;
   }
 
-  const photourls = [];
-  const originalPhotourls = [];
-  const captions = [];
-  for (const doc of selectedFeature.properties.docs || []) {
-    let url = getWebDavUrl(jwt, doc);
-
-    if (url.endsWith(".jpg")) {
-      url += ".thumbnail.jpg";
-    } else if (url.endsWith(".png")) {
-      url += ".thumbnail.png";
-    } else if (url.endsWith(".pdf")) {
-      url += ".thumbnail.jpg";
-    } else {
-    }
-    photourls.push(url);
-    let openPDFLink;
-    if (doc?.doc && doc?.doc.endsWith(".pdf")) {
-      openPDFLink = (
-        <span style={{ marginLeft: 30 }}>
-          <a href={getWebDavUrl(jwt, doc)} target='_pdf'>
-            PDF extern öffnen
-          </a>
-        </span>
-      );
-    }
-    captions.push(
-      doc.description ? (
-        <div>
-          {doc.description} ({doc.caption}) {openPDFLink}
-        </div>
-      ) : (
-        <div>
-          {doc.caption} {openPDFLink}
-        </div>
-      )
-    );
-  }
-
   return (
     <div>
-      <PhotoLightBox
-        defaultContextValues={{
-          title: vcard?.infobox?.title,
-          photourls,
-          captions,
-          index: lightBoxIndex,
-          visible: lightBoxVisible,
-          setVisible: (vis) => {
-            setLightBoxVisible(vis);
-          },
-          setIndex: (i) => {
-            setLightBoxIndex(i);
-          },
-        }}
-      />
       <ResponsiveInfoBox
         pixelwidth={pixelwidth}
         header={llVis}
@@ -425,7 +428,9 @@ const InfoBox = ({ refRoutedMap }) => {
           ) : (
             <div />
           ),
-          photourls?.length > 0 ? (
+          selectedFeature?.properties?.docs &&
+          selectedFeature.properties.docs.length > 0 &&
+          selectedFeature.properties.docs[0] ? (
             <div style={{ position: "relative" }}>
               {selectedFeature.properties.docs[0].doc.endsWith(".pdf") && (
                 <FontAwesomeIcon
@@ -448,7 +453,7 @@ const InfoBox = ({ refRoutedMap }) => {
                 onClick={() => {
                   setLightBoxVisible(true);
                 }}
-                src={photourls[0]}
+                src={addDotThumbnail(getWebDavUrl(jwt, selectedFeature.properties.docs[0]))}
               />
             </div>
           ) : (
