@@ -5,6 +5,7 @@ import SecondaryInfoPanelSection from "react-cismap/topicmaps/SecondaryInfoPanel
 import { getVCard } from "../../../../core/helper/featureHelper";
 
 // import { getApplicationVersion } from "../version";
+import Button from "react-bootstrap/Button";
 
 import { Row, Col, Timeline } from "antd";
 import { Descriptions } from "antd";

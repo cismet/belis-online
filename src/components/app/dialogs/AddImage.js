@@ -53,7 +53,7 @@ const AddImageDialog = ({
             form.resetFields();
             // console.log("values", values);
 
-            onClose({ imageData, name: values.name });
+            onClose({ imageData, name: values.name, feature: input.selectedFeature });
             close();
           })
           .catch((info) => {
