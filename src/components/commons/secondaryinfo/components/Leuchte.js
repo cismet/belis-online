@@ -186,7 +186,7 @@ const getLayout4Leuchte = ({ feature, jwt, dispatch }) => {
               {item?.fk_dk2?.beschreibung}
             </Descriptions.Item>
             <Descriptions.Item label='Anzahl Doppelkommando 2'>
-              {item?.fk_dk2?.beschreibung}
+              {item?.anzahl_2dk}
             </Descriptions.Item>
             <Descriptions.Item label='Anschlussleistung DK 2'>
               {item?.anschlussleistung_2dk} W
