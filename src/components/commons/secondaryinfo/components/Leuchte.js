@@ -163,7 +163,7 @@ const getLayout4Leuchte = ({ feature, jwt, dispatch }) => {
               {item?.anzahl_1dk}
             </Descriptions.Item>
             <Descriptions.Item label='Anschlussleistung DK 1'>
-              {item?.anschlussleistung_1dk} kW
+              {item?.anschlussleistung_1dk} W
             </Descriptions.Item>
             <br />
           </>
@@ -177,7 +177,7 @@ const getLayout4Leuchte = ({ feature, jwt, dispatch }) => {
               {item?.fk_dk2?.beschreibung}
             </Descriptions.Item>
             <Descriptions.Item label='Anschlussleistung DK 2'>
-              {item?.anschlussleistung_2dk} kW
+              {item?.anschlussleistung_2dk} W
             </Descriptions.Item>
           </>
         )}
@@ -194,10 +194,10 @@ const getLayout4Leuchte = ({ feature, jwt, dispatch }) => {
       label='Leistung Brutto'
       optionalPredicate={() => leuchtTypItem?.leistung_brutto}
     >
-      {leuchtTypItem?.leistung_brutto} kW
+      {leuchtTypItem?.leistung_brutto} W
     </Descriptions.Item>,
     <Descriptions.Item label='Leistung' optionalPredicate={() => leuchtTypItem?.leistung}>
-      {leuchtTypItem?.leistung} kW
+      {leuchtTypItem?.leistung} W
     </Descriptions.Item>,
     <Descriptions.Item label='Lampe'>{leuchtTypItem?.lampe}</Descriptions.Item>,
     <Descriptions.Item label='Fabrikat'>{leuchtTypItem?.fabrikat}</Descriptions.Item>,
