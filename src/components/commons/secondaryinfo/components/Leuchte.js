@@ -30,7 +30,7 @@ export const getEvents4Leuchte = (item) => {
     ["Wartungszyklus", item?.wartungszyklus, "L"],
     ["Nächster Wechsel", item?.naechster_wechsel, "L"],
     ["Wechsel Vorschaltgerät", item?.wechselvorschaltgeraet, "L"],
-    ["Wechsel", item?.wechseldatum, "L"],
+    ["Leuchtmittelwechsel", item?.wechseldatum, "L"],
     ["Inbetriebnahme", item?.inbetriebnahme_leuchte, "L"],
     ...getEventsForStandort(item?.fk_standort),
   ];
@@ -106,6 +106,18 @@ const getLayout4Leuchte = ({ feature, jwt, dispatch }) => {
 
   const rsItems = getRSDetailItems(item?.rundsteuerempfaenger);
 
+  let wechselgrund;
+
+  if (item?.lebensdauer) {
+    if (item?.lebensdauer === 1) {
+      wechselgrund = "Störung";
+    } else if (item?.lebensdauer === 2) {
+      wechselgrund = "Wartungsturnus";
+    } else {
+      wechselgrund = "sonstiges (" + item?.lebensdauer + ")";
+    }
+  }
+
   const leuchteItems = [
     <Descriptions.Item label='Energielieferant'>
       {item?.fk_energielieferant?.energielieferant}
@@ -121,7 +133,7 @@ const getLayout4Leuchte = ({ feature, jwt, dispatch }) => {
     <Descriptions.Item label='Zähler'>
       {item?.zaehler ? "Zähler vorhanden" : "kein Zähler vorhanden"}
     </Descriptions.Item>,
-    <Descriptions.Item label='Lebensdauer'>{item?.lebensdauer}</Descriptions.Item>,
+    <Descriptions.Item label='Wechselgrund'>{wechselgrund}</Descriptions.Item>,
   ];
 
   subSections.push(
@@ -185,6 +197,21 @@ const getLayout4Leuchte = ({ feature, jwt, dispatch }) => {
     </SecondaryInfoPanelSection>
   );
 
+  const leuchtmittelItem = item?.leuchtmittel;
+
+  const leuchtMittelItems = [
+    <Descriptions.Item label='Typ'>{leuchtmittelItem?.hersteller}</Descriptions.Item>,
+    <Descriptions.Item label='Lichtfarbe'>{leuchtmittelItem?.lichtfarbe}</Descriptions.Item>,
+  ];
+
+  subSections.push(
+    <SecondaryInfoPanelSection key={"Leuchtentyp" + item.id} bsStyle='info' header={"Leuchtmittel"}>
+      <Descriptions column={{ xs: 1, sm: 1, md: 2, lg: 2, xxl: 3 }} layout='horizontal' bordered>
+        {clearOptionalDescriptionItems(leuchtMittelItems)}
+      </Descriptions>
+    </SecondaryInfoPanelSection>
+  );
+
   const leuchtTypItem = item?.fk_leuchttyp;
 
   const leuchtTypItems = [
@@ -205,7 +232,7 @@ const getLayout4Leuchte = ({ feature, jwt, dispatch }) => {
 
   subSections.push(
     <SecondaryInfoPanelSection
-      key={"Leuchtmittel" + item.id}
+      key={"Leuchtentyp" + item.id}
       bsStyle='info'
       header={"Leuchtentyp (" + leuchtTypItem?.typenbezeichnung + ")"}
     >
