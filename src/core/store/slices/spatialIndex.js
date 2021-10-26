@@ -39,7 +39,7 @@ export const getLoadingState = (state) => state.spatialIndex.loading;
 export const initIndex = (finished = () => {}) => async (dispatch) => {
   dispatch(startLoading());
   const current = new Date().getTime();
-  console.log("yyy initIndex", new Error());
+  // console.log("yyy initIndex", new Error());
 
   let pointItems, leitungen;
 
