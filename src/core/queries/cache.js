@@ -274,14 +274,14 @@ queries.tkey_masttyp = `{
   `;
 queries.leitung = `{
     leitung {
+      id
+      is_deleted
       geom {
         geo_field
       }
       fk_leitungstyp
       fk_material
       fk_querschnitt
-      id
-      is_deleted
       dokumenteArray {
         dms_url {
           description
