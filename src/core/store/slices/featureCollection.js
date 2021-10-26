@@ -450,9 +450,9 @@ export const enrichAndSetFeatures = (dispatch, state, featureCollectionIn) => {
 
         if (feature.properties.is_deleted !== true) {
           sortedElements.push(feature);
-          console.log("shown feature", feature);
+          // console.log("shown feature", feature);
         } else {
-          console.log("deleted feature", feature);
+          // console.log("deleted feature", feature);
         }
         // sortedElements.push(feature);
 
