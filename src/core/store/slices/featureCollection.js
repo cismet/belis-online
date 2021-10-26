@@ -375,12 +375,7 @@ export const loadObjectsIntoFeatureCollection = ({
                   feature.properties = o;
                   feature.id = feature.id + "-" + o.id;
 
-                  if (feature.properties.is_deleted !== true) {
-                    featureCollection.push(feature);
-                    console.log("shown feature", feature);
-                  } else {
-                    console.log("deleted feature", feature);
-                  }
+                  featureCollection.push(feature);
                 }
               }
               //featureCollection[0].selected = true;
@@ -452,25 +447,31 @@ export const enrichAndSetFeatures = (dispatch, state, featureCollectionIn) => {
         } else {
           typeCount[feature.featuretype] = typeCount[feature.featuretype] + 1;
         }
-        sortedElements.push(feature);
 
-        //
+        if (feature.properties.is_deleted !== true) {
+          sortedElements.push(feature);
+          console.log("shown feature", feature);
+        } else {
+          console.log("deleted feature", feature);
+        }
+        // sortedElements.push(feature);
+
         if (selectedFeature && feature.id === selectedFeature.id) {
           selectionStillInMap = true;
           // feature.selected = true;
         }
       }
 
-      enrichedFeatureCollection.sort(compareFeature);
+      sortedElements.sort(compareFeature);
       if (!selectionStillInMap) {
         dispatch(setSelectedFeature(null));
       }
       let index = 0;
-      for (const f of enrichedFeatureCollection) {
+      for (const f of sortedElements) {
         f.index = index++;
       }
       dispatch(setFeatureCollectionInfo({ typeCount }));
-      dispatch(setFeatureCollection(enrichedFeatureCollection));
+      dispatch(setFeatureCollection(sortedElements));
       dispatch(setDone(true));
     },
     (error) => {
