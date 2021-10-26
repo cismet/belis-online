@@ -152,10 +152,10 @@ export const getStandortDetails = ({
     <Descriptions.Item label='Montagefirma'>{standortItem?.montagefirma}</Descriptions.Item>,
     <Descriptions.Item label='Gründung'>{standortItem?.gruendung}</Descriptions.Item>,
     <Descriptions.Item label='Erdung' optionalPredicate={() => true}>
-      {standortItem?.erdung === true ? "vorhanden" : "nicht vorhanden"}
+      {standortItem?.erdung === true ? "Ok" : ""}
     </Descriptions.Item>,
     <Descriptions.Item label='Verrechnungseinheit'>
-      {standortItem?.verrechnungseinheit === true ? "vorhanden" : "nicht vorhanden"}
+      {standortItem?.verrechnungseinheit === true ? "Ja" : "Nein"}
     </Descriptions.Item>,
     <Descriptions.Item label='Unterhaltspflicht'>
       {standortItem?.unterhaltspflicht_mast?.unterhalt_mast}

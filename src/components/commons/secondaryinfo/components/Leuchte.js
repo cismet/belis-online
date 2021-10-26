@@ -84,12 +84,10 @@ const getLayout4Leuchte = ({ feature, jwt, dispatch }) => {
         <b>Standort:</b>
       </div>
       {getStrasse(item?.fk_strassenschluessel, item?.fk_standort?.haus_nr)}
-      {item?.plz && (
-        <div>
-          {item?.plz} Wuppertal{" "}
-          {item?.fk_standort?.stadtbezirk && " (" + item?.fk_standort?.stadtbezirk?.bezirk + ")"}
-        </div>
+      {item?.fk_standort?.fk_stadtbezirk && (
+        <h4>{item?.fk_standort?.fk_stadtbezirk && item?.fk_standort?.fk_stadtbezirk?.bezirk}</h4>
       )}
+      {item?.plz && <div>{item?.plz} Wuppertal </div>}
       {item?.fk_standort?.standortangabe && <div>{item?.fk_standort?.standortangabe}</div>}
       <br />
       {item?.bemerkungen && (
@@ -165,29 +163,20 @@ const getLayout4Leuchte = ({ feature, jwt, dispatch }) => {
   subSections.push(
     <SecondaryInfoPanelSection key={"dk" + item.id} bsStyle='warning' header={"Doppelkommandos"}>
       {/* Doppelkommandos */}
-      <Descriptions column={{ xs: 1, sm: 1, md: 2, lg: 2, xxl: 3 }} layout='horizontal' bordered>
+      <Descriptions column={{ xs: 1, sm: 3, md: 3, lg: 3, xxl: 3 }} layout='horizontal' bordered>
         {item?.fk_dk1 && (
           <>
-            <Descriptions.Item label='Doppelkommando 1'>
-              {item?.fk_dk1?.beschreibung}
-            </Descriptions.Item>
-            <Descriptions.Item label='Anzahl Doppelkommando 1'>
-              {item?.anzahl_1dk}
-            </Descriptions.Item>
+            <Descriptions.Item label='DK 1'>{item?.fk_dk1?.pk}</Descriptions.Item>
+            <Descriptions.Item label='Anzahl DK 1'>{item?.anzahl_1dk}</Descriptions.Item>
             <Descriptions.Item label='Anschlussleistung DK 1'>
               {item?.anschlussleistung_1dk} W
             </Descriptions.Item>
-            <br />
           </>
         )}
         {item?.fk_dk2 && (
           <>
-            <Descriptions.Item label='Doppelkommando 2'>
-              {item?.fk_dk2?.beschreibung}
-            </Descriptions.Item>
-            <Descriptions.Item label='Anzahl Doppelkommando 2'>
-              {item?.anzahl_2dk}
-            </Descriptions.Item>
+            <Descriptions.Item label='DK 2'>{item?.fk_dk2?.pk}</Descriptions.Item>
+            <Descriptions.Item label='Anzahl DK 2'>{item?.anzahl_2dk}</Descriptions.Item>
             <Descriptions.Item label='Anschlussleistung DK 2'>
               {item?.anschlussleistung_2dk} W
             </Descriptions.Item>
@@ -216,15 +205,23 @@ const getLayout4Leuchte = ({ feature, jwt, dispatch }) => {
 
   const leuchtTypItems = [
     <Descriptions.Item label='Bestückung'>{leuchtTypItem?.bestueckung}</Descriptions.Item>,
-    <Descriptions.Item label='Typ'>{leuchtTypItem?.bestueckung}</Descriptions.Item>,
-    <Descriptions.Item
-      label='Leistung Brutto'
-      optionalPredicate={() => leuchtTypItem?.leistung_brutto}
-    >
+    <Descriptions.Item label='P Brutto' optionalPredicate={() => leuchtTypItem?.leistung_brutto}>
       {leuchtTypItem?.leistung_brutto} W
     </Descriptions.Item>,
-    <Descriptions.Item label='Leistung' optionalPredicate={() => leuchtTypItem?.leistung}>
+    <Descriptions.Item label='P Netto' optionalPredicate={() => leuchtTypItem?.leistung}>
       {leuchtTypItem?.leistung} W
+    </Descriptions.Item>,
+    <Descriptions.Item
+      label='P Brutto (reduziert)'
+      optionalPredicate={() => leuchtTypItem?.leistung_brutto}
+    >
+      {leuchtTypItem?.leistung_brutto_reduziert} W
+    </Descriptions.Item>,
+    <Descriptions.Item
+      label='P Netto (reduziert)'
+      optionalPredicate={() => leuchtTypItem?.leistung}
+    >
+      {leuchtTypItem?.leistung_reduziert} W
     </Descriptions.Item>,
     <Descriptions.Item label='Lampe'>{leuchtTypItem?.lampe}</Descriptions.Item>,
     <Descriptions.Item label='Fabrikat'>{leuchtTypItem?.fabrikat}</Descriptions.Item>,
@@ -236,7 +233,7 @@ const getLayout4Leuchte = ({ feature, jwt, dispatch }) => {
       bsStyle='info'
       header={"Leuchtentyp (" + leuchtTypItem?.typenbezeichnung + ")"}
     >
-      <Descriptions column={{ xs: 1, sm: 1, md: 2, lg: 2, xxl: 3 }} layout='horizontal' bordered>
+      <Descriptions column={{ xs: 1, sm: 1, md: 3, lg: 3, xxl: 3 }} layout='horizontal' bordered>
         {clearOptionalDescriptionItems(leuchtTypItems)}
         {/* {leuchtTypItems} */}
       </Descriptions>
@@ -262,13 +259,9 @@ export default getLayout4Leuchte;
 export const getRSDetailItems = (rsItem) => {
   if (rsItem) {
     const rsItems = [
-      <Descriptions.Item label='Rundsteuerempfänger Typ'>{rsItem?.rs_typ}</Descriptions.Item>,
-      <Descriptions.Item label='Rundsteuerempfänger Anschlusswert'>
-        {rsItem?.anschlusswert}
-      </Descriptions.Item>,
-      <Descriptions.Item label='Hersteller Rundsteuerempfänger'>
-        {rsItem?.herrsteller_rs}
-      </Descriptions.Item>,
+      <Descriptions.Item label='Typ'>{rsItem?.rs_typ}</Descriptions.Item>,
+      <Descriptions.Item label='Anschlusswert'>{rsItem?.anschlusswert}</Descriptions.Item>,
+      <Descriptions.Item label='Hersteller'>{rsItem?.herrsteller_rs}</Descriptions.Item>,
       <Descriptions.Item label='RS Programm'>{rsItem?.programm}</Descriptions.Item>,
     ];
     return clearOptionalDescriptionItems(rsItems);
