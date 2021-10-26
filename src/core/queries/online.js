@@ -4,6 +4,7 @@ const defaultGeomFactory = (object) => object.geom.geo_field;
 queries.abzweigdose = `
     abzweigdose(where: {geom: {geo_field: {_st_intersects: $bbPoly}}}) {
         id
+        is_deleted
         geom {
         geo_field
         }
@@ -33,6 +34,7 @@ queries.leitung = `
       fk_material
       fk_querschnitt
       id
+      is_deleted
       dokumenteArray {
         dms_url {
           description
@@ -248,6 +250,7 @@ tdta_leuchten(where: {tdta_standort_mast: {geom: {geo_field: {_st_intersects: $b
 
     full_tdta_standort_mast: tdta_standort_mast {
       id
+      is_deleted
       bemerkungen
       anstrichfarbe
       dokumenteArray {
@@ -306,6 +309,7 @@ geomFactories.tdta_leuchten = (o) => o.tdta_standort_mast.geom.geo_field;
 queries.tdta_standort_mast = `
 tdta_standort_mast(where: {_and: {_not: {leuchtenArray: {}}}, geom: {geo_field: {_st_intersects: $bbPoly}}}) {
     id
+    is_deleted
     bemerkungen
     anstrichfarbe
     dokumenteArray {

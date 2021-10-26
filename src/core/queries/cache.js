@@ -281,6 +281,7 @@ queries.leitung = `{
       fk_material
       fk_querschnitt
       id
+      is_deleted
       dokumenteArray {
         dms_url {
           description
@@ -424,6 +425,7 @@ queries.tdta_leuchten = `{
 queries.all_tdta_standort_mast = `{
     tdta_standort_mast {
         id
+        is_deleted
         bemerkungen
         anstrichfarbe
         dokumenteArray {
@@ -478,6 +480,7 @@ queries.tdta_standort_mast =
   `{
   tdta_standort_mast(where:{_not:{leuchtenArray:{}}}){
     id
+    is_deleted
     bemerkungen
     anstrichfarbe
     dokumenteArray {
