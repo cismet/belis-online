@@ -374,8 +374,12 @@ export const loadObjectsIntoFeatureCollection = ({
 
                   feature.properties = o;
                   feature.id = feature.id + "-" + o.id;
+
                   if (feature.properties.is_deleted !== true) {
                     featureCollection.push(feature);
+                    console.log("shown feature", feature);
+                  } else {
+                    console.log("deleted feature", feature);
                   }
                 }
               }
