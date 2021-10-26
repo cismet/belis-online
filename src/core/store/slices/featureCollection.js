@@ -374,7 +374,9 @@ export const loadObjectsIntoFeatureCollection = ({
 
                   feature.properties = o;
                   feature.id = feature.id + "-" + o.id;
-                  featureCollection.push(feature);
+                  if (feature.properties.is_deleted !== true) {
+                    featureCollection.push(feature);
+                  }
                 }
               }
               //featureCollection[0].selected = true;
