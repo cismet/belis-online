@@ -151,7 +151,8 @@ export const getStandortDetails = ({
     <Descriptions.Item label='Monteur'>{standortItem?.monteur}</Descriptions.Item>,
     <Descriptions.Item label='Montagefirma'>{standortItem?.montagefirma}</Descriptions.Item>,
     <Descriptions.Item label='Gründung'>{standortItem?.gruendung}</Descriptions.Item>,
-    <Descriptions.Item label='Erdung' optionalPredicate={() => true}>
+
+    <Descriptions.Item label='Erdung' optionalPredicate={() => standortItem?.erdung === true}>
       {standortItem?.erdung === true ? "Ok" : ""}
     </Descriptions.Item>,
     <Descriptions.Item label='Verrechnungseinheit'>

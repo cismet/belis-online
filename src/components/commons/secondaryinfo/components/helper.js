@@ -150,8 +150,10 @@ export const getTimelineForEvents = ({ events, includeToday = true }) => {
 export const clearOptionalDescriptionItems = (items) => {
   const cleared = [];
   for (const item of items) {
-    if (item.props.optionalPredicate && item.props.optionalPredicate()) {
-      cleared.push(item);
+    if (item.props.optionalPredicate) {
+      if (item.props.optionalPredicate()) {
+        cleared.push(item);
+      }
     } else if (item.props.children) {
       cleared.push(item);
     }

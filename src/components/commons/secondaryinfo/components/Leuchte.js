@@ -26,7 +26,7 @@ import { leuchteMitAllenAttributen } from "../devData";
 
 export const getEvents4Leuchte = (item) => {
   const events = [
-    ["Einbau", item?.einbaudatum, "L"],
+    ["Einbau RS", item?.einbaudatum, "L"],
     ["Wartungszyklus", item?.wartungszyklus, "L"],
     ["Nächster Wechsel", item?.naechster_wechsel, "L"],
     ["Wechsel Vorschaltgerät", item?.wechselvorschaltgeraet, "L"],
@@ -85,20 +85,10 @@ const getLayout4Leuchte = ({ feature, jwt, dispatch }) => {
       </div>
       {getStrasse(item?.fk_strassenschluessel, item?.fk_standort?.haus_nr)}
       {item?.fk_standort?.fk_stadtbezirk && (
-        <h4>{item?.fk_standort?.fk_stadtbezirk && item?.fk_standort?.fk_stadtbezirk?.bezirk}</h4>
+        <div>{item?.fk_standort?.fk_stadtbezirk && item?.fk_standort?.fk_stadtbezirk?.bezirk}</div>
       )}
       {item?.plz && <div>{item?.plz} Wuppertal </div>}
       {item?.fk_standort?.standortangabe && <div>{item?.fk_standort?.standortangabe}</div>}
-      <br />
-      {item?.bemerkungen && (
-        <>
-          <div>
-            <b>Bemerkung:</b>
-          </div>
-          <div>{item?.bemerkungen}</div>
-          <br />
-        </>
-      )}
     </div>
   );
 
@@ -120,6 +110,8 @@ const getLayout4Leuchte = ({ feature, jwt, dispatch }) => {
     <Descriptions.Item label='Energielieferant'>
       {item?.fk_energielieferant?.energielieferant}
     </Descriptions.Item>,
+    <Descriptions.Item label='Bemerkung'>{item?.bemerkungen}</Descriptions.Item>,
+
     <Descriptions.Item label='Schaltstelle'>{item?.schaltstelle}</Descriptions.Item>,
     ...(rsItems.length === 1 ? rsItems : []),
     <Descriptions.Item label='Unterhalt'>
