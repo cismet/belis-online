@@ -27,7 +27,7 @@ import { leuchteMitAllenAttributen } from "../devData";
 export const getEvents4Leuchte = (item) => {
   const events = [
     ["Einbau RS", item?.einbaudatum, "L"],
-    ["Wartungszyklus", item?.wartungszyklus, "L"],
+    ["Sonderturnus", item?.wartungszyklus, "L"],
     ["Nächster Wechsel", item?.naechster_wechsel, "L"],
     ["Wechsel Vorschaltgerät", item?.wechselvorschaltgeraet, "L"],
     ["Leuchtmittelwechsel", item?.wechseldatum, "L"],
