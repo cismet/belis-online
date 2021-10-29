@@ -5,6 +5,7 @@ import { actionSchema } from './schema';
 import RxDBSchemaCheckModule from 'rxdb/plugins/schema-check';
 import RxDBErrorMessagesModule from 'rxdb/plugins/error-messages';
 import RxDBValidateModule from 'rxdb/plugins/validate';
+import { isArray } from 'lodash';
 
 
 RxDB.plugin(RxDBSchemaCheckModule);
@@ -13,8 +14,11 @@ RxDB.plugin(RxDBValidateModule);
 RxDB.plugin(RxDBReplicationGraphQL);
 RxDB.plugin(require('pouchdb-adapter-idb'));
 
-//const syncURL = 'http://localhost:8190/v1/graphql'
+const completedIds = {};
 const syncURL = 'https://offline-actions.cismet.de/v1/graphql'
+const ERR_CODE_INVALID_JWT = 'invalid-jwt';
+const ERR_CODE_NO_CONNECTION = 'Failed to fetch';
+const ERR_MSG_INVALID_JWT = 'Could not verify JWT';
 
 const batchSize = 5;
 const pullQueryBuilder = (userId) => {
@@ -29,14 +33,10 @@ const pullQueryBuilder = (userId) => {
         const query = `{
             action(
                 where: {
-                    _or: [
+                    _and: [
                         {updatedAt: {_gt: "${doc.updatedAt}"}},
-                        {
-                            updatedAt: {_eq: "${doc.updatedAt}"},
-                            id: {_gt: "${doc.id}"}
-                        }
-                    ],
-                    applicationId: {_eq: "${userId}"} 
+                        {applicationId: {_eq: "${userId}"}}
+                    ]
                 },
                 limit: ${batchSize},
                 order_by: [{updatedAt: asc}, {id: asc}]
@@ -95,7 +95,7 @@ export class GraphQLReplicator {
         this.subscriptionClient = null;      
     }
 
-    async restart(auth) {
+    async restart(auth, errorCallback, updateCallback) {
         if(this.replicationState) {
             this.replicationState.cancel()
         }
@@ -104,11 +104,43 @@ export class GraphQLReplicator {
             this.subscriptionClient.close()
         }
 
-        this.replicationState = await this.setupGraphQLReplication(auth)
-        this.subscriptionClient = this.setupGraphQLSubscription(auth, this.replicationState)
+        this.replicationState = await this.setupGraphQLReplication(auth, errorCallback)
+        this.subscriptionClient = this.setupGraphQLSubscription(auth, this.replicationState, updateCallback, errorCallback)
     }
 
-    async setupGraphQLReplication(auth) {
+    errorHandling(err, callback) {
+        let errorCode = null;
+
+        if (err.message) {
+            if (err.message instanceof String) {
+                let msg = JSON.parse(err.message);
+
+                if (Array.isArray(msg)) {
+                    errorCode = msg[0].extensions.code;
+                }
+            } else {
+                errorCode = err.message;
+            }
+        }
+
+        if (errorCode === null) {
+            errorCode = err;
+        }
+
+        console.debug('error code:' + errorCode);
+
+        if (errorCode.indexOf(ERR_MSG_INVALID_JWT) !== -1 || errorCode === ERR_CODE_INVALID_JWT) {
+            if (callback) {
+                callback(ERR_CODE_INVALID_JWT);
+            }
+        } else if (errorCode === ERR_CODE_NO_CONNECTION) {
+            if (callback) {
+                callback(ERR_CODE_NO_CONNECTION);
+            }
+        }
+    }
+
+    async setupGraphQLReplication(auth, errorCallback) {
         const replicationState = this.db.actions.syncGraphQL({
            url: syncURL,
            headers: {
@@ -128,20 +160,20 @@ export class GraphQLReplicator {
             * we can set the liveIntervall to a high value
             */
            liveInterval: 1000 * 60 * 10, // 10 minutes
-           deletedFlag: 'deleted'
+           deletedFlag: 'deleted',
+           retryTime: 60000
        });
    
        replicationState.error$.subscribe(err => {
-           console.error('replication error:');
-           console.dir(err);
+           this.errorHandling(err, errorCallback);
+           replicationState.cancel();
        });
 
        return replicationState;
     }
-   
-    setupGraphQLSubscription(auth, replicationState) {
+
+    setupGraphQLSubscription(auth, replicationState, updateCallback, errorCallback) {
         // Change this url to point to your hasura graphql url
-//        const endpointURL = 'ws://localhost:8190/v1/graphql'
         const endpointURL = 'wss://offline-actions.cismet.de/v1/graphql'
         const wsClient = new SubscriptionClient(endpointURL, {
             reconnect: true,
@@ -151,19 +183,26 @@ export class GraphQLReplicator {
                 }
             },
             timeout: 1000 * 60,
-            onConnect: () => {
+            onConnect: (msg) => {
                 console.log('SubscriptionClient.onConnect()');
             },
-            connectionCallback: () => {
-                console.log('SubscriptionClient.connectionCallback:');
+            connectionCallback: (err) => {
+                if (err) {
+                    if (err === 'Could not verify JWT: JWSError JWSInvalidSignature') {
+                        console.log('cannot verify jwt' );
+                        if (errorCallback) {
+                            errorCallback(ERR_CODE_INVALID_JWT);
+                        }
+                    }
+                }
             },
-            reconnectionAttempts: 10000,
-            inactivityTimeout: 10 * 1000,
+            reconnectionAttempts: 1,
+            inactivityTimeout:0,
             lazy: true
         });
     
         const query = `subscription onActionChanged {
-            action {
+            action ( where: {_and: {applicationId: {_eq: "${auth.userId}"}, isCompleted: {_eq: false}}}){
                 id
                 jwt
                 isCompleted
@@ -172,21 +211,64 @@ export class GraphQLReplicator {
                 updatedAt
                 action,
                 parameter,
-                result
+                result,
+                status
             }       
         }`;
     
         const ret = wsClient.request({ query });
+        const errorHandler = this.errorHandling;
+        const d = this.db;
     
         ret.subscribe({
             next(data) {
                 console.log('subscription emitted => trigger run');
-                console.dir(data);
+
+                for (const action of data.data.action) {
+                    if (action.status === 401) {
+                        //wrong jwt was set
+                        d.actions.find({id: action.id}).$.subscribe(act => {
+                            if (act && isArray(act) && act.length > 0 && act[0].status === 401) {
+                                const changeFunction = (oldData) => {
+                                    oldData.jwt = auth.idToken;
+                                    // when a value is null, the rxdb will throw an error
+                                    oldData.result = undefined;
+                                    oldData.status = undefined;
+                                    return oldData;
+                                }
+                                //set the current jwt
+                                act[0].atomicUpdate(changeFunction);
+                            }
+                        });
+                    } else if (action.result !== null && action.isCompleted === false) {
+                        d.actions.find({id: action.id}).$.subscribe(act => {
+                            if (act && isArray(act) && act.length > 0 && !act[0].isCompleted) {
+                                const changeFunction = (oldData) => {
+                                    oldData.isCompleted = true;
+                                    // when a value is null, the rxdb will throw an error
+                                    if (oldData.result === null) {
+                                        oldData.result = undefined;
+                                    }
+                                    if (oldData.status === null) {
+                                        oldData.status = undefined;
+                                    }
+                                    return oldData;
+                                }
+                                //set isCompelted to true
+                                act[0].atomicUpdate(changeFunction);
+                                //call the callback function
+                                if (updateCallback != null && completedIds[action.id] === undefined) {
+                                    completedIds[action.id] = true;
+                                    updateCallback(action);
+                                }
+                            }
+                        });
+                    }
+                }
                 replicationState.run();
             },
             error(error) {
-                console.log('got error:');
-                console.dir(error);
+                errorHandler(error, errorCallback);
             }
         });
     
@@ -196,6 +278,10 @@ export class GraphQLReplicator {
 
 export const createDb = async () => {
     console.log('DatabaseService: creating database..');
+    if (window['dbInit']) {
+        return window['db'];
+    }
+    window['dbInit'] = true;
 
     const db = await RxDB.create({
         name: 'actiondb',
