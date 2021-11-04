@@ -1,7 +1,10 @@
 import { useState } from "react";
+import { useSelector } from "react-redux";
 import { Modal, Upload, Button, Typography, Form, Input } from "antd";
 import { LoadingOutlined, PlusOutlined } from "@ant-design/icons";
 import { UploadOutlined } from "@ant-design/icons";
+import { getJWT } from "../../../core/store/slices/auth";
+import uuidv4 from 'uuid/v4';
 const { Text, Link } = Typography;
 const getBase64 = (img, callback) => {
   const reader = new FileReader();
@@ -22,6 +25,7 @@ const AddImageDialog = ({
   input = {},
 }) => {
   const [imageData, setImageData] = useState();
+  const jwt = useSelector(getJWT);
 
   const handleChange = (info) => {
     if (info.file.status === "uploading") {
@@ -50,6 +54,26 @@ const AddImageDialog = ({
         form
           .validateFields()
           .then((values) => {
+            console.log(imageData);
+            // const parameter = {
+            //   "ImageData": imageData,
+            //   "ending": "jpg",
+            //   "description": "test",
+            //   "objekt_id": "2",
+            //   "objekt_typ": "abzweigdose",
+            //   "ts": Date.now(),
+            //   "prefix": "dev"
+            // };
+            //  d.actions.insert({
+            //   id: uuidv4(),
+            //   action: "uploadDocument",
+            //   jwt: jwt,
+            //   parameter: JSON.stringify(parameter),
+            //   isCompleted: false,
+            //   createdAt: new Date().toISOString(),
+            //   updatedAt: new Date().toISOString(),
+            //   applicationId: 'belis'
+            // });
             form.resetFields();
             // console.log("values", values);
 
