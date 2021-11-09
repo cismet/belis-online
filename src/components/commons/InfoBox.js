@@ -9,6 +9,7 @@ import {
 } from "../../core/store/slices/featureCollection";
 // import ResponsiveInfoBox from "./ResponsiveInfoBox";
 import ResponsiveInfoBox, { MODES } from "react-cismap/topicmaps/ResponsiveInfoBox";
+import uuidv4 from "uuid/v4";
 
 import { getActionLinksForFeature } from "react-cismap/tools/uiHelper";
 import { getVCard } from "../../core/helper/featureHelper";
@@ -24,7 +25,7 @@ import Icon from "react-cismap/commons/Icon";
 
 import { useEffect } from "react";
 import { useState } from "react";
-import { getJWT } from "../../core/store/slices/auth";
+import { getJWT, getLoginFromJWT } from "../../core/store/slices/auth";
 import { showDialog } from "../../core/store/slices/app";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 // import { faFilePdf } from "@fortawesome/free-solid-svg-icons";
@@ -38,6 +39,7 @@ import {
   setVisible,
 } from "../../core/store/slices/photoLightbox";
 import { addDotThumbnail } from "./secondaryinfo/components/helper";
+import { getDB } from "../../core/store/slices/offlineDb";
 
 //---
 
@@ -46,6 +48,7 @@ const InfoBox = ({ refRoutedMap }) => {
   const dispatch = useDispatch();
   const featureCollection = useSelector(getFeatureCollection);
   const jwt = useSelector(getJWT);
+  const offlineDb = useSelector(getDB);
   const photourls = useSelector(getPhotoUrls);
   const selectedFeature = useSelector(getSelectedFeature);
   const secondaryInfoVisible = useSelector(isSecondaryInfoVisible);
@@ -226,6 +229,19 @@ const InfoBox = ({ refRoutedMap }) => {
                 }}
                 input={{ selectedFeature, vcard }}
                 onClose={(output) => {
+                  //output is in the right form to store it as parametertring in the upload offline action
+                  const login = getLoginFromJWT(jwt);
+                  offlineDb.actions.insert({
+                    id: uuidv4(),
+                    action: "uploadDocument",
+                    jwt: jwt,
+                    parameter: JSON.stringify(output),
+                    isCompleted: false,
+                    createdAt: new Date().toISOString(),
+                    updatedAt: new Date().toISOString(),
+                    applicationId: login + "@belis",
+                  });
+
                   console.log("add Photo output", output);
                 }}
               />

@@ -13,8 +13,10 @@ import cacheControlSlice from "./slices/cacheControl";
 import uiMessageSlice from "./slices/uiMessage";
 import appStateSlice from "./slices/app";
 import authSlice from "./slices/auth";
+
 import gazetteerDataSlice from "./slices/gazetteerData";
 import teamSlice from "./slices/team";
+import offlineDb from "./slices/offlineDb";
 import photoLightboxSlice from "./slices/photoLightbox";
 import { createLogger } from "redux-logger";
 import "antd/dist/antd.css";
@@ -74,6 +76,7 @@ const store = configureStore({
     uiMessage: uiMessageSlice.reducer,
     gazetteerData: gazetteerDataSlice.reducer,
     team: teamSlice.reducer,
+    offlineDb: offlineDb.reducer,
     photoLightbox: photoLightboxSlice.reducer,
   },
   devTools: devToolsEnabled === true && inProduction === false,

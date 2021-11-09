@@ -55,6 +55,7 @@ import {
 } from "../core/store/slices/cacheControl";
 import { getLoginFromJWT } from "../core/store/slices/auth";
 import { useWindowSize } from "@react-hook/window-size";
+import { getDB as getOfflineDB } from "../core/store/slices/offlineDb";
 //---------
 
 const TopNavbar = ({ innerRef, refRoutedMap, setCacheSettingsVisible, jwt }) => {
@@ -68,6 +69,8 @@ const TopNavbar = ({ innerRef, refRoutedMap, setCacheSettingsVisible, jwt }) => 
   const background = useSelector(getBackground);
   const featureCollection = useSelector(getFeatureCollection);
   const searchForbidden = useSelector(isSearchForbidden);
+  const offlineDB = useSelector(getOfflineDB);
+
   const gazData = useSelector(getGazData);
   useEffect(() => {
     dispatch(loadGazeteerEntries());
@@ -195,6 +198,19 @@ const TopNavbar = ({ innerRef, refRoutedMap, setCacheSettingsVisible, jwt }) => 
           onClick={() => {
             // dispatch(renewAllPrimaryInfoCache(jwt));
             getLoginFromJWT(jwt);
+            offlineDB.actions
+              .find()
+              .sort("createdAt")
+              .$.subscribe((actions) => {
+                if (!actions) {
+                  return;
+                }
+                console.log("actions", JSON.parse(actions[0].parameter));
+
+                // this.setState({ actions });
+              });
+
+            // console.log("actions", offlineDB.actions.find());
           }}
         >
           <Icon icon={faVial} />

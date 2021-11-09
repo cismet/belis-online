@@ -6,6 +6,7 @@ import IconComp from "react-cismap/commons/Icon";
 import { CACHE_JWT } from "react-cismap/tools/fetching";
 import { useDispatch, useSelector } from "react-redux";
 import { getLogin, storeJWT, storeLogin } from "../../core/store/slices/auth";
+import { initialize as initializeOfflineDB } from "../../core/store/slices/offlineDb";
 import { DOMAIN, REST_SERVICE } from "../../constants/belis";
 const LoginForm = ({
   setJWT = (jwt) => {
@@ -28,6 +29,27 @@ const LoginForm = ({
     overflowX: "hidden",
     maxHeight: _height,
   };
+
+  const productionMode = process.env.NODE_ENV === "production";
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const result = await fetch("devSecrets.json");
+        const cheats = await result.json();
+        console.log("x", cheats);
+        if (cheats.cheatingUser) {
+          setUser(cheats.cheatingUser);
+        }
+        if (cheats.cheatingPassword) {
+          setPw(cheats.cheatingPassword);
+        }
+      } catch (e) {
+        console.log("no devSecrets.json found");
+      }
+    })();
+  }, [productionMode]);
+
   const [user, _setUser] = useState(storedLogin);
   const [pw, setPw] = useState("");
   const [cacheDataAvailable, setCacheDataAvailable] = useState(false);
@@ -62,6 +84,7 @@ const LoginForm = ({
               setJWT(jwt);
               setLoggedOut(false);
               setLoginInfo();
+              // initializeOfflineDB(jwt, dispatch);
             }, 500);
           });
         } else {

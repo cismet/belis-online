@@ -33,7 +33,7 @@ const Teams = () => {
           teams.map((team, index) => {
             if (selectedTeam?.id === team.id) {
               return (
-                <span style={{ padding: 3 }}>
+                <span key={"buttonspan." + index} style={{ padding: 3 }}>
                   <Button disabled variant='primary' key={team + index}>
                     {team.name}
                   </Button>
@@ -41,7 +41,7 @@ const Teams = () => {
               );
             } else {
               return (
-                <span style={{ padding: 3 }}>
+                <span key={"buttonspan." + index} style={{ padding: 3 }}>
                   <Button
                     onClick={() => {
                       dispatch(setTeam(team));

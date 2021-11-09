@@ -40,7 +40,7 @@ const CacheItem = ({ control, renew, refresh = () => {} }) => {
   } = control;
 
   const controls = (
-    <td style={{ width: 120, whiteSpace: "nowrap" }}>
+    <td key={"td." + key} style={{ width: 120, whiteSpace: "nowrap" }}>
       <Button
         style={{ margin: 3 }}
         variant='outline-primary'
@@ -67,57 +67,85 @@ const CacheItem = ({ control, renew, refresh = () => {} }) => {
   );
 
   const counts = (
-    <td style={{ textAlign: "right", paddingLeft: "25px", paddingRight: "15px" }}>{objectCount}</td>
+    <td
+      key={"td.counts.1." + key}
+      style={{ textAlign: "right", paddingLeft: "25px", paddingRight: "15px" }}
+    >
+      {objectCount}
+    </td>
   );
   const cols = [];
   cols[0] = controls;
   cols[1] = counts;
 
   if (loadingState === undefined) {
-    cols[3] = <td style={{ textAlign: "left", width: "100%" }}>{name}</td>;
+    cols[3] = (
+      <td key={"td[3]." + key} style={{ textAlign: "left", width: "100%" }}>
+        {name}
+      </td>
+    );
     cols[4] = (
-      <td style={{ textAlign: "left", paddingLeft: "25px", whiteSpace: "nowrap" }}>
+      <td
+        key={"td[4]." + key}
+        style={{ textAlign: "left", paddingLeft: "25px", whiteSpace: "nowrap" }}
+      >
         <Icon icon={faCalendarAlt} /> {getUpdateString(lastUpdate)}
       </td>
     );
   } else if (loadingState === "loading") {
     // setStartTime(new Date().getTime());
-    cols[3] = <td style={{ textAlign: "left", width: "100%" }}>{name}</td>;
+    cols[3] = (
+      <td key={"td[3]." + key} style={{ textAlign: "left", width: "100%" }}>
+        {name}
+      </td>
+    );
     cols[4] = (
-      <td style={{ textAlign: "left", paddingLeft: "25px", whiteSpace: "nowrap" }}>
+      <td
+        key={"td[4]." + key}
+        style={{ textAlign: "left", paddingLeft: "25px", whiteSpace: "nowrap" }}
+      >
         <Icon spin icon={faSpinner} /> laden
       </td>
     );
   } else if (loadingState === "caching") {
     cols[3] = (
-      <td style={{ textAlign: "left", width: "100%" }}>
+      <td key={"td[3]." + key} style={{ textAlign: "left", width: "100%" }}>
         <ProgressBar animated now={cachingProgress} label={name} max={updateCount} />
       </td>
     );
     cols[4] = (
-      <td style={{ textAlign: "left", whiteSpace: "nowrap", paddingLeft: "25px" }}>
+      <td
+        key={"td[4]." + key}
+        style={{ textAlign: "left", whiteSpace: "nowrap", paddingLeft: "25px" }}
+      >
         <Icon spin icon={faSpinner} /> {updateCount} schreiben
       </td>
     );
   } else if (loadingState === "cached") {
     cols[3] = (
-      <td style={{ textAlign: "left", width: "100%" }}>
-        <ProgressBar now={updateCount} label={name} max={updateCount} />
+      <td key={"td[3]." + key} style={{ textAlign: "left", width: "100%" }}>
+        <ProgressBar key={"ProgressBar." + key} now={updateCount} label={name} max={updateCount} />
       </td>
     );
     cols[4] = (
-      <td style={{ textAlign: "left", whiteSpace: "nowrap", paddingLeft: "25px" }}>
+      <td
+        key={"td[4]." + key}
+        style={{ textAlign: "left", whiteSpace: "nowrap", paddingLeft: "25px" }}
+      >
         <Icon icon={faCheckCircle} /> {updateCount} geschrieben
       </td>
     );
   } else if (loadingState === "problem") {
     cols[3] = (
-      <td style={{ textAlign: "left", width: "100%" }}>
+      <td key={"td[3]." + key} style={{ textAlign: "left", width: "100%" }}>
         <ProgressBar variant='warning' now={100} label={name} max={100} />
       </td>
     );
     cols[4] = (
-      <td style={{ textAlign: "left", whiteSpace: "nowrap", paddingLeft: "25px" }}>
+      <td
+        key={"td[4]." + key}
+        tyle={{ textAlign: "left", whiteSpace: "nowrap", paddingLeft: "25px" }}
+      >
         <Icon icon={faExclamationCircle} /> Problem
       </td>
     );
