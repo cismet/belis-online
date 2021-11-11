@@ -9,7 +9,6 @@ import {
 } from "../../core/store/slices/featureCollection";
 // import ResponsiveInfoBox from "./ResponsiveInfoBox";
 import ResponsiveInfoBox, { MODES } from "react-cismap/topicmaps/ResponsiveInfoBox";
-import uuidv4 from "uuid/v4";
 
 import { getActionLinksForFeature } from "react-cismap/tools/uiHelper";
 import { getVCard } from "../../core/helper/featureHelper";
@@ -39,7 +38,7 @@ import {
   setVisible,
 } from "../../core/store/slices/photoLightbox";
 import { addDotThumbnail } from "./secondaryinfo/components/helper";
-import { getDB } from "../../core/store/slices/offlineDb";
+import { getDB, processAddImageToObject } from "../../core/store/slices/offlineDb";
 
 //---
 
@@ -228,21 +227,8 @@ const InfoBox = ({ refRoutedMap }) => {
                   dispatch(showDialog());
                 }}
                 input={{ selectedFeature, vcard }}
-                onClose={(output) => {
-                  //output is in the right form to store it as parametertring in the upload offline action
-                  const login = getLoginFromJWT(jwt);
-                  offlineDb.actions.insert({
-                    id: uuidv4(),
-                    action: "uploadDocument",
-                    jwt: jwt,
-                    parameter: JSON.stringify(output),
-                    isCompleted: false,
-                    createdAt: new Date().toISOString(),
-                    updatedAt: new Date().toISOString(),
-                    applicationId: login + "@belis",
-                  });
-
-                  console.log("add Photo output", output);
+                onClose={(addImageParamater) => {
+                  dispatch(processAddImageToObject(addImageParamater));
                 }}
               />
             )

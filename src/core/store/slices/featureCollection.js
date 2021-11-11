@@ -409,7 +409,7 @@ export const loadObjectsIntoFeatureCollection = ({
   }
 };
 
-export const enrichAndSetFeatures = (dispatch, state, featureCollectionIn) => {
+const enrichAndSetFeatures = (dispatch, state, featureCollectionIn) => {
   const tasks = [];
 
   const newFeatures = [];
@@ -442,6 +442,10 @@ export const enrichAndSetFeatures = (dispatch, state, featureCollectionIn) => {
       let selectionStillInMap = false;
 
       for (const feature of enrichedFeatureCollection) {
+        feature.intermediateResultsIntegrated = new Date().getTime();
+        console.log("feature", feature.intermediateResultsIntegrated, feature);
+        _integrateIntermediateResults(feature, state.offlineDb.intermediateResults);
+
         if (typeCount[feature.featuretype] === undefined) {
           typeCount[feature.featuretype] = 1;
         } else {
@@ -479,6 +483,25 @@ export const enrichAndSetFeatures = (dispatch, state, featureCollectionIn) => {
       //todo: do something
     }
   );
+};
+
+const _integrateIntermediateResults = (feature, intermediateResults) => {
+  const now = new Date().getTime();
+  const featuretype = feature.featuretype;
+  const id = feature.properties.id;
+  if (intermediateResults[featuretype] && intermediateResults[featuretype][id]) {
+    const intermediateResultsForFeature = intermediateResults[featuretype][id];
+    feature.properties.intermediateResults = intermediateResultsForFeature;
+    console.log("intermediate Result for feature " + feature.id, intermediateResultsForFeature);
+  }
+};
+
+export const integrateIntermediateResults = () => {
+  return async (dispatch, getState) => {
+    const state = getState();
+    const featureCollection = getFeatureCollection(state);
+    const selectedFeature = getSelectedFeature(state);
+  };
 };
 
 export const timeout = (ms) => {
