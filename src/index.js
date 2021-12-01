@@ -10,7 +10,7 @@ import "react-cismap/topicMaps.css";
 import "whatwg-fetch";
 import ResponsiveTopicMapContextProvider from "react-cismap/contexts/ResponsiveTopicMapContextProvider";
 import UIContextProvider from "react-cismap/contexts/UIContextProvider";
-
+import "antd/dist/antd.css";
 // import * as InfoboxStories from "./_stories/InfoBox.stories";
 
 ReactDOM.render(
