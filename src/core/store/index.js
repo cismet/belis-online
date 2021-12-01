@@ -19,7 +19,8 @@ import teamSlice from "./slices/team";
 import offlineDb from "./slices/offlineDb";
 import photoLightboxSlice from "./slices/photoLightbox";
 import { createLogger } from "redux-logger";
-import "antd/dist/antd.css";
+import { persistReducer } from "redux-persist";
+import localForage from "localforage";
 
 console.log("store initializing ....");
 const devToolsEnabled =
@@ -61,6 +62,13 @@ const middleware = [...getDefaultMiddleware({ immutableCheck: false, serializabl
 if (stateLoggingEnabled === true) {
   middleware.push(logger);
 }
+
+const offlineDbConfig = {
+  key: "offlineDb",
+  storage: localForage,
+  whitelist: ["intermediateResults"],
+};
+
 const store = configureStore({
   reducer: {
     app: appStateSlice.reducer,
@@ -76,7 +84,7 @@ const store = configureStore({
     uiMessage: uiMessageSlice.reducer,
     gazetteerData: gazetteerDataSlice.reducer,
     team: teamSlice.reducer,
-    offlineDb: offlineDb.reducer,
+    offlineDb: persistReducer(offlineDbConfig, offlineDb.reducer),
     photoLightbox: photoLightboxSlice.reducer,
   },
   devTools: devToolsEnabled === true && inProduction === false,

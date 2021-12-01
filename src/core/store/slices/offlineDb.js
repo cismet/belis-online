@@ -1,10 +1,11 @@
 import { createSlice } from "@reduxjs/toolkit";
+import localforage from "localforage";
 import * as offlineDatabase from "../../commons/offlineDbHelper";
 import { getJWT, getLoginFromJWT } from "./auth";
-import uuidv4 from "uuid/v4";
+import { integrateIntermediateResultsIntofeatureCollection } from "./featureCollection";
 
 const LOCALSTORAGE_KEY = "@belis.app.offlineDB";
-const initialState = JSON.parse(localStorage.getItem(LOCALSTORAGE_KEY)) || {};
+const initialState = {};
 
 const slice = createSlice({
   name: "offlineDb",
@@ -12,15 +13,11 @@ const slice = createSlice({
   reducers: {
     storeDB(state, action) {
       state.db = action.payload;
-      // localStorage.setItem(LOCALSTORAGE_KEY, JSON.stringify(state));
       return state;
     },
     storeIntermediateResults(state, action) {
       state.intermediateResults = action.payload;
-      localStorage.setItem(
-        LOCALSTORAGE_KEY,
-        JSON.stringify({ intermediateResults: state.intermediateResults })
-      );
+
       return state;
     },
   },
@@ -91,9 +88,15 @@ const addIntermediateResult = (intermediateResult) => {
     intermediateResults[intermediateResult.object_type][intermediateResult.object_id][
       intermediateResult.resultType
     ].push(intermediateResult.data);
-    console.log("store intermediateResults", intermediateResults);
-
+    if (intermediateResults["schaltstelle"] && intermediateResults["schaltstelle"][1444]) {
+      console.log("store intermediateResults", intermediateResults);
+      console.log(
+        "count intermediateResults of schaltstelle-1444",
+        intermediateResults["schaltstelle"][1444].image.length
+      );
+    }
     dispatch(storeIntermediateResults(intermediateResults));
+    dispatch(integrateIntermediateResultsIntofeatureCollection(intermediateResults));
   };
 };
 
