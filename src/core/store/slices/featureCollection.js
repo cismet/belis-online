@@ -13,9 +13,14 @@ import bboxPolygon from "@turf/bbox-polygon";
 import { fetchGraphQL } from "../../commons/graphql";
 import onlineQueryParts, { geomFactories } from "../../queries/online";
 import { storeJWT } from "../slices/auth";
-import { addPropertiesToFeature, compareFeature } from "../../helper/featureHelper";
+import {
+  addPropertiesToFeature,
+  compareFeature,
+  integrateIntermediateResults,
+} from "../../helper/featureHelper";
 import proj4 from "proj4";
 import { MappingConstants } from "react-cismap";
+import { getIntermediateResults } from "./offlineDb";
 
 // ----
 
@@ -443,8 +448,9 @@ const enrichAndSetFeatures = (dispatch, state, featureCollectionIn) => {
 
       for (const feature of enrichedFeatureCollection) {
         feature.intermediateResultsIntegrated = new Date().getTime();
-        console.log("feature", feature.intermediateResultsIntegrated, feature);
-        _integrateIntermediateResults(feature, state.offlineDb.intermediateResults);
+        //  console.log("feature", feature.intermediateResultsIntegrated, feature);
+        integrateIntermediateResults(feature, state.offlineDb.intermediateResults);
+        console.log("xxx integrateIntermediateResults", feature.properties.docs);
 
         if (typeCount[feature.featuretype] === undefined) {
           typeCount[feature.featuretype] = 1;
@@ -476,6 +482,8 @@ const enrichAndSetFeatures = (dispatch, state, featureCollectionIn) => {
       }
       dispatch(setFeatureCollectionInfo({ typeCount }));
       dispatch(setFeatureCollection(sortedElements));
+      console.log("xxx setFeatureCollection", sortedElements);
+
       dispatch(setDone(true));
     },
     (error) => {
@@ -489,18 +497,46 @@ const _integrateIntermediateResults = (feature, intermediateResults) => {
   const now = new Date().getTime();
   const featuretype = feature.featuretype;
   const id = feature.properties.id;
-  if (intermediateResults[featuretype] && intermediateResults[featuretype][id]) {
-    const intermediateResultsForFeature = intermediateResults[featuretype][id];
+  if (
+    intermediateResults &&
+    intermediateResults[featuretype] &&
+    intermediateResults[featuretype][id]
+  ) {
+    const intermediateResultsForFeature = JSON.parse(
+      JSON.stringify(intermediateResults[featuretype][id])
+    );
+    console.log("xxx intermediateResults", feature.properties.intermediateResults);
+
     feature.properties.intermediateResults = intermediateResultsForFeature;
-    console.log("intermediate Result for feature " + feature.id, intermediateResultsForFeature);
+    console.log("xxx intermediateResults", feature.properties.intermediateResults);
+
+    console.log("xxx intermediate Result for feature " + feature.id, intermediateResultsForFeature);
   }
 };
-
-export const integrateIntermediateResults = () => {
-  return async (dispatch, getState) => {
+export const reSetSelecteFeatureFromCollection = () => {
+  return (dispatch, getState) => {
     const state = getState();
     const featureCollection = getFeatureCollection(state);
-    const selectedFeature = getSelectedFeature(state);
+    const oldSelectedFeature = getSelectedFeature(state);
+    const selectedFeature = featureCollection.find((f) => f.id === oldSelectedFeature.id);
+    dispatch(setSelectedFeature(selectedFeature));
+  };
+};
+
+export const integrateIntermediateResultsIntofeatureCollection = (intermediateResults) => {
+  return async (dispatch, getState) => {
+    const state = getState();
+    // need to create a new featurecollection because the retrieved collection is immutable
+    const featureCollection = JSON.parse(JSON.stringify(getFeatureCollection(state)));
+
+    const _intermediateResults = intermediateResults || getIntermediateResults(state);
+    for (const feature of featureCollection) {
+      integrateIntermediateResults(feature, _intermediateResults);
+    }
+
+    //re set the featurecollection
+    dispatch(setFeatureCollection(featureCollection));
+    dispatch(reSetSelecteFeatureFromCollection());
   };
 };
 

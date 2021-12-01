@@ -593,6 +593,121 @@ export const addPropertiesToFeature = async (feature) => {
   }
 };
 
+const type2Caption = (type) => {
+  switch (type) {
+    case "tdta_leuchten":
+      return "Leuchte";
+    case "Leitung":
+    case "leitung":
+      return "Leitung";
+    case "mauerlasche":
+      return "Mauerlasche";
+    case "schaltstelle":
+      return "Schaltstelle";
+    case "abzweigdose":
+      return "Abzweigdose";
+    case "tdta_standort_mast":
+      return "Standort";
+    default:
+  }
+};
+
+const getIntermediateResultsImages = (item, intermediateResults, itemtype) => {
+  if (
+    item &&
+    intermediateResults &&
+    intermediateResults[itemtype] &&
+    intermediateResults[itemtype][item.id]?.image
+  ) {
+    const docs = [];
+    console.log(
+      "xxx intermediateResults[itemtype][item.id]",
+      intermediateResults[itemtype][item.id]
+    );
+
+    for (const image of intermediateResults[itemtype][item.id].image) {
+      console.log("xxx image", image);
+
+      docs.push({
+        intermediate: true,
+        url: image.imageData,
+        caption: type2Caption(itemtype),
+        description: image.description,
+      });
+    }
+    return docs;
+  }
+  return [];
+};
+
+export const integrateIntermediateResults = (feature, intermediateResults) => {
+  const item = feature.properties;
+  let docs = [];
+  switch (feature.featuretype) {
+    case "tdta_leuchten":
+      //docs
+      docs = getIntermediateResultsImages(item, intermediateResults, "tdta_leuchten");
+      docs = [
+        ...docs,
+        ...getIntermediateResultsImages(
+          item?.fk_standort,
+          intermediateResults,
+          "tdta_standort_mast"
+        ),
+      ];
+      docs = [
+        ...docs,
+        ...getIntermediateResultsImages(item?.fk_leuchttyp, intermediateResults, "Leuchtentyp"),
+      ];
+      docs = [
+        ...docs,
+        ...getIntermediateResultsImages(
+          item?.fk_standort?.tkey_masttyp,
+          intermediateResults,
+          "Masttyp"
+        ),
+      ];
+      console.log("xxx will add " + docs.length + " documents to leuchte" + item.id, docs);
+
+      item.docs.concat(docs);
+      break;
+    case "Leitung":
+    case "leitung":
+      docs = getIntermediateResultsImages(item, intermediateResults, "leitung");
+      item.docs.concat(docs);
+      break;
+    case "mauerlasche":
+      docs = getIntermediateResultsImages(item, intermediateResults, "mauerlasche");
+      item.docs.concat(docs);
+      break;
+    case "schaltstelle":
+      docs = getIntermediateResultsImages(item, intermediateResults, "schaltstelle");
+      docs.concat(
+        getIntermediateResultsImages(
+          item?.rundsteuerempfaenger,
+          intermediateResults,
+          "Rundsteuerempfänger"
+        )
+      );
+      console.log("xxx docs to concat", docs);
+      item.docs = [...item.docs, ...docs];
+      console.log("xxx item.docs after concat", item.docs);
+
+      break;
+    case "abzweigdose":
+      docs = getIntermediateResultsImages(item, intermediateResults, "abzweigdose");
+      item.docs.concat(docs);
+      break;
+    case "tdta_standort_mast":
+      docs = getIntermediateResultsImages(item, intermediateResults, "tdta_standort_mast");
+      docs.concat(getIntermediateResultsImages(item?.tkey_masttyp, intermediateResults, "Masttyp"));
+      item.docs.concat(docs);
+
+      break;
+    default:
+  }
+};
+
 const compareValue = (a, b) => {
   if (a === b) {
     return 0;
