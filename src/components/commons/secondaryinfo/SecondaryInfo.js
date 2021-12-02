@@ -153,6 +153,13 @@ export const InfoPanelComponent = ({ selectedFeature, dispatch }) => {
       delete hitForRawDisplay.geojson;
       delete hitForRawDisplay.full_tdta_standort_mast;
 
+      for (const doc of hitForRawDisplay.docs) {
+        if (doc.intermediate) {
+          // set the url of the first 30 chars of the url to save memory
+          doc.url = doc.url.substring(0, 30) + "...";
+        }
+      }
+
       subSections.push(
         <SecondaryInfoPanelSection key='standort' bsStyle='light' header={rawDataDesc}>
           <div style={{ fontSize: "115%", padding: "10px", paddingTop: "0px" }}>
