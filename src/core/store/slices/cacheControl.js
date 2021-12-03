@@ -160,6 +160,13 @@ export const isCacheFullUsable = (state) => {
       state.cacheControl.types[key].loadingState === "loading" ||
       state.cacheControl.types[key].loadingState === "caching"
     ) {
+      console.log(
+        "isCacheFullUsable denied. first reason: " + key,
+        state.cacheControl.types[key].lastUpdate,
+        state.cacheControl.types[key].loadingState,
+        state.cacheControl.types[key].loadingState
+      );
+
       return false;
     }
   }

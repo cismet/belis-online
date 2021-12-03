@@ -640,9 +640,64 @@ const getIntermediateResultsImages = (item, intermediateResults, itemtype) => {
   return [];
 };
 
+export const getIntermediateResultsToBeRemoved = (feature) => {
+  const item = feature.properties;
+  const intermediateResultsToBeRemoved = [{ object_type: feature.featuretype, object_id: item.id }];
+
+  switch (feature.featuretype) {
+    case "tdta_leuchten":
+      intermediateResultsToBeRemoved.push({
+        object_type: "tdta_standort_mast",
+        object_id: item?.fk_standort?.id,
+      });
+      intermediateResultsToBeRemoved.push({
+        object_type: "tkey_leuchtentyp",
+        object_id: item?.fk_leuchttyp?.id,
+      });
+      intermediateResultsToBeRemoved.push({
+        object_type: "tkey_masttyp",
+        object_id: item?.fk_standort?.fk_masttyp?.id,
+      });
+
+      break;
+    case "Leitung":
+    case "leitung":
+      // nothing to do
+      break;
+    case "mauerlasche":
+      // nothing to do
+      break;
+    case "schaltstelle":
+      if (item?.rundsteuerempfaenger) {
+        intermediateResultsToBeRemoved.push({
+          object_type: "rundsteuerempfaenger",
+          object_id: item?.rundsteuerempfaenger?.id,
+        });
+      }
+
+      break;
+    case "abzweigdose":
+      // nothing to do
+      break;
+    case "tdta_standort_mast":
+      intermediateResultsToBeRemoved.push({
+        object_type: "tkey_masttyp",
+        object_id: item?.fk_masttyp?.id,
+      });
+      break;
+    default:
+  }
+  return intermediateResultsToBeRemoved;
+};
+
 export const integrateIntermediateResults = (feature, intermediateResults) => {
   const item = feature.properties;
   let docs = [];
+  //remove intermediate results in item.docs
+  if (item.docs) {
+    docs = item.docs.filter((doc) => !doc.intermediate);
+  }
+
   switch (feature.featuretype) {
     case "tdta_leuchten":
       //docs
@@ -657,18 +712,20 @@ export const integrateIntermediateResults = (feature, intermediateResults) => {
       ];
       docs = [
         ...docs,
-        ...getIntermediateResultsImages(item?.fk_leuchttyp, intermediateResults, "Leuchtentyp"),
+        ...getIntermediateResultsImages(
+          item?.fk_leuchttyp,
+          intermediateResults,
+          "tkey_leuchtentyp"
+        ),
       ];
       docs = [
         ...docs,
         ...getIntermediateResultsImages(
           item?.fk_standort?.tkey_masttyp,
           intermediateResults,
-          "Masttyp"
+          "tkey_masttyp"
         ),
       ];
-      console.log("xxx will add " + docs.length + " documents to leuchte" + item.id, docs);
-
       item.docs.concat(docs);
       break;
     case "Leitung":
@@ -689,9 +746,7 @@ export const integrateIntermediateResults = (feature, intermediateResults) => {
           "Rundsteuerempfänger"
         )
       );
-      console.log("xxx docs to concat", docs);
       item.docs = [...item.docs, ...docs];
-      console.log("xxx item.docs after concat", item.docs);
 
       break;
     case "abzweigdose":
@@ -700,7 +755,9 @@ export const integrateIntermediateResults = (feature, intermediateResults) => {
       break;
     case "tdta_standort_mast":
       docs = getIntermediateResultsImages(item, intermediateResults, "tdta_standort_mast");
-      docs.concat(getIntermediateResultsImages(item?.tkey_masttyp, intermediateResults, "Masttyp"));
+      docs.concat(
+        getIntermediateResultsImages(item?.tkey_masttyp, intermediateResults, "tkey_masttyp")
+      );
       item.docs.concat(docs);
 
       break;

@@ -17,10 +17,11 @@ import {
   addPropertiesToFeature,
   compareFeature,
   integrateIntermediateResults,
+  getIntermediateResultsToBeRemoved,
 } from "../../helper/featureHelper";
 import proj4 from "proj4";
 import { MappingConstants } from "react-cismap";
-import { getIntermediateResults } from "./offlineDb";
+import { getIntermediateResults, removeIntermediateResults } from "./offlineDb";
 
 // ----
 
@@ -322,7 +323,7 @@ export const loadObjectsIntoFeatureCollection = ({
             .then((pointFeatureCollection) => {
               //console.log('xxx alle Features da ', new Date().getTime() - d);
               const featureCollection = leitungsFeatures.concat(pointFeatureCollection);
-              enrichAndSetFeatures(dispatch, state, featureCollection);
+              enrichAndSetFeatures(dispatch, state, featureCollection, false);
               //console.log('xxx vor setFeatureCollection');
               //console.log("updated featureCollection ", featureCollection);
 
@@ -348,7 +349,6 @@ export const loadObjectsIntoFeatureCollection = ({
 
           try {
             const response = await fetchGraphQL(gqlQuery, queryParameter, jwt);
-            // alert(JSON.stringify(response));
             if (response) {
               const featureCollection = [];
               for (const key of Object.keys(response.data || {})) {
@@ -380,12 +380,14 @@ export const loadObjectsIntoFeatureCollection = ({
                   feature.properties = o;
                   feature.id = feature.id + "-" + o.id;
 
+                  console.log("fresh loaded feature", feature);
+
                   featureCollection.push(feature);
                 }
               }
               //featureCollection[0].selected = true;
               // dispatch(setFeatureCollection(featureCollection));
-              enrichAndSetFeatures(dispatch, state, featureCollection);
+              enrichAndSetFeatures(dispatch, state, featureCollection, true);
             } else {
               console.log("response was undefined");
               // dispatch(setRequestBasis(undefined));
@@ -414,7 +416,12 @@ export const loadObjectsIntoFeatureCollection = ({
   }
 };
 
-const enrichAndSetFeatures = (dispatch, state, featureCollectionIn) => {
+const enrichAndSetFeatures = (
+  dispatch,
+  state,
+  featureCollectionIn,
+  removeFromIntermediateResults
+) => {
   const tasks = [];
 
   const newFeatures = [];
@@ -440,6 +447,8 @@ const enrichAndSetFeatures = (dispatch, state, featureCollectionIn) => {
     tasks.push(addPropertiesToFeature(f));
   }
   const selectedFeature = getSelectedFeature(state);
+  let intermediateResultsToBeRemoved = [];
+
   Promise.all(tasks).then(
     (enrichedFeatureCollection) => {
       const sortedElements = [];
@@ -449,8 +458,12 @@ const enrichAndSetFeatures = (dispatch, state, featureCollectionIn) => {
       for (const feature of enrichedFeatureCollection) {
         feature.intermediateResultsIntegrated = new Date().getTime();
         //  console.log("feature", feature.intermediateResultsIntegrated, feature);
-        integrateIntermediateResults(feature, state.offlineDb.intermediateResults);
-        console.log("xxx integrateIntermediateResults", feature.properties.docs);
+        if (removeFromIntermediateResults === true) {
+          const throwAway = getIntermediateResultsToBeRemoved(feature);
+          intermediateResultsToBeRemoved = [...intermediateResultsToBeRemoved, ...throwAway];
+        } else {
+          integrateIntermediateResults(feature, state.offlineDb.intermediateResults);
+        }
 
         if (typeCount[feature.featuretype] === undefined) {
           typeCount[feature.featuretype] = 1;
@@ -480,6 +493,8 @@ const enrichAndSetFeatures = (dispatch, state, featureCollectionIn) => {
       for (const f of sortedElements) {
         f.index = index++;
       }
+
+      dispatch(removeIntermediateResults(intermediateResultsToBeRemoved));
       dispatch(setFeatureCollectionInfo({ typeCount }));
       dispatch(setFeatureCollection(sortedElements));
       console.log("xxx setFeatureCollection", sortedElements);

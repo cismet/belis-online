@@ -1,10 +1,9 @@
 import { createSlice } from "@reduxjs/toolkit";
-import localforage from "localforage";
 import * as offlineDatabase from "../../commons/offlineDbHelper";
 import { getJWT, getLoginFromJWT } from "./auth";
 import { integrateIntermediateResultsIntofeatureCollection } from "./featureCollection";
+import uuidv4 from "uuid/v4";
 
-const LOCALSTORAGE_KEY = "@belis.app.offlineDB";
 const initialState = {};
 
 const slice = createSlice({
@@ -53,6 +52,43 @@ export const initialize = async (jwt, dispatch) => {
   }
 };
 
+export const clearIntermediateResults = (object_type) => {
+  return async (dispatch, getState) => {
+    const stateIntermediateResults = getIntermediateResults(getState()) || {};
+    let intermediateResultsCopy;
+    if (stateIntermediateResults[object_type]) {
+      if (!intermediateResultsCopy) {
+        intermediateResultsCopy = JSON.parse(JSON.stringify(stateIntermediateResults));
+      }
+      delete intermediateResultsCopy[object_type];
+    }
+    if (intermediateResultsCopy) {
+      dispatch(storeIntermediateResults(intermediateResultsCopy));
+    }
+  };
+};
+
+export const removeIntermediateResults = (intermediateResultsToRemove) => {
+  return async (dispatch, getState) => {
+    const stateIntermediateResults = getIntermediateResults(getState()) || {};
+    let intermediateResultsCopy;
+    for (const intermediateResult of intermediateResultsToRemove) {
+      const { object_type, object_id } = intermediateResult;
+      if (
+        stateIntermediateResults[object_type] &&
+        stateIntermediateResults[object_type][object_id]
+      ) {
+        if (!intermediateResultsCopy) {
+          intermediateResultsCopy = JSON.parse(JSON.stringify(stateIntermediateResults));
+        }
+        delete intermediateResultsCopy[object_type][object_id];
+      }
+    }
+    if (intermediateResultsCopy) {
+      dispatch(storeIntermediateResults(intermediateResultsCopy));
+    }
+  };
+};
 const addIntermediateResult = (intermediateResult) => {
   return async (dispatch, getState) => {
     // intermediate result has the following attributes
@@ -106,16 +142,16 @@ export const processAddImageToObject = (addImageParameter) => {
     const offlineDb = getDB(state);
     const jwt = getJWT(state);
     const login = getLoginFromJWT(jwt);
-    // offlineDb.actions.insert({
-    //   id: uuidv4(),
-    //   action: "uploadDocument",
-    //   jwt: jwt,
-    //   parameter: JSON.stringify(addImageParameter),
-    //   isCompleted: false,
-    //   createdAt: new Date().toISOString(),
-    //   updatedAt: new Date().toISOString(),
-    //   applicationId: login + "@belis",
-    // });
+    offlineDb.actions.insert({
+      id: uuidv4(),
+      action: "uploadDocument",
+      jwt: jwt,
+      parameter: JSON.stringify(addImageParameter),
+      isCompleted: false,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      applicationId: login + "@belis",
+    });
 
     console.log("added object to offline db to uploadDocument", addImageParameter);
 
