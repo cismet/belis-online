@@ -47,8 +47,6 @@ const InfoBox = ({ refRoutedMap }) => {
   const dispatch = useDispatch();
   const featureCollection = useSelector(getFeatureCollection);
   const jwt = useSelector(getJWT);
-  const offlineDb = useSelector(getDB);
-  const photourls = useSelector(getPhotoUrls);
   const selectedFeature = useSelector(getSelectedFeature);
   const secondaryInfoVisible = useSelector(isSecondaryInfoVisible);
   const { setCollapsedInfoBox } = useContext(UIDispatchContext);
@@ -75,40 +73,50 @@ const InfoBox = ({ refRoutedMap }) => {
     const photourls = [];
 
     const captions = [];
-    for (const doc of selectedFeature.properties.docs || []) {
-      let url = getWebDavUrl(jwt, doc);
 
-      if (url.endsWith(".jpg")) {
-        url += ".thumbnail.jpg";
-      } else if (url.endsWith(".png")) {
-        url += ".thumbnail.png";
-      } else if (url.endsWith(".pdf")) {
-        url += ".thumbnail.jpg";
-      } else {
-      }
-      photourls.push(url);
+    // collect all photo urls from selected feature
+    for (const doc of selectedFeature.properties.docs || []) {
       let openPDFLink;
-      if (doc?.doc && doc?.doc.endsWith(".pdf")) {
-        openPDFLink = (
-          <span style={{ marginLeft: 30 }}>
-            <a href={getWebDavUrl(jwt, doc)} target='_pdf'>
-              PDF extern öffnen
-            </a>
-          </span>
-        );
+      if (doc.intermediate) {
+        photourls.push(doc.url);
+      } else {
+        let url = getWebDavUrl(jwt, doc);
+
+        if (url.endsWith(".jpg")) {
+          url += ".thumbnail.jpg";
+        } else if (url.endsWith(".png")) {
+          url += ".thumbnail.png";
+        } else if (url.endsWith(".pdf")) {
+          url += ".thumbnail.jpg";
+        } else {
+        }
+        photourls.push(url);
+
+        if (doc?.doc && doc?.doc.endsWith(".pdf")) {
+          openPDFLink = (
+            <span style={{ marginLeft: 30 }}>
+              <a href={getWebDavUrl(jwt, doc)} target='_pdf'>
+                PDF extern öffnen
+              </a>
+            </span>
+          );
+        }
       }
       captions.push(
         doc.description ? (
           <div>
-            {doc.description} ({doc.caption}) {openPDFLink}
+            {doc.description}
+            {doc.intermediate === true && "*"} ({doc.caption}) {openPDFLink}
           </div>
         ) : (
           <div>
-            {doc.caption} {openPDFLink}
+            {doc.caption}
+            {doc.intermediate === true && "*"} {openPDFLink}
           </div>
         )
       );
     }
+
     dispatch(
       setPhotoLightBoxData({
         title: vcard?.infobox?.title,
@@ -215,7 +223,6 @@ const InfoBox = ({ refRoutedMap }) => {
       );
 
     links.push(
-      // <input accept='image/*' id='icon-button-file' type='file' capture='environment' />
       <IconLink
         key={`addPhoto`}
         tooltip={"Foto hinzufügen"}
