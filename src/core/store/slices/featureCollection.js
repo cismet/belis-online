@@ -23,56 +23,19 @@ import proj4 from "proj4";
 import { MappingConstants } from "react-cismap";
 import { getIntermediateResults, removeIntermediateResults } from "./offlineDb";
 
-// ----
-
-// const compareFeature = (a, b) => {
-//   try {
-//     if (a.featuretype < b.featuretype) {
-//       return 1;
-//     } else if (a.featuretype > b.featuretype) {
-//       return -1;
-//     } else {
-//       return a.properties.compare(a.properties, b.properties);
-//     }
-//   } catch (e) {
-//     console.log("error", e);
-//     console.log("a", a);
-//     console.log("b", b);
-
-//     return -1;
-//   }
-// };
-
-const featuresEqual = (a, b) => {
-  if (a && b) {
-    if (a.featuretype === b.featuretype) {
-      return a.properties.id === b.properties.id;
-    }
-  }
-
-  return false;
-};
-const LOCALSTORAGE_KEY_IN_FOCUS_MODE = "@belis.app.inFocusMode";
-
 const dexieW = dexieworker();
 const focusedSearchMinimumZoomThreshhold = 16.5;
 const searchMinimumZoomThreshhold = 17.5;
 
-const LOCALSTORAGE_KEY_FILTER = "@belis.app.filter";
-
-export const initialFilter = JSON.parse(
-  localStorage.getItem(LOCALSTORAGE_KEY_FILTER) ||
-    JSON.stringify({
-      tdta_leuchten: { title: "Leuchten", enabled: true },
-      tdta_standort_mast: { title: "Masten (ohne Leuchten)", enabled: true },
-      mauerlasche: { title: "Mauerlaschen", enabled: true },
-      leitung: { title: "Leitungen", enabled: true },
-      schaltstelle: { title: "Schaltstellen", enabled: true },
-      abzweigdose: { title: "Abzweigdosen", enabled: true },
-    })
-);
-const initialInFocusMode =
-  JSON.parse(localStorage.getItem(LOCALSTORAGE_KEY_IN_FOCUS_MODE)) || false;
+export const initialFilter = {
+  tdta_leuchten: { title: "Leuchten", enabled: true },
+  tdta_standort_mast: { title: "Masten (ohne Leuchten)", enabled: true },
+  mauerlasche: { title: "Mauerlaschen", enabled: true },
+  leitung: { title: "Leitungen", enabled: true },
+  schaltstelle: { title: "Schaltstellen", enabled: true },
+  abzweigdose: { title: "Abzweigdosen", enabled: true },
+};
+const initialInFocusMode = false;
 
 const featureCollectionSlice = createSlice({
   name: "featureCollection",
@@ -107,7 +70,6 @@ const featureCollectionSlice = createSlice({
     },
     setFilter: (state, action) => {
       state.filter = action.payload;
-      localStorage.setItem(LOCALSTORAGE_KEY_FILTER, JSON.stringify(action.payload));
     },
     setSelectedFeature: (state, action) => {
       const newFC = JSON.parse(JSON.stringify(state.features));
@@ -134,7 +96,6 @@ const featureCollectionSlice = createSlice({
     },
     setFocusModeActive: (state, action) => {
       state.inFocusMode = action.payload;
-      localStorage.setItem(LOCALSTORAGE_KEY_IN_FOCUS_MODE, JSON.stringify(action.payload));
     },
     setSecondaryInfoVisible: (state, action) => {
       state.secondaryInfoVisible = action.payload;
@@ -204,6 +165,7 @@ export const loadObjects = ({
     const _filterState = getFilter(state);
     const searchModeWished = isSearchModeWished(state);
     let searchModeActive = isSearchModeActive(state);
+
     const requestBasis = getRequestBasis(state);
 
     if (_searchForbidden === true && searchModeActive === true) {

@@ -1,6 +1,4 @@
 import { createSlice } from "@reduxjs/toolkit";
-// const LOCALSTORAGE_KEY = "@belis.app.team";
-// const initialState = JSON.parse(localStorage.getItem(LOCALSTORAGE_KEY)) || { id: -1, name: "-" }; //;
 
 const slice = createSlice({
   name: "photoLightbox",

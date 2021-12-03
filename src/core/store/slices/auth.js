@@ -1,6 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-const LOCALSTORAGE_KEY = "@belis.app.auth";
-const initialState = JSON.parse(localStorage.getItem(LOCALSTORAGE_KEY)) || {};
+const initialState = {};
 
 const slice = createSlice({
   name: "auth",
@@ -8,12 +7,10 @@ const slice = createSlice({
   reducers: {
     storeJWT(state, action) {
       state.jwt = action.payload;
-      localStorage.setItem(LOCALSTORAGE_KEY, JSON.stringify(state));
       return state;
     },
     storeLogin(state, action) {
       state.login = action.payload;
-      localStorage.setItem(LOCALSTORAGE_KEY, JSON.stringify(state));
       return state;
     },
   },

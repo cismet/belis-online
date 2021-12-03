@@ -5,8 +5,6 @@ import { fetchGraphQL } from "../../commons/graphql";
 import { initIndex } from "./spatialIndex";
 import { getLoginFromJWT } from "./auth";
 
-const LOCALSTORAGE_KEY = "@belis.app.cacheControl.v2";
-
 const dexieW = dexieworker();
 const keys = [];
 keys.push({
@@ -70,13 +68,10 @@ for (const key of keys) {
   initialTypeStateIfNotInLocalStorage[key.queryKey].key = key.queryKey;
   initialTypeStateIfNotInLocalStorage[key.queryKey].name = key.name || key.queryKey;
 }
-const initialState = JSON.parse(
-  localStorage.getItem(LOCALSTORAGE_KEY) ||
-    JSON.stringify({
-      types: initialTypeStateIfNotInLocalStorage,
-      user: undefined,
-    })
-);
+const initialState = {
+  types: initialTypeStateIfNotInLocalStorage,
+  user: undefined,
+};
 
 const cacheSlice = createSlice({
   name: "cacheControl",
@@ -94,17 +89,17 @@ const cacheSlice = createSlice({
       if (action.payload.resetTimer !== undefined) {
         state.types[action.payload.key].resetTimer = action.payload.resetTimer;
       }
-      saveState(state);
+
       return state;
     },
     setLastUpdate(state, action) {
       state.types[action.payload.key].lastUpdate = action.payload.lastUpdate;
-      saveState(state);
+
       return state;
     },
     setObjectCount(state, action) {
       state.types[action.payload.key].objectCount = action.payload.objectCount;
-      saveState(state);
+
       return state;
     },
     setUpdateCount(state, action) {
@@ -121,13 +116,6 @@ const cacheSlice = createSlice({
     },
   },
 });
-const saveState = (state) => {
-  const storedState = JSON.parse(JSON.stringify(state));
-  Object.keys(storedState.types).forEach((key) => {
-    delete storedState.types[key].loadingState;
-  });
-  localStorage.setItem(LOCALSTORAGE_KEY, JSON.stringify(storedState));
-};
 
 export default cacheSlice;
 

@@ -6,11 +6,9 @@ import spatialIndexSlice from "./slices/spatialIndex";
 import featureCollectionSlice from "./slices/featureCollection";
 import searchSlice from "./slices/search";
 import zoomSlice from "./slices/zoom";
-import testSlice from "./slices/test";
 import backgroundSlice from "./slices/background";
 import paleModeSlice from "./slices/paleMode";
 import cacheControlSlice from "./slices/cacheControl";
-import uiMessageSlice from "./slices/uiMessage";
 import appStateSlice from "./slices/app";
 import authSlice from "./slices/auth";
 
@@ -63,27 +61,72 @@ if (stateLoggingEnabled === true) {
   middleware.push(logger);
 }
 
+const appStateConfig = {
+  key: "@belis.app.state",
+  storage: localForage,
+  whitelist: ["connectionMode"],
+};
+const authConfig = {
+  key: "@belis.app.auth",
+  storage: localForage,
+  whitelist: ["jwt", "login"],
+};
+
+const featureCollectionConfig = {
+  key: "@belis.app.featureCollection",
+  storage: localForage,
+  whitelist: ["filter", "inFocusMode"],
+};
+
+const searchConfig = {
+  key: "@belis.app.search",
+  storage: localForage,
+  whitelist: ["active", "wished"],
+};
+
+const backgroundConfig = {
+  key: "@belis.app.background",
+  storage: localForage,
+  whitelist: ["layer"],
+};
+
 const offlineDbConfig = {
-  key: "offlineDb",
+  key: "@belis.app.offlineDb",
   storage: localForage,
   whitelist: ["intermediateResults"],
 };
 
+const paleModeConfig = {
+  key: "@belis.app.paleMode",
+  storage: localForage,
+  whitelist: ["mode"],
+};
+
+const cacheControlConfig = {
+  key: "@belis.app.cacheControl.v2",
+  storage: localForage,
+};
+
+const teamConfig = {
+  key: "@belis.app.team",
+  storage: localForage,
+  whitelist: ["selectedTeam"],
+};
+
 const store = configureStore({
   reducer: {
-    app: appStateSlice.reducer,
-    auth: authSlice.reducer,
+    app: persistReducer(appStateConfig, appStateSlice.reducer),
+    auth: persistReducer(authConfig, authSlice.reducer),
     spatialIndex: spatialIndexSlice.reducer,
-    testCounter: testSlice.reducer,
-    featureCollection: featureCollectionSlice.reducer,
-    search: searchSlice.reducer,
+    featureCollection: persistReducer(featureCollectionConfig, featureCollectionSlice.reducer),
+    search: persistReducer(searchConfig, searchSlice.reducer),
     zoom: zoomSlice.reducer,
-    background: backgroundSlice.reducer,
-    inPaleMode: paleModeSlice.reducer,
-    cacheControl: cacheControlSlice.reducer,
-    uiMessage: uiMessageSlice.reducer,
+    background: persistReducer(backgroundConfig, backgroundSlice.reducer),
+    paleMode: persistReducer(paleModeConfig, paleModeSlice.reducer),
+    cacheControl: persistReducer(cacheControlConfig, cacheControlSlice.reducer),
+    // uiMessage: uiMessageSlice.reducer,
     gazetteerData: gazetteerDataSlice.reducer,
-    team: teamSlice.reducer,
+    team: persistReducer(teamConfig, teamSlice.reducer),
     offlineDb: persistReducer(offlineDbConfig, offlineDb.reducer),
     photoLightbox: photoLightboxSlice.reducer,
   },
