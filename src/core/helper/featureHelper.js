@@ -695,13 +695,14 @@ export const integrateIntermediateResults = (feature, intermediateResults) => {
   let docs = [];
   //remove intermediate results in item.docs
   if (item.docs) {
-    docs = item.docs.filter((doc) => !doc.intermediate);
+    item.docs = item.docs.filter((doc) => !doc.intermediate);
   }
 
+  docs = getIntermediateResultsImages(item, intermediateResults, feature.featuretype.toLowerCase());
   switch (feature.featuretype) {
     case "tdta_leuchten":
       //docs
-      docs = getIntermediateResultsImages(item, intermediateResults, "tdta_leuchten");
+
       docs = [
         ...docs,
         ...getIntermediateResultsImages(
@@ -726,19 +727,13 @@ export const integrateIntermediateResults = (feature, intermediateResults) => {
           "tkey_masttyp"
         ),
       ];
-      item.docs.concat(docs);
       break;
     case "Leitung":
     case "leitung":
-      docs = getIntermediateResultsImages(item, intermediateResults, "leitung");
-      item.docs.concat(docs);
       break;
     case "mauerlasche":
-      docs = getIntermediateResultsImages(item, intermediateResults, "mauerlasche");
-      item.docs.concat(docs);
       break;
     case "schaltstelle":
-      docs = getIntermediateResultsImages(item, intermediateResults, "schaltstelle");
       docs.concat(
         getIntermediateResultsImages(
           item?.rundsteuerempfaenger,
@@ -746,23 +741,20 @@ export const integrateIntermediateResults = (feature, intermediateResults) => {
           "Rundsteuerempfänger"
         )
       );
-      item.docs = [...item.docs, ...docs];
 
       break;
     case "abzweigdose":
-      docs = getIntermediateResultsImages(item, intermediateResults, "abzweigdose");
       item.docs.concat(docs);
       break;
     case "tdta_standort_mast":
-      docs = getIntermediateResultsImages(item, intermediateResults, "tdta_standort_mast");
       docs.concat(
         getIntermediateResultsImages(item?.tkey_masttyp, intermediateResults, "tkey_masttyp")
       );
-      item.docs.concat(docs);
 
       break;
     default:
   }
+  item.docs = [...item.docs, ...docs];
 };
 
 const compareValue = (a, b) => {
