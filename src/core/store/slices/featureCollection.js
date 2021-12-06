@@ -22,7 +22,7 @@ import {
 import proj4 from "proj4";
 import { MappingConstants } from "react-cismap";
 import { getIntermediateResults, removeIntermediateResults } from "./offlineDb";
-
+import booleanIntersects from "@turf/boolean-intersects";
 const dexieW = dexieworker();
 const focusedSearchMinimumZoomThreshhold = 16.5;
 const searchMinimumZoomThreshhold = 17.5;
@@ -273,7 +273,17 @@ export const loadObjectsIntoFeatureCollection = ({
               )
               .map((i) => state.spatialIndex.lineIndex.features[i]);
 
-            //console.log('xxx Leitungen ', new Date().getTime() - ld);
+            //double check if the feature is in the bounding box
+            //till now we only have a rough intersction of the lines bbox
+            //this will now do a real intersection and filter out the lines that are not in the bbox
+            const bbox25832 = convertBoundingBox(boundingBox);
+            const bboxGeom = bboxPolygon([
+              bbox25832.left,
+              bbox25832.top,
+              bbox25832.right,
+              bbox25832.bottom,
+            ]).geometry;
+            leitungsFeatures = leitungsFeatures.filter((f) => booleanIntersects(f, bboxGeom));
           }
         } else {
         }
@@ -341,8 +351,6 @@ export const loadObjectsIntoFeatureCollection = ({
 
                   feature.properties = o;
                   feature.id = feature.id + "-" + o.id;
-
-                  console.log("fresh loaded feature", feature);
 
                   featureCollection.push(feature);
                 }
@@ -459,7 +467,6 @@ const enrichAndSetFeatures = (
       dispatch(removeIntermediateResults(intermediateResultsToBeRemoved));
       dispatch(setFeatureCollectionInfo({ typeCount }));
       dispatch(setFeatureCollection(sortedElements));
-      console.log("xxx setFeatureCollection", sortedElements);
 
       dispatch(setDone(true));
     },
