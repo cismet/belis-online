@@ -116,8 +116,7 @@ const View = () => {
   useEffect(() => {
     if (storedJWT) {
       console.log("will initialize offlineActionDB with", storedJWT);
-
-      initialize(storedJWT, dispatch);
+      dispatch(initialize());
     }
   }, [storedJWT]);
 

@@ -33,23 +33,30 @@ export const getIntermediateResults = (state) => {
   return state.offlineActionDb.intermediateResults;
 };
 
-export const initialize = async (jwt, dispatch) => {
-  const d = await offlineDatabase.createDb();
-
-  if (d !== undefined) {
-    let rep = new offlineDatabase.GraphQLReplicator(d);
-    const errorCallback = (error) => {
-      console.log("error occured", error);
-    };
-    const changeCallback = (action) => {
-      console.log("change occured", action);
-    };
-    const login = getLoginFromJWT(jwt);
-    rep.restart({ userId: login + "@belis", idToken: jwt }, errorCallback, changeCallback);
-    dispatch(storeDB(d));
-  } else {
-    throw new Error("offline database not available", jwt);
-  }
+export const initialize = (jwt) => {
+  return async (dispatch, getState) => {
+    offlineDatabase
+      .createDb()
+      .then((d) => {
+        if (d !== undefined) {
+          let rep = new offlineDatabase.GraphQLReplicator(d);
+          const errorCallback = (error) => {
+            console.log("error occured", error);
+          };
+          const changeCallback = (action) => {
+            console.log("change occured", action);
+          };
+          const login = getLoginFromJWT(jwt);
+          rep.restart({ userId: login + "@belis", idToken: jwt }, errorCallback, changeCallback);
+          dispatch(storeDB(d));
+        } else {
+          throw new Error("offline database not available", jwt);
+        }
+      })
+      .catch((e) => {
+        throw new Error("offline database not available", jwt);
+      });
+  };
 };
 
 export const clearIntermediateResults = (object_type) => {
