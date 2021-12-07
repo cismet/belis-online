@@ -28,7 +28,7 @@ import {
   setVisible,
 } from "../core/store/slices/photoLightbox";
 import PhotoLightBox from "react-cismap/topicmaps/PhotoLightbox";
-import { initialize } from "../core/store/slices/offlineDb";
+import { initialize } from "../core/store/slices/offlineActionDb";
 
 //---
 
@@ -115,7 +115,7 @@ const View = () => {
 
   useEffect(() => {
     if (storedJWT) {
-      console.log("will initialize offlineDB with", storedJWT);
+      console.log("will initialize offlineActionDB with", storedJWT);
 
       initialize(storedJWT, dispatch);
     }

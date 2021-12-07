@@ -4,6 +4,7 @@ import dexieworker from "workerize-loader!../../workers/dexie"; // eslint-disabl
 import { fetchGraphQL } from "../../commons/graphql";
 import { initIndex } from "./spatialIndex";
 import { getLoginFromJWT } from "./auth";
+import { clearIntermediateResults } from "./offlineActionDb";
 
 const dexieW = dexieworker();
 const keys = [];
@@ -281,6 +282,9 @@ export const renewCache = (key, jwt) => {
           //set loading state done
           dispatch(setLoadingState({ key, resetTimer, loadingState: "cached" }));
           dispatch(setLastUpdate({ key, lastUpdate: new Date().getTime() }));
+
+          //remove the intermediate results of this datatype
+          dispatch(clearIntermediateResults(key));
 
           //removeEVent Listener to free memory
           dexieW.removeEventListener("message", progressListener);

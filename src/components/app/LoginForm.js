@@ -6,7 +6,7 @@ import IconComp from "react-cismap/commons/Icon";
 import { CACHE_JWT } from "react-cismap/tools/fetching";
 import { useDispatch, useSelector } from "react-redux";
 import { getLogin, storeJWT, storeLogin } from "../../core/store/slices/auth";
-import { initialize as initializeOfflineDB } from "../../core/store/slices/offlineDb";
+import { initialize as initializeOfflineActionDB } from "../../core/store/slices/offlineActionDb";
 import { DOMAIN, REST_SERVICE } from "../../constants/belis";
 const LoginForm = ({
   setJWT = (jwt) => {
@@ -84,7 +84,6 @@ const LoginForm = ({
               setJWT(jwt);
               setLoggedOut(false);
               setLoginInfo();
-              // initializeOfflineDB(jwt, dispatch);
             }, 500);
           });
         } else {

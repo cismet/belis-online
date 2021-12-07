@@ -1,38 +1,40 @@
 import { useEffect, useState } from "react";
 
 import dexieworker from "workerize-loader!../../../core/workers/dexie"; // eslint-disable-line import/no-webpack-loader-syntax
-import Button from "react-bootstrap/Button";
+// import Button from "react-bootstrap/Button";
 import { useDispatch, useSelector } from "react-redux";
 import { getTeam, setTeam } from "../../../core/store/slices/team";
-import { getDB } from "../../../core/store/slices/offlineDb";
+import { getDB } from "../../../core/store/slices/offlineActionDb";
 import { actionSchema } from "../../../core/commons/schema";
 import { getLogin } from "../../../core/store/slices/auth";
-import { Table } from "antd";
+import { getTaskForAction } from "../../../core/commons/taskHelper";
+import { Card, Button, Table, Typography } from "antd";
 const Tasks = () => {
   const dexieW = dexieworker();
   const dispatch = useDispatch();
-  const offlineDb = useSelector(getDB);
+  const offlineActionDb = useSelector(getDB);
   const login = useSelector(getLogin);
-  console.log("offlineDb", offlineDb);
-
+  const [showAll, setShowAll] = useState(false);
   const [tasks, setTasks] = useState([]);
+  const [shownTasks, setShownTasks] = useState([]);
+
   useEffect(() => {
     try {
-      const query = offlineDb.actions
+      const query = offlineActionDb.actions
         .find()
         .where("applicationId")
         .eq(login + "@belis")
         .sort({ createdAt: "desc" });
       query.$.subscribe((results) => {
+        console.log("results", results);
+
         const tasks = [];
         for (const result of results) {
-          const task = {};
-          for (const key of Object.keys(actionSchema.properties)) {
-            task[key] = result[key];
-          }
+          const task = getTaskForAction(result);
+          console.log("result.deleted", result.deleted);
+
           tasks.push(task);
         }
-
         setTasks(tasks);
       });
     } catch (e) {
@@ -40,33 +42,66 @@ const Tasks = () => {
     }
   }, []);
 
+  useEffect(() => {
+    let results;
+
+    if (showAll) {
+      results = tasks;
+    } else {
+      const now = new Date().getTime();
+
+      results = tasks.filter((result) => {
+        return (
+          result.statusCode !== 200 ||
+          now - new Date(result.datum).getTime() < 1000 * 60 * 60 * 24 * 3
+        ); // 3 day
+      });
+    }
+    setShownTasks(results);
+  }, [showAll, tasks]);
+
+  const iconSize = 23;
   const columns = [
-    { title: "Typ", dataIndex: "action", key: "action" },
-    { title: "Status", dataIndex: "status", key: "status" },
     {
-      title: "angelegt",
-      dataIndex: "createdAt",
-      key: "createdAt",
-      render: (createdAt) => new Date(createdAt).toLocaleString(),
+      title: "Aktion",
+      dataIndex: "aktion",
+      key: "aktion",
+      align: "center",
+      render: (x) => (
+        <Typography.Text style={{ fontSize: iconSize, color: "grey" }}>{x}</Typography.Text>
+      ),
     },
+
     {
-      title: "abgearbeitet",
-      dataIndex: "updatedAt",
-      key: "updatedAt",
-      render: (updatedAt) => new Date(updatedAt).toLocaleString(),
+      title: "Datum",
+      dataIndex: "datum",
+      key: "datum",
+      render: (date) => new Date(date).toLocaleString(),
     },
+    { title: "Fachobjekt", dataIndex: "fachobjekt", key: "fachobjekt" },
+    { title: "Beschreibung", dataIndex: "beschreibung", key: "beschreibung" },
     {
-      title: "fertig",
-      dataIndex: "isCompleted",
-      key: "isCompleted",
-      render: (isCompleted) => (isCompleted === true ? "Ja" : "Nö"),
+      title: "Status",
+      dataIndex: "status",
+      key: "status",
+      align: "center",
+      render: (x, record) => <Typography.Text style={{ fontSize: iconSize }}>{x}</Typography.Text>,
     },
   ];
-  console.log("tasks ", tasks);
 
   return (
     <div>
-      <Table dataSource={tasks} columns={columns} />
+      {showAll && (
+        <Button style={{ float: "right", marginBottom: 10 }} onClick={() => setShowAll(!showAll)}>
+          Nur Fehler und letzte Aktionen anzeigen
+        </Button>
+      )}
+      {!showAll && (
+        <Button style={{ float: "right", marginBottom: 10 }} onClick={() => setShowAll(!showAll)}>
+          Alle Aktionen anzeigen
+        </Button>
+      )}
+      <Table key={"table." + showAll} dataSource={shownTasks} columns={columns} />
     </div>
   );
 };

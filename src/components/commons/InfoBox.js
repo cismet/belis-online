@@ -38,7 +38,7 @@ import {
   setVisible,
 } from "../../core/store/slices/photoLightbox";
 import { addDotThumbnail } from "./secondaryinfo/components/helper";
-import { getDB, processAddImageToObject } from "../../core/store/slices/offlineDb";
+import { getDB, processAddImageToObject } from "../../core/store/slices/offlineActionDb";
 
 //---
 

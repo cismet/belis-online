@@ -593,7 +593,7 @@ export const addPropertiesToFeature = async (feature) => {
   }
 };
 
-const type2Caption = (type) => {
+export const type2Caption = (type) => {
   switch (type) {
     case "tdta_leuchten":
       return "Leuchte";

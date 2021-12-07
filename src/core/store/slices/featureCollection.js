@@ -21,7 +21,7 @@ import {
 } from "../../helper/featureHelper";
 import proj4 from "proj4";
 import { MappingConstants } from "react-cismap";
-import { getIntermediateResults, removeIntermediateResults } from "./offlineDb";
+import { getIntermediateResults, removeIntermediateResults } from "./offlineActionDb";
 import booleanIntersects from "@turf/boolean-intersects";
 const dexieW = dexieworker();
 const focusedSearchMinimumZoomThreshhold = 16.5;
@@ -50,6 +50,7 @@ const featureCollectionSlice = createSlice({
     secondaryInfoVisible: false,
     overlayFeature: undefined,
     gazeteerHit: undefined,
+    boundingBox: undefined,
   },
   reducers: {
     setFeatureCollection: (state, action) => {
@@ -61,6 +62,9 @@ const featureCollectionSlice = createSlice({
 
     setDone: (state, action) => {
       state.done = action.payload;
+    },
+    setBoundingBox: (state, action) => {
+      state.boundingBox = action.payload;
     },
     setOverlayFeature: (state, action) => {
       state.overlayFeature = action.payload;
@@ -106,6 +110,7 @@ export const {
   setFeatureCollection,
   setFeatureCollectionInfo,
   setDone,
+  setBoundingBox,
   setFilter,
   setSelectedFeature,
   setRequestBasis,
@@ -147,6 +152,22 @@ const createQueryGeomFromBB = (boundingBox) => {
   return geom;
 };
 
+export const forceRefresh = () => {
+  return async (dispatch, getState) => {
+    const state = getState();
+    console.log("forceRefresh", state.auth.jwt);
+
+    dispatch(setFeatureCollection([]));
+    dispatch(
+      loadObjects({
+        boundingBox: state.featureCollection.boundingBox,
+        jwt: state.auth.jwt,
+        force: true,
+      })
+    );
+  };
+};
+
 export const loadObjects = ({
   boundingBox,
   _inFocusMode,
@@ -159,6 +180,7 @@ export const loadObjects = ({
     if (!jwt) {
       return;
     }
+
     const state = getState();
     const inFocusMode = _inFocusMode || isInFocusMode(state);
     const _searchForbidden = _isSearchForbidden({ inFocusMode }, state);
@@ -195,6 +217,7 @@ export const loadObjects = ({
           // console.log("xxx ordinary request", boundingBox, new Error());
         }
         dispatch(setRequestBasis(reqBasis));
+        dispatch(setBoundingBox(boundingBox));
 
         let xbb;
         if (inFocusMode) {
@@ -248,7 +271,6 @@ export const loadObjectsIntoFeatureCollection = ({
       const filter = getFilter(state);
       // const selectedFeature=
       const convertedBoundingBox = convertBoundingBox(boundingBox);
-
       if (state.spatialIndex.loading === "done" || connectionMode === CONNECTIONMODE.ONLINE) {
         let resultIds, leitungsFeatures;
         if (connectionMode === CONNECTIONMODE.FROMCACHE) {
@@ -432,7 +454,7 @@ const enrichAndSetFeatures = (
           const throwAway = getIntermediateResultsToBeRemoved(feature);
           intermediateResultsToBeRemoved = [...intermediateResultsToBeRemoved, ...throwAway];
         } else {
-          integrateIntermediateResults(feature, state.offlineDb.intermediateResults);
+          integrateIntermediateResults(feature, state.offlineActionDb.intermediateResults);
         }
 
         if (typeCount[feature.featuretype] === undefined) {
@@ -477,26 +499,6 @@ const enrichAndSetFeatures = (
   );
 };
 
-const _integrateIntermediateResults = (feature, intermediateResults) => {
-  const now = new Date().getTime();
-  const featuretype = feature.featuretype;
-  const id = feature.properties.id;
-  if (
-    intermediateResults &&
-    intermediateResults[featuretype] &&
-    intermediateResults[featuretype][id]
-  ) {
-    const intermediateResultsForFeature = JSON.parse(
-      JSON.stringify(intermediateResults[featuretype][id])
-    );
-    console.log("xxx intermediateResults", feature.properties.intermediateResults);
-
-    feature.properties.intermediateResults = intermediateResultsForFeature;
-    console.log("xxx intermediateResults", feature.properties.intermediateResults);
-
-    console.log("xxx intermediate Result for feature " + feature.id, intermediateResultsForFeature);
-  }
-};
 export const reSetSelecteFeatureFromCollection = () => {
   return (dispatch, getState) => {
     const state = getState();

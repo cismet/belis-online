@@ -34,6 +34,7 @@ import {
   getGazetteerHit,
   setOverlayFeature,
   getOverlayFeature,
+  forceRefresh,
 } from "../core/store/slices/featureCollection";
 
 import { getGazData, loadGazeteerEntries } from "../core/store/slices/gazetteerData";
@@ -55,7 +56,7 @@ import {
 } from "../core/store/slices/cacheControl";
 import { getLoginFromJWT } from "../core/store/slices/auth";
 import { useWindowSize } from "@react-hook/window-size";
-import { getDB as getOfflineDB } from "../core/store/slices/offlineDb";
+import { getDB as getOfflineActionDB } from "../core/store/slices/offlineActionDb";
 //---------
 
 const TopNavbar = ({ innerRef, refRoutedMap, setCacheSettingsVisible, jwt }) => {
@@ -69,7 +70,7 @@ const TopNavbar = ({ innerRef, refRoutedMap, setCacheSettingsVisible, jwt }) => 
   const background = useSelector(getBackground);
   const featureCollection = useSelector(getFeatureCollection);
   const searchForbidden = useSelector(isSearchForbidden);
-  const offlineDB = useSelector(getOfflineDB);
+  const offlineActionDB = useSelector(getOfflineActionDB);
 
   const gazData = useSelector(getGazData);
   useEffect(() => {
@@ -196,21 +197,7 @@ const TopNavbar = ({ innerRef, refRoutedMap, setCacheSettingsVisible, jwt }) => 
 
         <Nav.Link
           onClick={() => {
-            // dispatch(renewAllPrimaryInfoCache(jwt));
-            getLoginFromJWT(jwt);
-            offlineDB.actions
-              .find()
-              .sort("createdAt")
-              .$.subscribe((actions) => {
-                if (!actions) {
-                  return;
-                }
-                console.log("actions", JSON.parse(actions[0].parameter));
-
-                // this.setState({ actions });
-              });
-
-            // console.log("actions", offlineDB.actions.find());
+            dispatch(forceRefresh());
           }}
         >
           <Icon icon={faVial} />

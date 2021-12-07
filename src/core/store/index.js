@@ -14,7 +14,7 @@ import authSlice from "./slices/auth";
 
 import gazetteerDataSlice from "./slices/gazetteerData";
 import teamSlice from "./slices/team";
-import offlineDb from "./slices/offlineDb";
+import offlineActionDb from "./slices/offlineActionDb";
 import photoLightboxSlice from "./slices/photoLightbox";
 import { createLogger } from "redux-logger";
 import { persistReducer } from "redux-persist";
@@ -90,8 +90,8 @@ const backgroundConfig = {
   whitelist: ["layer"],
 };
 
-const offlineDbConfig = {
-  key: "@belis.app.offlineDb",
+const offlineActionDbConfig = {
+  key: "@belis.app.offlineActionDb",
   storage: localForage,
   whitelist: ["intermediateResults"],
 };
@@ -127,7 +127,7 @@ const store = configureStore({
     // uiMessage: uiMessageSlice.reducer,
     gazetteerData: gazetteerDataSlice.reducer,
     team: persistReducer(teamConfig, teamSlice.reducer),
-    offlineDb: persistReducer(offlineDbConfig, offlineDb.reducer),
+    offlineActionDb: persistReducer(offlineActionDbConfig, offlineActionDb.reducer),
     photoLightbox: photoLightboxSlice.reducer,
   },
   devTools: devToolsEnabled === true && inProduction === false,

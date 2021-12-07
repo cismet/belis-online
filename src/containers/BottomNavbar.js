@@ -1,5 +1,12 @@
 import { faMixcloud } from "@fortawesome/free-brands-svg-icons";
-import { faDatabase, faUser, faWifi } from "@fortawesome/free-solid-svg-icons";
+import {
+  faCheck,
+  faDatabase,
+  faExchangeAlt,
+  faShare,
+  faUser,
+  faWifi,
+} from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon as Icon } from "@fortawesome/react-fontawesome";
 import React from "react";
 import Button from "react-bootstrap/Button";
@@ -242,27 +249,29 @@ const BottomNavbar = ({ innerRef, onlineStatus, refRoutedMap, jwt }) => {
         )}
         <Nav>
           <div>
-            {onlineStatus ? (
+            <span className='fa-layers fa-3x '>
               <Icon
+                key={"tasks." + onlineStatus}
                 style={{
                   fontSize: fontSizeIconPixel,
                   width: iconWidth,
                   cursor: "pointer",
+                  color: onlineStatus ? "#377CF6" : "#dddddd",
                 }}
-                className='text-primary'
-                icon={faWifi}
+                dataCount='8'
+                // className='text-primary'
+                icon={faShare}
               />
-            ) : (
-              <Icon
-                style={{
-                  fontSize: fontSizeIconPixel,
-                  width: iconWidth,
-                  cursor: "pointer",
-                  color: "#dddddd",
-                }}
-                icon={faWifi}
-              />
-            )}
+              {/* <span className='fa-layers-counter  fa-layers-bottom-right'>9</span> */}
+              <span
+                style={{ backgroundColor: "green" }}
+                className='fa-layers-counter  fa-layers-top-right'
+              >
+                <Icon icon={faCheck} />
+              </span>
+              <span className='fa-layers-counter  fa-layers-top-left'>9</span>
+              {/* <span className='fa-layers-counter  fa-layers-bottom-left'>9</span> */}
+            </span>
           </div>
         </Nav>
       </Navbar>

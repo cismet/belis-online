@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import * as offlineDatabase from "../../commons/offlineDbHelper";
+import * as offlineDatabase from "../../commons/offlineActionDbHelper";
 import { getJWT, getLoginFromJWT } from "./auth";
 import { integrateIntermediateResultsIntofeatureCollection } from "./featureCollection";
 import uuidv4 from "uuid/v4";
@@ -7,7 +7,7 @@ import uuidv4 from "uuid/v4";
 const initialState = {};
 
 const slice = createSlice({
-  name: "offlineDb",
+  name: "offlineActionDb",
   initialState,
   reducers: {
     storeDB(state, action) {
@@ -27,10 +27,10 @@ export default slice;
 export const { storeDB, storeIntermediateResults } = slice.actions;
 
 export const getDB = (state) => {
-  return state.offlineDb.db;
+  return state.offlineActionDb.db;
 };
 export const getIntermediateResults = (state) => {
-  return state.offlineDb.intermediateResults;
+  return state.offlineActionDb.intermediateResults;
 };
 
 export const initialize = async (jwt, dispatch) => {
@@ -139,10 +139,10 @@ const addIntermediateResult = (intermediateResult) => {
 export const processAddImageToObject = (addImageParameter) => {
   return async (dispatch, getState) => {
     const state = getState();
-    const offlineDb = getDB(state);
+    const offlineActionDb = getDB(state);
     const jwt = getJWT(state);
     const login = getLoginFromJWT(jwt);
-    offlineDb.actions.insert({
+    offlineActionDb.actions.insert({
       id: uuidv4(),
       action: "uploadDocument",
       jwt: jwt,

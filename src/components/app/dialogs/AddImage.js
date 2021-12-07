@@ -5,7 +5,7 @@ import { LoadingOutlined, PlusOutlined } from "@ant-design/icons";
 import { UploadOutlined } from "@ant-design/icons";
 import { getJWT } from "../../../core/store/slices/auth";
 import uuidv4 from "uuid/v4";
-import { getDB } from "../../../core/store/slices/offlineDb";
+import { getDB } from "../../../core/store/slices/offlineActionDb";
 import extensions from "../../../core/helper/extensions";
 const { Text, Link } = Typography;
 const getBase64 = (img, callback) => {
@@ -67,6 +67,7 @@ const AddImageDialog = ({
               description: values.name,
               objekt_id: feature.properties.id,
               objekt_typ: feature.featuretype,
+              object_name: feature.properties.name,
               ts: Date.now(),
               prefix: "dev", //the dev prefix should only be set in a dev environment to protect the webdav from cluttering
             };
