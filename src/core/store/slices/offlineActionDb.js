@@ -3,8 +3,9 @@ import * as offlineDatabase from "../../commons/offlineActionDbHelper";
 import { getJWT, getLoginFromJWT } from "./auth";
 import { integrateIntermediateResultsIntofeatureCollection } from "./featureCollection";
 import uuidv4 from "uuid/v4";
+import { getTaskForAction } from "../../commons/taskHelper";
 
-const initialState = {};
+const initialState = { tasks: [] };
 
 const slice = createSlice({
   name: "offlineActionDb",
@@ -19,6 +20,10 @@ const slice = createSlice({
 
       return state;
     },
+    setTasks(state, action) {
+      state.tasks = action.payload;
+      return state;
+    },
   },
 });
 
@@ -31,6 +36,10 @@ export const getDB = (state) => {
 };
 export const getIntermediateResults = (state) => {
   return state.offlineActionDb.intermediateResults;
+};
+
+export const getTasks = (state) => {
+  return state.offlineActionDb.tasks;
 };
 
 export const initialize = () => {
@@ -51,6 +60,24 @@ export const initialize = () => {
           const login = getLoginFromJWT(jwt);
           rep.restart({ userId: login + "@belis", idToken: jwt }, errorCallback, changeCallback);
           dispatch(storeDB(d));
+
+          //database is ready will now establish a subsription for all stored tasks in the offline db
+
+          const query = d.actions
+            .find()
+            .where("applicationId")
+            .eq(login + "@belis")
+            .sort({ createdAt: "desc" });
+          query.$.subscribe((results) => {
+            console.log("new results", results);
+
+            const tasks = [];
+            for (const result of results) {
+              const task = getTaskForAction(result);
+              tasks.push(task);
+            }
+            dispatch(slice.actions.setTasks(tasks));
+          });
         } else {
           throw new Error("offline database not available", jwt);
         }

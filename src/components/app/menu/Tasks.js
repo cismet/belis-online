@@ -4,7 +4,7 @@ import dexieworker from "workerize-loader!../../../core/workers/dexie"; // eslin
 // import Button from "react-bootstrap/Button";
 import { useDispatch, useSelector } from "react-redux";
 import { getTeam, setTeam } from "../../../core/store/slices/team";
-import { getDB } from "../../../core/store/slices/offlineActionDb";
+import { getDB, getTasks } from "../../../core/store/slices/offlineActionDb";
 import { actionSchema } from "../../../core/commons/schema";
 import { getLogin } from "../../../core/store/slices/auth";
 import { getTaskForAction } from "../../../core/commons/taskHelper";
@@ -13,34 +13,10 @@ const Tasks = () => {
   const dexieW = dexieworker();
   const dispatch = useDispatch();
   const offlineActionDb = useSelector(getDB);
+  const tasks = useSelector(getTasks);
   const login = useSelector(getLogin);
   const [showAll, setShowAll] = useState(false);
-  const [tasks, setTasks] = useState([]);
   const [shownTasks, setShownTasks] = useState([]);
-
-  useEffect(() => {
-    try {
-      const query = offlineActionDb.actions
-        .find()
-        .where("applicationId")
-        .eq(login + "@belis")
-        .sort({ createdAt: "desc" });
-      query.$.subscribe((results) => {
-        console.log("results", results);
-
-        const tasks = [];
-        for (const result of results) {
-          const task = getTaskForAction(result);
-          console.log("result.deleted", result.deleted);
-
-          tasks.push(task);
-        }
-        setTasks(tasks);
-      });
-    } catch (e) {
-      console.log("Error in fetching tasks");
-    }
-  }, []);
 
   useEffect(() => {
     let results;
