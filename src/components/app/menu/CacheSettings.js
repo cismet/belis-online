@@ -8,16 +8,24 @@ import { getJWT, getLoginFromJWT } from "../../../core/store/slices/auth";
 import {
   fillCacheInfo,
   getCacheSettings,
+  isCacheFullUsable,
   renewAllSecondaryInfoCache,
   renewCache,
   setCacheUser,
 } from "../../../core/store/slices/cacheControl";
+import { forceRefresh } from "../../../core/store/slices/featureCollection";
 import AggregatedCacheItem from "../../app/cache/AggregatedCacheItem";
 import CacheItem from "../../app/cache/CacheItem";
 
 const CacheSettings = () => {
   const dispatch = useDispatch();
   const cacheSettings = useSelector(getCacheSettings);
+  const cacheReady = useSelector(isCacheFullUsable);
+  const cacheReadyRef = React.useRef();
+  useEffect(() => {
+    cacheReadyRef.current = cacheReady;
+  }, [cacheReady]);
+
   const jwt = useSelector(getJWT);
   // console.log("jwt", jwt);
 
@@ -63,6 +71,15 @@ const CacheSettings = () => {
               }, 100 + 10 * index++);
             }
             dispatch(setCacheUser(getLoginFromJWT(jwt)));
+
+            const refreshChecker = setInterval(() => {
+              if (cacheReadyRef.current === true) {
+                clearInterval(refreshChecker);
+                dispatch(forceRefresh());
+              } else {
+                console.log("wait");
+              }
+            }, 100);
           }}
         >
           <Icon icon={faDownload} /> Kompletten Cache neu füllen
