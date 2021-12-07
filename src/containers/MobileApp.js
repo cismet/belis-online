@@ -177,6 +177,8 @@ const View = () => {
         jwt={jwt}
       />
       <BottomNavbar
+        setAppMenuVisible={setAppMenuVisible}
+        setAppMenuActiveMenuSection={setAppMenuActiveMenuSection}
         innerRef={refLowerToolbar}
         onlineStatus={onlineStatus}
         refRoutedMap={refRoutedMap}

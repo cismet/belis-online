@@ -133,6 +133,7 @@ export const getTaskForAction = (resultObject) => {
       status: getStatusIcon(status),
       statusCode: status,
     };
+    console.log("task", task);
 
     return task;
   }

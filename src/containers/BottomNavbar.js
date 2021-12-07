@@ -36,10 +36,20 @@ import {
 } from "../core/store/slices/featureCollection";
 import { isPaleModeActive, setPaleModeActive } from "../core/store/slices/paleMode";
 import { useWindowSize } from "@react-hook/window-size";
+import { getTasks } from "../core/store/slices/offlineActionDb";
+import { useEffect, useState } from "react";
+import { gold, red, blue, green } from "@ant-design/colors";
 
 //---------
 
-const BottomNavbar = ({ innerRef, onlineStatus, refRoutedMap, jwt }) => {
+const BottomNavbar = ({
+  innerRef,
+  onlineStatus,
+  refRoutedMap,
+  jwt,
+  setAppMenuVisible,
+  setAppMenuActiveMenuSection,
+}) => {
   const dispatch = useDispatch();
   const browserlocation = useLocation();
   const [windowWidth, windowHeight] = useWindowSize();
@@ -55,6 +65,40 @@ const BottomNavbar = ({ innerRef, onlineStatus, refRoutedMap, jwt }) => {
   const uiThreadProgressbar =
     new URLSearchParams(browserlocation.search).get("uiThreadProgressbar") === "true";
   let user;
+
+  const tasks = useSelector(getTasks);
+  const [rerenderCount, setRerenderCount] = useState(0);
+  const getNumberOfPendingTasks = (tasks) => {
+    let counter = 0;
+    for (const task of tasks) {
+      if (task.statusCode === undefined || task.statusCode === 202) {
+        counter++;
+      }
+    }
+    return counter;
+  };
+
+  const getNumberOfErrorTasks = (tasks) => {
+    let counter = 0;
+    for (const task of tasks) {
+      if (task.statusCode === 401 || task.statusCode === 500) {
+        counter++;
+      }
+    }
+    return counter;
+  };
+
+  const getNewestCompletedTaskTS = (tasks) => {
+    let newest = undefined;
+    for (const task of tasks) {
+      if (task.statusCode === 200) {
+        if (newest === undefined || new Date(task.datum).getTime() > newest) {
+          newest = new Date(task.datum).getTime();
+        }
+      }
+    }
+    return newest;
+  };
 
   if (connectionMode === CONNECTIONMODE.FROMCACHE) {
     user = cacheUser;
@@ -75,6 +119,19 @@ const BottomNavbar = ({ innerRef, onlineStatus, refRoutedMap, jwt }) => {
     fontSizeIconPixel = 24;
     iconWidth = "24px";
     toggleSize = "large";
+  }
+
+  const numberOfPendingTasks = getNumberOfPendingTasks(tasks);
+  const numberOfErrorTasks = getNumberOfErrorTasks(tasks);
+  const newestCompletedTaskTS = getNewestCompletedTaskTS(tasks);
+  const showingGreenCheckThreshhold = 1000 * 20; // 20 seconds
+
+  const showingGreenCheck = numberOfPendingTasks === 0 && numberOfErrorTasks === 0;
+
+  if (showingGreenCheck) {
+    setTimeout(() => {
+      setRerenderCount((rerenderCount) => rerenderCount + 1);
+    }, showingGreenCheckThreshhold);
   }
 
   return (
@@ -247,8 +304,13 @@ const BottomNavbar = ({ innerRef, onlineStatus, refRoutedMap, jwt }) => {
             <ProgressBar style={{ width: 200 }} animated now={100} max={100} />
           </Nav>
         )}
-        <Nav>
-          <div>
+        <Nav
+          onClick={() => {
+            setAppMenuActiveMenuSection("tasks");
+            setAppMenuVisible(true);
+          }}
+        >
+          <div key={"taskDiv." + rerenderCount}>
             <span className='fa-layers fa-3x '>
               <Icon
                 key={"tasks." + onlineStatus}
@@ -258,19 +320,33 @@ const BottomNavbar = ({ innerRef, onlineStatus, refRoutedMap, jwt }) => {
                   cursor: "pointer",
                   color: onlineStatus ? "#377CF6" : "#dddddd",
                 }}
-                dataCount='8'
-                // className='text-primary'
                 icon={faShare}
               />
-              {/* <span className='fa-layers-counter  fa-layers-bottom-right'>9</span> */}
-              <span
-                style={{ backgroundColor: "green" }}
-                className='fa-layers-counter  fa-layers-top-right'
-              >
-                <Icon icon={faCheck} />
-              </span>
-              <span className='fa-layers-counter  fa-layers-top-left'>9</span>
-              {/* <span className='fa-layers-counter  fa-layers-bottom-left'>9</span> */}
+              {numberOfPendingTasks > 0 && (
+                <span
+                  style={{ backgroundColor: blue[3] }}
+                  className='fa-layers-counter  fa-layers-bottom-right'
+                >
+                  {numberOfPendingTasks}
+                </span>
+              )}
+              {showingGreenCheck &&
+                new Date().getTime() - newestCompletedTaskTS < showingGreenCheckThreshhold && (
+                  <span
+                    style={{ backgroundColor: green[5] }}
+                    className='fa-layers-counter  fa-layers-top-right'
+                  >
+                    <Icon icon={faCheck} />
+                  </span>
+                )}
+              {numberOfErrorTasks > 0 && (
+                <span
+                  style={{ backgroundColor: red[3] }}
+                  className='fa-layers-counter  fa-layers-top-left'
+                >
+                  {numberOfErrorTasks}
+                </span>
+              )}
             </span>
           </div>
         </Nav>

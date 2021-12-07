@@ -305,7 +305,19 @@ export const loadObjectsIntoFeatureCollection = ({
               bbox25832.right,
               bbox25832.bottom,
             ]).geometry;
-            leitungsFeatures = leitungsFeatures.filter((f) => booleanIntersects(f, bboxGeom));
+
+            //this filter doenst work in safari
+            //leitungsFeatures = leitungsFeatures.filter((f) => booleanIntersects(f, bboxGeom));
+
+            //...therefore we do it the old fashioned way
+
+            const intersectingLeitungsFeatures = [];
+            for (const f of leitungsFeatures) {
+              if (booleanIntersects(f, bboxGeom)) {
+                intersectingLeitungsFeatures.push(f);
+              }
+            }
+            leitungsFeatures = intersectingLeitungsFeatures;
           }
         } else {
         }
