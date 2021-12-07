@@ -33,13 +33,15 @@ export const getIntermediateResults = (state) => {
   return state.offlineActionDb.intermediateResults;
 };
 
-export const initialize = (jwt) => {
+export const initialize = () => {
   return async (dispatch, getState) => {
     offlineDatabase
       .createDb()
       .then((d) => {
+        const jwt = getJWT(getState());
         if (d !== undefined) {
           let rep = new offlineDatabase.GraphQLReplicator(d);
+
           const errorCallback = (error) => {
             console.log("error occured", error);
           };
@@ -54,7 +56,7 @@ export const initialize = (jwt) => {
         }
       })
       .catch((e) => {
-        throw new Error("offline database not available", jwt);
+        throw new Error("offline database not available", e);
       });
   };
 };
