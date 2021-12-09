@@ -49,7 +49,8 @@ const pullQueryBuilder = (userId) => {
                 action,
                 parameter,
                 result,
-                status
+                status,
+                deleted
             }
         }`;
     return {
@@ -202,11 +203,11 @@ export class GraphQLReplicator {
       },
       reconnectionAttempts: 1,
       inactivityTimeout: 0,
-      lazy: true,
+      lazy: false,
     });
 
     const query = `subscription onActionChanged {
-            action ( where: {_and: {applicationId: {_eq: "${auth.userId}"}, isCompleted: {_eq: false}}}){
+            action ( where: {_and: {applicationId: {_eq: "${auth.userId}"}, _or: [{deleted: {_eq: true}}, {isCompleted: {_eq: false}}] }}){
                 id
                 jwt
                 isCompleted
@@ -216,7 +217,8 @@ export class GraphQLReplicator {
                 action,
                 parameter,
                 result,
-                status
+                status,
+                deleted
             }       
         }`;
 
@@ -227,9 +229,20 @@ export class GraphQLReplicator {
     ret.subscribe({
       next(data) {
         console.log("subscription emitted => trigger run");
+        if (!d.actions) {
+          //database schema was remove, so unsubscribe
+          wsClient.unsubscribeAll();
+          return;
+        }
 
         for (const action of data.data.action) {
-          if (action.status === 401) {
+          if (action.deleted) {
+            d.actions.find({ id: action.id }).$.subscribe((act) => {
+              if (act && isArray(act) && act.length > 0) {
+                act[0].remove();
+              }
+            });
+          } else if (action.status === 401) {
             //wrong jwt was set
             d.actions.find({ id: action.id }).$.subscribe((act) => {
               if (act && isArray(act) && act.length > 0 && act[0].status === 401) {
@@ -294,6 +307,47 @@ export const createDb = async () => {
 
   console.log("DatabaseService: created database");
   window["db"] = db; // write to window for debugging
+  let ready = true;
+  let attempts = 0;
+
+  do {
+    try {
+      ready = true;
+      // sometimes, the method invocation db.collection(...) fails, because the db connection is closed,
+      // but a retry solves this problem
+      await db.collection({
+        name: "actions",
+        schema: actionSchema,
+      });
+      attempts += 1;
+    } catch (exception) {
+      ready = false;
+      //wait one second and try it again
+      delay(1000);
+    }
+  } while (!ready && attempts < 3);
+
+  return db;
+};
+
+const delay = millis => new Promise((resolve, reject) => {
+  setTimeout(_ => resolve(), millis)
+});
+
+export const recreateDb = async (db) => {
+  console.log("DatabaseService: creating database..");
+  // if (window["dbInit"]) {
+  //   return window["db"];
+  // }
+  // window["dbInit"] = true;
+
+  // const db = await RxDB.create({
+  //   name: "actiondb",
+  //   adapter: "idb",
+  // });
+
+  // console.log("DatabaseService: created database");
+  // window["db"] = db; // write to window for debugging
 
   await db.collection({
     name: "actions",
