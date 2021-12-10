@@ -5,7 +5,7 @@ import React, { useRef, useState, useEffect, useContext } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import MapBlocker from "../components/app/MapBlocker";
 import { CONNECTIONMODE, getConnectionMode } from "../core/store/slices/app";
-import { isDone } from "../core/store/slices/featureCollection";
+import { isDone, setDone } from "../core/store/slices/featureCollection";
 import BelisMap from "./BelisMap";
 import BottomNavbar from "./BottomNavbar";
 import TopNavbar from "./TopNavbar";
@@ -28,7 +28,7 @@ import {
   setVisible,
 } from "../core/store/slices/photoLightbox";
 import PhotoLightBox from "react-cismap/topicmaps/PhotoLightbox";
-import { initialize } from "../core/store/slices/offlineActionDb";
+import { initialize, resyncDb } from "../core/store/slices/offlineActionDb";
 
 //---
 
@@ -116,9 +116,21 @@ const View = () => {
   useEffect(() => {
     if (storedJWT) {
       console.log("will initialize offlineActionDB with", storedJWT);
-      dispatch(initialize());
+
+      if (window["dbInit"] === true) {
+        dispatch(resyncDb());
+      } else {
+        dispatch(initialize());
+      }
     }
   }, [storedJWT]);
+
+  useEffect(() => {
+    if (onlineStatus === true) {
+      dispatch(resyncDb());
+      dispatch(setDone(true))
+    }
+  }, [onlineStatus]);
 
   const photoBoxTitle = useSelector(getTitle);
   const photourls = useSelector(getPhotoUrls);

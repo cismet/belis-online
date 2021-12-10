@@ -334,25 +334,3 @@ const delay = millis => new Promise((resolve, reject) => {
   setTimeout(_ => resolve(), millis)
 });
 
-export const recreateDb = async (db) => {
-  console.log("DatabaseService: creating database..");
-  // if (window["dbInit"]) {
-  //   return window["db"];
-  // }
-  // window["dbInit"] = true;
-
-  // const db = await RxDB.create({
-  //   name: "actiondb",
-  //   adapter: "idb",
-  // });
-
-  // console.log("DatabaseService: created database");
-  // window["db"] = db; // write to window for debugging
-
-  await db.collection({
-    name: "actions",
-    schema: actionSchema,
-  });
-
-  return db;
-};

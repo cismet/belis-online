@@ -1,7 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 import * as offlineDatabase from "../../commons/offlineActionDbHelper";
 import { getJWT, getLoginFromJWT } from "./auth";
-import { integrateIntermediateResultsIntofeatureCollection } from "./featureCollection";
+import { integrateIntermediateResultsIntofeatureCollection, setDone } from "./featureCollection";
 import uuidv4 from "uuid/v4";
 import { getTaskForAction } from "../../commons/taskHelper";
 
@@ -13,6 +13,10 @@ const slice = createSlice({
   reducers: {
     storeDB(state, action) {
       state.db = action.payload;
+      return state;
+    },
+    storeRep(state, action) {
+      state.rep = action.payload;
       return state;
     },
     storeIntermediateResults(state, action) {
@@ -29,10 +33,13 @@ const slice = createSlice({
 
 export default slice;
 
-export const { storeDB, storeIntermediateResults } = slice.actions;
+export const { storeDB, storeIntermediateResults, storeRep } = slice.actions;
 
 export const getDB = (state) => {
   return state.offlineActionDb.db;
+};
+export const getRep = (state) => {
+  return state.offlineActionDb.rep;
 };
 export const getIntermediateResults = (state) => {
   return state.offlineActionDb.intermediateResults;
@@ -59,6 +66,7 @@ export const initialize = () => {
           };
           const login = getLoginFromJWT(jwt);
           rep.restart({ userId: login + "@belis", idToken: jwt }, errorCallback, changeCallback);
+          dispatch(storeRep(rep));
           dispatch(storeDB(d));
 
           //database is ready will now establish a subsription for all stored tasks in the offline db
@@ -87,6 +95,48 @@ export const initialize = () => {
       });
   };
 };
+
+export const truncateActionTables = () => {
+  return async (dispatch, getState) => {
+    const state = getState();
+    console.log('start trunc');
+    const db = getDB(state);
+
+    if (db && db.actions) {
+      dispatch(setDone(false));
+      db.actions.remove();
+
+      db.destroy().then((res)=>{
+        console.log('destroyed db' + res);
+        window["dbInit"] = undefined;
+        dispatch(initialize());
+        dispatch(setDone(true));
+      });
+    }
+  }
+}
+
+export const resyncDb = () => {
+  return async (dispatch, getState) => {
+    const state = getState();
+    const rep = getRep(state);
+
+    if (rep) {
+      const jwt = getJWT(getState());
+
+      const errorCallback = (error) => {
+        console.log("error occured", error);
+      };
+      const changeCallback = (action) => {
+        console.log("change occured", action);
+      };
+
+      const login = getLoginFromJWT(jwt);
+      rep.restart({ userId: login + "@belis", idToken: jwt }, errorCallback, changeCallback);
+    }
+  }
+}
+
 
 export const clearIntermediateResults = (object_type) => {
   return async (dispatch, getState) => {
