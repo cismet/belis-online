@@ -5,8 +5,11 @@ import { fetchGraphQL } from "../../commons/graphql";
 import { initIndex } from "./spatialIndex";
 import { getLoginFromJWT } from "./auth";
 import { clearIntermediateResults } from "./offlineActionDb";
+import { useSelector } from "react-redux";
+import { getWorker } from "./dexie";
 
 const dexieW = dexieworker();
+
 const keys = [];
 keys.push({
   primary: true,

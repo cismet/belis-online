@@ -1,14 +1,16 @@
 import { useEffect, useState } from "react";
 
-import dexieworker from "workerize-loader!../../../core/workers/dexie"; // eslint-disable-line import/no-webpack-loader-syntax
+// import dexieworker from "workerize-loader!../../../core/workers/dexie"; // eslint-disable-line import/no-webpack-loader-syntax
 import Button from "react-bootstrap/Button";
 import { useDispatch, useSelector } from "react-redux";
+import { getWorker } from "../../../core/store/slices/dexie";
 import { getTeam, setTeam } from "../../../core/store/slices/team";
 
 const Teams = () => {
-  const dexieW = dexieworker();
+  // const dexieW = dexieworker();
   const dispatch = useDispatch();
   const selectedTeam = useSelector(getTeam);
+  const dexieW = useSelector(getWorker);
   const [teams, setTeams] = useState([]);
   useEffect(() => {
     //async block

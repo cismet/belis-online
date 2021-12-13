@@ -24,6 +24,7 @@ import { MappingConstants } from "react-cismap";
 import { getIntermediateResults, removeIntermediateResults } from "./offlineActionDb";
 import booleanIntersects from "@turf/boolean-intersects";
 const dexieW = dexieworker();
+
 const focusedSearchMinimumZoomThreshhold = 16.5;
 const searchMinimumZoomThreshhold = 17.5;
 

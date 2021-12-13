@@ -1,16 +1,11 @@
+import { Button, Table, Typography } from "antd";
 import { useEffect, useState } from "react";
-
-import dexieworker from "workerize-loader!../../../core/workers/dexie"; // eslint-disable-line import/no-webpack-loader-syntax
 // import Button from "react-bootstrap/Button";
 import { useDispatch, useSelector } from "react-redux";
-import { getTeam, setTeam } from "../../../core/store/slices/team";
-import { getDB, getTasks } from "../../../core/store/slices/offlineActionDb";
-import { actionSchema } from "../../../core/commons/schema";
 import { getLogin } from "../../../core/store/slices/auth";
-import { getTaskForAction } from "../../../core/commons/taskHelper";
-import { Card, Button, Table, Typography } from "antd";
+import { getDB, getTasks } from "../../../core/store/slices/offlineActionDb";
+
 const Tasks = () => {
-  const dexieW = dexieworker();
   const dispatch = useDispatch();
   const offlineActionDb = useSelector(getDB);
   const tasks = useSelector(getTasks);

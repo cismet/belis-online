@@ -306,6 +306,8 @@ const BottomNavbar = ({
         )}
         <Nav
           onClick={() => {
+            console.log("open tasks");
+
             setAppMenuActiveMenuSection("tasks");
             setAppMenuVisible(true);
           }}

@@ -11,7 +11,7 @@ import paleModeSlice from "./slices/paleMode";
 import cacheControlSlice from "./slices/cacheControl";
 import appStateSlice from "./slices/app";
 import authSlice from "./slices/auth";
-
+import dexieSlice from "./slices/dexie";
 import gazetteerDataSlice from "./slices/gazetteerData";
 import teamSlice from "./slices/team";
 import offlineActionDb from "./slices/offlineActionDb";
@@ -129,6 +129,7 @@ const store = configureStore({
     team: persistReducer(teamConfig, teamSlice.reducer),
     offlineActionDb: persistReducer(offlineActionDbConfig, offlineActionDb.reducer),
     photoLightbox: photoLightboxSlice.reducer,
+    dexie: dexieSlice.reducer,
   },
   devTools: devToolsEnabled === true && inProduction === false,
   middleware,
