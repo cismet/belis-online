@@ -68,37 +68,47 @@ const BottomNavbar = ({
 
   const tasks = useSelector(getTasks);
   const [rerenderCount, setRerenderCount] = useState(0);
-  const getNumberOfPendingTasks = (tasks) => {
-    let counter = 0;
+
+  const [numberOfPendingTasks, setNumberOfPendingTasks] = useState(0);
+  const [numberOfErrorTasks, setNumberOfErrorTasks] = useState(0);
+  const [newest200Status, setNewest200Status] = useState(undefined);
+  const [showingGreenCheck, setShowingGreenCheck] = useState(false);
+
+  useEffect(() => {
+    let numberOfPendingTasks = 0;
+    let numberOfErrorTasks = 0;
+    let newest = undefined;
+
     for (const task of tasks) {
       if (task.statusCode === undefined || task.statusCode === 202) {
-        counter++;
+        numberOfPendingTasks++;
       }
-    }
-    return counter;
-  };
-
-  const getNumberOfErrorTasks = (tasks) => {
-    let counter = 0;
-    for (const task of tasks) {
       if (task.statusCode === 401 || task.statusCode === 500) {
-        counter++;
+        numberOfErrorTasks++;
       }
-    }
-    return counter;
-  };
-
-  const getNewestCompletedTaskTS = (tasks) => {
-    let newest = undefined;
-    for (const task of tasks) {
       if (task.statusCode === 200) {
         if (newest === undefined || new Date(task.datum).getTime() > newest) {
           newest = new Date(task.datum).getTime();
         }
       }
+      setNumberOfPendingTasks(numberOfPendingTasks);
+      setNumberOfErrorTasks(numberOfErrorTasks);
+      setNewest200Status(newest);
     }
-    return newest;
-  };
+  }, [tasks]);
+
+  useEffect(() => {
+    const checker = setInterval(() => {
+      if (newest200Status !== undefined) {
+        if (newest200Status + 1000 * 20 < Date.now()) {
+          clearInterval(checker);
+          setShowingGreenCheck(false);
+        } else {
+          setShowingGreenCheck(true);
+        }
+      }
+    }, 1000);
+  }, [newest200Status]);
 
   if (connectionMode === CONNECTIONMODE.FROMCACHE) {
     user = cacheUser;
@@ -119,19 +129,6 @@ const BottomNavbar = ({
     fontSizeIconPixel = 24;
     iconWidth = "24px";
     toggleSize = "large";
-  }
-
-  const numberOfPendingTasks = getNumberOfPendingTasks(tasks);
-  const numberOfErrorTasks = getNumberOfErrorTasks(tasks);
-  const newestCompletedTaskTS = getNewestCompletedTaskTS(tasks);
-  const showingGreenCheckThreshhold = 1000 * 20; // 20 seconds
-
-  const showingGreenCheck = numberOfPendingTasks === 0 && numberOfErrorTasks === 0;
-
-  if (showingGreenCheck) {
-    setTimeout(() => {
-      setRerenderCount((rerenderCount) => rerenderCount + 1);
-    }, showingGreenCheckThreshhold);
   }
 
   return (
@@ -332,15 +329,14 @@ const BottomNavbar = ({
                   {numberOfPendingTasks}
                 </span>
               )}
-              {showingGreenCheck &&
-                new Date().getTime() - newestCompletedTaskTS < showingGreenCheckThreshhold && (
-                  <span
-                    style={{ backgroundColor: green[5] }}
-                    className='fa-layers-counter  fa-layers-top-right'
-                  >
-                    <Icon icon={faCheck} />
-                  </span>
-                )}
+              {showingGreenCheck && (
+                <span
+                  style={{ backgroundColor: green[5] }}
+                  className='fa-layers-counter  fa-layers-top-right'
+                >
+                  <Icon icon={faCheck} />
+                </span>
+              )}
               {numberOfErrorTasks > 0 && (
                 <span
                   style={{ backgroundColor: red[3] }}
