@@ -99,22 +99,22 @@ export const initialize = () => {
 export const truncateActionTables = () => {
   return async (dispatch, getState) => {
     const state = getState();
-    console.log('start trunc');
+    console.log("start trunc");
     const db = getDB(state);
 
     if (db && db.actions) {
       dispatch(setDone(false));
       db.actions.remove();
 
-      db.destroy().then((res)=>{
-        console.log('destroyed db' + res);
+      db.destroy().then((res) => {
+        console.log("destroyed db" + res);
         window["dbInit"] = undefined;
         dispatch(initialize());
         dispatch(setDone(true));
       });
     }
-  }
-}
+  };
+};
 
 export const resyncDb = () => {
   return async (dispatch, getState) => {
@@ -134,9 +134,8 @@ export const resyncDb = () => {
       const login = getLoginFromJWT(jwt);
       rep.restart({ userId: login + "@belis", idToken: jwt }, errorCallback, changeCallback);
     }
-  }
-}
-
+  };
+};
 
 export const clearIntermediateResults = (object_type) => {
   return async (dispatch, getState) => {
