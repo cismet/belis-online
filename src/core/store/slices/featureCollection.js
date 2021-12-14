@@ -358,6 +358,7 @@ export const loadObjectsIntoFeatureCollection = ({
             const response = await fetchGraphQL(gqlQuery, queryParameter, jwt);
             if (response) {
               const featureCollection = [];
+              const updates = response.data;
               for (const key of Object.keys(response.data || {})) {
                 const objects = response.data[key];
                 for (const o of objects) {
@@ -393,6 +394,7 @@ export const loadObjectsIntoFeatureCollection = ({
               //featureCollection[0].selected = true;
               // dispatch(setFeatureCollection(featureCollection));
               enrichAndSetFeatures(dispatch, state, featureCollection, true);
+              dexieW.updateSingleCacheItems(updates);
             } else {
               console.log("response was undefined");
               // dispatch(setRequestBasis(undefined));

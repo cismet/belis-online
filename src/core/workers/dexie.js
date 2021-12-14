@@ -30,6 +30,15 @@ export async function putArray(inputArray, objectstorename) {
   }
 }
 
+export async function updateSingleCacheItems(updates) {
+  console.log("xxx updateSingleCacheItems", updates);
+
+  for (const key of Object.keys(updates)) {
+    console.log("update", key);
+    await db[key].bulkPut(updates[key]);
+  }
+}
+
 export async function put(input, objectstorename) {
   try {
     return await await db[objectstorename].put(input);
