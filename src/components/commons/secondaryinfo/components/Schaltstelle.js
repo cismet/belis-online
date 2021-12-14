@@ -5,6 +5,7 @@ import { setIndex, setVisible } from "../../../../core/store/slices/photoLightbo
 import {
   addDotThumbnail,
   clearOptionalDescriptionItems,
+  getSquaredThumbnails,
   getStrasse,
   getTimelineForEvents,
 } from "./helper";
@@ -85,6 +86,7 @@ const getLayout4Schaltstelle = ({ feature, jwt, dispatch }) => {
           <br />
         </>
       )}
+      {getSquaredThumbnails(docs, "Schaltstelle", jwt, dispatch)}
       <div>{getTimelineForEvents({ events })}</div>
     </div>
   );
