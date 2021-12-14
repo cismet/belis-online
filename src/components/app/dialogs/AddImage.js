@@ -44,6 +44,9 @@ const AddImageDialog = ({
 
   return (
     <Modal
+      style={{
+        zIndex: 3900000000,
+      }}
       title={
         <>
           <div>Foto hinzufügen</div> <Text type='secondary'>{input?.vcard?.infobox?.title}</Text>
@@ -59,7 +62,7 @@ const AddImageDialog = ({
 
             const mimeType = imageData.match("data:(.*);")[1];
             const ending = extensions[mimeType];
-            const feature = input.selectedFeature;
+            const feature = input.feature;
 
             const parameter = {
               ImageData: imageData,

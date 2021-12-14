@@ -233,7 +233,7 @@ const InfoBox = ({ refRoutedMap }) => {
                 close={() => {
                   dispatch(showDialog());
                 }}
-                input={{ selectedFeature, vcard }}
+                input={{ feature: selectedFeature, vcard }}
                 onClose={(addImageParamater) => {
                   dispatch(processAddImageToObject(addImageParamater));
                 }}

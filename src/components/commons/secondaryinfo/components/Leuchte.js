@@ -1,28 +1,24 @@
-import React, { useState } from "react";
+import { faCamera, faInfoCircle } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { Col, Descriptions, Row } from "antd";
+import React from "react";
+import IconLink from "react-cismap/commons/IconLink";
 // import { version as reactCismapVersion } from "react-cismap/meta";
-
 import SecondaryInfoPanelSection from "react-cismap/topicmaps/SecondaryInfoPanelSection";
+import { getWebDavUrl } from "../../../../constants/belis";
 import { getVCard } from "../../../../core/helper/featureHelper";
-
-// import { getApplicationVersion } from "../version";
-import Button from "react-bootstrap/Button";
-
-import { Row, Col, Timeline } from "antd";
-import { Descriptions } from "antd";
+import { showDialog } from "../../../../core/store/slices/app";
+import { processAddImageToObject } from "../../../../core/store/slices/offlineActionDb";
+import { setIndex, setVisible } from "../../../../core/store/slices/photoLightbox";
+import AddImageDialog from "../../../app/dialogs/AddImage";
 import {
   addDotThumbnail,
   clearOptionalDescriptionItems,
-  convertToProperUpperLowerCase,
-  getDate,
   getSquaredThumbnails,
   getStrasse,
   getTimelineForEvents,
 } from "./helper";
-import { getWebDavUrl } from "../../../../constants/belis";
 import { getEventsForStandort, getStandortDetails } from "./Standort";
-
-import { setIndex, setVisible } from "../../../../core/store/slices/photoLightbox";
-import { leuchteMitAllenAttributen } from "../devData";
 
 export const getEvents4Leuchte = (item) => {
   const events = [
@@ -132,20 +128,47 @@ const getLayout4Leuchte = ({ feature, jwt, dispatch }) => {
       bsStyle='success'
       header={"Leuchte und Gesamtverlauf"}
     >
-      <Row>
-        <Col span={12}>
-          <Descriptions
-            column={{ xs: 1, sm: 1, md: 1, lg: 1, xxl: 1 }}
-            layout='horizontal'
-            bordered
-          >
-            {clearOptionalDescriptionItems(leuchteItems)}
-          </Descriptions>
+      <>
+        <a style={{ float: "right" }} class='pleaserenderaslink'>
+          <div>
+            <IconLink
+              key={`addPhoto`}
+              tooltip={"Foto hinzufügen"}
+              onClick={() => {
+                dispatch(
+                  showDialog(
+                    <AddImageDialog
+                      close={() => {
+                        dispatch(showDialog());
+                      }}
+                      input={{ feature, vcard }}
+                      onClose={(addImageParamater) => {
+                        dispatch(processAddImageToObject(addImageParamater));
+                      }}
+                    />
+                  )
+                );
+              }}
+              iconname={"camera"}
+            />
+          </div>
+        </a>
 
-          {getSquaredThumbnails(docs, "Leuchte", jwt, dispatch)}
-        </Col>
-        <Col span={12}>{getTimelineForEvents({ events })}</Col>
-      </Row>
+        <Row>
+          <Col span={12}>
+            <Descriptions
+              column={{ xs: 1, sm: 1, md: 1, lg: 1, xxl: 1 }}
+              layout='horizontal'
+              bordered
+            >
+              {clearOptionalDescriptionItems(leuchteItems)}
+            </Descriptions>
+
+            {getSquaredThumbnails(docs, "Leuchte", jwt, dispatch)}
+          </Col>
+          <Col span={12}>{getTimelineForEvents({ events })}</Col>
+        </Row>
+      </>
     </SecondaryInfoPanelSection>
   );
   if (rsItems.length > 1) {
