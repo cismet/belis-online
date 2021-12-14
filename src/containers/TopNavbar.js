@@ -15,6 +15,7 @@ import {
   faGlobeEurope,
   faLock,
   faLockOpen,
+  faPowerOff,
   faSpinner,
   faTimes,
   faVial,
@@ -54,9 +55,10 @@ import {
   renewAllPrimaryInfoCache,
   renewAllSecondaryInfoCache,
 } from "../core/store/slices/cacheControl";
-import { getLoginFromJWT } from "../core/store/slices/auth";
+import { getLoginFromJWT, storeJWT, storeLogin } from "../core/store/slices/auth";
 import { useWindowSize } from "@react-hook/window-size";
 import { getDB as getOfflineActionDB } from "../core/store/slices/offlineActionDb";
+import { NavItem } from "react-bootstrap";
 //---------
 
 const TopNavbar = ({ innerRef, refRoutedMap, setCacheSettingsVisible, jwt }) => {
@@ -197,7 +199,9 @@ const TopNavbar = ({ innerRef, refRoutedMap, setCacheSettingsVisible, jwt }) => 
 
         <Nav.Link
           onClick={() => {
-            dispatch(forceRefresh());
+            // dispatch(forceRefresh());
+            dispatch(storeLogin(undefined));
+            dispatch(storeJWT(undefined));
           }}
         >
           <Icon icon={faVial} />
@@ -228,6 +232,19 @@ const TopNavbar = ({ innerRef, refRoutedMap, setCacheSettingsVisible, jwt }) => 
             autoFocus={false}
           />
         </Form>
+
+        <Nav.Link
+          style={{ marginLeft: 10, marginRight: 10, color: "#377CF6" }}
+          size={narrow ? "sm" : ""}
+          id='navitem_logout'
+          eventKey={3}
+          onClick={() => {
+            dispatch(storeLogin(undefined));
+            dispatch(storeJWT(undefined));
+          }}
+        >
+          <Icon icon={faPowerOff} />
+        </Nav.Link>
 
         <Button
           size={narrow ? "sm" : ""}
