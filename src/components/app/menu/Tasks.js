@@ -17,7 +17,9 @@ const Tasks = () => {
     let results;
 
     if (showAll) {
-      results = tasks;
+      results = tasks.slice().sort((a, b) => {
+        return new Date(b.datum).getTime() - new Date(a.datum).getTime();
+      });
     } else {
       const now = new Date().getTime();
 
@@ -25,7 +27,10 @@ const Tasks = () => {
         return (
           result.statusCode !== 200 ||
           now - new Date(result.datum).getTime() < 1000 * 60 * 60 * 24 * 3
-        ); // 3 day
+        ); // 3 days
+      });
+      results = results.sort((a, b) => {
+        return new Date(b.datum).getTime() - new Date(a.datum).getTime();
       });
     }
     setShownTasks(results);
@@ -59,6 +64,7 @@ const Tasks = () => {
       render: (x, record) => <Typography.Text style={{ fontSize: iconSize }}>{x}</Typography.Text>,
     },
   ];
+  console.log("shown Tasks", shownTasks);
 
   return (
     <div>
@@ -72,7 +78,13 @@ const Tasks = () => {
           Alle Aktionen anzeigen
         </Button>
       )}
-      <Table key={"table." + showAll} dataSource={shownTasks} columns={columns} />
+      <Table
+        locale={{ emptyText: "-" }}
+        rowKey='id'
+        key={"table." + showAll}
+        dataSource={shownTasks}
+        columns={columns}
+      />
     </div>
   );
 };
