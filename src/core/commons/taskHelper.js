@@ -1,7 +1,7 @@
 import { faCheckCircle, faHdd, faQuestionCircle } from "@fortawesome/free-regular-svg-icons";
 import {
-  faBomb,
   faCamera,
+  faServer,
   faExclamation,
   faExclamationTriangle,
   faSpinner,
@@ -9,7 +9,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { type2Caption } from "../helper/featureHelper";
-import { gold, red, blue, green } from "@ant-design/colors";
+import { gold, red, blue, green, grey } from "@ant-design/colors";
 
 const getTitleForAction = (action) => {
   switch (action) {
@@ -30,6 +30,14 @@ const getStatusIcon = (status) => {
           style={{ color: gold[4] }}
           icon={faHdd}
           title='Aktion im Browser hinterlegt'
+        ></FontAwesomeIcon>
+      );
+    case null:
+      return (
+        <FontAwesomeIcon
+          style={{ color: gold[6] }}
+          icon={faServer}
+          title='Aktion auf Server hinterlegt'
         ></FontAwesomeIcon>
       );
     case 202:
@@ -66,10 +74,11 @@ const getStatusIcon = (status) => {
         />
       );
     default:
+      console.log("Unknown status: " + status);
       return (
         <FontAwesomeIcon
-          style={{ color: red[6] }}
-          icon={faBomb}
+          style={{ color: grey[6] }}
+          icon={faQuestionCircle}
           title={"unbekannter Status:" + status}
         />
       );
@@ -122,6 +131,7 @@ export const getTaskForAction = (resultObject) => {
     } catch (e) {}
 
     const task = {
+      id: id,
       aktion: getTitleForAction(action),
       datum: updatedAt || createdAt,
       statustext: getStatusIcon(status),
