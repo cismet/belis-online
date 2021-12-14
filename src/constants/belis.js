@@ -14,7 +14,11 @@ export const backgrounds = {
 // export const REST_SERVICE = "http://bender:8890";
 export const REST_SERVICE = "https://belis-testapi.cismet.de";
 export const getWebDavUrl = (jwt, doc) => {
-  if (doc.doc.startsWith("dev")) {
+  console.log("doc", doc);
+
+  if (doc.intermediate === true) {
+    return doc.url;
+  } else if (doc.doc.startsWith("dev")) {
     return `${REST_SERVICE}/secres/${jwt}/belisdev/${doc.doc}`;
   } else {
     return `${REST_SERVICE}/secres/${jwt}/beliswebdav/${doc.doc}`;
