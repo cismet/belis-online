@@ -294,7 +294,6 @@ export class GraphQLReplicator {
 }
 
 export const createDb = async () => {
-  console.log("DatabaseService: creating database..");
   if (window["dbInit"]) {
     return window["db"];
   }
@@ -305,7 +304,6 @@ export const createDb = async () => {
     adapter: "idb",
   });
 
-  console.log("DatabaseService: created database");
   window["db"] = db; // write to window for debugging
   let ready = true;
   let attempts = 0;
@@ -330,7 +328,7 @@ export const createDb = async () => {
   return db;
 };
 
-const delay = millis => new Promise((resolve, reject) => {
-  setTimeout(_ => resolve(), millis)
-});
-
+const delay = (millis) =>
+  new Promise((resolve, reject) => {
+    setTimeout((_) => resolve(), millis);
+  });

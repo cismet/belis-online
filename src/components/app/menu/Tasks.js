@@ -64,7 +64,6 @@ const Tasks = () => {
       render: (x, record) => <Typography.Text style={{ fontSize: iconSize }}>{x}</Typography.Text>,
     },
   ];
-  console.log("shown Tasks", shownTasks);
 
   return (
     <div>

@@ -34,14 +34,16 @@ const LoginForm = ({
   useEffect(() => {
     (async () => {
       try {
-        const result = await fetch("devSecrets.json");
-        const cheats = await result.json();
-        console.log("x", cheats);
-        if (cheats.cheatingUser) {
-          setUser(cheats.cheatingUser);
-        }
-        if (cheats.cheatingPassword) {
-          setPw(cheats.cheatingPassword);
+        if (!productionMode) {
+          const result = await fetch("devSecrets.json");
+          const cheats = await result.json();
+          console.log("devSecrets.json found");
+          if (cheats.cheatingUser) {
+            setUser(cheats.cheatingUser);
+          }
+          if (cheats.cheatingPassword) {
+            setPw(cheats.cheatingPassword);
+          }
         }
       } catch (e) {
         console.log("no devSecrets.json found");

@@ -115,8 +115,6 @@ const View = () => {
 
   useEffect(() => {
     if (storedJWT) {
-      console.log("will initialize offlineActionDB with", storedJWT);
-
       if (window["dbInit"] === true) {
         dispatch(resyncDb());
       } else {
@@ -128,7 +126,7 @@ const View = () => {
   useEffect(() => {
     if (onlineStatus === true) {
       dispatch(resyncDb());
-      dispatch(setDone(true))
+      dispatch(setDone(true));
     }
   }, [onlineStatus]);
 

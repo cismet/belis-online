@@ -268,7 +268,7 @@ export const renewCache = (key, jwt) => {
     dexieW.addEventListener("message", progressListener);
     fetchGraphQL(cacheQueries[itemKey], {}, jwt)
       .then((result) => {
-        console.log(itemKey + " returned with " + result.data[dataKey].length + " results");
+        // console.log(itemKey + " returned with " + result.data[dataKey].length + " results");
         dispatch(setLoadingState({ key, loadingState: "caching" }));
         dispatch(setObjectCount({ key, objectCount: result.data[dataKey].length }));
         dispatch(setUpdateCount({ key, updateCount: result.data[dataKey].length }));

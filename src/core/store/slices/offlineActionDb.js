@@ -77,8 +77,6 @@ export const initialize = () => {
             .eq(login + "@belis")
             .sort({ createdAt: "desc" });
           query.$.subscribe((results) => {
-            console.log("new results", results);
-
             const tasks = [];
             for (const result of results) {
               const task = getTaskForAction(result);
