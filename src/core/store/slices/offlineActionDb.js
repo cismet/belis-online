@@ -5,7 +5,7 @@ import { integrateIntermediateResultsIntofeatureCollection, setDone } from "./fe
 import uuidv4 from "uuid/v4";
 import { getTaskForAction } from "../../commons/taskHelper";
 
-const initialState = { tasks: [] };
+const initialState = { tasks: [], rawTasks: [] };
 
 const slice = createSlice({
   name: "offlineActionDb",
@@ -28,6 +28,10 @@ const slice = createSlice({
       state.tasks = action.payload;
       return state;
     },
+    setRawTasks(state, action) {
+      state.rawTasks = action.payload;
+      return state;
+    },
   },
 });
 
@@ -48,7 +52,9 @@ export const getIntermediateResults = (state) => {
 export const getTasks = (state) => {
   return state.offlineActionDb.tasks;
 };
-
+export const getRawTasks = (state) => {
+  return state.offlineActionDb.rawTasks;
+};
 export const initialize = () => {
   return async (dispatch, getState) => {
     offlineDatabase
@@ -83,6 +89,7 @@ export const initialize = () => {
               tasks.push(task);
             }
             dispatch(slice.actions.setTasks(tasks));
+            dispatch(slice.actions.setRawTasks(results));
           });
         } else {
           throw new Error("offline database not available", jwt);
