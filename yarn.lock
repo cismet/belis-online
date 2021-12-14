@@ -18391,6 +18391,11 @@ use-latest@^1.0.0:
   dependencies:
     use-isomorphic-layout-effect "^1.0.0"
 
+use-long-press@^1.1.2:
+  version "1.1.2"
+  resolved "https://registry.yarnpkg.com/use-long-press/-/use-long-press-1.1.2.tgz#59135295c14b0a8899e4baf84cf1a36c2f64e18c"
+  integrity sha512-fbIcG9ozS7gP8Nh2focxdPMpLIs/fXpq1TqD9SmxPmdd5FBwl+g4OqQICE4ULwJvb0t/ProkpGeUaq1x42enFg==
+
 use@^3.1.0:
   version "3.1.1"
   resolved "https://registry.yarnpkg.com/use/-/use-3.1.1.tgz#d50c8cac79a19fbc20f2911f56eb973f4e10070f"

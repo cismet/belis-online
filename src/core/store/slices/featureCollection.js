@@ -156,14 +156,14 @@ const createQueryGeomFromBB = (boundingBox) => {
 export const forceRefresh = () => {
   return async (dispatch, getState) => {
     const state = getState();
-    console.log("forceRefresh", state.auth.jwt);
-
     dispatch(setFeatureCollection([]));
+    const onlineDataForcing = true;
     dispatch(
       loadObjects({
         boundingBox: state.featureCollection.boundingBox,
         jwt: state.auth.jwt,
         force: true,
+        onlineDataForcing,
       })
     );
   };
@@ -176,6 +176,7 @@ export const loadObjects = ({
   overridingFilterState,
   jwt,
   force = false,
+  onlineDataForcing,
 }) => {
   return async (dispatch, getState) => {
     if (!jwt) {
@@ -236,7 +237,9 @@ export const loadObjects = ({
           xbb = boundingBox;
         }
 
-        dispatch(loadObjectsIntoFeatureCollection({ boundingBox: xbb, jwt: jwt }));
+        dispatch(
+          loadObjectsIntoFeatureCollection({ boundingBox: xbb, jwt: jwt, onlineDataForcing })
+        );
       } else {
         // console.log("xxx duplicate requestBasis", boundingBox, new Error());
       }
@@ -262,6 +265,7 @@ export const loadObjectsIntoFeatureCollection = ({
   _zoom,
   _overridingFilterState,
   jwt,
+  onlineDataForcing = false,
 }) => {
   if (boundingBox) {
     //const boundingBox=
@@ -272,7 +276,11 @@ export const loadObjectsIntoFeatureCollection = ({
       const filter = getFilter(state);
       // const selectedFeature=
       const convertedBoundingBox = convertBoundingBox(boundingBox);
-      if (state.spatialIndex.loading === "done" || connectionMode === CONNECTIONMODE.ONLINE) {
+      if (
+        onlineDataForcing ||
+        state.spatialIndex.loading === "done" ||
+        connectionMode === CONNECTIONMODE.ONLINE
+      ) {
         let resultIds, leitungsFeatures;
         if (connectionMode === CONNECTIONMODE.FROMCACHE) {
           resultIds = state.spatialIndex.pointIndex.range(
@@ -324,7 +332,7 @@ export const loadObjectsIntoFeatureCollection = ({
         }
         // console.log('leitungsFeatures', leitungsFeatures);
 
-        if (connectionMode === CONNECTIONMODE.FROMCACHE) {
+        if (connectionMode === CONNECTIONMODE.FROMCACHE && onlineDataForcing === false) {
           dexieW
             .getFeaturesForHits(state.spatialIndex.pointIndex.points, resultIds, filter)
             .then((pointFeatureCollection) => {

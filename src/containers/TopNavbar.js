@@ -7,6 +7,7 @@ import InputGroup from "react-bootstrap/InputGroup";
 import Nav from "react-bootstrap/Nav";
 import Navbar from "react-bootstrap/Navbar";
 import NavDropdown from "react-bootstrap/NavDropdown";
+import { useLongPress } from "use-long-press";
 
 import {
   faBars,
@@ -16,6 +17,7 @@ import {
   faLock,
   faLockOpen,
   faPowerOff,
+  faRedo,
   faSpinner,
   faTimes,
   faVial,
@@ -95,6 +97,10 @@ const TopNavbar = ({ innerRef, refRoutedMap, setCacheSettingsVisible, jwt }) => 
     iconWidth = "24px";
     toggleSize = "large";
   }
+
+  const longPress = useLongPress(() => {
+    window.location.reload();
+  });
 
   return (
     <div style={{ fontSize }}>
@@ -188,8 +194,17 @@ const TopNavbar = ({ innerRef, refRoutedMap, setCacheSettingsVisible, jwt }) => 
               );
             })}
           </NavDropdown>
-          <Nav.Link href='#home'>
-            <Icon className='text-primary' icon={faGlobeEurope} />
+          <Nav.Link
+            {...longPress}
+            onClick={(e) => {
+              if (e.ctrlKey || e.altKey || e.shiftKey) {
+                window.location.reload();
+              } else {
+                dispatch(forceRefresh());
+              }
+            }}
+          >
+            <Icon className='text-primary' icon={faRedo} />
           </Nav.Link>
         </Nav>
 
@@ -197,13 +212,7 @@ const TopNavbar = ({ innerRef, refRoutedMap, setCacheSettingsVisible, jwt }) => 
           Kein Arbeitsauftrag ausgewählt ({selectedTeam.name})
         </Nav>
 
-        <Nav.Link
-          onClick={() => {
-            // dispatch(forceRefresh());
-            dispatch(storeLogin(undefined));
-            dispatch(storeJWT(undefined));
-          }}
-        >
+        <Nav.Link>
           <Icon icon={faVial} />
         </Nav.Link>
         <Nav.Link>
