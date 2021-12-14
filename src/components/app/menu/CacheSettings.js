@@ -35,7 +35,7 @@ const CacheSettings = () => {
   const [width, height] = useWindowSize();
 
   const modalBodyStyle = {
-    zIndex: 3000000000,
+    zIndex: 30000000,
     overflowY: "auto",
     overflowX: "hidden",
     maxHeight: height - 250,

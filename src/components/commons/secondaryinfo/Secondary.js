@@ -4,7 +4,7 @@ import React, { useContext } from "react";
 import { Button, Modal } from "react-bootstrap";
 import CismetFooterAcks from "react-cismap/topicmaps/wuppertal/CismetFooterAcknowledgements";
 import GenericRVRStadtplanwerkMenuFooter from "react-cismap/topicmaps/wuppertal/GenericRVRStadtplanwerkMenuFooter";
-import { useWindowSize } from '@react-hook/window-size';
+import { useWindowSize } from "@react-hook/window-size";
 
 const Comp = ({
   visible,
@@ -25,9 +25,9 @@ const Comp = ({
     </div>
   ),
 }) => {
-const [ windowWidth, windowHeight ] = useWindowSize();
-    let _visible = visible;
-    let _setVisibleState = setVisibleState;
+  const [windowWidth, windowHeight] = useWindowSize();
+  let _visible = visible;
+  let _setVisibleState = setVisibleState;
 
   const close = () => {
     _setVisibleState(false);
@@ -43,24 +43,25 @@ const [ windowWidth, windowHeight ] = useWindowSize();
   return (
     <Modal
       style={{
-        zIndex: 2900000000,
+        zIndex: 20000001,
       }}
-      height="100%"
-      size="xl"
+      height='100%'
+      size='xl'
       show={_visible}
       onHide={close}
       keyboard={false}
+      enforceFocus={false}
     >
       <Modal.Header>
         <Modal.Title>
           {titleIconName !== undefined && <Icon name={titleIconName} />} {title}
         </Modal.Title>
       </Modal.Header>
-      <Modal.Body style={modalBodyStyle} id="myMenu">
+      <Modal.Body style={modalBodyStyle} id='myMenu'>
         <div style={{ width: "100%", minHeight: undefined }}>
           {imageUrl !== undefined && (
             <img
-              alt="Bild"
+              alt='Bild'
               style={
                 imageStyle || {
                   paddingLeft: 10,
@@ -70,7 +71,7 @@ const [ windowWidth, windowHeight ] = useWindowSize();
                 }
               }
               src={imageUrl}
-              width="250"
+              width='250'
             />
           )}
           {mainSection}
@@ -96,9 +97,9 @@ const [ windowWidth, windowHeight ] = useWindowSize();
               </td>
               <td>
                 <Button
-                  id="cmdCloseModalApplicationMenu"
-                  bsStyle="primary"
-                  type="submit"
+                  id='cmdCloseModalApplicationMenu'
+                  bsStyle='primary'
+                  type='submit'
                   onClick={close}
                 >
                   Ok

@@ -150,7 +150,7 @@ const View = () => {
           setIndex: (i) => {
             dispatch(setIndex(i));
           },
-          reactModalStyle: { overlay: { zIndex: 3147483647 } },
+          reactModalStyle: { overlay: { zIndex: 60000000 } },
         }}
       />
       <Menu

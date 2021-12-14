@@ -44,9 +44,7 @@ const AddImageDialog = ({
 
   return (
     <Modal
-      style={{
-        zIndex: 3900000000,
-      }}
+      zIndex={30000001}
       title={
         <>
           <div>Foto hinzufügen</div> <Text type='secondary'>{input?.vcard?.infobox?.title}</Text>
@@ -132,7 +130,7 @@ const AddImageDialog = ({
           )}
         </div>
         <Form.Item
-          name='name'
+          name='namess'
           label='Name'
           rules={[
             {
