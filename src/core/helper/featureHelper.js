@@ -620,14 +620,8 @@ const getIntermediateResultsImages = (item, intermediateResults, itemtype) => {
     intermediateResults[itemtype][item.id]?.image
   ) {
     const docs = [];
-    console.log(
-      "xxx intermediateResults[itemtype][item.id]",
-      intermediateResults[itemtype][item.id]
-    );
 
     for (const image of intermediateResults[itemtype][item.id].image) {
-      console.log("xxx image", image);
-
       docs.push({
         intermediate: true,
         url: image.imageData,
