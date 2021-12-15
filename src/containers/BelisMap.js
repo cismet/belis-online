@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { MappingConstants, RoutedMap } from "react-cismap";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory, useLocation } from "react-router-dom";
@@ -38,11 +38,75 @@ import LightBoxContextProvider, {
   LightBoxDispatchContext,
 } from "react-cismap/contexts/LightBoxContextProvider";
 import { useContext } from "react";
+import { convertBounds2BBox } from "../core/helper/gisHelper";
 
 //---
 
 const BelisMap = ({ refRoutedMap, width, height, jwt }) => {
   const dispatch = useDispatch();
+  const mapRef = refRoutedMap?.current?.leafletMap?.leafletElement;
+  const blockingTime = 1000;
+  const [blockLoading, setBlockLoading] = useState(false);
+  const [indexInitialized, setIndexInitialized] = useState(false);
+
+  const timeoutHandlerRef = useRef(null);
+
+  useEffect(() => {
+    if (mapRef) {
+      if (mapRef.attributionControl) {
+        mapRef.attributionControl.setPrefix("");
+      }
+      mapRef.on("movestart", () => {
+        setBlockLoading(true);
+      });
+      mapRef.on("moveend", () => {
+        setBlockLoading(true);
+        window.clearTimeout(timeoutHandlerRef.current);
+        timeoutHandlerRef.current = window.setTimeout(() => {
+          setBlockLoading(false);
+        }, blockingTime);
+      });
+      mapRef.on("zoomstart", () => {
+        setBlockLoading(true);
+      });
+      mapRef.on("zoomend", () => {
+        setBlockLoading(true);
+        window.clearTimeout(timeoutHandlerRef.current);
+        timeoutHandlerRef.current = window.setTimeout(() => {
+          setBlockLoading(false);
+        }, blockingTime);
+      });
+    }
+  }, [mapRef]);
+
+  const [mapBounds, setMapBounds] = useState();
+  const [mapSize, setMapSize] = useState();
+
+  const mapBoundsRef = useRef();
+  useEffect(() => {
+    mapBoundsRef.current = mapBounds;
+  }, [mapBounds]);
+
+  // console.log("refRoutedMap", refRoutedMap);
+
+  const boundsFromMapRef = mapRef?.getBounds() || null;
+  const sizeFromMapRef = mapRef?.getSize() || null;
+
+  useEffect(() => {
+    setMapSize((old) => {
+      if (JSON.stringify(old) !== JSON.stringify(mapRef?.getSize())) {
+        old = mapRef?.getSize();
+      }
+      return old;
+    });
+    setMapBounds((old) => {
+      if (JSON.stringify(old) !== JSON.stringify(mapRef?.getBounds())) {
+        old = mapRef?.getBounds();
+      }
+      return old;
+    });
+  }, [mapRef, sizeFromMapRef, boundsFromMapRef]);
+
   const mapStyle = {
     height,
     width,
@@ -57,8 +121,7 @@ const BelisMap = ({ refRoutedMap, width, height, jwt }) => {
   const overlayFeature = useSelector(getOverlayFeature);
   const gazetteerHit = useSelector(getGazetteerHit);
   const loadingState = useSelector(getLoadingState);
-  const pointIndex = useSelector(getPointIndex);
-  const lineIndex = useSelector(getLineIndex);
+
   const isSecondaryCacheReady = useSelector(isSecondaryCacheUsable);
   const connectionMode = useSelector(getConnectionMode);
   const history = useHistory();
@@ -74,61 +137,81 @@ const BelisMap = ({ refRoutedMap, width, height, jwt }) => {
 
   const resultingLayer = backgrounds[rlKey];
 
-  const boundingBoxChangedHandler = (incomingBoundingBox, force = false) => {
-    let boundingBox = incomingBoundingBox;
-    if (boundingBox === undefined) {
-      boundingBox = refRoutedMap.current.getBoundingBox();
+  //                 __              _ _
+  //   __ _  ___    / _| ___  _ __  (_) |_
+  //  / _` |/ _ \  | |_ / _ \| '__| | | __|
+  // | (_| | (_) | |  _| (_) | |    | | |_
+  //  \__, |\___/  |_|  \___/|_|    |_|\__|
+  //  |___/
+  useEffect(() => {
+    if (
+      blockLoading === false &&
+      isSecondaryCacheReady &&
+      (indexInitialized || connectionMode !== CONNECTIONMODE.FROMCACHE)
+    ) {
+      if (mapBounds && mapSize) {
+        const _boundingBox = refRoutedMap.current.getBoundingBox();
+        const boundingBox = convertBounds2BBox(mapBounds);
+
+        const z = urlSearchParams.get("zoom");
+        if (zoom !== z) {
+          dispatch(setZoom(z));
+        }
+        dispatch(loadObjects({ boundingBox, inFocusMode, zoom: z, jwt: jwt, force: false }));
+      } else {
+        console.log("xxx no map for you (mapBounds && mapSize)", mapBounds, mapSize);
+      }
+    } else {
+      console.log(
+        "xxx no map for you (blockLoading===false,indexInitialized,isSecondaryCacheReady)",
+        blockLoading === false,
+        indexInitialized,
+        isSecondaryCacheReady
+      );
     }
-    const z = urlSearchParams.get("zoom");
-    if (zoom !== z) {
-      dispatch(setZoom(z));
+  }, [mapBounds, mapSize, blockLoading, indexInitialized, isSecondaryCacheReady, connectionMode]);
+
+  // initalize the index in CACHEMODE when the loadingstate is undefined
+  useEffect(() => {
+    console.log("should i initialize index?");
+
+    if (connectionMode === CONNECTIONMODE.FROMCACHE) {
+      console.log("should i initialize index in CONNECTIONMODE.FROMCACHE");
+
+      if (loadingState === undefined || indexInitialized === false) {
+        console.log("should i initialize index in CONNECTIONMODE.FROMCACHE: yes will do");
+
+        dispatch(
+          initIndex(() => {
+            console.log(
+              "featureCollection.length",
+              featureCollection.length,
+              !featureCollection.length
+            );
+            setIndexInitialized(true);
+          })
+        );
+      } else {
+        console.log(
+          "should i initialize index in CONNECTIONMODE.FROMCACHE: no will not",
+          loadingState
+        );
+      }
     }
-    dispatch(loadObjects({ boundingBox, inFocusMode, zoom: z, jwt: jwt, force }));
-  };
+  }, [dispatch, connectionMode, loadingState]);
+
+  // renew the secondary cache when user changed or on first load
+  useEffect(() => {
+    dispatch(renewAllSecondaryInfoCache(jwt));
+  }, [dispatch, jwt]);
+
+  //Symbolcolors from nightmode
   let symbolColor;
   if (background === "nightplan") {
     symbolColor = "#ffffff";
   } else {
     symbolColor = "#000000";
   }
-  useEffect(() => {
-    if (connectionMode === CONNECTIONMODE.FROMCACHE) {
-      if (loadingState === undefined) {
-        dispatch(
-          initIndex(() => {
-            if (!featureCollection.length) {
-              boundingBoxChangedHandler(undefined, true);
-            }
-          })
-        );
-      }
-    }
-  }, [dispatch, connectionMode, loadingState]);
-
-  useEffect(() => {
-    dispatch(renewAllSecondaryInfoCache(jwt));
-    if (isSecondaryCacheReady === true) {
-      boundingBoxChangedHandler(undefined, false);
-    }
-  }, [dispatch, jwt, isSecondaryCacheReady]);
-
-  // useEffect(() => {
-  //   console.log("useEffect BelisMap", {
-  //     loadingState,
-  //     isSecondaryCacheReady,
-  //     connectionMode,
-  //   });
-  //   if (connectionMode === CONNECTIONMODE.ONLINE) {
-  //     if (isSecondaryCacheReady) {
-  //       boundingBoxChangedHandler(undefined);
-  //     }
-  //   } else {
-  //     if (loadingState === "done" && lineIndex && pointIndex) {
-  //       boundingBoxChangedHandler(undefined, true);
-  //     }
-  //   }
-  //   //this is the initial load
-  // }, [loadingState, isSecondaryCacheReady, connectionMode]);
 
   return (
     <RoutedMap
@@ -177,7 +260,6 @@ const BelisMap = ({ refRoutedMap, width, height, jwt }) => {
       locationChangedHandler={(location) => {
         history.push(history.location.pathname + modifyQueryPart(browserlocation.search, location));
       }}
-      boundingBoxChangedHandler={boundingBoxChangedHandler}
     >
       <BelisFeatureCollection featureCollection={featureCollection} fgColor={symbolColor} />
       {/* <DebugFeature feature={focusBoundingBox} /> */}
