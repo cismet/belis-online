@@ -23,6 +23,7 @@ import { getJWT } from "../../../core/store/slices/auth";
 import getLayout4Standort from "./components/Standort";
 import getLayout4Schaltstelle from "./components/Schaltstelle";
 import getLayout4Mauerlasche from "./components/Mauerlasche";
+import { getBelisVersion } from "../../../constants/versions";
 
 const InfoPanel = () => {
   const dispatch = useDispatch();
@@ -45,7 +46,10 @@ export const InfoPanelComponent = ({ selectedFeature, dispatch }) => {
           }
         }}
       >
-        <b>{/* {document.title} v{getApplicationVersion()} */}</b>:{" "}
+        <b>
+          {document.title} v{getBelisVersion()}
+        </b>
+        :{" "}
         <a href='https://cismet.de/' target='_cismet'>
           cismet GmbH
         </a>{" "}
@@ -55,7 +59,7 @@ export const InfoPanelComponent = ({ selectedFeature, dispatch }) => {
         </a>{" "}
         und{" "}
         <a href='https://cismet.de/#refs' target='_cismet'>
-          {/* cids | react-cismap v{reactCismapVersion} */}
+          cids | react-cismap v{reactCismapVersion}
         </a>{" "}
         |{" "}
         <a
