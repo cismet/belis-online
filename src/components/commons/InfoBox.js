@@ -441,7 +441,7 @@ const InfoBox = ({ refRoutedMap }) => {
           selectedFeature.properties.docs.length > 0 &&
           selectedFeature.properties.docs[0] ? (
             <div style={{ position: "relative" }}>
-              {selectedFeature.properties.docs[0].doc.endsWith(".pdf") && (
+              {selectedFeature.properties.docs[0].doc?.endsWith(".pdf") && (
                 <FontAwesomeIcon
                   style={{
                     position: "absolute",
