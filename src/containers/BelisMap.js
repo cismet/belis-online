@@ -159,27 +159,27 @@ const BelisMap = ({ refRoutedMap, width, height, jwt }) => {
         }
         dispatch(loadObjects({ boundingBox, inFocusMode, zoom: z, jwt: jwt, force: false }));
       } else {
-        console.log("xxx no map for you (mapBounds && mapSize)", mapBounds, mapSize);
+        // console.log("xxx no map for you (mapBounds && mapSize)", mapBounds, mapSize);
       }
     } else {
-      console.log(
-        "xxx no map for you (blockLoading===false,indexInitialized,isSecondaryCacheReady)",
-        blockLoading === false,
-        indexInitialized,
-        isSecondaryCacheReady
-      );
+      // console.log(
+      //   "xxx no map for you (blockLoading===false,indexInitialized,isSecondaryCacheReady)",
+      //   blockLoading === false,
+      //   indexInitialized,
+      //   isSecondaryCacheReady
+      // );
     }
   }, [mapBounds, mapSize, blockLoading, indexInitialized, isSecondaryCacheReady, connectionMode]);
 
   // initalize the index in CACHEMODE when the loadingstate is undefined
   useEffect(() => {
-    console.log("should i initialize index?");
+    // console.log("should i initialize index?");
 
     if (connectionMode === CONNECTIONMODE.FROMCACHE) {
-      console.log("should i initialize index in CONNECTIONMODE.FROMCACHE");
+      // console.log("should i initialize index in CONNECTIONMODE.FROMCACHE");
 
       if (loadingState === undefined || indexInitialized === false) {
-        console.log("should i initialize index in CONNECTIONMODE.FROMCACHE: yes will do");
+        // console.log("should i initialize index in CONNECTIONMODE.FROMCACHE: yes will do");
 
         dispatch(
           initIndex(() => {
@@ -192,10 +192,10 @@ const BelisMap = ({ refRoutedMap, width, height, jwt }) => {
           })
         );
       } else {
-        console.log(
-          "should i initialize index in CONNECTIONMODE.FROMCACHE: no will not",
-          loadingState
-        );
+        // console.log(
+        //   "should i initialize index in CONNECTIONMODE.FROMCACHE: no will not",
+        //   loadingState
+        // );
       }
     }
   }, [dispatch, connectionMode, loadingState]);
