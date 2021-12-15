@@ -6,11 +6,12 @@ import { mastOhneLeuchte } from "../devData";
 import {
   addDotThumbnail,
   clearOptionalDescriptionItems,
+  getAddImageButton,
   getSquaredThumbnails,
   getStrasse,
   getTimelineForEvents,
 } from "./helper";
-import SecondaryInfoPanelSection from "react-cismap/topicmaps/SecondaryInfoPanelSection";
+import SecondaryInfoPanelSection from "../SecondaryInfoPanelSection";
 
 export const getEventsForStandort = (item) => {
   const events = [
@@ -68,6 +69,7 @@ const getLayout4Standort = ({ feature, jwt, dispatch }) => {
           // maxHeight='250'
         />
       )}
+
       <div>
         <h1>{vcard.infobox.title}</h1>
       </div>
@@ -99,6 +101,7 @@ const getLayout4Standort = ({ feature, jwt, dispatch }) => {
       key={"mast" + item?.fk_standort?.id}
       bsStyle='warning'
       header={"Mast"}
+      extra={getAddImageButton(dispatch, item, "tdta_standort_mast", feature.geometry)}
     >
       <Row>
         <Col span={12}>
@@ -168,7 +171,7 @@ export const getStandortDetails = ({
         {clearOptionalDescriptionItems(standortItems)}
         {/* {standortItems} */}
       </Descriptions>
-      {getSquaredThumbnails(docs, "Standort", jwt, dispatch)}
+      {docs.length > 1 && getSquaredThumbnails(docs, "Standort", jwt, dispatch)}
     </>
   );
 };

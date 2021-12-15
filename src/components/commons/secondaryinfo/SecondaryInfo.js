@@ -1,7 +1,9 @@
 import React, { useState } from "react";
 import { version as reactCismapVersion } from "react-cismap/meta";
 import SecondaryInfo from "./Secondary";
-import SecondaryInfoPanelSection from "react-cismap/topicmaps/SecondaryInfoPanelSection";
+// import SecondaryInfoPanelSection from "react-cismap/topicmaps/SecondaryInfoPanelSection";
+import SecondaryInfoPanelSection from "./SecondaryInfoPanelSection";
+
 import {
   getFeatureCollection,
   getSelectedFeature,

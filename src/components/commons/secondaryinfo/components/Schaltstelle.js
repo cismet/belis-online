@@ -5,6 +5,7 @@ import { setIndex, setVisible } from "../../../../core/store/slices/photoLightbo
 import {
   addDotThumbnail,
   clearOptionalDescriptionItems,
+  getAddImageButton,
   getSquaredThumbnails,
   getStrasse,
   getTimelineForEvents,
@@ -86,8 +87,19 @@ const getLayout4Schaltstelle = ({ feature, jwt, dispatch }) => {
           <br />
         </>
       )}
-      {getSquaredThumbnails(docs, "Schaltstelle", jwt, dispatch)}
+
       <div>{getTimelineForEvents({ events })}</div>
+      {docs.length > 1 && getSquaredThumbnails(docs, "Schaltstelle", jwt, dispatch)}
+      <div
+        style={{
+          paddingLeft: 10,
+          paddingRight: 20,
+          textAlign: "left",
+          paddingBottom: "5px",
+        }}
+      >
+        {getAddImageButton(dispatch, item, "schaltstelle", feature.geometry)}
+      </div>
     </div>
   );
 

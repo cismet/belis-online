@@ -157,6 +157,7 @@ export const forceRefresh = () => {
   return async (dispatch, getState) => {
     const state = getState();
     dispatch(setFeatureCollection([]));
+    dispatch(setSelectedFeature(null));
     const onlineDataForcing = true;
     dispatch(
       loadObjects({

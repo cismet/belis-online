@@ -27,6 +27,7 @@ const AddImageDialog = ({
   input = {},
 }) => {
   const [imageData, setImageData] = useState();
+  console.log("AddImageDialog input", input);
 
   const handleChange = (info) => {
     if (info.file.status === "uploading") {
@@ -130,7 +131,7 @@ const AddImageDialog = ({
           )}
         </div>
         <Form.Item
-          name='namess'
+          name='name'
           label='Name'
           rules={[
             {

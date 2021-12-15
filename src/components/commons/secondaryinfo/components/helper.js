@@ -3,6 +3,11 @@ import { getWebDavUrl } from "../../../../constants/belis";
 import { setIndex, setVisible } from "../../../../core/store/slices/photoLightbox";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBullseye, faGlassMartini, faGripLinesVertical } from "@fortawesome/free-solid-svg-icons";
+import { getVCard } from "../../../../core/helper/featureHelper";
+import IconLink from "react-cismap/commons/IconLink";
+import { showDialog } from "../../../../core/store/slices/app";
+import AddImageDialog from "../../../app/dialogs/AddImage";
+import { processAddImageToObject } from "../../../../core/store/slices/offlineActionDb";
 
 export const getDate = (d) => {
   if (d) {
@@ -159,4 +164,39 @@ export const clearOptionalDescriptionItems = (items) => {
     }
   }
   return cleared;
+};
+
+export const getAddImageButton = (dispatch, item, type, geometry) => {
+  const artificialFeature = {
+    featuretype: type,
+    properties: item,
+    geometry: geometry,
+  };
+  const vcard = getVCard(artificialFeature);
+
+  return (
+    <div>
+      <IconLink
+        key={`addPhoto`}
+        tooltip={"Foto hinzufügen"}
+        onClick={(e) => {
+          e.stopPropagation();
+          dispatch(
+            showDialog(
+              <AddImageDialog
+                close={() => {
+                  dispatch(showDialog());
+                }}
+                input={{ feature: artificialFeature, vcard }}
+                onClose={(addImageParamater) => {
+                  dispatch(processAddImageToObject(addImageParamater));
+                }}
+              />
+            )
+          );
+        }}
+        iconname={"camera"}
+      />
+    </div>
+  );
 };

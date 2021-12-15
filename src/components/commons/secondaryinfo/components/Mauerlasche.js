@@ -5,6 +5,7 @@ import { setIndex, setVisible } from "../../../../core/store/slices/photoLightbo
 import {
   addDotThumbnail,
   clearOptionalDescriptionItems,
+  getAddImageButton,
   getSquaredThumbnails,
   getStrasse,
   getTimelineForEvents,
@@ -101,6 +102,17 @@ const getLayout4Mauerlasche = ({ feature, jwt, dispatch }) => {
         </Row>
       )}
       {docs.length > 1 && getSquaredThumbnails(docs, "Mauerlasche", jwt, dispatch)}
+
+      <div
+        style={{
+          paddingLeft: 10,
+          paddingRight: 20,
+          textAlign: "left",
+          paddingBottom: "5px",
+        }}
+      >
+        {getAddImageButton(dispatch, item, "mauerlasche", feature.geometry)}
+      </div>
     </div>
   );
 

@@ -1,10 +1,12 @@
 import { faCamera, faInfoCircle } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { Col, Descriptions, Row } from "antd";
+import { Button, Col, Descriptions, Row } from "antd";
 import React from "react";
 import IconLink from "react-cismap/commons/IconLink";
 // import { version as reactCismapVersion } from "react-cismap/meta";
-import SecondaryInfoPanelSection from "react-cismap/topicmaps/SecondaryInfoPanelSection";
+// import SecondaryInfoPanelSection from "react-cismap/topicmaps/SecondaryInfoPanelSection";
+import SecondaryInfoPanelSection from "../SecondaryInfoPanelSection";
+
 import { getWebDavUrl } from "../../../../constants/belis";
 import { getVCard } from "../../../../core/helper/featureHelper";
 import { showDialog } from "../../../../core/store/slices/app";
@@ -14,6 +16,7 @@ import AddImageDialog from "../../../app/dialogs/AddImage";
 import {
   addDotThumbnail,
   clearOptionalDescriptionItems,
+  getAddImageButton,
   getSquaredThumbnails,
   getStrasse,
   getTimelineForEvents,
@@ -127,48 +130,22 @@ const getLayout4Leuchte = ({ feature, jwt, dispatch }) => {
       key={"leuchte" + item?.id}
       bsStyle='success'
       header={"Leuchte und Gesamtverlauf"}
+      extra={getAddImageButton(dispatch, item, "tdta_leuchten", feature.geometry)}
     >
-      <>
-        <a style={{ float: "right" }} class='pleaserenderaslink'>
-          <div>
-            <IconLink
-              key={`addPhoto`}
-              tooltip={"Foto hinzufügen"}
-              onClick={() => {
-                dispatch(
-                  showDialog(
-                    <AddImageDialog
-                      close={() => {
-                        dispatch(showDialog());
-                      }}
-                      input={{ feature, vcard }}
-                      onClose={(addImageParamater) => {
-                        dispatch(processAddImageToObject(addImageParamater));
-                      }}
-                    />
-                  )
-                );
-              }}
-              iconname={"camera"}
-            />
-          </div>
-        </a>
+      <Row>
+        <Col span={12}>
+          <Descriptions
+            column={{ xs: 1, sm: 1, md: 1, lg: 1, xxl: 1 }}
+            layout='horizontal'
+            bordered
+          >
+            {clearOptionalDescriptionItems(leuchteItems)}
+          </Descriptions>
 
-        <Row>
-          <Col span={12}>
-            <Descriptions
-              column={{ xs: 1, sm: 1, md: 1, lg: 1, xxl: 1 }}
-              layout='horizontal'
-              bordered
-            >
-              {clearOptionalDescriptionItems(leuchteItems)}
-            </Descriptions>
-
-            {getSquaredThumbnails(docs, "Leuchte", jwt, dispatch)}
-          </Col>
-          <Col span={12}>{getTimelineForEvents({ events })}</Col>
-        </Row>
-      </>
+          {getSquaredThumbnails(docs, "Leuchte", jwt, dispatch)}
+        </Col>
+        <Col span={12}>{getTimelineForEvents({ events })}</Col>
+      </Row>
     </SecondaryInfoPanelSection>
   );
   if (rsItems.length > 1) {
@@ -260,7 +237,8 @@ const getLayout4Leuchte = ({ feature, jwt, dispatch }) => {
     <SecondaryInfoPanelSection
       key={"mast" + item?.fk_standort?.id}
       bsStyle='warning'
-      header={"Mast"}
+      header='Mast'
+      extra={getAddImageButton(dispatch, item?.fk_standort, "tdta_standort_mast")}
     >
       {getStandortDetails({ standortItem: item?.fk_standort, docs, jwt, dispatch })}
     </SecondaryInfoPanelSection>
