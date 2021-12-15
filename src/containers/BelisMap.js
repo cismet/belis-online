@@ -48,6 +48,7 @@ const BelisMap = ({ refRoutedMap, width, height, jwt }) => {
   const blockingTime = 1000;
   const [blockLoading, setBlockLoading] = useState(false);
   const [indexInitialized, setIndexInitialized] = useState(false);
+  const [indexInitializationRequested, setIndexInitializationRequested] = useState(false);
 
   const timeoutHandlerRef = useRef(null);
 
@@ -180,17 +181,19 @@ const BelisMap = ({ refRoutedMap, width, height, jwt }) => {
 
       if (loadingState === undefined || indexInitialized === false) {
         // console.log("should i initialize index in CONNECTIONMODE.FROMCACHE: yes will do");
-
-        dispatch(
-          initIndex(() => {
-            console.log(
-              "featureCollection.length",
-              featureCollection.length,
-              !featureCollection.length
-            );
-            setIndexInitialized(true);
-          })
-        );
+        if (indexInitializationRequested === false) {
+          setIndexInitializationRequested(true);
+          dispatch(
+            initIndex(() => {
+              console.log(
+                "featureCollection.length",
+                featureCollection.length,
+                !featureCollection.length
+              );
+              setIndexInitialized(true);
+            })
+          );
+        }
       } else {
         // console.log(
         //   "should i initialize index in CONNECTIONMODE.FROMCACHE: no will not",
