@@ -95,7 +95,7 @@ const Tasks = () => {
       <p>
         Mit diesem{" "}
         <a
-          class='renderAsLink'
+          className='renderAsLink'
           onClick={() => {
             downloadObjectAsJson(rawTasks, "tasks");
             console.log("shownTasks", rawTasks);
