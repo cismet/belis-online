@@ -101,9 +101,11 @@ const BelisMap = ({ refRoutedMap, width, height, jwt }) => {
       return old;
     });
     setMapBounds((old) => {
-      if (JSON.stringify(old) !== JSON.stringify(mapRef?.getBounds())) {
-        old = mapRef?.getBounds();
-      }
+      try {
+        if (JSON.stringify(old) !== JSON.stringify(mapRef?.getBounds())) {
+          old = mapRef?.getBounds();
+        }
+      } catch (e) {}
       return old;
     });
   }, [mapRef, sizeFromMapRef, boundsFromMapRef]);
