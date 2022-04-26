@@ -29,6 +29,8 @@ import {
 } from "../core/store/slices/photoLightbox";
 import PhotoLightBox from "react-cismap/topicmaps/PhotoLightbox";
 import { initialize, resyncDb } from "../core/store/slices/offlineActionDb";
+import TopicMapContextProvider from "react-cismap/contexts/TopicMapContextProvider";
+import { defaultLayerConf } from "react-cismap/tools/layerFactory";
 
 //---
 
@@ -135,6 +137,7 @@ const View = () => {
   const captions = useSelector(getCaptions);
   const lightBoxIndex = useSelector(getIndex);
   const lightBoxVisible = useSelector(isVisible);
+
   return (
     <div ref={refApp}>
       <PhotoLightBox
