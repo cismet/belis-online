@@ -8,27 +8,11 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "leaflet/dist/leaflet.css";
 import "react-cismap/topicMaps.css";
 import "whatwg-fetch";
-import ResponsiveTopicMapContextProvider from "react-cismap/contexts/ResponsiveTopicMapContextProvider";
-import UIContextProvider from "react-cismap/contexts/UIContextProvider";
 import "antd/dist/antd.css";
-// import * as InfoboxStories from "./_stories/InfoBox.stories";
 
 ReactDOM.render(
   <React.StrictMode>
-    <ResponsiveTopicMapContextProvider
-      enabled={true}
-      appKey='belis-online3.0'
-      persistenceSettings={{}}
-    >
-      <UIContextProvider
-        appKey='belis-online3.0'
-        persistenceSettings={{
-          ui: ["appMenuVisible", "appMenuActiveMenuSection", "collapsedInfoBox"],
-        }}
-      >
-        <App />
-      </UIContextProvider>
-    </ResponsiveTopicMapContextProvider>
+    <App />
   </React.StrictMode>,
 
   document.getElementById("root")
