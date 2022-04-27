@@ -1,7 +1,6 @@
 import { Descriptions, Row, Col, Timeline } from "antd";
 import { getWebDavUrl } from "../../../../constants/belis";
 import { getVCard } from "../../../../core/helper/featureHelper";
-import { setIndex, setVisible } from "../../../../core/store/slices/photoLightbox";
 import { mastOhneLeuchte } from "../devData";
 import {
   addDotThumbnail,
@@ -28,7 +27,7 @@ export const getEventsForStandort = (item) => {
   return events;
 };
 
-const getLayout4Standort = ({ feature, jwt, dispatch }) => {
+const getLayout4Standort = ({ feature, jwt, dispatch, setVisible, setIndex }) => {
   const item = feature.properties;
   // const item = mastOhneLeuchte;
 
@@ -52,8 +51,8 @@ const getLayout4Standort = ({ feature, jwt, dispatch }) => {
       {mainDoc && (
         <img
           onClick={() => {
-            dispatch(setVisible(true));
-            dispatch(setIndex(0));
+            setVisible(true);
+            setIndex(0);
           }}
           alt='Bild'
           style={{

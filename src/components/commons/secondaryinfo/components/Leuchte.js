@@ -1,7 +1,7 @@
 import { faCamera, faInfoCircle } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Button, Col, Descriptions, Row } from "antd";
-import React from "react";
+import React, { useContext } from "react";
 import IconLink from "react-cismap/commons/IconLink";
 // import { version as reactCismapVersion } from "react-cismap/meta";
 // import SecondaryInfoPanelSection from "react-cismap/topicmaps/SecondaryInfoPanelSection";
@@ -11,7 +11,8 @@ import { getWebDavUrl } from "../../../../constants/belis";
 import { getVCard } from "../../../../core/helper/featureHelper";
 import { showDialog } from "../../../../core/store/slices/app";
 import { processAddImageToObject } from "../../../../core/store/slices/offlineActionDb";
-import { setIndex, setVisible } from "../../../../core/store/slices/photoLightbox";
+// import { setIndex, setVisible } from "../../../../core/store/slices/photoLightbox";
+
 import AddImageDialog from "../../../app/dialogs/AddImage";
 import {
   addDotThumbnail,
@@ -35,7 +36,8 @@ export const getEvents4Leuchte = (item) => {
   ];
   return events;
 };
-const getLayout4Leuchte = ({ feature, jwt, dispatch }) => {
+
+const getLayout4Leuchte = ({ feature, jwt, dispatch, setIndex, setVisible }) => {
   const item = feature.properties;
   // const item = leuchteMitAllenAttributen;
   const subSections = [];
@@ -58,8 +60,8 @@ const getLayout4Leuchte = ({ feature, jwt, dispatch }) => {
       {mainDoc && (
         <img
           onClick={() => {
-            dispatch(setVisible(true));
-            dispatch(setIndex(0));
+            setVisible(true);
+            setIndex(0);
           }}
           alt='Bild'
           style={{
@@ -142,7 +144,7 @@ const getLayout4Leuchte = ({ feature, jwt, dispatch }) => {
             {clearOptionalDescriptionItems(leuchteItems)}
           </Descriptions>
 
-          {getSquaredThumbnails(docs, "Leuchte", jwt, dispatch)}
+          {getSquaredThumbnails({ docs, type: "Leuchte", jwt, setIndex, setVisible })}
         </Col>
         <Col span={12}>{getTimelineForEvents({ events })}</Col>
       </Row>
@@ -229,7 +231,7 @@ const getLayout4Leuchte = ({ feature, jwt, dispatch }) => {
         {clearOptionalDescriptionItems(leuchtTypItems)}
         {/* {leuchtTypItems} */}
       </Descriptions>
-      {getSquaredThumbnails(docs, "Leuchtentyp", jwt, dispatch)}
+      {getSquaredThumbnails({ docs, type: "Leuchtentyp", jwt, setIndex, setVisible })}
     </SecondaryInfoPanelSection>
   );
 

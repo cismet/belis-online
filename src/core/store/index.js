@@ -128,7 +128,7 @@ const store = configureStore({
     gazetteerData: gazetteerDataSlice.reducer,
     team: persistReducer(teamConfig, teamSlice.reducer),
     offlineActionDb: persistReducer(offlineActionDbConfig, offlineActionDb.reducer),
-    photoLightbox: photoLightboxSlice.reducer,
+    //photoLightbox: photoLightboxSlice.reducer,
     dexie: dexieSlice.reducer,
   },
   devTools: devToolsEnabled === true && inProduction === false,

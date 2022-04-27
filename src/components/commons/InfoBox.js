@@ -32,11 +32,9 @@ import { faFilePdf } from "@fortawesome/free-regular-svg-icons";
 import Button from "react-bootstrap/Button";
 import AddImageDialog from "../app/dialogs/AddImage";
 import { getWebDavUrl } from "../../constants/belis";
-import {
-  getPhotoUrls,
-  setPhotoLightBoxData,
-  setVisible,
-} from "../../core/store/slices/photoLightbox";
+
+import { LightBoxDispatchContext } from "react-cismap/contexts/LightBoxContextProvider";
+
 import { addDotThumbnail } from "./secondaryinfo/components/helper";
 import { getDB, processAddImageToObject } from "../../core/store/slices/offlineActionDb";
 
@@ -51,6 +49,8 @@ const InfoBox = ({ refRoutedMap }) => {
   const secondaryInfoVisible = useSelector(isSecondaryInfoVisible);
   const { setCollapsedInfoBox } = useContext(UIDispatchContext);
   const { collapsedInfoBox } = useContext(UIContext);
+
+  const { setAll: setPhotoLightBoxData, setVisible } = useContext(LightBoxDispatchContext);
 
   let header = <span>Feature title</span>;
   const minified = collapsedInfoBox;
@@ -117,18 +117,19 @@ const InfoBox = ({ refRoutedMap }) => {
       );
     }
 
-    dispatch(
-      setPhotoLightBoxData({
-        title: vcard?.infobox?.title,
-        index: 0,
-        photourls,
-        captions,
-      })
-    );
+    setPhotoLightBoxData({
+      title: vcard?.infobox?.title,
+      index: 0,
+      photourls,
+      caption: captions,
+      visible: false,
+    });
   }, [selectedFeature, jwt, dispatch, vcard]);
 
   const setLightBoxVisible = (visible) => {
-    dispatch(setVisible(visible));
+    console.log("xxx setvisible", visible);
+
+    setVisible(visible);
   };
 
   const _next = () => {

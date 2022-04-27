@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { version as reactCismapVersion } from "react-cismap/meta";
 import SecondaryInfo from "./Secondary";
 // import SecondaryInfoPanelSection from "react-cismap/topicmaps/SecondaryInfoPanelSection";
@@ -25,6 +25,11 @@ import getLayout4Schaltstelle from "./components/Schaltstelle";
 import getLayout4Mauerlasche from "./components/Mauerlasche";
 import { getBelisVersion } from "../../../constants/versions";
 
+import {
+  LightBoxContext,
+  LightBoxDispatchContext,
+} from "react-cismap/contexts/LightBoxContextProvider";
+
 const InfoPanel = () => {
   const dispatch = useDispatch();
   const selectedFeature = useSelector(getSelectedFeature);
@@ -36,7 +41,7 @@ export const InfoPanelComponent = ({ selectedFeature, dispatch }) => {
   const hit = JSON.parse(JSON.stringify(selectedFeature));
   const jwt = useSelector(getJWT);
   const [showRawData, setShowRawData] = useState(false);
-
+  const { setIndex, setVisible } = useContext(LightBoxDispatchContext);
   const footer = (
     <div style={{ fontSize: "11px" }}>
       <div
@@ -108,7 +113,13 @@ export const InfoPanelComponent = ({ selectedFeature, dispatch }) => {
       title = "Info";
     switch (hit.featuretype) {
       case "tdta_leuchten":
-        ({ subSections, mainSection, title } = getLayout4Leuchte({ feature: hit, jwt, dispatch }));
+        ({ subSections, mainSection, title } = getLayout4Leuchte({
+          feature: hit,
+          jwt,
+          dispatch,
+          setIndex,
+          setVisible,
+        }));
         rawDataDesc += "der Leuchte";
         break;
       case "Leitung":
@@ -121,6 +132,8 @@ export const InfoPanelComponent = ({ selectedFeature, dispatch }) => {
           feature: hit,
           jwt,
           dispatch,
+          setIndex,
+          setVisible,
         }));
 
         rawDataDesc += "der Mauerlasche";
@@ -132,6 +145,8 @@ export const InfoPanelComponent = ({ selectedFeature, dispatch }) => {
           feature: hit,
           jwt,
           dispatch,
+          setIndex,
+          setVisible,
         }));
 
         break;
@@ -144,6 +159,8 @@ export const InfoPanelComponent = ({ selectedFeature, dispatch }) => {
           feature: hit,
           jwt,
           dispatch,
+          setIndex,
+          setVisible,
         }));
 
         rawDataDesc += "des Masts/Standorts";

@@ -218,7 +218,12 @@ const TopNavbar = ({ innerRef, refRoutedMap, setCacheSettingsVisible, jwt }) => 
         <Nav.Link>
           <Icon icon={faVial} />
         </Nav.Link>
-        <Nav.Link>
+        <Nav.Link
+          onClick={() => {
+            const team = "?";
+            console.log("Arbeitsaufträge für Team " + team + " suchen");
+          }}
+        >
           <Icon icon={faBookOpen} />
         </Nav.Link>
         <Form

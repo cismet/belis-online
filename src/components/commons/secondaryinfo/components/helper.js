@@ -1,6 +1,5 @@
 import { Descriptions, Badge, Timeline } from "antd";
 import { getWebDavUrl } from "../../../../constants/belis";
-import { setIndex, setVisible } from "../../../../core/store/slices/photoLightbox";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBullseye, faGlassMartini, faGripLinesVertical } from "@fortawesome/free-solid-svg-icons";
 import { getVCard } from "../../../../core/helper/featureHelper";
@@ -87,7 +86,12 @@ export const addDotThumbnail = (_url) => {
   return url;
 };
 
-export const getSquaredThumbnails = (docs, type, jwt, dispatch) => {
+export const getSquaredThumbnails = ({ docs, type, jwt, setIndex, setVisible }) => {
+  console.log("getSquaredThumbnails", { docs, type, jwt, setIndex, setVisible });
+  if (docs === undefined) {
+    console.trace();
+    return null;
+  }
   const rightDocs = docs.filter((doc) => doc.caption === type);
 
   const thumbnails = [];
@@ -99,8 +103,8 @@ export const getSquaredThumbnails = (docs, type, jwt, dispatch) => {
       <div style={{ width: "75px", height: "75px", overflow: "hidden", margin: "3px" }}>
         <img
           onClick={() => {
-            dispatch(setIndex(index));
-            dispatch(setVisible(true));
+            setIndex(index);
+            setVisible(true);
           }}
           alt=''
           style={{ width: "100%", height: "100%", objectFit: "cover" }}

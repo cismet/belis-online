@@ -18,15 +18,15 @@ import { modifyQueryPart } from "../core/commons/routingHelper";
 import Menu from "../components/app/menu/Menu";
 import { UIDispatchContext } from "react-cismap/contexts/UIContextProvider";
 import ResponsiveTopicMapContextProvider from "react-cismap/contexts/ResponsiveTopicMapContextProvider";
-import {
-  getCaptions,
-  getIndex,
-  getPhotoUrls,
-  getTitle,
-  isVisible,
-  setIndex,
-  setVisible,
-} from "../core/store/slices/photoLightbox";
+// import {
+//   getCaptions,
+//   getIndex,
+//   getPhotoUrls,
+//   getTitle,
+//   isVisible,
+//   setIndex,
+//   setVisible,
+// } from "../core/store/slices/photoLightbox";
 import PhotoLightBox from "react-cismap/topicmaps/PhotoLightbox";
 import { initialize, resyncDb } from "../core/store/slices/offlineActionDb";
 import TopicMapContextProvider from "react-cismap/contexts/TopicMapContextProvider";
@@ -132,30 +132,30 @@ const View = () => {
     }
   }, [onlineStatus]);
 
-  const photoBoxTitle = useSelector(getTitle);
-  const photourls = useSelector(getPhotoUrls);
-  const captions = useSelector(getCaptions);
-  const lightBoxIndex = useSelector(getIndex);
-  const lightBoxVisible = useSelector(isVisible);
+  // const photoBoxTitle = useSelector(getTitle);
+  // const photourls = useSelector(getPhotoUrls);
+  // const captions = useSelector(getCaptions);
+  // const lightBoxIndex = useSelector(getIndex);
+  // const lightBoxVisible = useSelector(isVisible);
+
+  //defaultContextValues={{
+  //   title: photoBoxTitle,
+  //   photourls,
+  //   captions,
+  //   index: lightBoxIndex,
+  //   visible: lightBoxVisible,y
+  //   setVisible: (vis) => {
+  //     dispatch(setVisible(vis));
+  //   },
+  //   setIndex: (i) => {
+  //     dispatch(setIndex(i));
+  //   },
+  //   reactModalStyle: { overlay: { zIndex: 60000000 } },
+  // }}
 
   return (
     <div ref={refApp}>
-      <PhotoLightBox
-        defaultContextValues={{
-          title: photoBoxTitle,
-          photourls,
-          captions,
-          index: lightBoxIndex,
-          visible: lightBoxVisible,
-          setVisible: (vis) => {
-            dispatch(setVisible(vis));
-          },
-          setIndex: (i) => {
-            dispatch(setIndex(i));
-          },
-          reactModalStyle: { overlay: { zIndex: 60000000 } },
-        }}
-      />
+      <PhotoLightBox reactModalStyleOverride={{ overlay: { zIndex: 60000000 } }} />
       <Menu
         hide={() => {
           setAppMenuVisible(false);

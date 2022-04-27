@@ -1,7 +1,6 @@
 import { Descriptions } from "antd";
 import { getWebDavUrl } from "../../../../constants/belis";
 import { getVCard } from "../../../../core/helper/featureHelper";
-import { setIndex, setVisible } from "../../../../core/store/slices/photoLightbox";
 import {
   addDotThumbnail,
   clearOptionalDescriptionItems,
@@ -22,7 +21,7 @@ export const getEventsForSchaltstelle = (item) => {
 
   return events;
 };
-const getLayout4Schaltstelle = ({ feature, jwt, dispatch }) => {
+const getLayout4Schaltstelle = ({ feature, jwt, dispatch, setIndex, setVisible }) => {
   const item = feature.properties;
   const subSections = [];
   const vcard = getVCard(feature);
@@ -45,8 +44,8 @@ const getLayout4Schaltstelle = ({ feature, jwt, dispatch }) => {
       {mainDoc && (
         <img
           onClick={() => {
-            dispatch(setVisible(true));
-            dispatch(setIndex(0));
+            setVisible(true);
+            setIndex(0);
           }}
           alt='Bild'
           style={{
@@ -89,7 +88,8 @@ const getLayout4Schaltstelle = ({ feature, jwt, dispatch }) => {
       )}
 
       <div>{getTimelineForEvents({ events })}</div>
-      {docs.length > 1 && getSquaredThumbnails(docs, "Schaltstelle", jwt, dispatch)}
+      {docs.length > 1 &&
+        getSquaredThumbnails({ docs, type: "Schaltstelle", jwt, setIndex, setVisible })}
       <div
         style={{
           paddingLeft: 10,

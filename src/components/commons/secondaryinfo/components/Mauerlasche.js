@@ -1,7 +1,6 @@
 import { Descriptions, Row, Col } from "antd";
 import { getWebDavUrl } from "../../../../constants/belis";
 import { getVCard } from "../../../../core/helper/featureHelper";
-import { setIndex, setVisible } from "../../../../core/store/slices/photoLightbox";
 import {
   addDotThumbnail,
   clearOptionalDescriptionItems,
@@ -21,7 +20,7 @@ export const getEventsForMauerlasche = (item) => {
 
   return events;
 };
-const getLayout4Mauerlasche = ({ feature, jwt, dispatch }) => {
+const getLayout4Mauerlasche = ({ feature, jwt, dispatch, setVisible, setIndex }) => {
   const item = feature.properties;
   const subSections = [];
   const vcard = getVCard(feature);
@@ -43,8 +42,8 @@ const getLayout4Mauerlasche = ({ feature, jwt, dispatch }) => {
       {mainDoc && (
         <img
           onClick={() => {
-            dispatch(setVisible(true));
-            dispatch(setIndex(0));
+            setVisible(true);
+            setIndex(0);
           }}
           alt='Bild'
           style={{
@@ -101,7 +100,8 @@ const getLayout4Mauerlasche = ({ feature, jwt, dispatch }) => {
           </Col>
         </Row>
       )}
-      {docs.length > 1 && getSquaredThumbnails(docs, "Mauerlasche", jwt, dispatch)}
+      {docs.length > 1 &&
+        getSquaredThumbnails({ docs, type: "Mauerlasche", jwt, setIndex, setVisible })}
 
       <div
         style={{

@@ -1,12 +1,10 @@
 export const backgrounds = {
   stadtplan: "klokantech_basic@90",
-  lbk_: "cismetText|trueOrtho2020@40",
-
-  lbk: "wupp-plan-live@100|trueOrtho2020@60", //|rvrSchrift@100",
+  lbk: "rvrGrundriss@80|trueOrtho2020@65|rvrSchriftNT@100",
   nightplan:
     'wupp-plan-live@{"opacity":0.9,"css-filter": "filter:grayscale(0.9)brightness(0.9)invert(1)"}',
-  pale_stadtplan: "wupp-plan-live@30",
-  pale_lbk: "wupp-plan-live@20|trueOrtho2020@30|rvrSchrift@100",
+  pale_stadtplan: "klokantech_basic@10",
+  pale_lbk: "rvrGrundriss@20|trueOrtho2020@35|rvrSchriftNT@70",
   pale_nightplan:
     'wupp-plan-live@{"opacity":0.3,"css-filter": "filter:grayscale(0.9)brightness(0.9)invert(1)"}',
 };
