@@ -19,7 +19,7 @@ WORKDIR /app
 # Install dependencies
 COPY yarn.lock ./
 COPY .package.json.without.version ./package.json
-RUN yarn install
+#RUN yarn install
 RUN yarn cache clean
 COPY . .
 RUN VERSION=`cat .version`; sed -i "s/%BELIS_VERSION%/$VERSION/" src/constants/versions.js
