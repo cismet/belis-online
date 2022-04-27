@@ -83,6 +83,10 @@ const TopNavbar = ({ innerRef, refRoutedMap, setCacheSettingsVisible, jwt }) => 
   const [windowWidth, windowHeight] = useWindowSize();
 
   let fontSize, narrow, fontSizeIconPixel, iconWidth, toggleSize;
+  const isInStandaloneMode = () =>
+    window.matchMedia("(display-mode: standalone)").matches ||
+    window.navigator.standalone ||
+    document.referrer.includes("android-app://");
 
   if (windowWidth <= 1200) {
     fontSize = "0.8rem";
@@ -195,9 +199,8 @@ const TopNavbar = ({ innerRef, refRoutedMap, setCacheSettingsVisible, jwt }) => 
             })}
           </NavDropdown>
           <Nav.Link
-            {...longPress}
             onClick={(e) => {
-              if (e.ctrlKey || e.altKey || e.shiftKey) {
+              if (e.ctrlKey || e.altKey || e.shiftKey || isInStandaloneMode()) {
                 window.location.reload();
               } else {
                 dispatch(forceRefresh());
