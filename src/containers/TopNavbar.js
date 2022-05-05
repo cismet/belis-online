@@ -61,6 +61,7 @@ import { getLoginFromJWT, storeJWT, storeLogin } from "../core/store/slices/auth
 import { useWindowSize } from "@react-hook/window-size";
 import { getDB as getOfflineActionDB } from "../core/store/slices/offlineActionDb";
 import { NavItem } from "react-bootstrap";
+import { filteredData } from "../core/queries/dev";
 //---------
 
 const TopNavbar = ({ innerRef, refRoutedMap, setCacheSettingsVisible, jwt }) => {
@@ -222,6 +223,31 @@ const TopNavbar = ({ innerRef, refRoutedMap, setCacheSettingsVisible, jwt }) => 
           onClick={() => {
             const team = "?";
             console.log("Arbeitsaufträge für Team " + team + " suchen");
+            console.log(
+              "filteredData.data.arbeitsauftrag.lenghth",
+              filteredData.data.arbeitsauftrag.length
+            );
+
+            for (const aa of filteredData.data.arbeitsauftrag) {
+              const protokollCount = aa.ar_protokolleArray.length;
+              let closedProtCount = 0;
+              for (const protokoll of aa.ar_protokolleArray) {
+                if (
+                  protokoll.arbeitsprotokoll.arbeitsprotokollstatus?.schluessel === "1" ||
+                  protokoll.arbeitsprotokoll.arbeitsprotokollstatus?.schluessel === "2"
+                ) {
+                  console.log("fertig +1");
+
+                  closedProtCount++;
+                }
+              }
+              console.log(
+                "Arbeitsauftrag ",
+                aa.nummer,
+                (closedProtCount / protokollCount) * 100 + "%",
+                protokollCount
+              );
+            }
           }}
         >
           <Icon icon={faBookOpen} />
