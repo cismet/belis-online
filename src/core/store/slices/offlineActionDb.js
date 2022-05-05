@@ -160,6 +160,8 @@ export const clearIntermediateResults = (object_type) => {
 
 export const removeIntermediateResults = (intermediateResultsToRemove) => {
   return async (dispatch, getState) => {
+    console.log("removeIntermediateResults");
+
     const stateIntermediateResults = getIntermediateResults(getState()) || {};
     let intermediateResultsCopy;
     for (const intermediateResult of intermediateResultsToRemove) {
