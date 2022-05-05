@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import cacheQueries from "../../queries/cache";
+import cacheQueries from "../../queries/cacheFullObjects";
 import dexieworker from "workerize-loader!../../workers/dexie"; // eslint-disable-line import/no-webpack-loader-syntax
 import { fetchGraphQL } from "../../commons/graphql";
 import { initIndex } from "./spatialIndex";
@@ -11,41 +11,41 @@ import { getWorker } from "./dexie";
 const dexieW = dexieworker();
 
 const keys = [];
-keys.push({
-  primary: true,
-  name: "Masten (alle)",
-  queryKey: "all_tdta_standort_mast",
-  dataKey: "tdta_standort_mast",
-});
+// keys.push({
+//   primary: true,
+//   name: "Masten (alle)",
+//   queryKey: "all_tdta_standort_mast",
+//   dataKey: "tdta_standort_mast",
+// });
 keys.push({ primary: true, name: "Masten (ohne Leuchten)", queryKey: "tdta_standort_mast" });
 keys.push({ primary: true, name: "Punktindex", queryKey: "raw_point_index" });
 keys.push({ primary: true, name: "Leitungen", queryKey: "leitung" });
 keys.push({ primary: true, name: "Mauerlaschen", queryKey: "mauerlasche" });
 keys.push({ primary: true, name: "Schaltstellen", queryKey: "schaltstelle" });
 keys.push({ primary: true, name: "Leuchten", queryKey: "tdta_leuchten" });
-keys.push({ primary: true, name: "Straßen", queryKey: "tkey_strassenschluessel" });
-keys.push({ primary: true, name: "Abzweigdosen", queryKey: "abzweigdose" });
-keys.push({ name: "Anlagengruppen", queryKey: "anlagengruppe" });
-keys.push({ name: "Arbeitsprotokollstati", queryKey: "arbeitsprotokollstatus" });
-keys.push({ name: "Bauarten", queryKey: "bauart" });
-keys.push({ name: "Leitungstypen", queryKey: "leitungstyp" });
-keys.push({ name: "Leuchtmittel", queryKey: "leuchtmittel" });
-keys.push({ name: "Materialien (Leitungen)", queryKey: "material_leitung" });
-keys.push({ name: "Materialien (Mauerlaschen)", queryKey: "material_mauerlasche" });
-keys.push({ name: "Querschnitte", queryKey: "querschnitt" });
-keys.push({ name: "Teams", queryKey: "team" });
-keys.push({ name: "Bezirke", queryKey: "tkey_bezirk" });
-keys.push({ name: "Doppelkommandos", queryKey: "tkey_doppelkommando" });
-keys.push({ name: "Energielieferanten", queryKey: "tkey_energielieferant" });
-keys.push({ name: "Kennziffern", queryKey: "tkey_kennziffer" });
-keys.push({ name: "Klassifizierungen", queryKey: "tkey_klassifizierung" });
-keys.push({ name: "Mastarten", queryKey: "tkey_mastart" });
-keys.push({ name: "Unterhaltung (Leuchten)", queryKey: "tkey_unterh_leuchte" });
-keys.push({ name: "Unterhaltung (Masten)", queryKey: "tkey_unterh_mast" });
-keys.push({ name: "Veranlassungsarten", queryKey: "veranlassungsart" });
-keys.push({ name: "Rundsteuerempfänger", queryKey: "rundsteuerempfaenger" });
-keys.push({ name: "Leuchtentypen", queryKey: "tkey_leuchtentyp" });
-keys.push({ name: "Masttypen", queryKey: "tkey_masttyp" });
+// keys.push({ primary: true, name: "Straßen", queryKey: "tkey_strassenschluessel" });
+// keys.push({ primary: true, name: "Abzweigdosen", queryKey: "abzweigdose" });
+// keys.push({ name: "Anlagengruppen", queryKey: "anlagengruppe" });
+// keys.push({ name: "Arbeitsprotokollstati", queryKey: "arbeitsprotokollstatus" });
+// keys.push({ name: "Bauarten", queryKey: "bauart" });
+// keys.push({ name: "Leitungstypen", queryKey: "leitungstyp" });
+// keys.push({ name: "Leuchtmittel", queryKey: "leuchtmittel" });
+// keys.push({ name: "Materialien (Leitungen)", queryKey: "material_leitung" });
+// keys.push({ name: "Materialien (Mauerlaschen)", queryKey: "material_mauerlasche" });
+// keys.push({ name: "Querschnitte", queryKey: "querschnitt" });
+// keys.push({ name: "Teams", queryKey: "team" });
+// keys.push({ name: "Bezirke", queryKey: "tkey_bezirk" });
+// keys.push({ name: "Doppelkommandos", queryKey: "tkey_doppelkommando" });
+// keys.push({ name: "Energielieferanten", queryKey: "tkey_energielieferant" });
+// keys.push({ name: "Kennziffern", queryKey: "tkey_kennziffer" });
+// keys.push({ name: "Klassifizierungen", queryKey: "tkey_klassifizierung" });
+// keys.push({ name: "Mastarten", queryKey: "tkey_mastart" });
+// keys.push({ name: "Unterhaltung (Leuchten)", queryKey: "tkey_unterh_leuchte" });
+// keys.push({ name: "Unterhaltung (Masten)", queryKey: "tkey_unterh_mast" });
+// keys.push({ name: "Veranlassungsarten", queryKey: "veranlassungsart" });
+// keys.push({ name: "Rundsteuerempfänger", queryKey: "rundsteuerempfaenger" });
+// keys.push({ name: "Leuchtentypen", queryKey: "tkey_leuchtentyp" });
+// keys.push({ name: "Masttypen", queryKey: "tkey_masttyp" });
 
 // keys.push({ name:"", queryKey: 'infobaustein' });
 
@@ -266,6 +266,8 @@ export const renewCache = (key, jwt) => {
       }
     };
     dexieW.addEventListener("message", progressListener);
+    console.log("cacheQueries[" + itemKey + "]", { gql: cacheQueries[itemKey] });
+
     fetchGraphQL(cacheQueries[itemKey], {}, jwt)
       .then((result) => {
         // console.log(itemKey + " returned with " + result.data[dataKey].length + " results");
