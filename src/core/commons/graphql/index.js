@@ -5,6 +5,7 @@ export async function fetchGraphQL(operationsDoc, variables, jwt) {
   let myHeaders = new Headers();
   myHeaders.append("Authorization", "Bearer " + jwt);
   myHeaders.append("Content-Type", "application/json");
+  // myHeaders.append("Content-Encoding", "gzip");
 
   const body = JSON.stringify({
     query: operationsDoc,
@@ -17,6 +18,7 @@ export async function fetchGraphQL(operationsDoc, variables, jwt) {
       headers: myHeaders,
       body,
     });
+    // console.log("xxx result", result);
 
     return await result.json();
   } catch (e) {
