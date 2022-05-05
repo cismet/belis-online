@@ -221,6 +221,42 @@ const addDokumenteArrayOfDmsUrls = (docs, dArray, caption) => {
     addDmsUrl(docs, doc.dms_url, caption);
   }
 };
+export const getDocs = (feature) => {
+  const item = feature.properties;
+  const docs = [];
+  switch (feature.featuretype) {
+    case "tdta_leuchten":
+      addDokumenteArrayOfDmsUrls(docs, item?.dokumenteArray, "Leuchte");
+      addDokumenteArrayOfDmsUrls(docs, item?.fk_standort?.dokumenteArray, "Standort");
+      addDmsUrl(docs, item?.fk_leuchttyp?.dms_url, "Leuchtentyp");
+      addDokumenteArrayOfDmsUrls(docs, item?.fk_leuchttyp?.dokumenteArray, "Leuchtentyp");
+      addDmsUrl(docs, item?.fk_standort?.tkey_masttyp?.dms_url, "Masttyp");
+      addDokumenteArrayOfDmsUrls(docs, item?.fk_standort?.tkey_masttyp?.dokumenteArray, "Masttyp");
+      return docs;
+    case "Leitung":
+    case "leitung":
+      addDokumenteArrayOfDmsUrls(docs, item?.dokumenteArray, "Leitung");
+      return docs;
+    case "mauerlasche":
+      addDokumenteArrayOfDmsUrls(docs, item?.dokumenteArray, "Mauerlasche");
+      return docs;
+    case "schaltstelle":
+      addDokumenteArrayOfDmsUrls(docs, item?.dokumenteArray, "Schaltstelle");
+      addDmsUrl(docs, item?.rundsteuerempfaenger?.dms_url, "Rundsteuerempfänger");
+      return docs;
+    case "abzweigdose":
+      addDokumenteArrayOfDmsUrls(docs, item?.dokumenteArray, "Abzweigdose");
+      return docs;
+    case "tdta_standort_mast":
+      addDokumenteArrayOfDmsUrls(docs, item?.dokumenteArray, "Standort");
+      addDmsUrl(docs, item?.tkey_masttyp?.dms_url, "Masttyp");
+      addDokumenteArrayOfDmsUrls(docs, item?.tkey_masttyp?.dokumenteArray, "Masttyp");
+      return docs;
+    default:
+      console.log("unknown featuretype. this should not happen");
+      return docs;
+  }
+};
 
 export const addPropertiesToFeature = async (feature) => {
   if (feature?.enriched !== true) {
@@ -377,18 +413,6 @@ export const addPropertiesToFeature = async (feature) => {
 
         await addFieldByFK(db, item, "tkey_doppelkommando", "fk_dk1", feature.properties.fk_dk1);
         await addFieldByFK(db, item, "tkey_doppelkommando", "fk_dk2", feature.properties.fk_dk2);
-
-        addDokumenteArrayOfDmsUrls(item.docs, item?.dokumenteArray, "Leuchte");
-        addDokumenteArrayOfDmsUrls(item.docs, item?.fk_standort?.dokumenteArray, "Standort");
-        addDmsUrl(item.docs, item?.fk_leuchttyp?.dms_url, "Leuchtentyp");
-        addDokumenteArrayOfDmsUrls(item.docs, item?.fk_leuchttyp?.dokumenteArray, "Leuchtentyp");
-        addDmsUrl(item.docs, item?.fk_standort?.tkey_masttyp?.dms_url, "Masttyp");
-        addDokumenteArrayOfDmsUrls(
-          item.docs,
-          item?.fk_standort?.tkey_masttyp?.dokumenteArray,
-          "Masttyp"
-        );
-
         break;
       case "Leitung":
       case "leitung":
@@ -418,8 +442,6 @@ export const addPropertiesToFeature = async (feature) => {
         await addFieldByFK(db, item, "tkey_doppelkommando", "fk_dk1", feature.properties.fk_dk1);
         await addFieldByFK(db, item, "tkey_doppelkommando", "fk_dk2", feature.properties.fk_dk2);
 
-        addDokumenteArrayOfDmsUrls(item.docs, item?.dokumenteArray, "Leitung");
-
         break;
       case "mauerlasche":
         copyFields(item, feature, [
@@ -447,8 +469,6 @@ export const addPropertiesToFeature = async (feature) => {
           feature.properties.fk_strassenschluessel
         );
         await addFieldByFK(db, item, "dms_url", "foto", feature.properties.foto);
-
-        addDokumenteArrayOfDmsUrls(item.docs, item?.dokumenteArray, "Mauerlasche");
 
         break;
       case "schaltstelle":
@@ -483,13 +503,10 @@ export const addPropertiesToFeature = async (feature) => {
           "fk_strassenschluessel",
           feature.properties.fk_strassenschluessel
         );
-        addDokumenteArrayOfDmsUrls(item.docs, item?.dokumenteArray, "Schaltstelle");
-        addDmsUrl(item.docs, item?.rundsteuerempfaenger?.dms_url, "Rundsteuerempfänger");
 
         break;
       case "abzweigdose":
         copyFields(item, feature, ["is_deleted", "id", "dokumenteArray"]);
-        addDokumenteArrayOfDmsUrls(item.docs, item?.dokumenteArray, "Abzweigdose");
 
         break;
       case "tdta_standort_mast":
@@ -574,18 +591,16 @@ export const addPropertiesToFeature = async (feature) => {
         await addFieldByFK(db, item, "tdta_leuchten", "leuchten", feature.properties.leuchten);
         await addFieldByFK(db, item, "tkey_doppelkommando", "foto", feature.properties.foto);
 
-        addDokumenteArrayOfDmsUrls(item.docs, item?.dokumenteArray, "Standort");
-        addDmsUrl(item.docs, item?.tkey_masttyp?.dms_url, "Masttyp");
-        addDokumenteArrayOfDmsUrls(item.docs, item?.tkey_masttyp?.dokumenteArray, "Masttyp");
-
         break;
       default:
     }
-
+    item.docs = getDocs(feature);
     item.feature = feature;
     const newFeature = JSON.parse(JSON.stringify(feature));
     newFeature.properties = item;
     newFeature.enriched = true;
+    // console.log("enrichedFeature", newFeature);
+
     return newFeature;
   } else {
     //otherwise the setting of the index cannot be done
