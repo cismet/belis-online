@@ -11,13 +11,14 @@ import { getZoom } from "./zoom";
 import { getConnectionMode, CONNECTIONMODE } from "./app";
 import bboxPolygon from "@turf/bbox-polygon";
 import { fetchGraphQL } from "../../commons/graphql";
-import onlineQueryParts, { geomFactories } from "../../queries/online";
+import onlineQueryParts, { geomFactories, fragments } from "../../queries/full";
 import { storeJWT } from "../slices/auth";
 import {
   addPropertiesToFeature,
   compareFeature,
   integrateIntermediateResults,
   getIntermediateResultsToBeRemoved,
+  getDocs,
 } from "../../helper/featureHelper";
 import proj4 from "proj4";
 import { MappingConstants } from "react-cismap";
@@ -42,6 +43,7 @@ const featureCollectionSlice = createSlice({
   name: "featureCollection",
   initialState: {
     features: [],
+    featuresMap: {},
     info: {},
     done: true,
     filter: initialFilter,
@@ -55,7 +57,15 @@ const featureCollectionSlice = createSlice({
   },
   reducers: {
     setFeatureCollection: (state, action) => {
+      console.time("setFeatureCollection");
       state.features = action.payload;
+      let index = 0;
+      const fm = {};
+      for (const f of state.features) {
+        fm[f.id] = index++;
+      }
+      state.featuresMap = fm;
+      console.timeEnd("setFeatureCollection");
     },
     setFeatureCollectionInfo: (state, action) => {
       state.info = action.payload;
@@ -77,23 +87,43 @@ const featureCollectionSlice = createSlice({
       state.filter = action.payload;
     },
     setSelectedFeature: (state, action) => {
-      const newFC = JSON.parse(JSON.stringify(state.features));
+      console.time("setSelectedFeature");
+      const fc = state.features; //JSON.parse(JSON.stringify(state.features));
+      console.log("setSelectedFeature", action.payload);
 
-      for (const f of newFC) {
-        if (
-          action.payload &&
-          f.featuretype === action.payload.featuretype &&
-          f.properties.id === action.payload.properties.id
-        ) {
-          f.selected = true;
-        } else {
-          f.selected = false;
+      if (state.selectedFeature) {
+        // const oldSelectedFeature = fc.find((f) => f.id === state.selectedFeature.id);
+        const oldSelectedFeature = fc[state.featuresMap[state.selectedFeature.id]];
+        if (oldSelectedFeature) {
+          oldSelectedFeature.selected = false;
         }
       }
 
-      state.features = newFC;
+      // if (action.payload) {
+      //   action.payload.selected = true;
+      // }
 
-      state.selectedFeature = action.payload;
+      // for (const f of newFC) {
+      //   if (
+      //     action.payload &&
+      //     f.featuretype === action.payload.featuretype &&
+      //     f.properties.id === action.payload.properties.id
+      //   ) {
+      //     f.selected = true;
+      //   } else {
+      //     f.selected = false;
+      //   }
+      // }
+      // state.features = newFC;
+
+      if (action.payload) {
+        // state.selectedFeature = fc.find((f) => f.id === action.payload.id);
+        state.selectedFeature = fc[state.featuresMap[action.payload.id]];
+      }
+      if (state.selectedFeature) {
+        state.selectedFeature.selected = true;
+      }
+      console.timeEnd("setSelectedFeature");
     },
 
     setRequestBasis: (state, action) => {
@@ -158,7 +188,7 @@ export const forceRefresh = () => {
     const state = getState();
     dispatch(setFeatureCollection([]));
     dispatch(setSelectedFeature(null));
-    const onlineDataForcing = true;
+    const onlineDataForcing = false;
     dispatch(
       loadObjects({
         boundingBox: state.featureCollection.boundingBox,
@@ -268,6 +298,8 @@ export const loadObjectsIntoFeatureCollection = ({
   jwt,
   onlineDataForcing = false,
 }) => {
+  console.log("will loadObjectsIntoFeatureCollection");
+
   if (boundingBox) {
     //const boundingBox=
     return async (dispatch, getState) => {
@@ -333,6 +365,8 @@ export const loadObjectsIntoFeatureCollection = ({
         }
         // console.log('leitungsFeatures', leitungsFeatures);
 
+        console.log("yyy", leitungsFeatures);
+
         if (connectionMode === CONNECTIONMODE.FROMCACHE && onlineDataForcing === false) {
           dexieW
             .getFeaturesForHits(state.spatialIndex.pointIndex.points, resultIds, filter)
@@ -352,6 +386,7 @@ export const loadObjectsIntoFeatureCollection = ({
             });
         } else {
           let queryparts = "";
+
           for (const filterKey of Object.keys(filter)) {
             if (filter[filterKey].enabled === true) {
               const qp = onlineQueryParts[filterKey];
@@ -361,11 +396,16 @@ export const loadObjectsIntoFeatureCollection = ({
           const gqlQuery = `query q($bbPoly: geometry!) {${queryparts}}`;
 
           const queryParameter = { bbPoly: createQueryGeomFromBB(convertedBoundingBox) };
-          // console.log("query", { gqlQuery, queryParameter });
+          console.log("query", { gqlQuery, queryParameter });
 
           try {
+            console.time("query returned");
             const response = await fetchGraphQL(gqlQuery, queryParameter, jwt);
+            console.timeEnd("query returned");
+
             if (response) {
+              console.log("query response ", response);
+
               const featureCollection = [];
               const updates = response.data;
               for (const key of Object.keys(response.data || {})) {
@@ -374,6 +414,7 @@ export const loadObjectsIntoFeatureCollection = ({
                   const feature = {
                     text: "-",
                     id: key,
+                    enriched: true,
                     type: "Feature",
                     selected: false,
                     featuretype: key,
@@ -395,22 +436,28 @@ export const loadObjectsIntoFeatureCollection = ({
                   // delete propertiesgeomFactories[key](o)
 
                   feature.properties = o;
-                  feature.id = feature.id + "-" + o.id;
 
+                  feature.id = feature.id + "-" + o.id;
+                  feature.properties.docs = getDocs(feature);
                   featureCollection.push(feature);
                 }
               }
               //featureCollection[0].selected = true;
               // dispatch(setFeatureCollection(featureCollection));
               enrichAndSetFeatures(dispatch, state, featureCollection, true);
-              dexieW.updateSingleCacheItems(updates);
+              console.log("will updateSingleCacheItems");
+
+              //dexieW.updateSingleCacheItems(updates);
+              console.log("updateSingleCacheItems done");
+              console.log("loadObjectsIntoFeatureCollection done");
             } else {
               console.log("response was undefined");
               // dispatch(setRequestBasis(undefined));
               dispatch(storeJWT(undefined));
             }
           } catch (e) {
-            console.log("rerror was thrown", e);
+            console.log("error was thrown", e);
+            console.log("errorneous query", { gqlQuery, queryParameter, jwt });
             // dispatch(setRequestBasis(undefined));
             dispatch(setRequestBasis(undefined));
             dispatch(storeJWT(undefined));
@@ -438,6 +485,9 @@ const enrichAndSetFeatures = (
   featureCollectionIn,
   removeFromIntermediateResults
 ) => {
+  console.log("entry enrichAndSetFeatures");
+  console.time("features enirched");
+
   const tasks = [];
 
   const newFeatures = [];
@@ -467,9 +517,12 @@ const enrichAndSetFeatures = (
 
   Promise.all(tasks).then(
     (enrichedFeatureCollection) => {
+      console.timeEnd("features enirched");
       const sortedElements = [];
       const typeCount = {};
       let selectionStillInMap = false;
+      console.log("will do cycling through enriched fc");
+      console.time("cycling through enriched fc");
 
       for (const feature of enrichedFeatureCollection) {
         feature.intermediateResultsIntegrated = new Date().getTime();
@@ -500,6 +553,7 @@ const enrichAndSetFeatures = (
           // feature.selected = true;
         }
       }
+      console.timeEnd("cycling through enriched fc");
 
       sortedElements.sort(compareFeature);
       if (!selectionStillInMap) {
@@ -512,7 +566,11 @@ const enrichAndSetFeatures = (
 
       dispatch(removeIntermediateResults(intermediateResultsToBeRemoved));
       dispatch(setFeatureCollectionInfo({ typeCount }));
+      console.log("will setFeatureCollection");
+      // console.log("sortedElements", sortedElements);
+
       dispatch(setFeatureCollection(sortedElements));
+      console.log("setFeatureCollection done");
 
       dispatch(setDone(true));
     },
@@ -537,7 +595,9 @@ export const integrateIntermediateResultsIntofeatureCollection = (intermediateRe
   return async (dispatch, getState) => {
     const state = getState();
     // need to create a new featurecollection because the retrieved collection is immutable
+    console.time("integrateIntermediateResultsIntofeatureCollection.clone.FC");
     const featureCollection = JSON.parse(JSON.stringify(getFeatureCollection(state)));
+    console.timeEnd("integrateIntermediateResultsIntofeatureCollection.clone.FC");
 
     const _intermediateResults = intermediateResults || getIntermediateResults(state);
     for (const feature of featureCollection) {
