@@ -138,12 +138,12 @@ const CacheSettings = () => {
               );
             }
           })}
-          <AggregatedCacheItem
+          {/* <AggregatedCacheItem
             controls={secondarySettings}
             renew={(key) => {
               dispatch(renewCache(key, jwt));
             }}
-          />
+          /> */}
 
           {/* <CacheItem
 								control={cacheSettings.mauerlasche}
