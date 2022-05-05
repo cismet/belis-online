@@ -207,7 +207,9 @@ const BelisMap = ({ refRoutedMap, width, height, jwt }) => {
 
   // renew the secondary cache when user changed or on first load
   useEffect(() => {
-    dispatch(renewAllSecondaryInfoCache(jwt));
+    console.log("renew the secondary cache when user changed or on first load", jwt);
+    console.log("disabled during dev time");
+    // dispatch(renewAllSecondaryInfoCache(jwt));
   }, [dispatch, jwt]);
 
   //Symbolcolors from nightmode
