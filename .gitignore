@@ -26,3 +26,4 @@ yarn-error.log*
 .version
 .githash
 /tmp
+_devreststuff/
