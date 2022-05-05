@@ -31,9 +31,11 @@ export async function putArray(inputArray, objectstorename) {
 }
 
 export async function updateSingleCacheItems(updates) {
-  for (const key of Object.keys(updates)) {
-    if (updates[key] && updates[key].length > 0) {
-      await db[key].bulkPut(updates[key]);
+  if (updates) {
+    for (const key of Object.keys(updates)) {
+      if (updates[key] && updates[key].length > 0) {
+        await db[key].bulkPut(updates[key]);
+      }
     }
   }
 }
