@@ -67,8 +67,10 @@ const CacheSettings = () => {
             let index = 0;
             for (const setting of [...primarySettings]) {
               setTimeout(() => {
+                console.log("yyy renewCache", setting.key);
+
                 dispatch(renewCache(setting.key, jwt));
-              }, 100 + 10 * index++);
+              }, 100 + 1000 * index++);
             }
             dispatch(setCacheUser(getLoginFromJWT(jwt)));
 
