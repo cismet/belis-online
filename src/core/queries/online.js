@@ -6,7 +6,7 @@ queries.abzweigdose = `
         id
         is_deleted
         geom {
-        geo_field
+          geo_field
         }
         dokumenteArray(where: {}) {
         dms_url {
@@ -18,7 +18,7 @@ queries.abzweigdose = `
                 prot_prefix
                 server
             }
-            }
+          }
         }
         }
     }
