@@ -73,14 +73,12 @@ export const offlineConfig = {
   realServerFallback: true, //should be true in production
   consoleDebug: process.env.NODE_ENV !== "production",
   optional: true,
-  initialActive: true,
+  initialActive: false, //todo set to true in production
 };
 
 // export const REST_SERVICE = "http://bender:8890";
 export const REST_SERVICE = "https://belis-testapi.cismet.de";
 export const getWebDavUrl = (jwt, doc) => {
-  console.log("doc", doc);
-
   if (doc.intermediate === true) {
     return doc.url;
   } else if (doc.doc.startsWith("dev")) {
