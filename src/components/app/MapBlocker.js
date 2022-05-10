@@ -1,16 +1,23 @@
 import React, { useEffect, useState } from "react";
 import { faSpinner } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon as Icon } from "@fortawesome/react-fontawesome";
-
+import { Alert, Button, Space } from "antd";
+import { useDispatch } from "react-redux";
+import { setDone } from "../../core/store/slices/featureCollection";
 const size = 150;
 const MapBlocker = ({ blocking, visible, width, height }) => {
-  const [dark, setDark] = useState(false);
+  const [slowRequest, setSlowRequest] = useState(false);
+  const dispatch = useDispatch();
 
-  //   useEffect(() => {
-  //     setTimeout(() => {}, 500);
-  //   }, [blocking, dark]);
-
-  const x = {};
+  useEffect(() => {
+    setSlowRequest(false);
+    const timer = setTimeout(() => {
+      setSlowRequest(true);
+    }, 10000);
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [setSlowRequest, blocking]);
 
   if (blocking === true) {
     return (
@@ -36,39 +43,63 @@ const MapBlocker = ({ blocking, visible, width, height }) => {
           top: 0,
           zIndex: 100000,
           cursor: "wait",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
         }}
       >
-        {/* {visible === true && (
-					<div
-						style={{
-							display: 'flex',
-							justifyContent: 'center',
-							alignItems: 'center',
-							position: 'absolute',
-							borderRadius: '25px',
-							height: size,
-							width: size,
-							background: '#00000099',
-							left: (width - size) / 2,
-							top: (height - size) / 2,
-							zIndex: 100001,
-							cursor: 'wait',
-							opacity: 1 //visible === true ? 0.8 : 0
-						}}
-					>
-						<Icon
-							style={{
-								fontSize: size / 3,
-								color: '#ffffff',
-								cursor: 'pointer',
-								textAlign: 'center',
-								webkitAnimation: 'fa-spin 3s infinite linear',
-								animation: 'fa-spin 3s infinite linear'
-							}}
-							icon={faSpinner}
-						/>
-					</div>
-				)} */}
+        {slowRequest === true && (
+          <div>
+            {/* <Icon
+              style={{
+                fontSize: size,
+                color: "#ffffff",
+                cursor: "pointer",
+                textAlign: "center",
+                opacity: 0.3,
+                webkitAnimation: "fa-spin 4s infinite linear",
+                animation: "fa-spin  4s infinite linear",
+              }}
+              spin
+              icon={faSpinner}
+            /> */}
+
+            <div
+              style={{
+                margin: "50px",
+                marginTop: "10px",
+                padding: "10px",
+                textAlign: "left",
+
+                backgroundColor: "#ffffffbb",
+                borderColor: "#00000070",
+                borderStyle: "solid",
+                borderRadius: "10px",
+              }}
+            >
+              <p>
+                <b>Die Anfrage dauert ungewöhnlich lange.</b>
+              </p>
+              <p>
+                Bitte warten Sie einen Moment oder brechen Sie die Anfrage mit{" "}
+                <Button
+                  style={{ opacity: 0.8 }}
+                  size='small'
+                  danger
+                  type='ghost'
+                  onClick={() => {
+                    console.log("clicked");
+
+                    dispatch(setDone(true));
+                  }}
+                >
+                  Abbrechen
+                </Button>{" "}
+                ab.
+              </p>
+            </div>
+          </div>
+        )}
       </div>
     );
   } else {
