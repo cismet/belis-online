@@ -30,15 +30,13 @@ import {
   getPointIndex,
   initIndex,
 } from "../core/store/slices/spatialIndex";
-import {
-  isSecondaryCacheUsable,
-  renewAllSecondaryInfoCache,
-} from "../core/store/slices/cacheControl";
+
 import LightBoxContextProvider, {
   LightBoxDispatchContext,
 } from "react-cismap/contexts/LightBoxContextProvider";
 import { useContext } from "react";
 import { convertBounds2BBox } from "../core/helper/gisHelper";
+import { setBounds } from "../core/store/slices/mapInfo";
 
 //---
 
@@ -80,32 +78,25 @@ const BelisMap = ({ refRoutedMap, width, height, jwt }) => {
     }
   }, [mapRef]);
 
-  const [mapBounds, setMapBounds] = useState();
-  const [mapSize, setMapSize] = useState();
-
-  const mapBoundsRef = useRef();
-  useEffect(() => {
-    mapBoundsRef.current = mapBounds;
-  }, [mapBounds]);
-
-  // console.log("refRoutedMap", refRoutedMap);
+  const [mapBoundsAndSize, setMapBoundsAndSize] = useState();
 
   const boundsFromMapRef = mapRef?.getBounds() || null;
   const sizeFromMapRef = mapRef?.getSize() || null;
 
   useEffect(() => {
-    setMapSize((old) => {
-      if (JSON.stringify(old) !== JSON.stringify(mapRef?.getSize())) {
-        old = mapRef?.getSize();
+    setMapBoundsAndSize((old) => {
+      const mapBounds = mapRef?.getBounds();
+      const mapSize = mapRef?.getSize();
+      if (
+        old === undefined ||
+        JSON.stringify(old.mapBounds) !== JSON.stringify(mapBounds) ||
+        JSON.stringify(old.mapSize) !== JSON.stringify(mapSize)
+      ) {
+        old = {
+          mapBounds,
+          mapSize,
+        };
       }
-      return old;
-    });
-    setMapBounds((old) => {
-      try {
-        if (JSON.stringify(old) !== JSON.stringify(mapRef?.getBounds())) {
-          old = mapRef?.getBounds();
-        }
-      } catch (e) {}
       return old;
     });
   }, [mapRef, sizeFromMapRef, boundsFromMapRef]);
@@ -125,7 +116,6 @@ const BelisMap = ({ refRoutedMap, width, height, jwt }) => {
   const gazetteerHit = useSelector(getGazetteerHit);
   const loadingState = useSelector(getLoadingState);
 
-  const isSecondaryCacheReady = useSelector(isSecondaryCacheUsable);
   const connectionMode = useSelector(getConnectionMode);
   const history = useHistory();
   const browserlocation = useLocation();
@@ -140,6 +130,8 @@ const BelisMap = ({ refRoutedMap, width, height, jwt }) => {
 
   const resultingLayer = backgrounds[rlKey];
 
+  const { mapSize, mapBounds } = mapBoundsAndSize || {};
+
   //                 __              _ _
   //   __ _  ___    / _| ___  _ __  (_) |_
   //  / _` |/ _ \  | |_ / _ \| '__| | | __|
@@ -147,13 +139,19 @@ const BelisMap = ({ refRoutedMap, width, height, jwt }) => {
   //  \__, |\___/  |_|  \___/|_|    |_|\__|
   //  |___/
   useEffect(() => {
+    // console.log("xxx go for it", {
+    //   mapBounds,
+    //   mapSize,
+    //   blockLoading,
+    //   indexInitialized,
+    //   connectionMode,
+    // });
+
     if (
       blockLoading === false &&
-      isSecondaryCacheReady &&
       (indexInitialized || connectionMode !== CONNECTIONMODE.FROMCACHE)
     ) {
       if (mapBounds && mapSize) {
-        const _boundingBox = refRoutedMap.current.getBoundingBox();
         const boundingBox = convertBounds2BBox(mapBounds);
 
         const z = urlSearchParams.get("zoom");
@@ -161,8 +159,15 @@ const BelisMap = ({ refRoutedMap, width, height, jwt }) => {
           dispatch(setZoom(z));
         }
         dispatch(loadObjects({ boundingBox, inFocusMode, zoom: z, jwt: jwt, force: false }));
+        console.log("xxx loadObjects", {
+          mapBounds,
+          mapSize,
+          blockLoading,
+          indexInitialized,
+          connectionMode,
+        });
       } else {
-        // console.log("xxx no map for you (mapBounds && mapSize)", mapBounds, mapSize);
+        console.log("xxx no map for you (mapBounds && mapSize)", mapBounds, mapSize);
       }
     } else {
       // console.log(
@@ -172,7 +177,7 @@ const BelisMap = ({ refRoutedMap, width, height, jwt }) => {
       //   isSecondaryCacheReady
       // );
     }
-  }, [mapBounds, mapSize, blockLoading, indexInitialized, isSecondaryCacheReady, connectionMode]);
+  }, [mapBounds, mapSize, blockLoading, indexInitialized, connectionMode]);
 
   // initalize the index in CACHEMODE when the loadingstate is undefined
   useEffect(() => {
@@ -204,13 +209,6 @@ const BelisMap = ({ refRoutedMap, width, height, jwt }) => {
       }
     }
   }, [dispatch, connectionMode, loadingState]);
-
-  // renew the secondary cache when user changed or on first load
-  useEffect(() => {
-    console.log("renew the secondary cache when user changed or on first load", jwt);
-    console.log("disabled during dev time");
-    // dispatch(renewAllSecondaryInfoCache(jwt));
-  }, [dispatch, jwt]);
 
   //Symbolcolors from nightmode
   let symbolColor;
@@ -266,6 +264,9 @@ const BelisMap = ({ refRoutedMap, width, height, jwt }) => {
       fallbackZoom={18}
       locationChangedHandler={(location) => {
         history.push(history.location.pathname + modifyQueryPart(browserlocation.search, location));
+      }}
+      boundingBoxChangedHandler={(boundingBox) => {
+        console.log("xxx boundingBox Changed", boundingBox);
       }}
     >
       <BelisFeatureCollection featureCollection={featureCollection} fgColor={symbolColor} />

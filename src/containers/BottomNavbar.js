@@ -190,7 +190,7 @@ const BottomNavbar = ({
               >
                 <span>
                   lokale Daten{" "}
-                  {cacheDate !== -1 && (
+                  {cacheDate !== undefined && cacheDate !== -1 && (
                     <span>
                       (
                       {isToday(cacheDate)

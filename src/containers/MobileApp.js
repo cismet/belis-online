@@ -31,7 +31,7 @@ import PhotoLightBox from "react-cismap/topicmaps/PhotoLightbox";
 import { initialize, resyncDb } from "../core/store/slices/offlineActionDb";
 import TopicMapContextProvider from "react-cismap/contexts/TopicMapContextProvider";
 import { defaultLayerConf } from "react-cismap/tools/layerFactory";
-
+import { storeJWT } from "../core/store/slices/auth";
 //---
 
 const View = () => {
@@ -60,7 +60,7 @@ const View = () => {
   //
   //local state
   const [loginInfo, setLoginInfo] = useState();
-  const [jwt, setJwt] = useState(storedJWT);
+
   const [loggedOut, setLoggedOut] = useState();
   //	let jwt = 'eyJhbGciOiJSUzI1NiJ9.eyJqdGkiOiIwIiwic3ViIjoiYWRtaW4iLCJkb21haW4iOiJXVU5EQV9CTEFVIn0.E3eZbW0lp6QrEyaDuGgtKpUqwi7WBp-mChecAej2wqutBcXD6utYCiKeAUMar5kIjgKdiZG5v7R-0uUekeTOp6_MuEysuGL4l-61VKLJwl31Tiw40JIzB3_saVky9bfZ_ntnR6Fkb4FuXe0T1Y2qqKwZd0NI-pCzLb98K6AQn41p7_LunusIxAewXUZm20UtsMhSYDNBLqVqi1GYiv_knNKo1iWnFPT37FuF_Rsx9MkWToHuRFXg1J790ghaJQRH5ky1xNYjiOhdK0k5E4zSZBXI7xnuK0fGdjGnJ2wVkfdGDb65e5H3EP3MEiBX1qRpCDEBstq_bOrKs-MTo464sQ'
 
@@ -98,7 +98,9 @@ const View = () => {
     loginForm = (
       <LoginForm
         key={"login."}
-        setJWT={setJwt}
+        setJWT={(jwt) => {
+          dispatch(storeJWT(jwt));
+        }}
         loginInfo={loginInfo}
         setLoginInfo={setLoginInfo}
         setLoggedOut={setLoggedOut}
@@ -160,7 +162,7 @@ const View = () => {
         hide={() => {
           setAppMenuVisible(false);
         }}
-        jwt={jwt}
+        jwt={storedJWT}
       />
       {appDialog}
 
@@ -169,7 +171,7 @@ const View = () => {
         innerRef={refUpperToolbar}
         refRoutedMap={refRoutedMap}
         setCacheSettingsVisible={setAppMenuVisible}
-        jwt={jwt}
+        jwt={storedJWT}
       />
       <SideBar
         innerRef={refSideBar}
@@ -187,7 +189,7 @@ const View = () => {
         refRoutedMap={refRoutedMap}
         width={mapStyle.width}
         height={mapStyle.height}
-        jwt={jwt}
+        jwt={storedJWT}
       />
       <BottomNavbar
         setAppMenuVisible={setAppMenuVisible}
@@ -195,7 +197,7 @@ const View = () => {
         innerRef={refLowerToolbar}
         onlineStatus={onlineStatus}
         refRoutedMap={refRoutedMap}
-        jwt={jwt}
+        jwt={storedJWT}
       />
     </div>
   );

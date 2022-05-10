@@ -13,8 +13,10 @@ import appStateSlice from "./slices/app";
 import authSlice from "./slices/auth";
 import dexieSlice from "./slices/dexie";
 import gazetteerDataSlice from "./slices/gazetteerData";
+import mapInfoSlice from "./slices/mapInfo";
 import teamSlice from "./slices/team";
 import offlineActionDb from "./slices/offlineActionDb";
+
 import photoLightboxSlice from "./slices/photoLightbox";
 import { createLogger } from "redux-logger";
 import { persistReducer } from "redux-persist";
@@ -130,6 +132,7 @@ const store = configureStore({
     offlineActionDb: persistReducer(offlineActionDbConfig, offlineActionDb.reducer),
     //photoLightbox: photoLightboxSlice.reducer,
     dexie: dexieSlice.reducer,
+    mapInfo: mapInfoSlice.reducer,
   },
   devTools: devToolsEnabled === true && inProduction === false,
   middleware,
