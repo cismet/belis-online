@@ -84,22 +84,22 @@ queries.arbeitsauftrag1 = `query Arbeitsauftraege {
   `;
 
 queries.arbeitsauftragfull1 = `query Arbeitsauftraege {
-
-    arbeitsauftrag(where: 
-      {_and: [
-        
-        {team: {name: {_eq: "Störungsbeseitigung"}}} ,
-        {_or:[
-          {is_deleted:{_is_null:true}},
-          {is_deleted:{_eq:false}}
-        ]},
-       {_or:[
-        {ar_protokolleArray:{arbeitsprotokoll:{fk_status:{_is_null:true}}}},
-        {ar_protokolleArray:{arbeitsprotokoll:{arbeitsprotokollstatus:{schluessel:{_eq:"0"}}}}},
+    
+      arbeitsauftrag(where: 
+        {_and: [
           
-          ]}
-      ]}
-        ) {
+          {team: {name: {_eq: "Störungsbeseitigung"}}} ,
+          {_or:[
+            {is_deleted:{_is_null:true}},
+            {is_deleted:{_eq:false}}
+          ]},
+        {_or:[
+          {ar_protokolleArray:{arbeitsprotokoll:{fk_status:{_is_null:true}}}},
+          {ar_protokolleArray:{arbeitsprotokoll:{arbeitsprotokollstatus:{schluessel:{_eq:"0"}}}}},
+            
+            ]}
+        ]}
+          ) {
       angelegt_am
       angelegt_von
       id
@@ -109,7 +109,7 @@ queries.arbeitsauftragfull1 = `query Arbeitsauftraege {
       team {
         id
       }
-       ar_protokolleArray {
+      ar_protokolleArray {
         arbeitsprotokoll {
           id
           veranlassungsnummer
@@ -124,7 +124,6 @@ queries.arbeitsauftragfull1 = `query Arbeitsauftraege {
             bezeichnung
             schluessel
           }
-                  
           tdta_leuchten {
             id
             leuchtennummer
@@ -357,7 +356,7 @@ queries.arbeitsauftragfull1 = `query Arbeitsauftraege {
                 pk
                 strasse
               }
-            }          
+            }
           }
           tdta_standort_mast {
             inbetriebnahme_mast
@@ -468,7 +467,8 @@ queries.arbeitsauftragfull1 = `query Arbeitsauftraege {
               id
               pk
               strasse
-            }          }
+            }
+          }
           schaltstelle {
             bemerkung
             dokumenteArray {
@@ -502,7 +502,6 @@ queries.arbeitsauftragfull1 = `query Arbeitsauftraege {
               id
               bezeichnung
             }
-            
             fk_strassenschluessel: tkey_strassenschluessel {
               id
               pk
@@ -537,7 +536,8 @@ queries.arbeitsauftragfull1 = `query Arbeitsauftraege {
             zusaetzliche_standortbezeichnung
             geom {
               geo_field
-            }          }
+            }
+          }
           mauerlasche {
             bemerkung
             dokumenteArray {
@@ -605,7 +605,6 @@ queries.arbeitsauftragfull1 = `query Arbeitsauftraege {
               }
             }
           }
-          
           abzweigdose {
             id
             is_deleted
@@ -625,15 +624,12 @@ queries.arbeitsauftragfull1 = `query Arbeitsauftraege {
                 }
               }
             }
-        
           }
         }
       }
-    
     }
-  }
   
-  
+
   `;
 
 const queryArbeitsauftraegeOnlyWhere = `
