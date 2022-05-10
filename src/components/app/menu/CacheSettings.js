@@ -1,4 +1,4 @@
-import { faDownload, faSync } from "@fortawesome/free-solid-svg-icons";
+import { faDownload, faSync, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon as Icon } from "@fortawesome/react-fontawesome";
 import { useWindowSize } from "@react-hook/window-size";
 import React, { useEffect } from "react";
@@ -6,6 +6,7 @@ import Button from "react-bootstrap/Button";
 import { useDispatch, useSelector } from "react-redux";
 import { getJWT, getLoginFromJWT } from "../../../core/store/slices/auth";
 import {
+  deleteCacheDB,
   fillCacheInfo,
   getCacheSettings,
   isCacheFullUsable,
@@ -79,7 +80,7 @@ const CacheSettings = () => {
                 clearInterval(refreshChecker);
                 dispatch(forceRefresh());
               } else {
-                console.log("wait");
+                // console.log("wait");
               }
             }, 100);
           }}
@@ -89,6 +90,17 @@ const CacheSettings = () => {
 
         <Button disabled style={{ margin: 3 }} variant='outline-success' size='sm'>
           <Icon icon={faSync} /> Nur neue Objekte laden
+        </Button>
+
+        <Button
+          onClick={() => {
+            dispatch(deleteCacheDB());
+          }}
+          style={{ margin: 3 }}
+          variant='outline-danger'
+          size='sm'
+        >
+          <Icon icon={faTrash} /> Offline DB löschen
         </Button>
       </div>
       <table

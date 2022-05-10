@@ -17,14 +17,15 @@ const keys = [];
 //   queryKey: "all_tdta_standort_mast",
 //   dataKey: "tdta_standort_mast",
 // });
+keys.push({ primary: true, name: "Leuchten", queryKey: "tdta_leuchten" });
 keys.push({ primary: true, name: "Masten (ohne Leuchten)", queryKey: "tdta_standort_mast" });
 keys.push({ primary: true, name: "Punktindex", queryKey: "raw_point_index" });
 keys.push({ primary: true, name: "Leitungen", queryKey: "leitung" });
 keys.push({ primary: true, name: "Mauerlaschen", queryKey: "mauerlasche" });
 keys.push({ primary: true, name: "Schaltstellen", queryKey: "schaltstelle" });
-keys.push({ primary: true, name: "Leuchten", queryKey: "tdta_leuchten" });
+keys.push({ primary: true, name: "Abzweigdosen", queryKey: "abzweigdose" });
 // keys.push({ primary: true, name: "Straßen", queryKey: "tkey_strassenschluessel" });
-// keys.push({ primary: true, name: "Abzweigdosen", queryKey: "abzweigdose" });
+
 // keys.push({ name: "Anlagengruppen", queryKey: "anlagengruppe" });
 // keys.push({ name: "Arbeitsprotokollstati", queryKey: "arbeitsprotokollstatus" });
 // keys.push({ name: "Bauarten", queryKey: "bauart" });
@@ -148,6 +149,7 @@ export const getCacheInfo = (key) => {
 export const isCacheFullUsable = (state) => {
   for (const key of getAllInfoKeys(state)) {
     if (
+      state.cacheControl.types[key].lastUpdate === undefined ||
       state.cacheControl.types[key].lastUpdate === -1 ||
       state.cacheControl.types[key].loadingState === "loading" ||
       state.cacheControl.types[key].loadingState === "caching"
@@ -203,7 +205,7 @@ export const getCacheUpdatingProgress = (state) => {
     if (loadingState === "cached" || loadingState === undefined) {
       progressCounter++;
     } else {
-      console.log("loadingState " + key, loadingState);
+      // console.log("loadingState " + key, loadingState);
     }
   }
   return progressCounter / keys.length;
@@ -216,6 +218,18 @@ export const fillCacheInfo = () => {
       dexieW.getCount(key).then((count) => {
         dispatch(setObjectCount({ key, objectCount: count }));
       });
+    });
+  };
+};
+export const deleteCacheDB = () => {
+  return async (dispatch, getState) => {
+    dexieW.deleteDB();
+    dispatch(fillCacheInfo());
+    const settings = getCacheSettings(getState());
+    Object.keys(settings).forEach((key) => {
+      console.log("key", key);
+      dispatch(setLoadingState({ key, loadingState: undefined }));
+      dispatch(setLastUpdate({ key, lastUpdate: undefined }));
     });
   };
 };
