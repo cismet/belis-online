@@ -7,6 +7,12 @@ import { CACHE_JWT } from "react-cismap/tools/fetching";
 import { useDispatch, useSelector } from "react-redux";
 import { getLogin, storeJWT, storeLogin } from "../../core/store/slices/auth";
 import { DOMAIN, REST_SERVICE } from "../../constants/belis";
+import { isCacheFullUsable } from "../../core/store/slices/cacheControl";
+import { CONNECTIONMODE, setConnectionMode } from "../../core/store/slices/app";
+import {
+  forceRefresh,
+  loadObjectsIntoFeatureCollection,
+} from "../../core/store/slices/featureCollection";
 const LoginForm = ({
   setJWT = (jwt) => {
     console.log("you need to set the attribute setJWT in the <Login> component", jwt);
@@ -21,6 +27,7 @@ const LoginForm = ({
   const pwFieldRef = useRef();
   const userFieldRef = useRef();
   const storedLogin = useSelector(getLogin);
+  const isCacheFullyUsable = useSelector(isCacheFullUsable);
 
   const _height = windowHeight || 800 - 180;
   const modalBodyStyle = {
@@ -53,7 +60,6 @@ const LoginForm = ({
 
   const [user, _setUser] = useState(storedLogin);
   const [pw, setPw] = useState("");
-  const [cacheDataAvailable, setCacheDataAvailable] = useState(false);
 
   window.localforage = localforage;
   const setUser = (user) => {
@@ -85,6 +91,7 @@ const LoginForm = ({
               setJWT(jwt);
               setLoggedOut(false);
               setLoginInfo();
+              dispatch(forceRefresh());
             }, 500);
           });
         } else {
@@ -183,17 +190,21 @@ const LoginForm = ({
             )}
             <div style={{ flexShrink: 100 }}></div>
             <div>
-              {cacheDataAvailable === true && (
+              {isCacheFullyUsable === true && (
                 <Button
                   onClick={(e) => {
                     setLoginInfo({
                       color: "#79BD9A",
                       text: "Alte Daten werden aus dem Cache übernommen.",
-                    });
+                    }); //set tmp. login info in the login dialogue
                     setTimeout(() => {
+                      console.log("will setJWT to ", CACHE_JWT);
+
                       setJWT(CACHE_JWT);
                       setLoggedOut(false);
-                      setLoginInfo();
+                      dispatch(setConnectionMode(CONNECTIONMODE.FROMCACHE));
+                      setLoginInfo(); //clear login info
+                      dispatch(forceRefresh());
                     }, 500);
                   }}
                   style={{ margin: 5, marginTop: 30 }}
