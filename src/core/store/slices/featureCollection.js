@@ -24,6 +24,7 @@ import proj4 from "proj4";
 import { MappingConstants } from "react-cismap";
 import { getIntermediateResults, removeIntermediateResults } from "./offlineActionDb";
 import booleanIntersects from "@turf/boolean-intersects";
+import { convertBounds2BBox } from "../../helper/gisHelper";
 const dexieW = dexieworker();
 
 const focusedSearchMinimumZoomThreshhold = 16.5;
@@ -72,6 +73,8 @@ const featureCollectionSlice = createSlice({
     },
 
     setDone: (state, action) => {
+      console.log("setDone", action.payload);
+
       state.done = action.payload;
     },
     setBoundingBox: (state, action) => {
@@ -186,12 +189,14 @@ const createQueryGeomFromBB = (boundingBox) => {
 export const forceRefresh = () => {
   return async (dispatch, getState) => {
     const state = getState();
+    console.log("xxx forceRefresh in", state.featureCollection.boundingBox, state.mapInfo?.bounds);
     dispatch(setFeatureCollection([]));
     dispatch(setSelectedFeature(null));
     const onlineDataForcing = false;
     dispatch(
       loadObjects({
-        boundingBox: state.featureCollection.boundingBox,
+        boundingBox:
+          state.featureCollection.boundingBox || convertBounds2BBox(state.mapInfo.bounds),
         jwt: state.auth.jwt,
         force: true,
         onlineDataForcing,
@@ -210,7 +215,7 @@ export const loadObjects = ({
   onlineDataForcing,
 }) => {
   return async (dispatch, getState) => {
-    if (!jwt) {
+    if (!jwt || !boundingBox) {
       return;
     }
 
@@ -245,9 +250,9 @@ export const loadObjects = ({
 
       if (reqBasis !== requestBasis || force) {
         if (force) {
-          // console.log("xxx forced request ", boundingBox, new Error());
+          console.log("xxx forced request ", boundingBox, new Error());
         } else {
-          // console.log("xxx ordinary request", boundingBox, new Error());
+          console.log("xxx ordinary request", boundingBox, new Error());
         }
         dispatch(setRequestBasis(reqBasis));
         dispatch(setBoundingBox(boundingBox));
@@ -267,6 +272,12 @@ export const loadObjects = ({
         } else {
           xbb = boundingBox;
         }
+
+        console.log("{ boundingBox: xbb, jwt: jwt, onlineDataForcing }", {
+          boundingBox: xbb,
+          jwt: jwt,
+          onlineDataForcing,
+        });
 
         dispatch(
           loadObjectsIntoFeatureCollection({ boundingBox: xbb, jwt: jwt, onlineDataForcing })
