@@ -1,4 +1,5 @@
-import { db } from "../indexeddb/dexiedb";
+import { getDocs } from "../helper/featureHelper";
+import { db, initialize } from "../indexeddb/dexiedb";
 // import getPropertiesForFeature from "../store/slices/featureCollection";
 export async function putArray(inputArray, objectstorename) {
   try {
@@ -27,6 +28,18 @@ export async function putArray(inputArray, objectstorename) {
     return true;
   } catch (err) {
     console.log("worker error in putArray", err);
+  }
+}
+
+export async function deleteDB() {
+  try {
+    db.tables.forEach(function (table) {
+      db[table.name].clear();
+    });
+
+    // initialize(db);
+  } catch (err) {
+    console.log("worker error in deleteDB", err);
   }
 }
 
@@ -146,7 +159,7 @@ export const getFeaturesForHits = async (points, resultIds, filter) => {
 
           feature.properties = featureObject; //getPropertiesForFeature(feature);
           feature.id = feature.id + "-" + featureObject.id;
-
+          feature.properties.docs = getDocs(feature);
           featureCollection.push(feature);
         }
         // //console.log('xxx Feature gebaut ', new Date().getTime() - d);
