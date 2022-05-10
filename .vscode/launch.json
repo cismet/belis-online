@@ -15,7 +15,7 @@
       "type": "chrome",
       "request": "launch",
       "name": "App",
-      "url": "http://localhost:3000/?lat=51.27230794118779&lng=7.208208770249522&zoom=14.5&stateLoggingEnabled=true",
+      "url": "http://localhost:3000/?lat=51.272015329199085&lng=7.200060188770295&stateLoggingEnabled=true&zoom=19",
       "webRoot": "${workspaceFolder}"
     },
     {
