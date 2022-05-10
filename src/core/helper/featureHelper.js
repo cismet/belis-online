@@ -259,7 +259,7 @@ export const getDocs = (feature) => {
 };
 
 export const addPropertiesToFeature = async (feature) => {
-  if (feature?.enriched !== true) {
+  if (false && feature?.enriched !== true) {
     const item = {};
     item.docs = [];
 
@@ -763,7 +763,11 @@ export const integrateIntermediateResults = (feature, intermediateResults) => {
       break;
     default:
   }
-  item.docs = [...item.docs, ...docs];
+  if (item.docs) {
+    item.docs = [...item.docs, ...docs];
+  } else {
+    item.docs = docs;
+  }
 };
 
 const compareValue = (a, b) => {
