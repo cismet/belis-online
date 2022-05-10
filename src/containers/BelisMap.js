@@ -96,6 +96,7 @@ const BelisMap = ({ refRoutedMap, width, height, jwt }) => {
           mapBounds,
           mapSize,
         };
+        dispatch(setBounds(mapBounds));
       }
       return old;
     });
