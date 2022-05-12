@@ -249,11 +249,6 @@ export const loadObjects = ({
         JSON.stringify(boundingBox) + "." + JSON.stringify(_filterstate) + "." + inFocusMode;
 
       if (reqBasis !== requestBasis || force) {
-        if (force) {
-          console.log("xxx forced request ", boundingBox, new Error());
-        } else {
-          console.log("xxx ordinary request", boundingBox, new Error());
-        }
         dispatch(setRequestBasis(reqBasis));
         dispatch(setBoundingBox(boundingBox));
 
