@@ -160,15 +160,15 @@ const BelisMap = ({ refRoutedMap, width, height, jwt }) => {
           dispatch(setZoom(z));
         }
         dispatch(loadObjects({ boundingBox, inFocusMode, zoom: z, jwt: jwt, force: false }));
-        console.log("xxx loadObjects", {
-          mapBounds,
-          mapSize,
-          blockLoading,
-          indexInitialized,
-          connectionMode,
-        });
+        // console.log("xxx loadObjects", {
+        //   mapBounds,
+        //   mapSize,
+        //   blockLoading,
+        //   indexInitialized,
+        //   connectionMode,
+        // });
       } else {
-        console.log("xxx no map for you (mapBounds && mapSize)", mapBounds, mapSize);
+        // console.log("xxx no map for you (mapBounds && mapSize)", mapBounds, mapSize);
       }
     } else {
       // console.log(
@@ -267,7 +267,7 @@ const BelisMap = ({ refRoutedMap, width, height, jwt }) => {
         history.push(history.location.pathname + modifyQueryPart(browserlocation.search, location));
       }}
       boundingBoxChangedHandler={(boundingBox) => {
-        console.log("xxx boundingBox Changed", boundingBox);
+        // console.log("xxx boundingBox Changed", boundingBox);
       }}
     >
       <BelisFeatureCollection featureCollection={featureCollection} fgColor={symbolColor} />
