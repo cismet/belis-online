@@ -77,7 +77,7 @@ export const offlineConfig = {
 };
 
 // export const REST_SERVICE = "http://bender:8890";
-export const REST_SERVICE = "https://belis-cloud.cismet.de/belis2-test/api/";
+export const REST_SERVICE = "https://belis-cloud.cismet.de/belis2-test/api";
 export const getWebDavUrl = (jwt, doc) => {
   if (doc.intermediate === true) {
     return doc.url;
