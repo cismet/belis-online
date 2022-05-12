@@ -24,6 +24,7 @@ keys.push({ primary: true, name: "Leitungen", queryKey: "leitung" });
 keys.push({ primary: true, name: "Mauerlaschen", queryKey: "mauerlasche" });
 keys.push({ primary: true, name: "Schaltstellen", queryKey: "schaltstelle" });
 keys.push({ primary: true, name: "Abzweigdosen", queryKey: "abzweigdose" });
+keys.push({ primary: true, name: "Teams", queryKey: "team" });
 // keys.push({ primary: true, name: "Straßen", queryKey: "tkey_strassenschluessel" });
 
 // keys.push({ name: "Anlagengruppen", queryKey: "anlagengruppe" });
@@ -34,6 +35,8 @@ keys.push({ primary: true, name: "Abzweigdosen", queryKey: "abzweigdose" });
 // keys.push({ name: "Materialien (Leitungen)", queryKey: "material_leitung" });
 // keys.push({ name: "Materialien (Mauerlaschen)", queryKey: "material_mauerlasche" });
 // keys.push({ name: "Querschnitte", queryKey: "querschnitt" });
+// keys.push({ primary: true, name: "Teams", queryKey: "team" });
+
 // keys.push({ name: "Teams", queryKey: "team" });
 // keys.push({ name: "Bezirke", queryKey: "tkey_bezirk" });
 // keys.push({ name: "Doppelkommandos", queryKey: "tkey_doppelkommando" });
@@ -260,6 +263,8 @@ export const renewAllPrimaryInfoCache = (jwt) => {
 };
 
 export const renewCache = (key, jwt) => {
+  console.log("xxx " + key, jwt);
+
   if (key === undefined || jwt === undefined) {
     console.error("renewCache: either key or jwt is undefined. This must be an error.");
   }
