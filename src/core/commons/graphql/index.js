@@ -12,6 +12,11 @@ export async function fetchGraphQL(operationsDoc, variables, jwt) {
     variables: variables,
   });
 
+  console.log("body", {
+    query: operationsDoc,
+    variables: variables,
+  });
+
   try {
     const result = await fetch(REST_SERVICE + "/graphql/" + DOMAIN + "/execute", {
       method: "POST",

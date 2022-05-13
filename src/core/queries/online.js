@@ -364,4 +364,87 @@ tdta_standort_mast(where: {_and: {_not: {leuchtenArray: {}}}, geom: {geo_field: 
 `;
 geomFactories.tdta_standort_mast = defaultGeomFactory;
 
+queries.arbeitsauftraegexx = `
+
+  arbeitsauftrag(where: 
+    {_and: [
+      
+      {team: {id: {_eq: $teamId}}} ,
+      {_or:[
+        {is_deleted:{_is_null:true}},
+        {is_deleted:{_eq:false}}
+      ]},
+     {_or:[
+      {ar_protokolleArray:{arbeitsprotokoll:{fk_status:{_is_null:true}}}},
+      {ar_protokolleArray:{arbeitsprotokoll:{arbeitsprotokollstatus:{schluessel:{_eq:"0"}}}}},
+        
+        ]}
+    ]}
+      ) {
+    angelegt_am
+    angelegt_von
+    id
+    is_deleted
+    nummer
+    zugewiesen_an
+    team {
+      id
+    }
+     ar_protokolleArray {
+      arbeitsprotokoll {
+        id
+        veranlassungsnummer
+        protokollnummer
+        is_deleted
+        material
+        monteur
+        bemerkung
+        defekt
+        datum
+        arbeitsprotokollstatus {
+          bezeichnung
+          schluessel
+        }
+                
+        tdta_leuchten {
+          tdta_standort_mast {
+            geom {
+              geo_field
+            }
+          }   
+        }
+        tdta_standort_mast {
+          geom {
+            geo_field
+          }
+        }
+        schaltstelle {
+          geom {
+            geo_field
+          }
+        }
+        mauerlasche {
+          geom {
+            geo_field
+          }
+        }
+        leitung {
+          geom {
+            geo_field
+          }
+        }
+        abzweigdose {
+          geom {
+            geo_field
+          }
+        }
+      }
+    }
+  
+  }
+
+
+
+`;
+
 export default queries;

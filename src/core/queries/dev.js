@@ -1,6 +1,6 @@
 const queries = {};
 
-queries.arbeitsauftrag1 = `query Arbeitsauftraege {
+queries.arbeitsauftrag = `query Arbeitsauftraege {
 
     arbeitsauftrag(where: 
       {_and: [

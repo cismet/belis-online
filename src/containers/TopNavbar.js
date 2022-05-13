@@ -62,6 +62,8 @@ import { useWindowSize } from "@react-hook/window-size";
 import { getDB as getOfflineActionDB } from "../core/store/slices/offlineActionDb";
 import { NavItem } from "react-bootstrap";
 import { filteredData } from "../core/queries/dev";
+import { fetchGraphQL } from "../core/commons/graphql";
+import queries from "../core/queries/online";
 //---------
 
 const TopNavbar = ({ innerRef, refRoutedMap, setCacheSettingsVisible, jwt }) => {
@@ -221,33 +223,24 @@ const TopNavbar = ({ innerRef, refRoutedMap, setCacheSettingsVisible, jwt }) => 
         </Nav.Link>
         <Nav.Link
           onClick={() => {
-            const team = "?";
-            console.log("Arbeitsaufträge für Team " + team + " suchen");
-            console.log(
-              "filteredData.data.arbeitsauftrag.lenghth",
-              filteredData.data.arbeitsauftrag.length
-            );
+            const team = selectedTeam;
+            console.log("Arbeitsaufträge für Team " + team?.name + " suchen");
 
-            for (const aa of filteredData.data.arbeitsauftrag) {
-              const protokollCount = aa.ar_protokolleArray.length;
-              let closedProtCount = 0;
-              for (const protokoll of aa.ar_protokolleArray) {
-                if (
-                  protokoll.arbeitsprotokoll.arbeitsprotokollstatus?.schluessel === "1" ||
-                  protokoll.arbeitsprotokoll.arbeitsprotokollstatus?.schluessel === "2"
-                ) {
-                  console.log("fertig +1");
+            const gqlQuery = `query q($teamId: Int) {${queries.arbeitsauftraegexx}}`;
 
-                  closedProtCount++;
-                }
+            const queryParameter = { teamId: team.id };
+            console.log("query", { gqlQuery, queryParameter }, jwt);
+
+            (async () => {
+              try {
+                console.time("query returned");
+                const response = await fetchGraphQL(gqlQuery, queryParameter, jwt);
+                console.timeEnd("query returned");
+                console.log("response", response.data);
+              } catch (e) {
+                console.error(e);
               }
-              console.log(
-                "Arbeitsauftrag ",
-                aa.nummer,
-                (closedProtCount / protokollCount) * 100 + "%",
-                protokollCount
-              );
-            }
+            })();
           }}
         >
           <Icon icon={faBookOpen} />
