@@ -1,4 +1,5 @@
 import proj4 from "proj4";
+import { MappingConstants } from "react-cismap";
 import { proj4crs3857def } from "react-cismap/constants/gis";
 
 export const convertBounds2BBox = (bounds, refDef = proj4crs3857def) => {
@@ -17,3 +18,15 @@ export const convertBounds2BBox = (bounds, refDef = proj4crs3857def) => {
     bottom: projectedSW[1],
   };
 };
+
+export function convertBoundingBox(
+  bbox,
+  refDefIn = MappingConstants.proj4crs3857def,
+  refDefOut = MappingConstants.proj4crs25832def
+) {
+  if (bbox) {
+    const [left, top] = proj4(refDefIn, refDefOut, [bbox.left, bbox.top]);
+    const [right, bottom] = proj4(refDefIn, refDefOut, [bbox.right, bbox.bottom]);
+    return { left, top, right, bottom };
+  }
+}

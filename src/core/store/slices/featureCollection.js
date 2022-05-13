@@ -24,11 +24,12 @@ import proj4 from "proj4";
 import { MappingConstants } from "react-cismap";
 import { getIntermediateResults, removeIntermediateResults } from "./offlineActionDb";
 import booleanIntersects from "@turf/boolean-intersects";
-import { convertBounds2BBox } from "../../helper/gisHelper";
+import { convertBoundingBox, convertBounds2BBox } from "../../helper/gisHelper";
 const dexieW = dexieworker();
 
 const focusedSearchMinimumZoomThreshhold = 16.5;
 const searchMinimumZoomThreshhold = 17.5;
+export const MODES = { OBJECTS: "OBJECTS", TASKLISTS: "TASKLISTS", PROTOCOLLS: "PROTOCOLLS" };
 
 export const initialFilter = {
   tdta_leuchten: { title: "Leuchten", enabled: true },
@@ -55,6 +56,7 @@ const featureCollectionSlice = createSlice({
     overlayFeature: undefined,
     gazeteerHit: undefined,
     boundingBox: undefined,
+    mode: MODES.OBJECTS,
   },
   reducers: {
     setFeatureCollection: (state, action) => {
@@ -89,6 +91,9 @@ const featureCollectionSlice = createSlice({
     setFilter: (state, action) => {
       state.filter = action.payload;
     },
+    setMode: (state, action) => {
+      state.mode = action.payload;
+    },
     setSelectedFeature: (state, action) => {
       console.time("setSelectedFeature");
       const fc = state.features; //JSON.parse(JSON.stringify(state.features));
@@ -101,24 +106,6 @@ const featureCollectionSlice = createSlice({
           oldSelectedFeature.selected = false;
         }
       }
-
-      // if (action.payload) {
-      //   action.payload.selected = true;
-      // }
-
-      // for (const f of newFC) {
-      //   if (
-      //     action.payload &&
-      //     f.featuretype === action.payload.featuretype &&
-      //     f.properties.id === action.payload.properties.id
-      //   ) {
-      //     f.selected = true;
-      //   } else {
-      //     f.selected = false;
-      //   }
-      // }
-      // state.features = newFC;
-
       if (action.payload) {
         // state.selectedFeature = fc.find((f) => f.id === action.payload.id);
         state.selectedFeature = fc[state.featuresMap[action.payload.id]];
@@ -283,18 +270,6 @@ export const loadObjects = ({
     }
   };
 };
-
-export function convertBoundingBox(
-  bbox,
-  refDefIn = MappingConstants.proj4crs3857def,
-  refDefOut = MappingConstants.proj4crs25832def
-) {
-  if (bbox) {
-    const [left, top] = proj4(refDefIn, refDefOut, [bbox.left, bbox.top]);
-    const [right, bottom] = proj4(refDefIn, refDefOut, [bbox.right, bbox.bottom]);
-    return { left, top, right, bottom };
-  }
-}
 
 export const loadObjectsIntoFeatureCollection = ({
   boundingBox,
