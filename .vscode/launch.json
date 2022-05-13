@@ -7,15 +7,8 @@
     {
       "type": "chrome",
       "request": "launch",
-      "name": "TestPage",
-      "url": "http://localhost:3000/test",
-      "webRoot": "${workspaceFolder}"
-    },
-    {
-      "type": "chrome",
-      "request": "launch",
       "name": "App",
-      "url": "http://localhost:3000/?lat=51.272015329199085&lng=7.200060188770295&stateLoggingEnabled=true&zoom=19",
+      "url": "http://localhost:3000/?lat=51.271707707942944&lng=7.200128496680703&stateLoggingEnabled=true&zoom=18.5",
       "webRoot": "${workspaceFolder}"
     },
     {
