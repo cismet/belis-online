@@ -1,3 +1,4 @@
+import bboxPolygon from "@turf/bbox-polygon";
 import proj4 from "proj4";
 import { MappingConstants } from "react-cismap";
 import { proj4crs3857def } from "react-cismap/constants/gis";
@@ -30,3 +31,19 @@ export function convertBoundingBox(
     return { left, top, right, bottom };
   }
 }
+
+export const createQueryGeomFromBB = (boundingBox) => {
+  const geom = bboxPolygon([
+    boundingBox.left,
+    boundingBox.top,
+    boundingBox.right,
+    boundingBox.bottom,
+  ]).geometry;
+  geom.crs = {
+    type: "name",
+    properties: {
+      name: "urn:ogc:def:crs:EPSG::25832",
+    },
+  };
+  return geom;
+};
