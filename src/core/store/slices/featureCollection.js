@@ -136,6 +136,7 @@ export const {
   setSecondaryInfoVisible,
   setOverlayFeature,
   setGazetteerHit,
+  setMode,
 } = featureCollectionSlice.actions;
 
 export const getFeatureCollection = (state) => {
