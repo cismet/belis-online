@@ -177,7 +177,7 @@ const View = () => {
         innerRef={refSideBar}
         refRoutedMap={refRoutedMap}
         setCacheSettingsVisible={setAppMenuVisible}
-        height={mapStyle.height}
+        height={mapStyle.height - 100}
       />
       <MapBlocker
         blocking={fcIsDone === false}

@@ -1,14 +1,19 @@
 import { createRef, React, useEffect, useRef, useState } from "react";
 import Nav from "react-bootstrap/Nav";
-import { useSelector } from "react-redux";
+import { Tabs } from "antd";
+
+import { useDispatch, useSelector } from "react-redux";
 import SideBarListElement from "../components/commons/SideBarListElement";
 import ListGroup from "react-bootstrap/ListGroup";
 import {
   getFeatureCollection,
   getFeatureCollectionInfo,
   getSelectedFeature,
+  MODES,
+  setMode,
 } from "../core/store/slices/featureCollection";
 //---------
+const { TabPane } = Tabs;
 
 const featureTypeToName = {};
 featureTypeToName["tdta_leuchten"] = "Leuchten";
@@ -34,7 +39,7 @@ const SideBar = ({ innerRef, height }) => {
   }, [featureCollection]);
 
   //
-
+  const dispatch = useDispatch();
   useEffect(() => {
     if (selectedFeature !== null) {
       if (refs && refs[selectedFeature.id] && refs[selectedFeature.id]?.current?.scrollIntoView) {
@@ -61,6 +66,52 @@ const SideBar = ({ innerRef, height }) => {
   let currentFeatureType = null;
 
   if (featureCollectionInfo) {
+    const list = (
+      <div ref={listRef} style={mapStyle}>
+        <ListGroup>
+          {featureCollection.map((feature, index) => {
+            if (currentFeatureType === null || currentFeatureType !== feature.featuretype) {
+              currentFeatureType = feature.featuretype;
+
+              return (
+                <div key={"listItemDiv." + feature.id} ref={refs[feature.id]}>
+                  <ListGroup.Item
+                    key={"listItem." + feature.id}
+                    style={{
+                      textAlign: "left",
+                      padding: "0px 0px 0px 10px",
+                      background: "#f8f9fa",
+                    }}
+                  >
+                    <b>
+                      {(featureTypeToName[currentFeatureType] === undefined
+                        ? currentFeatureType
+                        : featureTypeToName[currentFeatureType]) +
+                        " " +
+                        featureCollectionInfo.typeCount[currentFeatureType]}
+                    </b>
+                  </ListGroup.Item>
+                  <SideBarListElement
+                    feature={feature}
+                    selected={feature.selected}
+                  ></SideBarListElement>
+                </div>
+              );
+            } else {
+              return (
+                <div key={"listItemDiv." + feature.id} ref={refs[feature.id]}>
+                  <SideBarListElement
+                    key={"SideBarListElement." + feature.id}
+                    feature={feature}
+                    selected={feature.selected}
+                  ></SideBarListElement>
+                </div>
+              );
+            }
+          })}
+        </ListGroup>
+      </div>
+    );
     return (
       <>
         {/* <Nav className="col-md-12 d-none d-md-block bg-light sidebar" */}
@@ -70,50 +121,23 @@ const SideBar = ({ innerRef, height }) => {
           activeKey='/home'
           onSelect={(selectedKey) => alert(`selected ${selectedKey}`)}
         >
-          <div ref={listRef} style={mapStyle}>
-            <ListGroup>
-              {featureCollection.map((feature, index) => {
-                if (currentFeatureType === null || currentFeatureType !== feature.featuretype) {
-                  currentFeatureType = feature.featuretype;
-
-                  return (
-                    <div key={"listItemDiv." + feature.id} ref={refs[feature.id]}>
-                      <ListGroup.Item
-                        key={"listItem." + feature.id}
-                        style={{
-                          textAlign: "left",
-                          padding: "0px 0px 0px 10px",
-                          background: "#f8f9fa",
-                        }}
-                      >
-                        <b>
-                          {(featureTypeToName[currentFeatureType] === undefined
-                            ? currentFeatureType
-                            : featureTypeToName[currentFeatureType]) +
-                            " " +
-                            featureCollectionInfo.typeCount[currentFeatureType]}
-                        </b>
-                      </ListGroup.Item>
-                      <SideBarListElement
-                        feature={feature}
-                        selected={feature.selected}
-                      ></SideBarListElement>
-                    </div>
-                  );
-                } else {
-                  return (
-                    <div key={"listItemDiv." + feature.id} ref={refs[feature.id]}>
-                      <SideBarListElement
-                        key={"SideBarListElement." + feature.id}
-                        feature={feature}
-                        selected={feature.selected}
-                      ></SideBarListElement>
-                    </div>
-                  );
-                }
-              })}
-            </ListGroup>
-          </div>
+          <Tabs
+            centered
+            defaultActiveKey='1'
+            onChange={(key) => {
+              dispatch(setMode(key));
+            }}
+          >
+            <TabPane tab='Objekte' key={MODES.OBJECTS}>
+              {list}
+            </TabPane>
+            <TabPane tab='Arbeitsaufträge' key={MODES.TASKLISTS}>
+              {list}
+            </TabPane>
+            <TabPane tab='Protokolle' key={MODES.PROTOCOLLS}>
+              {list}
+            </TabPane>
+          </Tabs>
         </Nav>
       </>
     );
