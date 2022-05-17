@@ -36,6 +36,18 @@ if (!baseLayerConf.namedLayers.osmBrightOffline) {
     pane: "backgroundvectorLayers",
   };
 }
+if (!baseLayerConf.namedLayers.osmBrightOffline_pale) {
+  baseLayerConf.namedLayers.osmBrightOffline_pale = {
+    type: "vector",
+    style: "https://omt.map-hosting.de/styles/osm-bright-grey/style.json",
+    offlineAvailable: true,
+    offlineDataStoreKey: "wuppBasemap",
+    pane: "backgroundvectorLayers",
+    opacity: 0.3,
+    iconOpacity: 0.6,
+    textOpacity: 0.6,
+  };
+}
 if (!baseLayerConf.namedLayers.klokantech_basic) {
   baseLayerConf.namedLayers.klokantech_basic = {
     type: "vector",
@@ -43,6 +55,27 @@ if (!baseLayerConf.namedLayers.klokantech_basic) {
     offlineAvailable: true,
     offlineDataStoreKey: "wuppBasemap",
     pane: "backgroundvectorLayers",
+  };
+}
+if (!baseLayerConf.namedLayers.dark_matter) {
+  baseLayerConf.namedLayers.dark_matter = {
+    type: "vector",
+    style: "https://omt.map-hosting.de/styles/dark-matter/style.json",
+    offlineAvailable: true,
+    offlineDataStoreKey: "wuppBasemap",
+    pane: "backgroundvectorLayers",
+  };
+}
+if (!baseLayerConf.namedLayers.dark_matter_pale) {
+  baseLayerConf.namedLayers.dark_matter_pale = {
+    type: "vector",
+    style: "https://omt.map-hosting.de/styles/dark-matter/style.json",
+    offlineAvailable: true,
+    offlineDataStoreKey: "wuppBasemap",
+    pane: "backgroundvectorLayers",
+    opacity: 0.5,
+    iconOpacity: 1,
+    textOpacity: 1,
   };
 }
 
