@@ -5,12 +5,18 @@ import { getSelectedFeature, setSelectedFeature } from "../../core/store/slices/
 import "@fortawesome/fontawesome-free/js/all.js";
 import L from "leaflet";
 import "leaflet-extra-markers/dist/css/leaflet.extra-markers.min.css";
+import { getBackground } from "../../core/store/slices/background";
 
 const DEBUGGING = false;
 const BelisFeatureCollection = ({ featureCollection, fgColor = "#000000" }) => {
   const dispatch = useDispatch();
   const selectedFeature = useSelector(getSelectedFeature);
+  const background = useSelector(getBackground);
+  let modeClass = "brightMode";
 
+  // if (background === "nightplan") {
+  //   modeClass = "darkMode";
+  // }
   return (
     <div>
       {DEBUGGING && (
@@ -42,11 +48,11 @@ const BelisFeatureCollection = ({ featureCollection, fgColor = "#000000" }) => {
         style={(feature) => {
           let customMarker;
           if (feature.featuretype !== "leitung") {
-            let divContent = `<div class="belisiconclass_${feature.featuretype}">
-                                <div class="belisiconclass_${feature.featuretype}_inner"></div>
+            let divContent = `<div   class="${modeClass} belisiconclass_${feature.featuretype}">
+                                <div class="${modeClass} belisiconclass_${feature.featuretype}_inner"></div>
                               </div>`;
             if (feature.selected === true) {
-              divContent = `<div class="selectedfeature">${divContent}</div>`;
+              divContent = `<div class="${modeClass} selectedfeature">${divContent}</div>`;
             }
             customMarker = L.divIcon({
               className: "belis-custom-marker",
