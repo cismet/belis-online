@@ -218,7 +218,11 @@ const TopNavbar = ({ innerRef, refRoutedMap, setCacheSettingsVisible, jwt }) => 
           Kein Arbeitsauftrag ausgewählt ({selectedTeam.name})
         </Nav>
 
-        <Nav.Link>
+        <Nav.Link
+          onClick={() => {
+            document.body.classList.add("dark-mode");
+          }}
+        >
           <Icon icon={faVial} />
         </Nav.Link>
         <Nav.Link
