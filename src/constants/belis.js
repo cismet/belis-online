@@ -1,12 +1,10 @@
 export const backgrounds = {
-  stadtplan: "klokantech_basic@90",
-  lbk: "rvrGrundriss@80|trueOrtho2020@65|rvrSchriftNT@100",
-  nightplan:
-    'wupp-plan-live@{"opacity":0.9,"css-filter": "filter:grayscale(0.9)brightness(0.9)invert(1)"}',
-  pale_stadtplan: "klokantech_basic@10",
-  pale_lbk: "rvrGrundriss@20|trueOrtho2020@35|rvrSchriftNT@70",
-  pale_nightplan:
-    'wupp-plan-live@{"opacity":0.3,"css-filter": "filter:grayscale(0.9)brightness(0.9)invert(1)"}',
+  stadtplan: "vectorCityMap",
+  lbk: "lbk",
+  nightplan: "darkMatter",
+  pale_stadtplan: "vectorCityMapPale",
+  pale_lbk: "lbkPale",
+  pale_nightplan: "darkMatterPale",
 };
 
 export const offlineConfig = {
@@ -65,6 +63,7 @@ export const offlineConfig = {
   offlineStyles: [
     "https://omt.map-hosting.de/styles/cismet-light/style.json",
     "https://omt.map-hosting.de/styles/osm-bright-grey/style.json",
+    "https://omt.map-hosting.de/styles/dark-matter/style.json",
     "https://omt.map-hosting.de/styles/klokantech-basic/style.json",
     "https://omt.map-hosting.de/styles/brunnen/style.json",
     "https://omt.map-hosting.de/styles/kanal/style.json",
@@ -92,15 +91,14 @@ export const DOMAIN = "BELIS2-TEST";
 
 export const backgroundConfigurations = {
   lbk: {
-    layerkey: "rvrGrau@50|trueOrtho2020@40",
+    layerkey: "rvrGrundriss@100|trueOrtho2020@75|rvrSchriftNT@100",
     src: "/images/rain-hazard-map-bg/ortho.png",
     title: "Luftbildkarte",
   },
-
-  vectorCityMap2: {
-    layerkey: "cismetLight",
-    src: "/images/rain-hazard-map-bg/citymap.png",
-    title: "Stadtplan",
+  lbkPale: {
+    layerkey: "rvrGrundriss@20|trueOrtho2020@50|rvrSchriftNT@80",
+    src: "/images/rain-hazard-map-bg/ortho.png",
+    title: "Luftbildkarte",
   },
 
   vectorCityMap: {
@@ -108,17 +106,37 @@ export const backgroundConfigurations = {
     src: "/images/rain-hazard-map-bg/citymap.png",
     title: "Stadtplan",
   },
-
-  abkg: {
-    layerkey: "bplan_abkg@70",
-    src: "/images/rain-hazard-map-bg/citymap.png",
-    title: "Amtliche Basiskarte",
-  },
-  stadtplan: {
-    layerkey: "wupp-plan-live@90",
+  vectorCityMapPale: {
+    layerkey: "osmBrightOffline_pale",
     src: "/images/rain-hazard-map-bg/citymap.png",
     title: "Stadtplan",
   },
+  darkMatter: {
+    layerkey: "dark_matter",
+    src: "/images/rain-hazard-map-bg/citymap.png",
+    title: "Stadtplan (dunkel)",
+  },
+  darkMatterPale: {
+    layerkey: "dark_matter_pale",
+    src: "/images/rain-hazard-map-bg/citymap.png",
+    title: "Stadtplan (dunkel)",
+  },
+  // vectorCityMap2: {
+  //   layerkey: "cismetLight",
+  //   src: "/images/rain-hazard-map-bg/citymap.png",
+  //   title: "Stadtplan",
+  // },
+
+  // abkg: {
+  //   layerkey: "bplan_abkg@70",
+  //   src: "/images/rain-hazard-map-bg/citymap.png",
+  //   title: "Amtliche Basiskarte",
+  // },
+  // stadtplan: {
+  //   layerkey: "wupp-plan-live@90",
+  //   src: "/images/rain-hazard-map-bg/citymap.png",
+  //   title: "Stadtplan",
+  // },
   nix: {
     layerkey: "empty",
     src: "/images/rain-hazard-map-bg/citymap.png",
@@ -128,23 +146,32 @@ export const backgroundConfigurations = {
 
 export const backgroundModes = [
   {
-    title: "Stadtplan",
-    mode: "default",
-    layerKey: "stadtplan",
-  },
-  {
     title: "Stadtplan (bunt)",
     mode: "default",
     layerKey: "vectorCityMap",
     offlineDataStoreKey: "wuppBasemap",
   },
   {
-    title: "Stadtplan (light)",
+    title: "Stadtplan (dunkel)",
     mode: "default",
-    layerKey: "vectorCityMap2",
+    layerKey: "darkMatter",
     offlineDataStoreKey: "wuppBasemap",
   },
 
   { title: "Luftbildkarte", mode: "default", layerKey: "lbk" },
+  {
+    title: "Blass: Stadtplan (bunt)",
+    mode: "default",
+    layerKey: "vectorCityMapPale",
+    offlineDataStoreKey: "wuppBasemap",
+  },
+  {
+    title: "Blass: Stadtplan (dunkel)",
+    mode: "default",
+    layerKey: "darkMatterPale",
+    offlineDataStoreKey: "wuppBasemap",
+  },
+
+  { title: "Blass: Luftbildkarte", mode: "default", layerKey: "lbkPale" },
   { title: "-", mode: "default", layerKey: "nix" },
 ];
