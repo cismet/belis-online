@@ -37,6 +37,10 @@ import LightBoxContextProvider, {
 import { useContext } from "react";
 import { convertBounds2BBox } from "../core/helper/gisHelper";
 import { setBounds } from "../core/store/slices/mapInfo";
+import {
+  TopicMapStylingContext,
+  TopicMapStylingDispatchContext,
+} from "react-cismap/contexts/TopicMapStylingContextProvider";
 
 //---
 
@@ -47,6 +51,16 @@ const BelisMap = ({ refRoutedMap, width, height, jwt }) => {
   const [blockLoading, setBlockLoading] = useState(false);
   const [indexInitialized, setIndexInitialized] = useState(false);
   const [indexInitializationRequested, setIndexInitializationRequested] = useState(false);
+  const { setSelectedBackground } = useContext(TopicMapStylingDispatchContext);
+
+  const {
+    backgroundModes,
+    selectedBackground,
+    baseLayerConf,
+    backgroundConfigurations,
+    additionalLayerConfiguration,
+    activeAdditionalLayerKeys,
+  } = useContext(TopicMapStylingContext);
 
   const timeoutHandlerRef = useRef(null);
 
@@ -122,14 +136,27 @@ const BelisMap = ({ refRoutedMap, width, height, jwt }) => {
   const browserlocation = useLocation();
 
   const zoom = useSelector(getZoom);
+
   const inPaleMode = useSelector(isPaleModeActive);
   const background = useSelector(getBackground);
 
   const urlSearchParams = new URLSearchParams(browserlocation.search);
 
-  const rlKey = (inPaleMode === true ? "pale_" : "") + background;
+  let backgroundsFromMode;
+  try {
+    backgroundsFromMode = backgroundConfigurations[selectedBackground].layerkey;
+  } catch (e) {}
 
-  const resultingLayer = backgrounds[rlKey];
+  const _backgroundLayers = backgroundsFromMode || "rvrGrau@40";
+
+  useEffect(() => {
+    const key = (inPaleMode === true ? "pale_" : "") + background;
+    if (selectedBackground !== backgrounds[key]) {
+      console.log("xxx dispatch(setNamedMapStyle(backgrounds[key]));", backgrounds[key]);
+
+      setSelectedBackground(backgrounds[key]);
+    }
+  }, [inPaleMode, background, selectedBackground, setSelectedBackground, dispatch]);
 
   const { mapSize, mapBounds } = mapBoundsAndSize || {};
 
@@ -218,12 +245,13 @@ const BelisMap = ({ refRoutedMap, width, height, jwt }) => {
   } else {
     symbolColor = "#000000";
   }
+  console.log("xxx backgroundsFromMode", backgroundsFromMode);
 
   return (
     <RoutedMap
       editable={false}
       style={mapStyle}
-      key={"leafletRoutedMap." + inPaleMode + "." + background}
+      key={"leafletRoutedMap"}
       referenceSystem={MappingConstants.crs3857}
       referenceSystemDefinition={MappingConstants.proj4crs3857def}
       ref={refRoutedMap}
@@ -250,7 +278,7 @@ const BelisMap = ({ refRoutedMap, width, height, jwt }) => {
         }
       }}
       autoFitProcessedHandler={() => this.props.mappingActions.setAutoFit(false)}
-      backgroundlayers={resultingLayer}
+      backgroundlayers={_backgroundLayers}
       urlSearchParams={urlSearchParams}
       fullScreenControlEnabled={false}
       locateControlEnabled={true}
