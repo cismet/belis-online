@@ -17,6 +17,7 @@ import { getFilter, initialFilter, setFilter } from "../../../core/store/slices/
 import { useDispatch, useSelector } from "react-redux";
 import Teams from "./Teams";
 import Tasks from "./Tasks";
+
 const MyMenu = () => {
   const { setAppMenuActiveMenuSection } = useContext(UIDispatchContext);
   const filterState = useSelector(getFilter);
@@ -140,19 +141,20 @@ const MyMenu = () => {
             </div>
           }
         />,
-        // <DefaultSettingsPanel
-        //   key='settings'
-        //   skipFilterTitleSettings={true}
-        //   skipClusteringSettings={true}
-        //   skipSymbolsizeSetting={true}
-        // />,
-        <Section
+        <DefaultSettingsPanel
           key='settings'
-          sectionKey='settings'
-          sectionTitle={"Einstellungen"}
-          sectionBsStyle='danger'
-          sectionContent={<div></div>}
+          skipFilterTitleSettings={true}
+          skipClusteringSettings={true}
+          skipSymbolsizeSetting={true}
+          sectionBsStyle='default'
         />,
+        // <Section
+        //   key='settings'
+        //   sectionKey='settings'
+        //   sectionTitle={"Einstellungen"}
+        //   sectionBsStyle='danger'
+        //   sectionContent={<div></div>}
+        // ></Section>,
 
         <Section
           key='help'
