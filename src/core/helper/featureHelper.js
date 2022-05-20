@@ -197,6 +197,20 @@ export const getVCard = (feature) => {
         item?.fk_mastart?.mastart !== undefined ? item?.fk_mastart?.mastart : "-ohne Mastart-";
       break;
     }
+    case "arbeitsauftrag": {
+      // Infobox
+      vcard.infobox.header = "Arbeitsauftrag";
+      vcard.infobox.title = "Nummer: A" + item.nummer;
+      vcard.infobox.subtitle = undefined;
+      vcard.infobox.more = undefined;
+      // List
+      vcard.list.main = "A" + item.nummer;
+      vcard.list.upperright = item.angelegt_von;
+      vcard.list.subtitle = item.angelegt_am;
+      vcard.list.lowerright = (item.ar_protokolleArray || []).length;
+
+      break;
+    }
     default:
   }
 
