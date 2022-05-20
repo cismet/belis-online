@@ -8,6 +8,7 @@ import ListGroup from "react-bootstrap/ListGroup";
 import {
   getFeatureCollection,
   getFeatureCollectionInfo,
+  getFeatureCollectionMode,
   getSelectedFeature,
   MODES,
   setMode,
@@ -22,10 +23,13 @@ featureTypeToName["mauerlasche"] = "Mauerlaschen";
 featureTypeToName["abzweigdose"] = "Abzweigdosen";
 featureTypeToName["Leitung"] = "Leitungen";
 featureTypeToName["tdta_standort_mast"] = "Masten";
+featureTypeToName["arbeitsauftrag"] = "Arbeitsauftrag";
 
 const SideBar = ({ innerRef, height }) => {
   const featureCollection = useSelector(getFeatureCollection);
+  const mode = useSelector(getFeatureCollectionMode);
   const selectedFeature = useSelector(getSelectedFeature);
+
   const featureCollectionInfo = useSelector(getFeatureCollectionInfo);
   const [refs, setRefs] = useState({});
   const listRef = useRef();
@@ -72,7 +76,6 @@ const SideBar = ({ innerRef, height }) => {
           {featureCollection.map((feature, index) => {
             if (currentFeatureType === null || currentFeatureType !== feature.featuretype) {
               currentFeatureType = feature.featuretype;
-
               return (
                 <div key={"listItemDiv." + feature.id} ref={refs[feature.id]}>
                   <ListGroup.Item
@@ -84,11 +87,14 @@ const SideBar = ({ innerRef, height }) => {
                     }}
                   >
                     <b>
-                      {(featureTypeToName[currentFeatureType] === undefined
-                        ? currentFeatureType
-                        : featureTypeToName[currentFeatureType]) +
-                        " " +
-                        featureCollectionInfo.typeCount[currentFeatureType]}
+                      {
+                        featureTypeToName[currentFeatureType] === undefined
+                          ? currentFeatureType
+                          : featureTypeToName[currentFeatureType]
+                        // +
+                        // " " +
+                        // featureCollectionInfo.typeCount[currentFeatureType]
+                      }
                     </b>
                   </ListGroup.Item>
                   <SideBarListElement
@@ -123,7 +129,7 @@ const SideBar = ({ innerRef, height }) => {
         >
           <Tabs
             centered
-            defaultActiveKey='1'
+            activeKey={mode}
             onChange={(key) => {
               dispatch(setMode(key));
             }}
