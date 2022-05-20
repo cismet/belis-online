@@ -38,6 +38,7 @@ import {
   setOverlayFeature,
   getOverlayFeature,
   forceRefresh,
+  loadTaskLists,
 } from "../core/store/slices/featureCollection";
 
 import { getGazData, loadGazeteerEntries } from "../core/store/slices/gazetteerData";
@@ -227,24 +228,7 @@ const TopNavbar = ({ innerRef, refRoutedMap, setCacheSettingsVisible, jwt }) => 
         </Nav.Link>
         <Nav.Link
           onClick={() => {
-            const team = selectedTeam;
-            console.log("Arbeitsaufträge für Team " + team?.name + " suchen");
-
-            const gqlQuery = `query q($teamId: Int) {${queries.arbeitsauftraegexx}}`;
-
-            const queryParameter = { teamId: team.id };
-            console.log("query", { gqlQuery, queryParameter }, jwt);
-
-            (async () => {
-              try {
-                console.time("query returned");
-                const response = await fetchGraphQL(gqlQuery, queryParameter, jwt);
-                console.timeEnd("query returned");
-                console.log("response", response.data);
-              } catch (e) {
-                console.error(e);
-              }
-            })();
+            dispatch(loadTaskLists({ team: selectedTeam, jwt }));
           }}
         >
           <Icon icon={faBookOpen} />
