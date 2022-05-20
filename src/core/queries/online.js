@@ -405,7 +405,11 @@ queries.arbeitsauftraegexx = `
           bezeichnung
           schluessel
         }
-                
+        geometrie {
+          geom {
+            geo_field
+          }
+        } 
         tdta_leuchten {
           tdta_standort_mast {
             geom {
