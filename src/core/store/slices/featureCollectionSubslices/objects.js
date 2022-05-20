@@ -5,9 +5,12 @@ import {
   getFeatureCollection,
   getFilter,
   getSelectedFeature,
+  MODES,
   setDone,
   setFeatureCollection,
+  setFeatureCollectionForMode,
   setFeatureCollectionInfo,
+  setFeatureCollectionInfoForMode,
   setRequestBasis,
   setSelectedFeature,
 } from "../featureCollection";
@@ -102,8 +105,6 @@ export const loadObjectsIntoFeatureCollection = ({
         }
         // console.log('leitungsFeatures', leitungsFeatures);
 
-        console.log("yyy", leitungsFeatures);
-
         if (connectionMode === CONNECTIONMODE.FROMCACHE && onlineDataForcing === false) {
           dexieW
             .getFeaturesForHits(state.spatialIndex.pointIndex.points, resultIds, filter)
@@ -137,6 +138,7 @@ export const loadObjectsIntoFeatureCollection = ({
 
           try {
             console.time("query returned");
+            // online query
             const response = await fetchGraphQL(gqlQuery, queryParameter, jwt);
             console.timeEnd("query returned");
 
@@ -302,11 +304,11 @@ const enrichAndSetFeatures = (
       }
 
       dispatch(removeIntermediateResults(intermediateResultsToBeRemoved));
-      dispatch(setFeatureCollectionInfo({ typeCount }));
+      dispatch(setFeatureCollectionInfoForMode({ mode: MODES.OBJECTS, info: { typeCount } }));
       console.log("will setFeatureCollection");
       // console.log("sortedElements", sortedElements);
 
-      dispatch(setFeatureCollection(sortedElements));
+      dispatch(setFeatureCollectionForMode({ features: sortedElements, mode: MODES.OBJECTS }));
       console.log("setFeatureCollection done");
 
       dispatch(setDone(true));
