@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { MappingConstants, RoutedMap } from "react-cismap";
+import { DivOverlay } from "react-leaflet";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory, useLocation } from "react-router-dom";
 import BelisFeatureCollection from "../components/app/FeatureCollection";
@@ -17,6 +18,8 @@ import {
   setSelectedFeature,
   getOverlayFeature,
   getGazetteerHit,
+  getFeatureCollectionMode,
+  MODES,
 } from "../core/store/slices/featureCollection";
 import { isPaleModeActive } from "../core/store/slices/paleMode";
 import { getZoom, setZoom } from "../core/store/slices/zoom";
@@ -30,7 +33,7 @@ import {
   getPointIndex,
   initIndex,
 } from "../core/store/slices/spatialIndex";
-
+import L from "leaflet";
 import LightBoxContextProvider, {
   LightBoxDispatchContext,
 } from "react-cismap/contexts/LightBoxContextProvider";
@@ -96,6 +99,7 @@ const BelisMap = ({ refRoutedMap, width, height, jwt }) => {
 
   const boundsFromMapRef = mapRef?.getBounds() || null;
   const sizeFromMapRef = mapRef?.getSize() || null;
+  console.log("yyy leaflet", L);
 
   useEffect(() => {
     setMapBoundsAndSize((old) => {
@@ -127,6 +131,7 @@ const BelisMap = ({ refRoutedMap, width, height, jwt }) => {
   const inFocusMode = useSelector(isInFocusMode);
   const secondaryInfoVisible = useSelector(isSecondaryInfoVisible);
   const selectedFeature = useSelector(getSelectedFeature);
+  const featureCollectionMode = useSelector(getFeatureCollectionMode);
   const overlayFeature = useSelector(getOverlayFeature);
   const gazetteerHit = useSelector(getGazetteerHit);
   const loadingState = useSelector(getLoadingState);
@@ -150,10 +155,9 @@ const BelisMap = ({ refRoutedMap, width, height, jwt }) => {
   const _backgroundLayers = backgroundsFromMode || "rvrGrau@40";
 
   useEffect(() => {
-    const key = (inPaleMode === true ? "pale_" : "") + background;
+    // const key = (inPaleMode === true ? "pale_" : "") + background;
+    const key = background;
     if (selectedBackground !== backgrounds[key]) {
-      console.log("xxx dispatch(setNamedMapStyle(backgrounds[key]));", backgrounds[key]);
-
       setSelectedBackground(backgrounds[key]);
     }
   }, [inPaleMode, background, selectedBackground, setSelectedBackground, dispatch]);
@@ -186,16 +190,18 @@ const BelisMap = ({ refRoutedMap, width, height, jwt }) => {
         if (zoom !== z) {
           dispatch(setZoom(z));
         }
-        dispatch(loadObjects({ boundingBox, inFocusMode, zoom: z, jwt: jwt, force: false }));
-        // console.log("xxx loadObjects", {
-        //   mapBounds,
-        //   mapSize,
-        //   blockLoading,
-        //   indexInitialized,
-        //   connectionMode,
-        // });
-      } else {
-        // console.log("xxx no map for you (mapBounds && mapSize)", mapBounds, mapSize);
+        if (featureCollectionMode === MODES.OBJECTS) {
+          dispatch(loadObjects({ boundingBox, inFocusMode, zoom: z, jwt: jwt, force: false }));
+          // console.log("xxx loadObjects", {
+          //   mapBounds,
+          //   mapSize,
+          //   blockLoading,
+          //   indexInitialized,
+          //   connectionMode,
+          // });
+        } else {
+          // console.log("xxx no map for you (mapBounds && mapSize)", mapBounds, mapSize);
+        }
       }
     } else {
       // console.log(
@@ -205,7 +211,7 @@ const BelisMap = ({ refRoutedMap, width, height, jwt }) => {
       //   isSecondaryCacheReady
       // );
     }
-  }, [mapBounds, mapSize, blockLoading, indexInitialized, connectionMode]);
+  }, [mapBounds, mapSize, blockLoading, indexInitialized, connectionMode, featureCollectionMode]);
 
   // initalize the index in CACHEMODE when the loadingstate is undefined
   useEffect(() => {
@@ -245,7 +251,6 @@ const BelisMap = ({ refRoutedMap, width, height, jwt }) => {
   } else {
     symbolColor = "#000000";
   }
-  console.log("xxx backgroundsFromMode", backgroundsFromMode);
 
   return (
     <RoutedMap
@@ -298,19 +303,39 @@ const BelisMap = ({ refRoutedMap, width, height, jwt }) => {
         // console.log("xxx boundingBox Changed", boundingBox);
       }}
     >
-      <BelisFeatureCollection featureCollection={featureCollection} fgColor={symbolColor} />
+      <BelisFeatureCollection
+        style={{ zIndex: 600 }}
+        featureCollection={featureCollection}
+        fgColor={symbolColor}
+      ></BelisFeatureCollection>
       {/* <DebugFeature feature={focusBoundingBox} /> */}
+
       <FocusRectangle
         inFocusMode={inFocusMode}
         mapWidth={mapStyle.width}
         mapHeight={mapStyle.height}
       />
+
       {secondaryInfoVisible && <InfoPanel />}
 
       {selectedFeature !== undefined && selectedFeature !== null && (
         <InfoBox refRoutedMap={refRoutedMap} />
       )}
-
+      {inPaleMode && (
+        <div
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            zIndex: 401,
+            width: mapStyle.width,
+            height: mapStyle.height,
+            opacity: 0.5,
+            background: "#ffffff",
+            mrgin: 10,
+          }}
+        />
+      )}
       {overlayFeature && (
         <ProjSingleGeoJson
           key={JSON.stringify(overlayFeature)}
