@@ -13,6 +13,13 @@ const BelisFeatureCollection = ({ featureCollection, fgColor = "#000000" }) => {
   const selectedFeature = useSelector(getSelectedFeature);
   const background = useSelector(getBackground);
   let modeClass = "brightMode";
+  const colors = {
+    arbeitsauftrag: "#c44d59",
+  };
+
+  const backgroundcolors = {
+    arbeitsauftrag: "#ff6b6b",
+  };
 
   // if (background === "nightplan") {
   //   modeClass = "darkMode";
@@ -63,8 +70,8 @@ const BelisFeatureCollection = ({ featureCollection, fgColor = "#000000" }) => {
           }
           return {
             radius: 14,
-            fillColor: "red",
-            color: feature.selected === true ? "#7AA8F6" : "#D3976C",
+            fillColor: backgroundcolors[feature.featuretype] || "tomato",
+            color: feature.selected === true ? "#7AA8F6" : colors[feature.featuretype] || fgColor,
             opacity: 1,
             weight: 4,
             fillOpacity: 0.8,
