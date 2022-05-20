@@ -3,6 +3,7 @@ import { createSlice } from "@reduxjs/toolkit";
 import { integrateIntermediateResults } from "../../helper/featureHelper";
 import { convertBounds2BBox } from "../../helper/gisHelper";
 import { loadObjectsIntoFeatureCollection } from "./featureCollectionSubslices/objects";
+import { loadTaskListsIntoFeatureCollection } from "./featureCollectionSubslices/tasklists";
 import { getIntermediateResults } from "./offlineActionDb";
 import {
   isSearchModeActive,
@@ -40,7 +41,7 @@ const featureCollectionSlice = createSlice({
   initialState: {
     features: initForModes([]),
     featuresMap: initForModes({}),
-    info: {},
+    info: initForModes({}),
     done: true,
     filter: initialFilter,
     selectedFeature: initForModes(null),
@@ -53,19 +54,21 @@ const featureCollectionSlice = createSlice({
     mode: MODES.OBJECTS,
   },
   reducers: {
-    setFeatureCollection: (state, action) => {
+    setFeatureCollectionForMode: (state, action) => {
+      const { mode, features } = action.payload;
       console.time("setFeatureCollection");
-      state.features[state.mode] = action.payload;
+      state.features[mode] = features;
       let index = 0;
       const fm = {};
-      for (const f of state.features[state.mode]) {
+      for (const f of state.features[mode]) {
         fm[f.id] = index++;
       }
-      state.featuresMap[state.mode] = fm;
+      state.featuresMap[mode] = fm;
       console.timeEnd("setFeatureCollection");
     },
-    setFeatureCollectionInfo: (state, action) => {
-      state.info = action.payload;
+    setFeatureCollectionInfoForMode: (state, action) => {
+      const { mode, info } = action.payload;
+      state.info[mode] = info;
     },
 
     setDone: (state, action) => {
@@ -125,8 +128,8 @@ const featureCollectionSlice = createSlice({
   },
 });
 export const {
-  setFeatureCollection,
-  setFeatureCollectionInfo,
+  setFeatureCollectionForMode,
+  setFeatureCollectionInfoForMode,
   setDone,
   setBoundingBox,
   setFilter,
@@ -145,12 +148,14 @@ export const getFeatureCollection = (state) => {
 
 export const isDone = (state) => state.featureCollection.done;
 export const getFilter = (state) => state.featureCollection.filter;
+export const getFeatureCollectionMode = (state) => state.featureCollection.mode;
 export const getSelectedFeature = (state) =>
   state.featureCollection.selectedFeature[state.featureCollection.mode];
 const getRequestBasis = (state) => state.featureCollection.requestBasis;
 export const isInFocusMode = (state) => state.featureCollection.inFocusMode;
 export const isSecondaryInfoVisible = (state) => state.featureCollection.secondaryInfoVisible;
-export const getFeatureCollectionInfo = (state) => state.featureCollection.info;
+export const getFeatureCollectionInfo = (state) =>
+  state.featureCollection.info[state.featureCollection.mode];
 export const getOverlayFeature = (state) => state.featureCollection.overlayFeature;
 export const getGazetteerHit = (state) => state.featureCollection.gazetteerHit;
 
@@ -160,6 +165,20 @@ export const setSelectedFeature = (selectedFeature) => {
   return (dispatch, getState) => {
     const mode = getState().featureCollection.mode;
     dispatch(setSelectedFeatureForMode({ selectedFeature, mode }));
+  };
+};
+
+export const setFeatureCollection = (features) => {
+  return (dispatch, getState) => {
+    const mode = getState().featureCollection.mode;
+    dispatch(setFeatureCollectionForMode({ features, mode }));
+  };
+};
+
+export const setFeatureCollectionInfo = (info) => {
+  return (dispatch, getState) => {
+    const mode = getState().featureCollection.mode;
+    dispatch(setFeatureCollectionInfoForMode({ info, mode }));
   };
 };
 
@@ -258,6 +277,19 @@ export const loadObjects = ({
         // console.log("xxx duplicate requestBasis", boundingBox, new Error());
       }
     }
+  };
+};
+
+export const loadTaskLists = ({ onlineDataForcing, team }) => {
+  return async (dispatch, getState) => {
+    const state = getState();
+    const jwt = state.auth.jwt;
+    if (!jwt) {
+      return;
+    }
+    console.log("xxx");
+
+    dispatch(loadTaskListsIntoFeatureCollection({ onlineDataForcing, team, jwt }));
   };
 };
 
