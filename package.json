@@ -26,6 +26,8 @@
     "@testing-library/user-event": "^7.1.2",
     "@turf/bbox": "^6.0.1",
     "@turf/bbox-polygon": "^6.0.1",
+    "@turf/buffer": "^6.5.0",
+    "@turf/convex": "^6.5.0",
     "@turf/length": "^6.5.0",
     "antd": "^4.16.13",
     "bootstrap": "4.6.0",
