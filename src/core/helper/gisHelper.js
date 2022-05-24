@@ -19,7 +19,15 @@ export const convertBounds2BBox = (bounds, refDef = proj4crs3857def) => {
     bottom: projectedSW[1],
   };
 };
-
+export const bufferBBox = (bbox, bufferinMeter) => {
+  const bufferedBBox = [
+    bbox[0] - bufferinMeter,
+    bbox[1] - bufferinMeter,
+    bbox[2] + bufferinMeter,
+    bbox[3] + bufferinMeter,
+  ];
+  return bufferedBBox;
+};
 export function convertBoundingBox(
   bbox,
   refDefIn = MappingConstants.proj4crs3857def,
