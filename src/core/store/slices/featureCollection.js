@@ -1,9 +1,15 @@
 import { createSlice } from "@reduxjs/toolkit";
-
+import { projectionData } from "react-cismap/constants/gis";
+import { dispatch } from "rxjs/internal/observable/pairs";
+import envelope from "@turf/envelope";
+import { featureCollection } from "@turf/helpers";
 import { integrateIntermediateResults } from "../../helper/featureHelper";
 import { convertBounds2BBox } from "../../helper/gisHelper";
 import { loadObjectsIntoFeatureCollection } from "./featureCollectionSubslices/objects";
-import { loadTaskListsIntoFeatureCollection } from "./featureCollectionSubslices/tasklists";
+import {
+  loadTaskListsIntoFeatureCollection,
+  tasklistPostSelection,
+} from "./featureCollectionSubslices/tasklists";
 import { getIntermediateResults } from "./offlineActionDb";
 import {
   isSearchModeActive,
@@ -42,7 +48,7 @@ const featureCollectionSlice = createSlice({
     features: initForModes([]),
     featuresMap: initForModes({}),
     info: initForModes({}),
-    done: true,
+    done: initForModes(true),
     filter: initialFilter,
     selectedFeature: initForModes(null),
     requestBasis: undefined,
@@ -71,10 +77,9 @@ const featureCollectionSlice = createSlice({
       state.info[mode] = info;
     },
 
-    setDone: (state, action) => {
-      console.log("setDone", action.payload);
-
-      state.done = action.payload;
+    setDoneForMode: (state, action) => {
+      const { mode, done } = action.payload;
+      state.done[mode] = done;
     },
     setBoundingBox: (state, action) => {
       state.boundingBox = action.payload;
@@ -96,8 +101,6 @@ const featureCollectionSlice = createSlice({
       const { selectedFeature, mode } = action.payload;
       console.time("setSelectedFeature");
       const fc = state.features[mode]; //JSON.parse(JSON.stringify(state.features));
-
-      console.log("setSelectedFeature", selectedFeature);
 
       if (state.selectedFeature[mode]) {
         // const oldSelectedFeature = fc.find((f) => f.id === state.selectedFeature.id);
@@ -130,7 +133,7 @@ const featureCollectionSlice = createSlice({
 export const {
   setFeatureCollectionForMode,
   setFeatureCollectionInfoForMode,
-  setDone,
+  setDoneForMode,
   setBoundingBox,
   setFilter,
   setSelectedFeatureForMode,
@@ -146,7 +149,8 @@ export const getFeatureCollection = (state) => {
   return state.featureCollection.features[state.featureCollection.mode];
 };
 
-export const isDone = (state) => state.featureCollection.done;
+export const isDone = (state) => state.featureCollection.done[state.featureCollection.mode];
+
 export const getFilter = (state) => state.featureCollection.filter;
 export const getFeatureCollectionMode = (state) => state.featureCollection.mode;
 export const getSelectedFeature = (state) =>
@@ -174,7 +178,12 @@ export const setFeatureCollection = (features) => {
     dispatch(setFeatureCollectionForMode({ features, mode }));
   };
 };
-
+export const setDone = (done) => {
+  return (dispatch, getState) => {
+    const mode = getState().featureCollection.mode;
+    dispatch(setDoneForMode({ mode, done }));
+  };
+};
 export const setFeatureCollectionInfo = (info) => {
   return (dispatch, getState) => {
     const mode = getState().featureCollection.mode;
@@ -280,16 +289,22 @@ export const loadObjects = ({
   };
 };
 
-export const loadTaskLists = ({ onlineDataForcing, team }) => {
+export const loadTaskLists = ({ onlineDataForcing, team, done = () => {} }) => {
   return async (dispatch, getState) => {
     const state = getState();
     const jwt = state.auth.jwt;
     if (!jwt) {
       return;
     }
-    console.log("xxx");
 
-    dispatch(loadTaskListsIntoFeatureCollection({ onlineDataForcing, team, jwt }));
+    dispatch(
+      loadTaskListsIntoFeatureCollection({
+        onlineDataForcing,
+        team,
+        jwt,
+        done,
+      })
+    );
   };
 };
 
