@@ -11,7 +11,7 @@ import {
 import ResponsiveInfoBox, { MODES } from "react-cismap/topicmaps/ResponsiveInfoBox";
 
 import { getActionLinksForFeature } from "react-cismap/tools/uiHelper";
-import { getVCard } from "../../core/helper/featureHelper";
+import { getVCard, zoomToFeature } from "../../core/helper/featureHelper";
 import { projectionData } from "react-cismap/constants/gis";
 import { convertBBox2Bounds } from "react-cismap/tools/gisHelper";
 import { getType } from "@turf/invariant";
@@ -175,54 +175,7 @@ const InfoBox = ({ refRoutedMap }) => {
       entityClassName: config.navigator.noun.singular,
       displayZoomToFeature: true,
       zoomToFeature: (feature) => {
-        console.log("xxx feature", feature);
-        const bufferAroundObject = 50;
-
-        let zoomlevel = 22;
-        let refDef;
-        if (feature.crs) {
-          const code = feature?.crs?.properties?.name?.split("EPSG::")[1];
-          refDef = projectionData[code].def;
-        } else {
-          refDef = projectionData["25832"].def;
-        }
-
-        if (refRoutedMap !== undefined) {
-          const type = getType(feature);
-          if (type === "Point") {
-            const pos = proj4(refDef, proj4.defs("EPSG:4326"), [
-              feature.geometry.coordinates[0],
-              feature.geometry.coordinates[1],
-            ]);
-
-            //refRoutedMap.current.leafletMap.leafletElement.setView([pos[1], pos[0]], zoomlevel);
-            const bbox = [
-              feature.geometry.coordinates[0],
-              feature.geometry.coordinates[1],
-              feature.geometry.coordinates[0],
-              feature.geometry.coordinates[1],
-            ];
-            const bufferedBBox = bufferBBox(bbox, bufferAroundObject);
-            refRoutedMap.current.leafletMap.leafletElement.fitBounds(
-              convertBBox2Bounds(bufferedBBox, refDef)
-            );
-          } else {
-            // refRoutedMap.current.leafletMap.leafletElement.fitBounds(
-            //   convertBBox2Bounds(envelope(feature.geometry).bbox, refDef)
-            // );
-
-            const bbox = envelope(feature.geometry).bbox;
-
-            //create buffer around bbox
-
-            const bufferedBBox = bufferBBox(bbox, bufferAroundObject);
-            // console.log("xxx buffered_bbox", bufferedBBox);
-
-            refRoutedMap.current.leafletMap.leafletElement.fitBounds(
-              convertBBox2Bounds(bufferedBBox, refDef)
-            );
-          }
-        }
+        zoomToFeature({ feature, mapRef: refRoutedMap.current.leafletMap.leafletElement });
       },
       displaySecondaryInfoAction:
         config.displaySecondaryInfoAction === true ||
