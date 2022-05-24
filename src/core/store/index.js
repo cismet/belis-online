@@ -14,6 +14,7 @@ import authSlice from "./slices/auth";
 import dexieSlice from "./slices/dexie";
 import gazetteerDataSlice from "./slices/gazetteerData";
 import mapInfoSlice from "./slices/mapInfo";
+import mapSlice from "./slices/map";
 import teamSlice from "./slices/team";
 import offlineActionDb from "./slices/offlineActionDb";
 
@@ -133,6 +134,7 @@ const store = configureStore({
     //photoLightbox: photoLightboxSlice.reducer,
     dexie: dexieSlice.reducer,
     mapInfo: mapInfoSlice.reducer,
+    map: mapSlice.reducer,
   },
   devTools: devToolsEnabled === true && inProduction === false,
   middleware,
