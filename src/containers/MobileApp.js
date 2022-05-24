@@ -5,7 +5,13 @@ import React, { useRef, useState, useEffect, useContext } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import MapBlocker from "../components/app/MapBlocker";
 import { CONNECTIONMODE, getConnectionMode } from "../core/store/slices/app";
-import { isDone, setDone } from "../core/store/slices/featureCollection";
+import {
+  getFeatureCollectionMode,
+  getSelectedFeature,
+  isDone,
+  MODES,
+  setDone,
+} from "../core/store/slices/featureCollection";
 import BelisMap from "./BelisMap";
 import BottomNavbar from "./BottomNavbar";
 import TopNavbar from "./TopNavbar";
@@ -32,6 +38,7 @@ import { initialize, resyncDb } from "../core/store/slices/offlineActionDb";
 import TopicMapContextProvider from "react-cismap/contexts/TopicMapContextProvider";
 import { defaultLayerConf } from "react-cismap/tools/layerFactory";
 import { storeJWT } from "../core/store/slices/auth";
+import { tasklistPostSelection } from "../core/store/slices/featureCollectionSubslices/tasklists";
 //---
 
 const View = () => {
@@ -88,6 +95,21 @@ const View = () => {
       };
     }
   }, [refApp]);
+
+  //Selection management
+  const featureSelectionMode = useSelector(getFeatureCollectionMode);
+  const selectedFeature = useSelector(getSelectedFeature);
+
+  useEffect(() => {
+    if (featureSelectionMode === MODES.TASKLISTS && selectedFeature) {
+      console.log("xxx selection management need for action", {
+        featureSelectionMode,
+        selectedFeature,
+      });
+
+      dispatch(tasklistPostSelection(selectedFeature, storedJWT));
+    }
+  }, [featureSelectionMode, selectedFeature, dispatch]);
 
   const { setAppMenuActiveMenuSection, setAppMenuVisible } = useContext(UIDispatchContext);
 
