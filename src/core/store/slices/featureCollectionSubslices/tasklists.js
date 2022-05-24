@@ -4,6 +4,7 @@ import {
   getSelectedFeature,
   MODES,
   setDone,
+  setDoneForMode,
   setFeatureCollection,
   setFeatureCollectionForMode,
   setFeatureCollectionInfo,
@@ -21,11 +22,17 @@ import convex from "@turf/convex";
 import buffer from "@turf/buffer";
 import reproject from "reproject";
 import { projectionData } from "react-cismap/constants/gis";
+import { loadProtocollsIntoFeatureCollection } from "./protocolls";
 const dexieW = dexieworker();
 
-export const loadTaskListsIntoFeatureCollection = ({ team, jwt, onlineDataForcing = false }) => {
+export const loadTaskListsIntoFeatureCollection = ({
+  team,
+  jwt,
+  onlineDataForcing = false,
+  done = () => {},
+}) => {
   return async (dispatch, getState) => {
-    console.log("xxx load shit", team);
+    dispatch(setDoneForMode({ mode: MODES.TASKLISTS, done: false }));
 
     console.log("xxx Arbeitsaufträge für Team " + team?.name + " suchen");
 
@@ -64,8 +71,12 @@ export const loadTaskListsIntoFeatureCollection = ({ team, jwt, onlineDataForcin
         dispatch(setFeatureCollectionForMode({ mode: MODES.TASKLISTS, features }));
         dispatch(setFeatureCollectionInfoForMode({ mode: MODES.OBJECTS, info: { typeCount: 1 } }));
         dispatch(setMode(MODES.TASKLISTS));
+        dispatch(setDoneForMode({ mode: MODES.TASKLISTS, done: true }));
+        done();
       } catch (e) {
         console.error("xxx error ", e);
+        dispatch(setDoneForMode({ mode: MODES.TASKLISTS, done: true }));
+        done();
       }
     })();
   };
@@ -100,7 +111,6 @@ const geometryFactory = (arbeitsauftrag) => {
   const turfCollection = turfHelpers.featureCollection(geoms);
 
   const convexFeature = convex(turfCollection);
-  console.log("xxx convex(turfCollection)", convexFeature);
   return convexFeature.geometry;
 };
 
