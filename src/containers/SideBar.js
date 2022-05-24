@@ -13,6 +13,7 @@ import {
   MODES,
   setMode,
 } from "../core/store/slices/featureCollection";
+import { fitBoundsForCollection } from "../core/store/slices/map";
 //---------
 const { TabPane } = Tabs;
 
@@ -23,7 +24,8 @@ featureTypeToName["mauerlasche"] = "Mauerlaschen";
 featureTypeToName["abzweigdose"] = "Abzweigdosen";
 featureTypeToName["Leitung"] = "Leitungen";
 featureTypeToName["tdta_standort_mast"] = "Masten";
-featureTypeToName["arbeitsauftrag"] = "Arbeitsauftrag";
+featureTypeToName["arbeitsauftrag"] = "Arbeitsaufträge";
+featureTypeToName["arbeitsprotokoll"] = "Protokolle";
 
 const SideBar = ({ innerRef, height }) => {
   const featureCollection = useSelector(getFeatureCollection);
@@ -131,7 +133,11 @@ const SideBar = ({ innerRef, height }) => {
             centered
             activeKey={mode}
             onChange={(key) => {
-              dispatch(setMode(key));
+              if (key === mode) {
+                dispatch(fitBoundsForCollection());
+              } else {
+                dispatch(setMode(key));
+              }
             }}
           >
             <TabPane tab='Objekte' key={MODES.OBJECTS}>
