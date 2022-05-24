@@ -44,6 +44,7 @@ import {
   TopicMapStylingContext,
   TopicMapStylingDispatchContext,
 } from "react-cismap/contexts/TopicMapStylingContextProvider";
+import { setMapRef } from "../core/store/slices/map";
 
 //---
 
@@ -69,6 +70,7 @@ const BelisMap = ({ refRoutedMap, width, height, jwt }) => {
 
   useEffect(() => {
     if (mapRef) {
+      dispatch(setMapRef(mapRef));
       if (mapRef.attributionControl) {
         mapRef.attributionControl.setPrefix("");
       }
@@ -99,7 +101,6 @@ const BelisMap = ({ refRoutedMap, width, height, jwt }) => {
 
   const boundsFromMapRef = mapRef?.getBounds() || null;
   const sizeFromMapRef = mapRef?.getSize() || null;
-  console.log("yyy leaflet", L);
 
   useEffect(() => {
     setMapBoundsAndSize((old) => {
