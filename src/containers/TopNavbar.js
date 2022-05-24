@@ -39,6 +39,7 @@ import {
   getOverlayFeature,
   forceRefresh,
   loadTaskLists,
+  MODES,
 } from "../core/store/slices/featureCollection";
 
 import { getGazData, loadGazeteerEntries } from "../core/store/slices/gazetteerData";
@@ -80,6 +81,9 @@ const TopNavbar = ({ innerRef, refRoutedMap, setCacheSettingsVisible, jwt }) => 
   const featureCollection = useSelector(getFeatureCollection);
   const searchForbidden = useSelector(isSearchForbidden);
   const offlineActionDB = useSelector(getOfflineActionDB);
+  const selectedArbeitsauftrag = useSelector(
+    (state) => state.featureCollection.selectedFeature[MODES.TASKLISTS]
+  );
 
   const gazData = useSelector(getGazData);
   useEffect(() => {
@@ -217,7 +221,10 @@ const TopNavbar = ({ innerRef, refRoutedMap, setCacheSettingsVisible, jwt }) => 
         </Nav>
 
         <Nav className='mr-auto text-primary'>
-          Kein Arbeitsauftrag ausgewählt ({selectedTeam.name})
+          {selectedArbeitsauftrag
+            ? selectedArbeitsauftrag.properties.nummer
+            : "Kein Arbeitsauftrag ausgewählt"}{" "}
+          ({selectedTeam.name})
         </Nav>
 
         <Nav.Link
