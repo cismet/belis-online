@@ -201,8 +201,8 @@ export const getVCard = (feature) => {
       // Infobox
       vcard.infobox.header = "Arbeitsauftrag";
       vcard.infobox.title = "Nummer: A" + item.nummer;
-      vcard.infobox.subtitle = undefined;
-      vcard.infobox.more = undefined;
+      vcard.infobox.more = "angelegt von: " + item.angelegt_von;
+      vcard.infobox.subtitle = "am: " + item.angelegt_am;
       // List
       vcard.list.main = "A" + item.nummer;
       vcard.list.upperright = item.angelegt_von;
@@ -211,6 +211,29 @@ export const getVCard = (feature) => {
 
       break;
     }
+    case "arbeitsprotokoll": {
+      // Infobox
+      vcard.infobox.header = "Arbeitsprotokoll";
+      vcard.infobox.title = "Nummer " + item.protokollnummer + " - " + item.fachobjekt.shortname;
+      vcard.infobox.subtitle = "Veranlassung " + item.veranlassungsnummer;
+      vcard.infobox.more = undefined;
+      // List
+      vcard.list.main = "#" + item.protokollnummer + " - " + item.fachobjekt.shortname;
+      if (item.arbeitsprotokollstatus) {
+        if (item.arbeitsprotokollstatus.schluessel === "0") {
+          vcard.list.upperright = "🕒";
+        } else if (item.arbeitsprotokollstatus.schluessel === "1") {
+          vcard.list.upperright = "✅";
+        } else if (item.arbeitsprotokollstatus.schluessel === "2") {
+          vcard.list.upperright = " ❗️ ";
+        }
+      }
+
+      vcard.list.subtitle = item.veranlassung?.bezeichnung || "???";
+
+      break;
+    }
+
     default:
   }
 
@@ -883,5 +906,58 @@ export const compareFeature = (a, b) => {
     console.log("b", b);
 
     return -1;
+  }
+};
+
+export const getFachobjektOfProtocol = (item) => {
+  if (item.tdta_leuchten) {
+    return {
+      ...item.tdta_leuchten,
+
+      type: "tdta_leuchten",
+      shortname:
+        item.tdta_leuchten?.fk_leuchttyp?.leuchtentyp +
+        "-" +
+        item.tdta_leuchten.leuchtennummer +
+        ", " +
+        item.tdta_leuchten.lfd_nummer,
+    };
+  } else if (item.tdta_standort_mast) {
+    return {
+      ...item.tdta_standort_mast,
+      type: "tdta_standort_mast",
+      shortname: "Mast - " + item.tdta_standort_mast.lfd_nummer,
+    };
+  } else if (item.leitung) {
+    const laengePart =
+      item.leitung?.geom !== undefined
+        ? Math.round(calcLength(item.leitung?.geom.geo_field) * 100) / 100 + "m"
+        : "?m";
+    return {
+      ...item.leitung,
+      type: "leitung",
+      shortname: item.leitung.fk_leitungstyp.bezeichnung + " - " + laengePart,
+    };
+  } else if (item.schaltstelle) {
+    return {
+      ...item.schaltstelle,
+      type: "schaltstelle",
+      shortname:
+        item.schaltstelle.fk_bauart.bezeichnung + " - " + item.schaltstelle.schaltstellen_nummer,
+    };
+  } else if (item.abzweigdose) {
+    return { ...item.abzweigdose, type: "abzweigdose", shortname: "AZD - " + item.abzweigdose.id };
+  } else if (item.mauerlasche) {
+    return {
+      ...item.mauerlasche,
+      type: "mauerlasche",
+      shortname: "M - " + item.mauerlasche.laufende_nummer,
+    };
+  } else if (item.geometrie) {
+    return {
+      ...item.geometrie,
+      type: "geom",
+      shortname: "FG - " + item.geometrie.bezeichnung,
+    };
   }
 };
