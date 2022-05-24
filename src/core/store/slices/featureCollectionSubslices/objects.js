@@ -7,6 +7,7 @@ import {
   getSelectedFeature,
   MODES,
   setDone,
+  setDoneForMode,
   setFeatureCollection,
   setFeatureCollectionForMode,
   setFeatureCollectionInfo,
@@ -43,7 +44,7 @@ export const loadObjectsIntoFeatureCollection = ({
   if (boundingBox) {
     //const boundingBox=
     return async (dispatch, getState) => {
-      dispatch(setDone(false));
+      dispatch(setDoneForMode({ mode: MODES.OBJECTS, done: false }));
       const state = getState();
       const connectionMode = getConnectionMode(state);
       const filter = getFilter(state);
@@ -311,7 +312,7 @@ const enrichAndSetFeatures = (
       dispatch(setFeatureCollectionForMode({ features: sortedElements, mode: MODES.OBJECTS }));
       console.log("setFeatureCollection done");
 
-      dispatch(setDone(true));
+      dispatch(setDoneForMode({ mode: MODES.OBJECTS, done: true }));
     },
     (error) => {
       alert("problem" + error);
