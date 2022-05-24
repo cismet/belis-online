@@ -65,6 +65,7 @@ import { NavItem } from "react-bootstrap";
 import { filteredData } from "../core/queries/dev";
 import { fetchGraphQL } from "../core/commons/graphql";
 import queries from "../core/queries/online";
+import { fitBoundsForCollection } from "../core/store/slices/map";
 //---------
 
 const TopNavbar = ({ innerRef, refRoutedMap, setCacheSettingsVisible, jwt }) => {
@@ -221,14 +222,24 @@ const TopNavbar = ({ innerRef, refRoutedMap, setCacheSettingsVisible, jwt }) => 
 
         <Nav.Link
           onClick={() => {
-            document.body.classList.add("dark-mode");
+            dispatch(fitBoundsForCollection());
           }}
         >
           <Icon icon={faVial} />
         </Nav.Link>
         <Nav.Link
           onClick={() => {
-            dispatch(loadTaskLists({ team: selectedTeam, jwt }));
+            dispatch(
+              loadTaskLists({
+                team: selectedTeam,
+                jwt,
+                done: () => {
+                  setTimeout(() => {
+                    dispatch(fitBoundsForCollection(featureCollection));
+                  }, 400);
+                },
+              })
+            );
           }}
         >
           <Icon icon={faBookOpen} />
