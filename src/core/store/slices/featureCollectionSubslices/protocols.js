@@ -14,6 +14,7 @@ import {
   setOriginForMode,
   setRequestBasis,
   setSelectedFeature,
+  setSelectedFeatureForMode,
 } from "../featureCollection";
 import { storeJWT } from "../auth";
 import { fetchGraphQL } from "../../../commons/graphql";
@@ -85,7 +86,11 @@ export const loadProtocollsIntoFeatureCollection = ({
               info: { typeCount: result.ar_protokolleArray.length },
             })
           );
-          // dispatch(setMode(MODES.TASKLISTS));
+          if (features.length === 1) {
+            dispatch(
+              setSelectedFeatureForMode({ mode: MODES.PROTOCOLS, selectedFeature: features[0] })
+            );
+          }
           dispatch(setDoneForMode({ mode: MODES.PROTOCOLS, done: true }));
         } catch (e) {
           console.error("xxx error ", e);

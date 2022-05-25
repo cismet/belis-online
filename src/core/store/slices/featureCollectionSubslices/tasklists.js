@@ -12,8 +12,9 @@ import {
   setMode,
   setRequestBasis,
   setSelectedFeature,
+  setSelectedFeatureForMode,
 } from "../featureCollection";
-import { storeJWT } from "../auth";
+import { getJWT, storeJWT } from "../auth";
 import { fetchGraphQL } from "../../../commons/graphql";
 import dexieworker from "workerize-loader!../../../workers/dexie"; // eslint-disable-line import/no-webpack-loader-syntax
 import queries from "../../../queries/online";
@@ -32,6 +33,8 @@ export const loadTaskListsIntoFeatureCollection = ({
   done = () => {},
 }) => {
   return async (dispatch, getState) => {
+    const state = getState();
+    const storedJWT = getJWT(state);
     dispatch(setDoneForMode({ mode: MODES.TASKLISTS, done: false }));
 
     console.log("xxx Arbeitsaufträge für Team " + team?.name + " suchen");
@@ -68,8 +71,19 @@ export const loadTaskListsIntoFeatureCollection = ({
           };
           features.push(feature);
         }
+        dispatch(setFeatureCollectionForMode({ mode: MODES.PROTOCOLS, features: [] }));
+        dispatch(setSelectedFeatureForMode({ mode: MODES.PROTOCOLS, feature: undefined }));
         dispatch(setFeatureCollectionForMode({ mode: MODES.TASKLISTS, features }));
-        dispatch(setFeatureCollectionInfoForMode({ mode: MODES.OBJECTS, info: { typeCount: 1 } }));
+        dispatch(
+          setFeatureCollectionInfoForMode({ mode: MODES.TASKLISTS, info: { typeCount: 1 } })
+        );
+
+        if (features.length === 1) {
+          dispatch(
+            setSelectedFeatureForMode({ mode: MODES.TASKLISTS, selectedFeature: features[0] })
+          );
+          dispatch(tasklistPostSelection(features[0], storedJWT));
+        }
         dispatch(setDoneForMode({ mode: MODES.TASKLISTS, done: true }));
         done();
       } catch (e) {
