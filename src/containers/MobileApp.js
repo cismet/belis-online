@@ -102,11 +102,6 @@ const View = () => {
 
   useEffect(() => {
     if (featureSelectionMode === MODES.TASKLISTS && selectedFeature) {
-      console.log("xxx selection management need for action", {
-        featureSelectionMode,
-        selectedFeature,
-      });
-
       dispatch(tasklistPostSelection(selectedFeature, storedJWT));
     }
   }, [featureSelectionMode, selectedFeature, dispatch]);
