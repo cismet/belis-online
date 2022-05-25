@@ -65,14 +65,18 @@ const featureCollectionSlice = createSlice({
   reducers: {
     setFeatureCollectionForMode: (state, action) => {
       const { mode, features } = action.payload;
+      console.log("setFeatureCollection", action.payload);
+
       console.time("setFeatureCollection");
       state.features[mode] = features;
       let index = 0;
-      const fm = {};
-      for (const f of state.features[mode]) {
-        fm[f.id] = index++;
+      if (features) {
+        const fm = {};
+        for (const f of state.features[mode]) {
+          fm[f.id] = index++;
+        }
+        state.featuresMap[mode] = fm;
       }
-      state.featuresMap[mode] = fm;
       console.timeEnd("setFeatureCollection");
     },
     setFeatureCollectionInfoForMode: (state, action) => {
@@ -164,6 +168,7 @@ export const getFeatureCollections = (state) => {
   return state.featureCollection.features;
 };
 export const isDone = (state) => state.featureCollection.done[state.featureCollection.mode];
+export const getDones = (state) => state.featureCollection.done;
 
 export const getFilter = (state) => state.featureCollection.filter;
 export const getOrigin = (state) => state.featureCollection.origin[state.featureCollection.mode];
