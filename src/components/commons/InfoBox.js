@@ -6,10 +6,12 @@ import {
   setSelectedFeature,
   isSecondaryInfoVisible,
   setSecondaryInfoVisible,
+  getFeatureCollectionMode,
 } from "../../core/store/slices/featureCollection";
 // import ResponsiveInfoBox from "./ResponsiveInfoBox";
 import ResponsiveInfoBox, { MODES } from "react-cismap/topicmaps/ResponsiveInfoBox";
 
+import { MODES as FEATURECOLLECTION_MODES } from "../../core/store/slices/featureCollection";
 import { getActionLinksForFeature } from "react-cismap/tools/uiHelper";
 import { getVCard } from "../../core/helper/featureHelper";
 import { projectionData } from "react-cismap/constants/gis";
@@ -51,7 +53,7 @@ const InfoBox = ({ refRoutedMap }) => {
   const secondaryInfoVisible = useSelector(isSecondaryInfoVisible);
   const { setCollapsedInfoBox } = useContext(UIDispatchContext);
   const { collapsedInfoBox } = useContext(UIContext);
-
+  const mode = useSelector(getFeatureCollectionMode);
   const { setAll: setPhotoLightBoxData, setVisible } = useContext(LightBoxDispatchContext);
 
   let header = <span>Feature title</span>;
@@ -178,18 +180,65 @@ const InfoBox = ({ refRoutedMap }) => {
       zoomToFeature: (feature) => {
         zoomToFeature({ feature, mapRef: refRoutedMap.current.leafletMap.leafletElement });
       },
-      displaySecondaryInfoAction:
-        config.displaySecondaryInfoAction === true ||
-        config.displaySecondaryInfoAction === undefined,
+      displaySecondaryInfoAction: false,
       setVisibleStateOfSecondaryInfo: (vis) => {
         return false;
       },
     });
 
-    if (
-      selectedFeature?.featuretype !== "Leitung" &&
-      selectedFeature?.featuretype !== "abzweigdose"
-    )
+    if (mode === FEATURECOLLECTION_MODES.OBJECTS) {
+      if (
+        selectedFeature?.featuretype !== "Leitung" &&
+        selectedFeature?.featuretype !== "abzweigdose"
+      )
+        links.push(
+          <IconLink
+            key={`openInfo`}
+            tooltip={"Öffne Datenblatt"}
+            onClick={() => {
+              dispatch(setSecondaryInfoVisible(!secondaryInfoVisible));
+            }}
+            iconname={"info"}
+            href='#'
+          />
+        );
+
+      links.push(
+        <IconLink
+          key={`addPhoto`}
+          tooltip={"Foto hinzufügen"}
+          onClick={() => {
+            dispatch(
+              showDialog(
+                <AddImageDialog
+                  close={() => {
+                    dispatch(showDialog());
+                  }}
+                  input={{ feature: selectedFeature, vcard }}
+                  onClose={(addImageParamater) => {
+                    dispatch(processAddImageToObject(addImageParamater));
+                  }}
+                />
+              )
+            );
+          }}
+          iconname={"camera"}
+          href='#'
+        />
+      );
+
+      links.push(
+        <IconLink
+          key={`addIncident`}
+          tooltip={"Störung melden"}
+          onClick={() => {
+            // dispatch(setSecondaryInfoVisible(!secondaryInfoVisible));
+          }}
+          iconname={"exclamation-triangle"}
+          href='#'
+        />
+      );
+    } else if (mode === FEATURECOLLECTION_MODES.TASKLISTS) {
       links.push(
         <IconLink
           key={`openInfo`}
@@ -201,42 +250,43 @@ const InfoBox = ({ refRoutedMap }) => {
           href='#'
         />
       );
+    } else {
+      //Protocolls
+      links.push(
+        <IconLink
+          key={`openInfo`}
+          tooltip={"Öffne Datenblatt"}
+          onClick={() => {
+            dispatch(setSecondaryInfoVisible(!secondaryInfoVisible));
+          }}
+          iconname={"info"}
+          href='#'
+        />
+      );
+      links.push(
+        <IconLink
+          key={`protocolAction`}
+          tooltip={"Aktionen"}
+          onClick={() => {
+            // dispatch(setSecondaryInfoVisible(!secondaryInfoVisible));
+          }}
+          iconname={"list-alt"}
+          href='#'
+        />
+      );
+      links.push(
+        <IconLink
+          key={`statusAction`}
+          tooltip={"Status ändern"}
+          onClick={() => {
+            // dispatch(setSecondaryInfoVisible(!secondaryInfoVisible));
+          }}
+          iconname={"comment"}
+          href='#'
+        />
+      );
+    }
 
-    links.push(
-      <IconLink
-        key={`addPhoto`}
-        tooltip={"Foto hinzufügen"}
-        onClick={() => {
-          dispatch(
-            showDialog(
-              <AddImageDialog
-                close={() => {
-                  dispatch(showDialog());
-                }}
-                input={{ feature: selectedFeature, vcard }}
-                onClose={(addImageParamater) => {
-                  dispatch(processAddImageToObject(addImageParamater));
-                }}
-              />
-            )
-          );
-        }}
-        iconname={"camera"}
-        href='#'
-      />
-    );
-
-    links.push(
-      <IconLink
-        key={`addIncident`}
-        tooltip={"Störung melden"}
-        onClick={() => {
-          // dispatch(setSecondaryInfoVisible(!secondaryInfoVisible));
-        }}
-        iconname={"exclamation-triangle"}
-        href='#'
-      />
-    );
     header = <span>{vcard?.infobox?.header || config.header}</span>;
     title = vcard?.infobox?.title;
     subtitle = vcard?.infobox?.subtitle;
