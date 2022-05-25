@@ -242,7 +242,7 @@ const TopNavbar = ({ innerRef, refRoutedMap, setCacheSettingsVisible, jwt }) => 
                 jwt,
                 done: () => {
                   setTimeout(() => {
-                    dispatch(fitBoundsForCollection(featureCollection));
+                    dispatch(fitBoundsForCollection());
                   }, 400);
                 },
               })
