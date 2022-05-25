@@ -40,6 +40,8 @@ import {
   forceRefresh,
   loadTaskLists,
   MODES,
+  setMode,
+  setFeatureCollectionForMode,
 } from "../core/store/slices/featureCollection";
 
 import { getGazData, loadGazeteerEntries } from "../core/store/slices/gazetteerData";
@@ -242,7 +244,9 @@ const TopNavbar = ({ innerRef, refRoutedMap, setCacheSettingsVisible, jwt }) => 
                 jwt,
                 done: () => {
                   setTimeout(() => {
+                    dispatch(setMode(MODES.TASKLISTS));
                     dispatch(fitBoundsForCollection());
+                    dispatch(setFeatureCollectionForMode(MODES.PROTOCOLLS));
                   }, 400);
                 },
               })

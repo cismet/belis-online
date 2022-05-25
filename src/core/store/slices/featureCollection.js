@@ -160,7 +160,9 @@ export const {
 export const getFeatureCollection = (state) => {
   return state.featureCollection.features[state.featureCollection.mode];
 };
-
+export const getFeatureCollections = (state) => {
+  return state.featureCollection.features;
+};
 export const isDone = (state) => state.featureCollection.done[state.featureCollection.mode];
 
 export const getFilter = (state) => state.featureCollection.filter;

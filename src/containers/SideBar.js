@@ -9,6 +9,7 @@ import {
   getFeatureCollection,
   getFeatureCollectionInfo,
   getFeatureCollectionMode,
+  getFeatureCollections,
   getSelectedFeature,
   MODES,
   setMode,
@@ -31,7 +32,7 @@ const SideBar = ({ innerRef, height }) => {
   const featureCollection = useSelector(getFeatureCollection);
   const mode = useSelector(getFeatureCollectionMode);
   const selectedFeature = useSelector(getSelectedFeature);
-
+  const featureCollections = useSelector(getFeatureCollections);
   const featureCollectionInfo = useSelector(getFeatureCollectionInfo);
   const [refs, setRefs] = useState({});
   const listRef = useRef();
@@ -140,13 +141,41 @@ const SideBar = ({ innerRef, height }) => {
               }
             }}
           >
-            <TabPane tab='Objekte' key={MODES.OBJECTS}>
+            <TabPane
+              tab={
+                <div>
+                  {featureCollections[MODES.OBJECTS].length}
+                  <br></br>Objekte
+                </div>
+              }
+              key={MODES.OBJECTS}
+            >
               {list}
             </TabPane>
-            <TabPane tab='Arbeitsaufträge' key={MODES.TASKLISTS}>
+            <TabPane
+              tab={
+                <div>
+                  {featureCollections[MODES.TASKLISTS].length}
+                  <br></br>
+                  {featureCollections[MODES.TASKLISTS].length === 1
+                    ? "Arbeitsauftrag"
+                    : "Arbeitsaufträge"}
+                </div>
+              }
+              key={MODES.TASKLISTS}
+            >
               {list}
             </TabPane>
-            <TabPane tab='Protokolle' key={MODES.PROTOCOLLS}>
+            <TabPane
+              tab={
+                <div>
+                  {featureCollections[MODES.PROTOCOLLS].length}
+                  <br></br>
+                  {featureCollections[MODES.PROTOCOLLS].length === 1 ? "Protokoll" : "Protokolle"}
+                </div>
+              }
+              key={MODES.PROTOCOLLS}
+            >
               {list}
             </TabPane>
           </Tabs>

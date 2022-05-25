@@ -70,7 +70,6 @@ export const loadTaskListsIntoFeatureCollection = ({
         }
         dispatch(setFeatureCollectionForMode({ mode: MODES.TASKLISTS, features }));
         dispatch(setFeatureCollectionInfoForMode({ mode: MODES.OBJECTS, info: { typeCount: 1 } }));
-        dispatch(setMode(MODES.TASKLISTS));
         dispatch(setDoneForMode({ mode: MODES.TASKLISTS, done: true }));
         done();
       } catch (e) {
