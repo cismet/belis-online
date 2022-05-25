@@ -11,7 +11,7 @@ import {
 import ResponsiveInfoBox, { MODES } from "react-cismap/topicmaps/ResponsiveInfoBox";
 
 import { getActionLinksForFeature } from "react-cismap/tools/uiHelper";
-import { getVCard, zoomToFeature } from "../../core/helper/featureHelper";
+import { getVCard } from "../../core/helper/featureHelper";
 import { projectionData } from "react-cismap/constants/gis";
 import { convertBBox2Bounds } from "react-cismap/tools/gisHelper";
 import { getType } from "@turf/invariant";
@@ -38,6 +38,7 @@ import { LightBoxDispatchContext } from "react-cismap/contexts/LightBoxContextPr
 import { addDotThumbnail } from "./secondaryinfo/components/helper";
 import { getDB, processAddImageToObject } from "../../core/store/slices/offlineActionDb";
 import { bufferBBox } from "../../core/helper/gisHelper";
+import { zoomToFeature } from "../../core/helper/mapHelper";
 
 //---
 

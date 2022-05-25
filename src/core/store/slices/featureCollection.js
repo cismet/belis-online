@@ -3,7 +3,7 @@ import { projectionData } from "react-cismap/constants/gis";
 import { dispatch } from "rxjs/internal/observable/pairs";
 import envelope from "@turf/envelope";
 import { featureCollection } from "@turf/helpers";
-import { integrateIntermediateResults, zoomToFeature } from "../../helper/featureHelper";
+import { integrateIntermediateResults } from "../../helper/featureHelper";
 import { convertBounds2BBox } from "../../helper/gisHelper";
 import { loadObjectsIntoFeatureCollection } from "./featureCollectionSubslices/objects";
 import {
@@ -20,6 +20,7 @@ import {
 
 import { getZoom } from "./zoom";
 import { getMapRef } from "./map";
+import { zoomToFeature } from "../../helper/mapHelper";
 
 const focusedSearchMinimumZoomThreshhold = 16.5;
 const searchMinimumZoomThreshhold = 17.5;
