@@ -65,8 +65,6 @@ const featureCollectionSlice = createSlice({
   reducers: {
     setFeatureCollectionForMode: (state, action) => {
       const { mode, features } = action.payload;
-      console.log("setFeatureCollection", action.payload);
-
       console.time("setFeatureCollection");
       state.features[mode] = features;
       let index = 0;

@@ -126,7 +126,7 @@ const TopNavbar = ({ innerRef, refRoutedMap, setCacheSettingsVisible, jwt }) => 
         key={"navbar." + fcIsDone}
       >
         <Nav className='mr-auto'>
-          <Nav.Link>
+          {/* <Nav.Link>
             <div
               // onClick={() => {
               // 	window.location.reload();
@@ -147,7 +147,7 @@ const TopNavbar = ({ innerRef, refRoutedMap, setCacheSettingsVisible, jwt }) => 
               )}
               {fcIsDone === true && <div style={{ fontSize: 9 }}>{featureCollection.length}</div>}
             </div>
-          </Nav.Link>
+          </Nav.Link> */}
           <Nav.Link>
             <Switch
               disabled={searchForbidden}
