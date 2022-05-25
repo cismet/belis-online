@@ -8,7 +8,7 @@ import { useDispatch, useSelector } from "react-redux";
 
 const SideBarListElement = ({ feature, selected }) => {
   const dispatch = useDispatch();
-  const selectedFeature = useSelector(getSelectedFeature);
+  // const selectedFeature = useSelector(getSelectedFeature);
   let vcard = getVCard(feature);
   const style = selected ? { background: "lightgray" } : {};
 

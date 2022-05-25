@@ -60,6 +60,7 @@ const featureCollectionSlice = createSlice({
     gazeteerHit: undefined,
     boundingBox: undefined,
     mode: MODES.OBJECTS,
+    origin: initForModes(undefined),
   },
   reducers: {
     setFeatureCollectionForMode: (state, action) => {
@@ -83,6 +84,11 @@ const featureCollectionSlice = createSlice({
       const { mode, done } = action.payload;
       state.done[mode] = done;
     },
+    setOriginForMode: (state, action) => {
+      const { mode, origin } = action.payload;
+      state.origin[mode] = origin;
+    },
+
     setBoundingBox: (state, action) => {
       state.boundingBox = action.payload;
     },
@@ -148,6 +154,7 @@ export const {
   setOverlayFeature,
   setGazetteerHit,
   setMode,
+  setOriginForMode,
 } = featureCollectionSlice.actions;
 
 export const getFeatureCollection = (state) => {
@@ -157,6 +164,9 @@ export const getFeatureCollection = (state) => {
 export const isDone = (state) => state.featureCollection.done[state.featureCollection.mode];
 
 export const getFilter = (state) => state.featureCollection.filter;
+export const getOrigin = (state) => state.featureCollection.origin[state.featureCollection.mode];
+export const getOrigins = (state) => state.featureCollection.origin;
+
 export const getFeatureCollectionMode = (state) => state.featureCollection.mode;
 export const getSelectedFeature = (state) =>
   state.featureCollection.selectedFeature[state.featureCollection.mode];

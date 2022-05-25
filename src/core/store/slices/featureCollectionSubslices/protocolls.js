@@ -1,6 +1,7 @@
 import {
   getFeatureCollection,
   getFilter,
+  getOrigins,
   getSelectedFeature,
   MODES,
   setDone,
@@ -10,6 +11,7 @@ import {
   setFeatureCollectionInfo,
   setFeatureCollectionInfoForMode,
   setMode,
+  setOriginForMode,
   setRequestBasis,
   setSelectedFeature,
 } from "../featureCollection";
@@ -31,61 +33,68 @@ export const loadProtocollsIntoFeatureCollection = ({
   onlineDataForcing = false,
 }) => {
   return async (dispatch, getState) => {
-    dispatch(setDoneForMode({ mode: MODES.PROTOCOLLS, done: false }));
+    const state = getState();
+    const origin = getOrigins(state)[MODES.PROTOCOLLS];
+    if (origin?.id !== tasklistFeature.id) {
+      dispatch(setDoneForMode({ mode: MODES.PROTOCOLLS, done: false }));
 
-    console.log("xxx Protokolle für Arbeitsauftrag " + tasklistFeature.properties.id + " suchen");
+      console.log("xxx Protokolle für Arbeitsauftrag " + tasklistFeature.properties.id + " suchen");
 
-    const gqlQuery = `query q($aaId: Int) {${queries.singleArbeitsauftragFull}}`;
+      const gqlQuery = `query q($aaId: Int) {${queries.singleArbeitsauftragFull}}`;
 
-    const queryParameter = { aaId: tasklistFeature.properties.id };
-    console.log("xxx query", { gqlQuery, queryParameter }, jwt);
+      const queryParameter = { aaId: tasklistFeature.properties.id };
+      console.log("xxx query", { gqlQuery, queryParameter }, jwt);
 
-    (async () => {
-      try {
-        console.time("xxx query returned");
-        const response = await fetchGraphQL(gqlQuery, queryParameter, jwt);
-        console.timeEnd("xxx query returned");
-        console.log("xxx response", response.data);
-        const result = response.data.arbeitsauftrag[0];
-        console.log("xxx result", result);
+      (async () => {
+        try {
+          console.time("xxx query returned");
+          const response = await fetchGraphQL(gqlQuery, queryParameter, jwt);
+          console.timeEnd("xxx query returned");
+          console.log("xxx response", response.data);
+          const result = response.data.arbeitsauftrag[0];
+          console.log("xxx result", result);
 
-        const features = [];
-        for (const entry of result.ar_protokolleArray) {
-          const protokoll = entry.arbeitsprotokoll;
-          const fachobjekt = getFachobjektOfProtocol(protokoll);
-          const feature = {
-            text: "-",
-            id: "arbeitsprotokoll." + protokoll.id,
-            enriched: true,
-            type: "Feature",
-            selected: false,
-            featuretype: "arbeitsprotokoll",
-            fachobjekttype: fachobjekt.type,
-            geometry: geometryFactory(protokoll),
-            crs: {
-              type: "name",
-              properties: {
-                name: "urn:ogc:def:crs:EPSG::25832",
+          const features = [];
+          for (const entry of result.ar_protokolleArray) {
+            const protokoll = entry.arbeitsprotokoll;
+            const fachobjekt = getFachobjektOfProtocol(protokoll);
+            const feature = {
+              text: "-",
+              id: "arbeitsprotokoll." + protokoll.id,
+              enriched: true,
+              type: "Feature",
+              selected: false,
+              featuretype: "arbeitsprotokoll",
+              fachobjekttype: fachobjekt.type,
+              geometry: geometryFactory(protokoll),
+              crs: {
+                type: "name",
+                properties: {
+                  name: "urn:ogc:def:crs:EPSG::25832",
+                },
               },
-            },
-            properties: { ...protokoll, fachobjekt },
-          };
-          features.push(feature);
+              properties: { ...protokoll, fachobjekt },
+            };
+            features.push(feature);
+          }
+          dispatch(setFeatureCollectionForMode({ mode: MODES.PROTOCOLLS, features }));
+          dispatch(setOriginForMode({ mode: MODES.PROTOCOLLS, origin: tasklistFeature }));
+          dispatch(
+            setFeatureCollectionInfoForMode({
+              mode: MODES.PROTOCOLLS,
+              info: { typeCount: result.ar_protokolleArray.length },
+            })
+          );
+          // dispatch(setMode(MODES.TASKLISTS));
+          dispatch(setDoneForMode({ mode: MODES.PROTOCOLLS, done: true }));
+        } catch (e) {
+          console.error("xxx error ", e);
+          dispatch(setDoneForMode({ mode: MODES.PROTOCOLLS, done: true }));
         }
-        dispatch(setFeatureCollectionForMode({ mode: MODES.PROTOCOLLS, features }));
-        dispatch(
-          setFeatureCollectionInfoForMode({
-            mode: MODES.PROTOCOLLS,
-            info: { typeCount: result.ar_protokolleArray.length },
-          })
-        );
-        // dispatch(setMode(MODES.TASKLISTS));
-        dispatch(setDoneForMode({ mode: MODES.PROTOCOLLS, done: true }));
-      } catch (e) {
-        console.error("xxx error ", e);
-        dispatch(setDoneForMode({ mode: MODES.PROTOCOLLS, done: true }));
-      }
-    })();
+      })();
+    } else {
+      console.log("xxx origin is same as tasklist feature");
+    }
   };
 };
 

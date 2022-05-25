@@ -142,8 +142,6 @@ const createFeature = (geom) => {
 
 export const tasklistPostSelection = (selectedFeature, jwt) => {
   return async (dispatch, getState) => {
-    console.log("xxx tasklistPostSelection", selectedFeature);
-
     dispatch(loadProtocollsIntoFeatureCollection({ tasklistFeature: selectedFeature, jwt }));
   };
 };
