@@ -1,31 +1,29 @@
-import { createSlice } from '@reduxjs/toolkit';
-const LOCALSTORAGE_ACTIVE = '@belis.app.inSearchMode';
-const LOCALSTORAGE_WISHED = '@belis.app.inSearchModeWish';
+import { createSlice } from "@reduxjs/toolkit";
 
-const initialActive = JSON.parse(localStorage.getItem(LOCALSTORAGE_ACTIVE) || 'true');
-const initialWished = JSON.parse(localStorage.getItem(LOCALSTORAGE_WISHED) || 'true');
+const initialActive = true;
+const initialWished = true;
 
 const slice = createSlice({
-	name: 'search',
-	initialState: {
-		active: initialActive,
-		wished: initialWished
-	},
-	reducers: {
-		setActive(state, action) {
-			state.active = action.payload;
-			localStorage.setItem(LOCALSTORAGE_ACTIVE, action.payload);
-		},
-		setWished(state, action) {
-			state.wished = action.payload;
-			localStorage.setItem(LOCALSTORAGE_WISHED, action.payload);
-		},
-		setSearchModeState(state, action) {
-			localStorage.setItem(LOCALSTORAGE_ACTIVE, action.payload.active);
-			localStorage.setItem(LOCALSTORAGE_WISHED, action.payload.wished);
-			return action.payload;
-		}
-	}
+  name: "search",
+  initialState: {
+    active: initialActive,
+    wished: initialWished,
+  },
+  reducers: {
+    setActive(state, action) {
+      state.active = action.payload;
+      return state;
+    },
+    setWished(state, action) {
+      state.wished = action.payload;
+      return state;
+    },
+    setSearchModeState(state, action) {
+      state.active = action.payload.active;
+      state.wished = action.payload.wished;
+      return state;
+    },
+  },
 });
 
 export default slice;
@@ -33,8 +31,8 @@ export default slice;
 export const { setActive, setWished, setSearchModeState } = slice.actions;
 
 export const isSearchModeActive = (state) => {
-	return state.search.active;
+  return state.search.active;
 };
 export const isSearchModeWished = (state) => {
-	return state.search.wished;
+  return state.search.wished;
 };

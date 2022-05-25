@@ -10,6 +10,7 @@
 
 # production
 /build
+/public/devSecrets.json
 
 # misc
 .DS_Store
@@ -24,3 +25,5 @@ yarn-error.log*
 .package.json.without.version
 .version
 .githash
+/tmp
+_devreststuff/

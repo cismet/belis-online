@@ -1,311 +1,376 @@
-import { createSlice } from '@reduxjs/toolkit';
-import dexieworker from 'workerize-loader!../../workers/dexie'; // eslint-disable-line import/no-webpack-loader-syntax
-import { initIndex } from './spatialIndex';
+import { createSlice } from "@reduxjs/toolkit";
+import { projectionData } from "react-cismap/constants/gis";
+import { dispatch } from "rxjs/internal/observable/pairs";
+import envelope from "@turf/envelope";
+import { featureCollection } from "@turf/helpers";
+import { integrateIntermediateResults } from "../../helper/featureHelper";
+import { convertBounds2BBox } from "../../helper/gisHelper";
+import { loadObjectsIntoFeatureCollection } from "./featureCollectionSubslices/objects";
 import {
-	isSearchModeActive,
-	isSearchModeWished,
-	setActive as setSearchModeActive,
-	setWished as setSearchModeWished
-} from './search';
-import { getZoom } from './zoom';
-import { getConnectionMode, CONNECTIONMODE } from './app';
-import bboxPolygon from '@turf/bbox-polygon';
-import { fetchGraphQL } from '../../commons/graphql';
-import onlineQueryParts, { geomFactories } from '../../queries/online';
-// ----
+  loadTaskListsIntoFeatureCollection,
+  tasklistPostSelection,
+} from "./featureCollectionSubslices/tasklists";
+import { getIntermediateResults } from "./offlineActionDb";
+import {
+  isSearchModeActive,
+  isSearchModeWished,
+  setActive as setSearchModeActive,
+  setWished as setSearchModeWished,
+} from "./search";
 
-const LOCALSTORAGE_KEY_IN_FOCUS_MODE = '@belis.app.inFocusMode';
+import { getZoom } from "./zoom";
+import { getMapRef } from "./map";
+import { zoomToFeature } from "../../helper/mapHelper";
 
-const dexieW = dexieworker();
-const focusedSearchMinimumZoomThreshhold = 12.5;
-const searchMinimumZoomThreshhold = 13.5;
+const focusedSearchMinimumZoomThreshhold = 16.5;
+const searchMinimumZoomThreshhold = 17.5;
+export const MODES = { OBJECTS: "OBJECTS", TASKLISTS: "TASKLISTS", PROTOCOLLS: "PROTOCOLLS" };
 
-const LOCALSTORAGE_KEY_FILTER = '@belis.app.filter';
+export const initialFilter = {
+  tdta_leuchten: { title: "Leuchten", enabled: true },
+  tdta_standort_mast: { title: "Masten (ohne Leuchten)", enabled: true },
+  mauerlasche: { title: "Mauerlaschen", enabled: true },
+  leitung: { title: "Leitungen", enabled: true },
+  schaltstelle: { title: "Schaltstellen", enabled: true },
+  abzweigdose: { title: "Abzweigdosen", enabled: true },
+};
+const initialInFocusMode = false;
 
-const initialFilter = JSON.parse(
-	localStorage.getItem(LOCALSTORAGE_KEY_FILTER) ||
-		JSON.stringify({
-			tdta_leuchten: { title: 'Leuchten', enabled: true },
-			tdta_standort_mast: { title: 'Masten (ohne Leuchten)', enabled: true },
-			mauerlasche: { title: 'Mauerlaschen', enabled: true },
-			leitung: { title: 'Leitungen', enabled: true },
-			schaltstelle: { title: 'Schaltstellen', enabled: true },
-			abzweigdose: { title: 'Abzweigdosen', enabled: true }
-		})
-);
-const initialInFocusMode =
-	JSON.parse(localStorage.getItem(LOCALSTORAGE_KEY_IN_FOCUS_MODE)) || false;
+const initForModes = (initionalizationValue) => {
+  const ret = {};
+  for (const mode of Object.values(MODES)) {
+    ret[mode] = initionalizationValue;
+  }
+  return ret;
+};
 
 const featureCollectionSlice = createSlice({
-	name: 'featureCollection',
-	initialState: {
-		features: [],
-		done: true,
-		filter: initialFilter,
+  name: "featureCollection",
+  initialState: {
+    features: initForModes([]),
+    featuresMap: initForModes({}),
+    info: initForModes({}),
+    done: initForModes(true),
+    filter: initialFilter,
+    selectedFeature: initForModes(null),
+    requestBasis: undefined,
+    inFocusMode: initialInFocusMode,
+    secondaryInfoVisible: false,
+    overlayFeature: undefined,
+    gazeteerHit: undefined,
+    boundingBox: undefined,
+    mode: MODES.OBJECTS,
+  },
+  reducers: {
+    setFeatureCollectionForMode: (state, action) => {
+      const { mode, features } = action.payload;
+      console.time("setFeatureCollection");
+      state.features[mode] = features;
+      let index = 0;
+      const fm = {};
+      for (const f of state.features[mode]) {
+        fm[f.id] = index++;
+      }
+      state.featuresMap[mode] = fm;
+      console.timeEnd("setFeatureCollection");
+    },
+    setFeatureCollectionInfoForMode: (state, action) => {
+      const { mode, info } = action.payload;
+      state.info[mode] = info;
+    },
 
-		requestBasis: undefined,
-		inFocusMode: initialInFocusMode
-	},
-	reducers: {
-		setFeatureCollection: (state, action) => {
-			state.features = action.payload;
-		},
-		setDone: (state, action) => {
-			state.done = action.payload;
-		},
-		setFilter: (state, action) => {
-			state.filter = action.payload;
-			localStorage.setItem(LOCALSTORAGE_KEY_FILTER, JSON.stringify(action.payload));
-		},
-		setRequestBasis: (state, action) => {
-			state.requestBasis = action.payload;
-		},
-		setFocusModeActive: (state, action) => {
-			state.inFocusMode = action.payload;
-			localStorage.setItem(LOCALSTORAGE_KEY_IN_FOCUS_MODE, JSON.stringify(action.payload));
-		}
-	}
+    setDoneForMode: (state, action) => {
+      const { mode, done } = action.payload;
+      state.done[mode] = done;
+    },
+    setBoundingBox: (state, action) => {
+      state.boundingBox = action.payload;
+    },
+    setOverlayFeature: (state, action) => {
+      state.overlayFeature = action.payload;
+    },
+    setGazetteerHit: (state, action) => {
+      state.gazetteerHit = action.payload;
+    },
+    setFilter: (state, action) => {
+      state.filter = action.payload;
+    },
+    setMode: (state, action) => {
+      state.mode = action.payload;
+    },
+
+    setSelectedFeatureForMode: (state, action) => {
+      const { selectedFeature, mode } = action.payload;
+      console.time("setSelectedFeature");
+      const fc = state.features[mode]; //JSON.parse(JSON.stringify(state.features));
+
+      if (state.selectedFeature[mode]) {
+        // const oldSelectedFeature = fc.find((f) => f.id === state.selectedFeature.id);
+        const oldSelectedFeature = fc[state.featuresMap[mode][state.selectedFeature[mode].id]];
+        if (oldSelectedFeature) {
+          if (oldSelectedFeature?.id !== selectedFeature?.id) {
+            oldSelectedFeature.selected = false;
+          } else {
+          }
+        }
+      }
+      if (selectedFeature) {
+        // state.selectedFeature = fc.find((f) => f.id === selectedFeature.id);
+        state.selectedFeature[mode] = fc[state.featuresMap[mode][selectedFeature.id]];
+      }
+      if (state.selectedFeature[mode]) {
+        state.selectedFeature[mode].selected = true;
+      }
+      console.timeEnd("setSelectedFeature");
+    },
+
+    setRequestBasis: (state, action) => {
+      state.requestBasis = action.payload;
+    },
+    setFocusModeActive: (state, action) => {
+      state.inFocusMode = action.payload;
+    },
+    setSecondaryInfoVisible: (state, action) => {
+      state.secondaryInfoVisible = action.payload;
+    },
+  },
 });
 export const {
-	setFeatureCollection,
-	setDone,
-	setFilter,
-	setRequestBasis,
-	setFocusModeActive
+  setFeatureCollectionForMode,
+  setFeatureCollectionInfoForMode,
+  setDoneForMode,
+  setBoundingBox,
+  setFilter,
+  setSelectedFeatureForMode,
+  setRequestBasis,
+  setFocusModeActive,
+  setSecondaryInfoVisible,
+  setOverlayFeature,
+  setGazetteerHit,
+  setMode,
 } = featureCollectionSlice.actions;
 
-export const getFeatureCollection = (state) => state.featureCollection.features;
-export const isDone = (state) => state.featureCollection.done;
+export const getFeatureCollection = (state) => {
+  return state.featureCollection.features[state.featureCollection.mode];
+};
+
+export const isDone = (state) => state.featureCollection.done[state.featureCollection.mode];
+
 export const getFilter = (state) => state.featureCollection.filter;
+export const getFeatureCollectionMode = (state) => state.featureCollection.mode;
+export const getSelectedFeature = (state) =>
+  state.featureCollection.selectedFeature[state.featureCollection.mode];
 const getRequestBasis = (state) => state.featureCollection.requestBasis;
 export const isInFocusMode = (state) => state.featureCollection.inFocusMode;
+export const isSecondaryInfoVisible = (state) => state.featureCollection.secondaryInfoVisible;
+export const getFeatureCollectionInfo = (state) =>
+  state.featureCollection.info[state.featureCollection.mode];
+export const getOverlayFeature = (state) => state.featureCollection.overlayFeature;
+export const getGazetteerHit = (state) => state.featureCollection.gazetteerHit;
 
 export default featureCollectionSlice;
 
-const createQueryGeomFromB = (boundingBox) => {
-	const geom = bboxPolygon([
-		boundingBox.left,
-		boundingBox.top,
-		boundingBox.right,
-		boundingBox.bottom
-	]).geometry;
-	geom.crs = {
-		type: 'name',
-		properties: {
-			name: 'urn:ogc:def:crs:EPSG::25832'
-		}
-	};
-	return geom;
+export const setSelectedFeature = (selectedFeature) => {
+  return (dispatch, getState) => {
+    const state = getState();
+    const mode = state.featureCollection.mode;
+    const mapRef = getMapRef(state);
+    const oldSelectedFeature = getSelectedFeature(state);
+    if (selectedFeature && oldSelectedFeature?.id === selectedFeature?.id) {
+      zoomToFeature({ feature: selectedFeature, mapRef });
+    } else {
+      dispatch(setSelectedFeatureForMode({ selectedFeature, mode }));
+    }
+  };
 };
 
-export const loadObjects = ({ boundingBox, _inFocusMode, zoom, overridingFilterState }) => {
-	return async (dispatch, getState) => {
-		const state = getState();
-		const inFocusMode = _inFocusMode || isInFocusMode(state);
-		const _searchForbidden = _isSearchForbidden({ inFocusMode }, state);
-		const _filterState = getFilter(state);
-		const searchModeWished = isSearchModeWished(state);
-		let searchModeActive = isSearchModeActive(state);
-		const requestBasis = getRequestBasis(state);
-
-		if (_searchForbidden === true && searchModeActive === true) {
-			dispatch(setSearchModeWished(true));
-			dispatch(setSearchModeActive(false));
-			return;
-		} else if (
-			_searchForbidden === false &&
-			searchModeWished === true &&
-			searchModeActive === false
-		) {
-			dispatch(setSearchModeWished(true));
-			dispatch(setSearchModeActive(true));
-			searchModeActive = true; //because we use it directly
-		} else if (_searchForbidden === false && searchModeActive === true) {
-			dispatch(setSearchModeWished(true));
-		}
-		if (searchModeActive === true) {
-			const _filterstate = overridingFilterState || _filterState;
-			const reqBasis =
-				JSON.stringify(boundingBox) +
-				'.' +
-				JSON.stringify(_filterstate) +
-				'.' +
-				inFocusMode;
-
-			if (reqBasis !== requestBasis) {
-				dispatch(setRequestBasis(reqBasis));
-
-				let xbb;
-				if (inFocusMode) {
-					const w = boundingBox.right - boundingBox.left;
-					const h = boundingBox.top - boundingBox.bottom;
-
-					const focusBB = {
-						left: boundingBox.left + w / 4,
-						top: boundingBox.top - h / 4,
-						right: boundingBox.right - w / 4,
-						bottom: boundingBox.bottom + h / 4
-					};
-					xbb = focusBB;
-				} else {
-					xbb = boundingBox;
-				}
-
-				dispatch(loadObjectsIntoFeatureCollection({ boundingBox: xbb }));
-			} else {
-				//console.log('xxx duplicate forceShowObjects');
-			}
-		}
-	};
+export const setFeatureCollection = (features) => {
+  return (dispatch, getState) => {
+    const mode = getState().featureCollection.mode;
+    dispatch(setFeatureCollectionForMode({ features, mode }));
+  };
+};
+export const setDone = (done) => {
+  return (dispatch, getState) => {
+    const mode = getState().featureCollection.mode;
+    dispatch(setDoneForMode({ mode, done }));
+  };
+};
+export const setFeatureCollectionInfo = (info) => {
+  return (dispatch, getState) => {
+    const mode = getState().featureCollection.mode;
+    dispatch(setFeatureCollectionInfoForMode({ info, mode }));
+  };
 };
 
-export const loadObjectsIntoFeatureCollection = ({
-	boundingBox,
-	_inFocusMode,
-	_zoom,
-	_overridingFilterState
+export const forceRefresh = () => {
+  return async (dispatch, getState) => {
+    const state = getState();
+    console.log("xxx forceRefresh in", state.featureCollection.boundingBox, state.mapInfo?.bounds);
+    dispatch(setFeatureCollection([]));
+    dispatch(setSelectedFeature(null));
+    const onlineDataForcing = false;
+    dispatch(
+      loadObjects({
+        boundingBox:
+          state.featureCollection.boundingBox || convertBounds2BBox(state.mapInfo.bounds),
+        jwt: state.auth.jwt,
+        force: true,
+        onlineDataForcing,
+      })
+    );
+  };
+};
+
+export const loadObjects = ({
+  boundingBox,
+  _inFocusMode,
+  zoom,
+  overridingFilterState,
+  jwt,
+  force = false,
+  onlineDataForcing,
 }) => {
-	return async (dispatch, getState) => {
-		dispatch(setDone(false));
+  return async (dispatch, getState) => {
+    if (!jwt || !boundingBox) {
+      return;
+    }
 
-		let d = new Date().getTime();
+    const state = getState();
+    const inFocusMode = _inFocusMode || isInFocusMode(state);
+    const _searchForbidden = _isSearchForbidden({ inFocusMode }, state);
+    const _filterState = getFilter(state);
+    const searchModeWished = isSearchModeWished(state);
+    let searchModeActive = isSearchModeActive(state);
 
-		const state = getState();
-		const connectionMode = getConnectionMode(state);
-		const filter = getFilter(state);
+    const requestBasis = getRequestBasis(state);
 
-		if (state.spatialIndex.loading === 'done') {
-			let resultIds, leitungsFeatures;
-			if (connectionMode === CONNECTIONMODE.FROMCACHE) {
-				resultIds = state.spatialIndex.pointIndex.range(
-					boundingBox.left,
-					boundingBox.bottom,
-					boundingBox.right,
-					boundingBox.top
-				);
+    if (_searchForbidden === true && searchModeActive === true) {
+      dispatch(setSearchModeWished(true));
+      dispatch(setSearchModeActive(false));
+      return;
+    } else if (
+      _searchForbidden === false &&
+      searchModeWished === true &&
+      searchModeActive === false
+    ) {
+      dispatch(setSearchModeWished(true));
+      dispatch(setSearchModeActive(true));
+      searchModeActive = true; //because we use it directly
+    } else if (_searchForbidden === false && searchModeActive === true) {
+      dispatch(setSearchModeWished(true));
+    }
+    if (searchModeActive === true) {
+      const _filterstate = overridingFilterState || _filterState;
+      const reqBasis =
+        JSON.stringify(boundingBox) + "." + JSON.stringify(_filterstate) + "." + inFocusMode;
 
-				//console.log('xxx alle resultIds da ', new Date().getTime() - d);
+      if (reqBasis !== requestBasis || force) {
+        dispatch(setRequestBasis(reqBasis));
+        dispatch(setBoundingBox(boundingBox));
 
-				leitungsFeatures = [];
+        let xbb;
+        if (inFocusMode) {
+          const w = boundingBox.right - boundingBox.left;
+          const h = boundingBox.top - boundingBox.bottom;
 
-				if (filter.leitung.enabled === true) {
-					const ld = new Date().getTime();
+          const focusBB = {
+            left: boundingBox.left + w / 4,
+            top: boundingBox.top - h / 4,
+            right: boundingBox.right - w / 4,
+            bottom: boundingBox.bottom + h / 4,
+          };
+          xbb = focusBB;
+        } else {
+          xbb = boundingBox;
+        }
 
-					leitungsFeatures = state.spatialIndex.lineIndex
-						.search(
-							boundingBox.left,
-							boundingBox.bottom,
-							boundingBox.right,
-							boundingBox.top
-						)
-						.map((i) => state.spatialIndex.lineIndex.features[i]);
-					//console.log('xxx Leitungen ', new Date().getTime() - ld);
-				}
-			} else {
-			}
-			// console.log('leitungsFeatures', leitungsFeatures);
+        console.log("{ boundingBox: xbb, jwt: jwt, onlineDataForcing }", {
+          boundingBox: xbb,
+          jwt: jwt,
+          onlineDataForcing,
+        });
 
-			d = new Date().getTime();
-			if (connectionMode === CONNECTIONMODE.FROMCACHE) {
-				dexieW
-					.getFeaturesForHits(state.spatialIndex.pointIndex.points, resultIds, filter)
-					.then((pointFeatureCollection) => {
-						//console.log('xxx alle Features da ', new Date().getTime() - d);
-						const featureCollection = leitungsFeatures.concat(pointFeatureCollection);
-						//console.log('xxx alle Features da nach concat ', new Date().getTime() - d);
+        dispatch(
+          loadObjectsIntoFeatureCollection({ boundingBox: xbb, jwt: jwt, onlineDataForcing })
+        );
+      } else {
+        // console.log("xxx duplicate requestBasis", boundingBox, new Error());
+      }
+    }
+  };
+};
 
-						d = new Date().getTime();
-						//console.log('xxx vor setFeatureCollection');
-						dispatch(setFeatureCollection(featureCollection));
-						//setFC(featureCollection);
-						//console.log('xxx nach  setFeatureCollection', new Date().getTime() - d);
+export const loadTaskLists = ({ onlineDataForcing, team, done = () => {} }) => {
+  return async (dispatch, getState) => {
+    const state = getState();
+    const jwt = state.auth.jwt;
+    if (!jwt) {
+      return;
+    }
 
-						//console.log('xxx', '(done = true)');
-						// dispatch(setDone(true));
-						setTimeout(() => {
-							dispatch(setDone(true));
-						}, 1);
-					});
-			} else {
-				let queryparts = '';
-				for (const filterKey of Object.keys(filter)) {
-					if (filter[filterKey].enabled === true) {
-						const qp = onlineQueryParts[filterKey];
-						queryparts += qp + '\n';
-					}
-				}
-				const gqlQuery = `query q($bbPoly: geometry!) {${queryparts}}`;
-				const queryParameter = { bbPoly: createQueryGeomFromB(boundingBox) };
-				const response = await fetchGraphQL(gqlQuery, queryParameter);
+    dispatch(
+      loadTaskListsIntoFeatureCollection({
+        onlineDataForcing,
+        team,
+        jwt,
+        done,
+      })
+    );
+  };
+};
 
-				const featureCollection = [];
-				for (const key of Object.keys(response.data)) {
-					const objects = response.data[key];
-					for (const o of objects) {
-						const feature = {
-							text: '-',
-							type: 'Feature',
-							selected: false,
-							featuretype: key,
-							geometry: geomFactories[key](o),
-							crs: {
-								type: 'name',
-								properties: {
-									name: 'urn:ogc:def:crs:EPSG::25832'
-								}
-							},
-							properties: {}
-						};
+export const reSetSelecteFeatureFromCollection = () => {
+  return (dispatch, getState) => {
+    const state = getState();
+    const featureCollection = getFeatureCollection(state);
+    const oldSelectedFeature = getSelectedFeature(state);
+    const selectedFeature = featureCollection.find((f) => f.id === oldSelectedFeature.id);
+    dispatch(setSelectedFeature(selectedFeature));
+  };
+};
 
-						//The geometry could be deleted to save some memory
-						//need to be a different approach in the geometryfactory then
-						//not sure beacuse the properties would double up the memoryconsumption though
-						//
-						// const properties=JSON.parse(JSON.stringify(o));
-						// delete propertiesgeomFactories[key](o)
+export const integrateIntermediateResultsIntofeatureCollection = (intermediateResults) => {
+  return async (dispatch, getState) => {
+    const state = getState();
+    // need to create a new featurecollection because the retrieved collection is immutable
+    console.time("integrateIntermediateResultsIntofeatureCollection.clone.FC");
+    const featureCollection = JSON.parse(JSON.stringify(getFeatureCollection(state)));
+    console.timeEnd("integrateIntermediateResultsIntofeatureCollection.clone.FC");
 
-						feature.properties = o;
+    const _intermediateResults = intermediateResults || getIntermediateResults(state);
+    for (const feature of featureCollection) {
+      integrateIntermediateResults(feature, _intermediateResults);
+    }
 
-						featureCollection.push(feature);
-					}
-				}
-				//featureCollection[0].selected = true;
-				dispatch(setFeatureCollection(featureCollection));
-
-				dispatch(setDone(true));
-			}
-		} else {
-			dispatch(
-				initIndex(() => {
-					dispatch(loadObjectsIntoFeatureCollection({ boundingBox }));
-				})
-			);
-		}
-	};
+    //re set the featurecollection
+    dispatch(setFeatureCollection(featureCollection));
+    dispatch(reSetSelecteFeatureFromCollection());
+  };
 };
 
 export const timeout = (ms) => {
-	return new Promise((resolve) => setTimeout(resolve, ms));
+  return new Promise((resolve) => setTimeout(resolve, ms));
 };
 
 export const isSearchForbidden = (state) => {
-	return _isSearchForbidden(undefined, state);
+  return _isSearchForbidden(undefined, state);
 };
 //this allows us to override certain values in a time critical case
 const _isSearchForbidden = (overrides = {}, state) => {
-	let _zoom = overrides.zoom || getZoom(state);
-	let inFocusMode = isInFocusMode(state);
-	if (_zoom === -1) {
-		_zoom = new URLSearchParams(window.location.search).get('zoom');
-	}
-	let ifm; //= overrides.inFocusMode || inFocusMode;
-	if (overrides.inFocusMode !== undefined) {
-		ifm = overrides.inFocusMode;
-	} else {
-		ifm = inFocusMode;
-	}
-	return (
-		(ifm === true && _zoom < focusedSearchMinimumZoomThreshhold) ||
-		(ifm === false && _zoom < searchMinimumZoomThreshhold)
-	);
+  let _zoom = overrides.zoom || getZoom(state);
+  let inFocusMode = isInFocusMode(state);
+  if (_zoom === -1) {
+    _zoom = new URLSearchParams(window.location.search).get("zoom");
+  }
+  let ifm; //= overrides.inFocusMode || inFocusMode;
+  if (overrides.inFocusMode !== undefined) {
+    ifm = overrides.inFocusMode;
+  } else {
+    ifm = inFocusMode;
+  }
+  return (
+    (ifm === true && _zoom < focusedSearchMinimumZoomThreshhold) ||
+    (ifm === false && _zoom < searchMinimumZoomThreshhold)
+  );
 };

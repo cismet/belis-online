@@ -1,23 +1,37 @@
 {
-    // Use IntelliSense to learn about possible attributes.
-    // Hover to view descriptions of existing attributes.
-    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
-    "version": "0.2.0",
-    "configurations": [
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "chrome",
+      "request": "launch",
+      "name": "App",
+      "url": "http://localhost:3000/?lat=51.271707707942944&lng=7.200128496680703&stateLoggingEnabled=true&zoom=18.5",
+      "webRoot": "${workspaceFolder}"
+    },
+    {
+      "type": "chrome",
+      "request": "launch",
+      "name": "App Färberstrasse 1 Leuchte",
+      "url": "http://localhost:3000/?lat=51.27626092471301&lng=7.211879259302806&stateLoggingEnabled=true&zoom=22",
+      "webRoot": "${workspaceFolder}"
+    },
+    {
+      "type": "chrome",
+      "request": "launch",
+      "name": "App Schaltstelle 1444 ",
+      "url": "    http://localhost:3000/?lat=51.2720809518546&lng=7.199995806095103&showRawData&stateLoggingEnabled=true&zoom=22#",
+      "webRoot": "${workspaceFolder}"
+    },
 
-        {
-            "type": "chrome",
-            "request": "launch",
-            "name": "TestPage",
-            "url": "http://localhost:3000/test",
-            "webRoot": "${workspaceFolder}"
-        },
-        {
-            "type": "chrome",
-            "request": "launch",
-            "name": "App",
-            "url": "http://localhost:3000/?lat=51.27230794118779&lng=7.208208770249522&zoom=14.5&stateLoggingEnabled=true",
-            "webRoot": "${workspaceFolder}"
-        }
-    ]
+    {
+      "type": "chrome",
+      "request": "launch",
+      "name": "App 3001",
+      "url": "http://localhost:3001/?lat=51.27282917803476&lng=7.202492952346803&stateLoggingEnabled=true&zoom=19",
+      "webRoot": "${workspaceFolder}"
+    }
+  ]
 }

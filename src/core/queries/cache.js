@@ -151,6 +151,7 @@ queries.rundsteuerempfaenger = `{
       id
       anschlusswert
       dms_url {
+        description
         url {
           url_base {
             path
@@ -173,6 +174,7 @@ queries.abzweigdose = `{
        
         dokumenteArray {
             dms_url {
+              description
                 url {
                     object_name
                     url_base {
@@ -190,6 +192,7 @@ queries.tkey_leuchtentyp = `{
       bestueckung
       dokumenteArray {
         dms_url {
+          description
           url {
             object_name
             url_base {
@@ -203,6 +206,7 @@ queries.tkey_leuchtentyp = `{
         id
       }
       dms_url {
+        description
         url {
           object_name
           url_base {
@@ -233,6 +237,7 @@ queries.tkey_masttyp = `{
     tkey_masttyp {
       bezeichnung
       dms_url {
+        description
         url {
           object_name
           url_base {
@@ -244,6 +249,7 @@ queries.tkey_masttyp = `{
       }
       dokumenteArray {
         dms_url {
+          description
           url {
             object_name
             url_base {
@@ -268,15 +274,17 @@ queries.tkey_masttyp = `{
   `;
 queries.leitung = `{
     leitung {
+      id
+      is_deleted
       geom {
         geo_field
       }
       fk_leitungstyp
       fk_material
       fk_querschnitt
-      id
       dokumenteArray {
         dms_url {
+          description
           url {
             object_name
             url_base {
@@ -295,6 +303,7 @@ queries.mauerlasche = `{
       bemerkung
       dokumenteArray {
         dms_url {
+          description
           url {
             object_name
             url_base {
@@ -322,6 +331,7 @@ queries.schaltstelle = `{
       bemerkung
       dokumenteArray {
         dms_url {
+          description
           url {
             object_name
             url_base {
@@ -334,6 +344,7 @@ queries.schaltstelle = `{
         id
       }
       dms_url {
+        description
         url {
           object_name
           url_base {
@@ -371,6 +382,7 @@ queries.tdta_leuchten = `{
         bemerkungen
         dokumenteArray {
             dms_url {
+              description
                 url {
                     object_name
                     url_base {
@@ -389,6 +401,7 @@ queries.tdta_leuchten = `{
         fk_leuchttyp
         fk_strassenschluessel
         fk_unterhaltspflicht_leuchte
+        fk_standort
         id
         inbetriebnahme_leuchte
         is_deleted
@@ -412,10 +425,12 @@ queries.tdta_leuchten = `{
 queries.all_tdta_standort_mast = `{
     tdta_standort_mast {
         id
+        is_deleted
         bemerkungen
         anstrichfarbe
         dokumenteArray {
             dms_url {
+              description
                 url {
                     object_name
                     url_base {
@@ -462,13 +477,15 @@ queries.all_tdta_standort_mast = `{
 }`;
 
 queries.tdta_standort_mast =
-	`{
+  `{
   tdta_standort_mast(where:{_not:{leuchtenArray:{}}}){
     id
+    is_deleted
     bemerkungen
     anstrichfarbe
     dokumenteArray {
       dms_url {
+        description
         url {
           object_name
           url_base {
@@ -511,12 +528,12 @@ queries.tdta_standort_mast =
       nummer
       bezeichnung
     }` +
-	// leuchtenArray_aggregate {
-	//   aggregate {
-	//     count
-	//   }
-	// }
-	`
+  // leuchtenArray_aggregate {
+  //   aggregate {
+  //     count
+  //   }
+  // }
+  `
   }
 }
 `;
@@ -555,10 +572,94 @@ queriesNotSure.arbeitsprotokollaktion = `{
   `;
 queriesNotSure.infobaustein_template = ``;
 
-queriesNotSure.arbeitsauftrag = ``;
+queriesNotSure.arbeitsauftrag = `arbeitsauftrag {
+  angelegt_am
+  angelegt_von
+  id
+  nummer
+  zugewiesen_an
+  ar_protokolleArray {
+    fk_arbeitsprotokoll
+  }
+  team {
+    id
+  }
+}`;
 
-queriesNotSure.arbeitsprotokoll = ``;
+queriesNotSure.arbeitsprotokoll = `{
+  arbeitsprotokoll {
+    bemerkung
+    datum
+    defekt
+    fk_abzweigdose
+    fk_geometrie
+    fk_leitung
+    fk_leuchte
+    fk_mauerlasche
+    fk_schaltstelle
+    fk_standort
+    fk_status
+    id
+    material
+    monteur
+    protokollnummer
+    veranlassungsnummer
+    arbeitsprotokollstatus {
+      id
+    }
+    arbeitsprotokollaktionArray {
+      fk_protokoll
+    }
+  }
+}`;
 
-queriesNotSure.veranlassung = ``;
+queriesNotSure.veranlassung = `{
+  veranlassung {
+    ar_abzweigdosenArray {
+      fk_abzweigdose
+    }
+    ar_leuchtenArray {
+      fk_leuchte
+    }
+    ar_dokumenteArray {
+      dms_url {
+        url {
+          url_base {
+            path
+            prot_prefix
+            server
+          }
+          object_name
+        }
+      }
+    }
+    ar_geometrienArray {
+      fk_geometrie
+    }
+    ar_leitungenArray {
+      fk_leitung
+    }
+    ar_mauerlaschenArray {
+      fk_mauerlasche
+    }
+    ar_schaltstellenArray {
+      fk_schaltstelle
+    }
+    ar_standorteArray {
+      fk_standort
+    }
+    bemerkungen
+    beschreibung
+    bezeichnung
+    datum
+    fk_art
+    id
+    nummer
+    username
+    veranlassungsart {
+      id
+    }
+  }
+}`;
 
 export default queries;
