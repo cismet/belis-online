@@ -17,11 +17,7 @@ const SideBarListElement = ({ feature, selected }) => {
       <ListGroup.Item
         style={style}
         onClick={() => {
-          if (selectedFeature !== feature) {
-            dispatch(setSelectedFeature(feature));
-          } else {
-            dispatch(setSelectedFeature(undefined));
-          }
+          dispatch(setSelectedFeature(feature));
         }}
       >
         <div>
