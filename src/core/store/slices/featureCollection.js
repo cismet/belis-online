@@ -3,7 +3,7 @@ import { projectionData } from "react-cismap/constants/gis";
 import { dispatch } from "rxjs/internal/observable/pairs";
 import envelope from "@turf/envelope";
 import { featureCollection } from "@turf/helpers";
-import { integrateIntermediateResults } from "../../helper/featureHelper";
+import { integrateIntermediateResults, zoomToFeature } from "../../helper/featureHelper";
 import { convertBounds2BBox } from "../../helper/gisHelper";
 import { loadObjectsIntoFeatureCollection } from "./featureCollectionSubslices/objects";
 import {
@@ -19,6 +19,7 @@ import {
 } from "./search";
 
 import { getZoom } from "./zoom";
+import { getMapRef } from "./map";
 
 const focusedSearchMinimumZoomThreshhold = 16.5;
 const searchMinimumZoomThreshhold = 17.5;
@@ -106,7 +107,10 @@ const featureCollectionSlice = createSlice({
         // const oldSelectedFeature = fc.find((f) => f.id === state.selectedFeature.id);
         const oldSelectedFeature = fc[state.featuresMap[mode][state.selectedFeature[mode].id]];
         if (oldSelectedFeature) {
-          oldSelectedFeature.selected = false;
+          if (oldSelectedFeature?.id !== selectedFeature?.id) {
+            oldSelectedFeature.selected = false;
+          } else {
+          }
         }
       }
       if (selectedFeature) {
@@ -167,8 +171,15 @@ export default featureCollectionSlice;
 
 export const setSelectedFeature = (selectedFeature) => {
   return (dispatch, getState) => {
-    const mode = getState().featureCollection.mode;
-    dispatch(setSelectedFeatureForMode({ selectedFeature, mode }));
+    const state = getState();
+    const mode = state.featureCollection.mode;
+    const mapRef = getMapRef(state);
+    const oldSelectedFeature = getSelectedFeature(state);
+    if (selectedFeature && oldSelectedFeature?.id === selectedFeature?.id) {
+      zoomToFeature({ feature: selectedFeature, mapRef });
+    } else {
+      dispatch(setSelectedFeatureForMode({ selectedFeature, mode }));
+    }
   };
 };
 
