@@ -34,9 +34,9 @@ export const loadProtocollsIntoFeatureCollection = ({
 }) => {
   return async (dispatch, getState) => {
     const state = getState();
-    const origin = getOrigins(state)[MODES.PROTOCOLLS];
+    const origin = getOrigins(state)[MODES.PROTOCOLS];
     if (origin?.id !== tasklistFeature.id) {
-      dispatch(setDoneForMode({ mode: MODES.PROTOCOLLS, done: false }));
+      dispatch(setDoneForMode({ mode: MODES.PROTOCOLS, done: false }));
 
       console.log("xxx Protokolle für Arbeitsauftrag " + tasklistFeature.properties.id + " suchen");
 
@@ -77,19 +77,19 @@ export const loadProtocollsIntoFeatureCollection = ({
             };
             features.push(feature);
           }
-          dispatch(setFeatureCollectionForMode({ mode: MODES.PROTOCOLLS, features }));
-          dispatch(setOriginForMode({ mode: MODES.PROTOCOLLS, origin: tasklistFeature }));
+          dispatch(setFeatureCollectionForMode({ mode: MODES.PROTOCOLS, features }));
+          dispatch(setOriginForMode({ mode: MODES.PROTOCOLS, origin: tasklistFeature }));
           dispatch(
             setFeatureCollectionInfoForMode({
-              mode: MODES.PROTOCOLLS,
+              mode: MODES.PROTOCOLS,
               info: { typeCount: result.ar_protokolleArray.length },
             })
           );
           // dispatch(setMode(MODES.TASKLISTS));
-          dispatch(setDoneForMode({ mode: MODES.PROTOCOLLS, done: true }));
+          dispatch(setDoneForMode({ mode: MODES.PROTOCOLS, done: true }));
         } catch (e) {
           console.error("xxx error ", e);
-          dispatch(setDoneForMode({ mode: MODES.PROTOCOLLS, done: true }));
+          dispatch(setDoneForMode({ mode: MODES.PROTOCOLS, done: true }));
         }
       })();
     } else {

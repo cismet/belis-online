@@ -246,7 +246,7 @@ const TopNavbar = ({ innerRef, refRoutedMap, setCacheSettingsVisible, jwt }) => 
                   setTimeout(() => {
                     dispatch(setMode(MODES.TASKLISTS));
                     dispatch(fitBoundsForCollection());
-                    dispatch(setFeatureCollectionForMode(MODES.PROTOCOLLS));
+                    dispatch(setFeatureCollectionForMode(MODES.PROTOCOLS));
                   }, 400);
                 },
               })

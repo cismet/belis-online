@@ -169,12 +169,12 @@ const SideBar = ({ innerRef, height }) => {
             <TabPane
               tab={
                 <div>
-                  {featureCollections[MODES.PROTOCOLLS].length}
+                  {featureCollections[MODES.PROTOCOLS].length}
                   <br></br>
-                  {featureCollections[MODES.PROTOCOLLS].length === 1 ? "Protokoll" : "Protokolle"}
+                  {featureCollections[MODES.PROTOCOLS].length === 1 ? "Protokoll" : "Protokolle"}
                 </div>
               }
-              key={MODES.PROTOCOLLS}
+              key={MODES.PROTOCOLS}
             >
               {list}
             </TabPane>

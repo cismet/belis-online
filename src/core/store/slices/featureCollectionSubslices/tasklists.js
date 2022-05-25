@@ -22,7 +22,7 @@ import convex from "@turf/convex";
 import buffer from "@turf/buffer";
 import reproject from "reproject";
 import { projectionData } from "react-cismap/constants/gis";
-import { loadProtocollsIntoFeatureCollection } from "./protocolls";
+import { loadProtocollsIntoFeatureCollection } from "./protocols";
 const dexieW = dexieworker();
 
 export const loadTaskListsIntoFeatureCollection = ({

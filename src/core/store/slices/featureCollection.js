@@ -24,7 +24,7 @@ import { zoomToFeature } from "../../helper/mapHelper";
 
 const focusedSearchMinimumZoomThreshhold = 16.5;
 const searchMinimumZoomThreshhold = 17.5;
-export const MODES = { OBJECTS: "OBJECTS", TASKLISTS: "TASKLISTS", PROTOCOLLS: "PROTOCOLLS" };
+export const MODES = { OBJECTS: "OBJECTS", TASKLISTS: "TASKLISTS", PROTOCOLS: "PROTOCOLS" };
 
 export const initialFilter = {
   tdta_leuchten: { title: "Leuchten", enabled: true },
