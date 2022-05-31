@@ -67,7 +67,7 @@ keys.push({
 });
 keys.push({
   primary: true,
-  getName: (state) => "Arbeitsaufträge (" + state.team.selectedTeam.name + ")",
+  getName: (selectedTeam) => "Arbeitsaufträge (" + selectedTeam.name + ")",
   queryKey: "arbeitsauftrag",
   parameterFactory: (state) => ({ teamId: state.team.selectedTeam.id }),
 });

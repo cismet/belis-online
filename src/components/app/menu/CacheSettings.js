@@ -13,6 +13,7 @@ import {
   renewAllSecondaryInfoCache,
   renewCache,
   setCacheUser,
+  config,
 } from "../../../core/store/slices/cacheControl";
 import { forceRefresh } from "../../../core/store/slices/featureCollection";
 import AggregatedCacheItem from "../../app/cache/AggregatedCacheItem";
@@ -55,6 +56,7 @@ const CacheSettings = () => {
     .forEach((primaryKey) => {
       primarySettings.push(cacheSettings[primaryKey]);
     });
+  console.log("config", config);
 
   return (
     <div style={{ marginBottom: 5 }}>
@@ -135,36 +137,20 @@ const CacheSettings = () => {
               letzte Aktualisierung
             </td>
           </tr>
-          {Object.keys(cacheSettings).map((key, index) => {
-            if (cacheSettings[key].primary === true) {
-              return (
-                <CacheItem
-                  key={"CacheItem." + index}
-                  control={cacheSettings[key]}
-                  renew={() => {
-                    console.log("renew");
+          {Object.keys(config).map((key, index) => {
+            return (
+              <CacheItem
+                key={"CacheItem." + index}
+                config={config[key]}
+                info={cacheSettings[key]}
+                renew={() => {
+                  console.log("renew");
 
-                    dispatch(renewCache(key, jwt));
-                  }}
-                />
-              );
-            }
+                  dispatch(renewCache(key, jwt));
+                }}
+              />
+            );
           })}
-          {/* <AggregatedCacheItem
-            controls={secondarySettings}
-            renew={(key) => {
-              dispatch(renewCache(key, jwt));
-            }}
-          /> */}
-
-          {/* <CacheItem
-								control={cacheSettings.mauerlasche}
-								renew={() => {
-									console.log('renew');
-
-									dispatch(renewCache('mauerlasche'));
-								}}
-							/> */}
         </tbody>
       </table>
     </div>

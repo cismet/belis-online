@@ -13,6 +13,8 @@ import { FontAwesomeIcon as Icon } from "@fortawesome/react-fontawesome";
 import React from "react";
 import { Button } from "react-bootstrap";
 import ProgressBar from "react-bootstrap/ProgressBar";
+import { useSelector } from "react-redux";
+import { getTeam } from "../../../core/store/slices/team";
 
 const getIconForLoadingState = (ls) => {
   if (ls === "loading") {
@@ -28,16 +30,10 @@ const getIconForLoadingState = (ls) => {
   }
 };
 
-const CacheItem = ({ control, renew, refresh = () => {} }) => {
-  const {
-    name,
-    key,
-    lastUpdate,
-    loadingState,
-    objectCount,
-    updateCount,
-    cachingProgress,
-  } = control;
+const CacheItem = ({ info, config, renew, refresh = () => {} }) => {
+  const { lastUpdate, loadingState, objectCount, updateCount, cachingProgress } = info;
+  const { name, key, getName } = config;
+  const selectedTeam = useSelector(getTeam);
 
   const controls = (
     <td key={"td." + key} style={{ width: 120, whiteSpace: "nowrap" }}>
@@ -81,7 +77,7 @@ const CacheItem = ({ control, renew, refresh = () => {} }) => {
   if (loadingState === undefined) {
     cols[3] = (
       <td key={"td[3]." + key} style={{ textAlign: "left", width: "100%" }}>
-        {name}
+        {getName !== undefined ? getName(selectedTeam) : name}
       </td>
     );
     cols[4] = (
