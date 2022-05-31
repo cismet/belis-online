@@ -56,8 +56,6 @@ const CacheSettings = () => {
     .forEach((primaryKey) => {
       primarySettings.push(cacheSettings[primaryKey]);
     });
-  console.log("config", config);
-
   return (
     <div style={{ marginBottom: 5 }}>
       <div>
