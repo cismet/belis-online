@@ -90,9 +90,9 @@ const CacheSettings = () => {
           <Icon icon={faDownload} /> Kompletten Cache neu füllen
         </Button>
 
-        <Button disabled style={{ margin: 3 }} variant='outline-success' size='sm'>
+        {/* <Button disabled style={{ margin: 3 }} variant='outline-success' size='sm'>
           <Icon icon={faSync} /> Nur neue Objekte laden
-        </Button>
+        </Button> */}
 
         <Button
           onClick={() => {
