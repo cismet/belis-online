@@ -92,7 +92,7 @@ const CacheItem = ({ info, config, renew, refresh = () => {} }) => {
     // setStartTime(new Date().getTime());
     cols[3] = (
       <td key={"td[3]." + key} style={{ textAlign: "left", width: "100%" }}>
-        {name}
+        {getName !== undefined ? getName(selectedTeam) : name}
       </td>
     );
     cols[4] = (
@@ -106,7 +106,12 @@ const CacheItem = ({ info, config, renew, refresh = () => {} }) => {
   } else if (loadingState === "caching") {
     cols[3] = (
       <td key={"td[3]." + key} style={{ textAlign: "left", width: "100%" }}>
-        <ProgressBar animated now={cachingProgress} label={name} max={updateCount} />
+        <ProgressBar
+          animated
+          now={cachingProgress}
+          label={getName !== undefined ? getName(selectedTeam) : name}
+          max={updateCount}
+        />
       </td>
     );
     cols[4] = (
@@ -120,7 +125,12 @@ const CacheItem = ({ info, config, renew, refresh = () => {} }) => {
   } else if (loadingState === "cached") {
     cols[3] = (
       <td key={"td[3]." + key} style={{ textAlign: "left", width: "100%" }}>
-        <ProgressBar key={"ProgressBar." + key} now={updateCount} label={name} max={updateCount} />
+        <ProgressBar
+          key={"ProgressBar." + key}
+          now={updateCount}
+          label={getName !== undefined ? getName(selectedTeam) : name}
+          max={updateCount}
+        />
       </td>
     );
     cols[4] = (
@@ -134,7 +144,12 @@ const CacheItem = ({ info, config, renew, refresh = () => {} }) => {
   } else if (loadingState === "problem") {
     cols[3] = (
       <td key={"td[3]." + key} style={{ textAlign: "left", width: "100%" }}>
-        <ProgressBar variant='warning' now={100} label={name} max={100} />
+        <ProgressBar
+          variant='warning'
+          now={100}
+          label={getName !== undefined ? getName(selectedTeam) : name}
+          max={100}
+        />
       </td>
     );
     cols[4] = (
