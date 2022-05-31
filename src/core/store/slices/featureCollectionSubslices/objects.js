@@ -135,8 +135,6 @@ export const loadObjectsIntoFeatureCollection = ({
           const gqlQuery = `query q($bbPoly: geometry!) {${queryparts}}`;
 
           const queryParameter = { bbPoly: createQueryGeomFromBB(convertedBoundingBox) };
-          console.log("query", { gqlQuery, queryParameter });
-
           try {
             console.time("query returned");
             // online query
@@ -144,10 +142,7 @@ export const loadObjectsIntoFeatureCollection = ({
             console.timeEnd("query returned");
 
             if (response) {
-              console.log("query response ", response);
-
               const featureCollection = [];
-              const updates = response.data;
               for (const key of Object.keys(response.data || {})) {
                 const objects = response.data[key];
                 for (const o of objects) {
