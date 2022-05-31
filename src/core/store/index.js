@@ -30,14 +30,14 @@ console.log("devToolsEnabled:", devToolsEnabled);
 const stateLoggingEnabledFromSearch = new URLSearchParams(window.location.search).get(
   "stateLoggingEnabled"
 );
-const stateLoggingEnabled =
-  stateLoggingEnabledFromSearch !== null && stateLoggingEnabledFromSearch !== "false";
-
-console.log("stateLoggingEnabled:", stateLoggingEnabledFromSearch, "x", stateLoggingEnabled);
 
 const inProduction = process.env.NODE_ENV === "production";
 console.log("in Production Mode:", inProduction);
+const stateLoggingEnabled =
+  (stateLoggingEnabledFromSearch !== null && stateLoggingEnabledFromSearch !== "false") ||
+  !inProduction;
 
+console.log("stateLoggingEnabled:", stateLoggingEnabledFromSearch, "x", stateLoggingEnabled);
 const logger = createLogger({
   collapsed: true,
   // predicate, // if specified this function will be called before each action is processed with this middleware.
