@@ -300,12 +300,6 @@ export const loadObjects = ({
           xbb = boundingBox;
         }
 
-        console.log("{ boundingBox: xbb, jwt: jwt, onlineDataForcing }", {
-          boundingBox: xbb,
-          jwt: jwt,
-          onlineDataForcing,
-        });
-
         dispatch(
           loadObjectsIntoFeatureCollection({ boundingBox: xbb, jwt: jwt, onlineDataForcing })
         );
