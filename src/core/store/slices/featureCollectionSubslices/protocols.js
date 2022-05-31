@@ -26,7 +26,12 @@ import buffer from "@turf/buffer";
 import reproject from "reproject";
 import { projectionData } from "react-cismap/constants/gis";
 import { getFachobjektOfProtocol } from "../../../helper/featureHelper";
-const dexieW = dexieworker();
+import { CONNECTIONMODE, getConnectionMode } from "../app";
+
+//this function doesnt check if the app is in online or offline mode
+//it just checks if the taskListFeature is enriched or not
+// if it is already enriched it uses the ar_protokolleArray from the taskListFeature
+// if not it fetches the protocolls from the backend
 
 export const loadProtocollsIntoFeatureCollection = ({
   tasklistFeature,
@@ -36,54 +41,37 @@ export const loadProtocollsIntoFeatureCollection = ({
   return async (dispatch, getState) => {
     const state = getState();
     const origin = getOrigins(state)[MODES.PROTOCOLS];
-    if (origin?.id !== tasklistFeature.id) {
+
+    const connectionMode = getConnectionMode(state);
+    if (origin?.id !== tasklistFeature.id || connectionMode === CONNECTIONMODE.FROMCACHE) {
       dispatch(setDoneForMode({ mode: MODES.PROTOCOLS, done: false }));
 
-      console.log("xxx Protokolle für Arbeitsauftrag " + tasklistFeature.properties.id + " suchen");
+      console.log("Protokolle für Arbeitsauftrag " + tasklistFeature.properties.id + " laden");
 
       const gqlQuery = `query q($aaId: Int) {${queries.singleArbeitsauftragFull}}`;
 
       const queryParameter = { aaId: tasklistFeature.properties.id };
-      console.log("xxx query", { gqlQuery, queryParameter }, jwt);
 
       (async () => {
         try {
-          console.time("xxx query returned");
-          const response = await fetchGraphQL(gqlQuery, queryParameter, jwt);
-          console.timeEnd("xxx query returned");
-          console.log("xxx response", response.data);
-          const result = response.data.arbeitsauftrag[0];
-          console.log("xxx result", result);
+          let features = [];
+          if (tasklistFeature.enriched !== true) {
+            console.time("query returned");
+            const response = await fetchGraphQL(gqlQuery, queryParameter, jwt);
+            console.timeEnd("query returned");
+            console.log("xxx response", response.data);
+            const result = response.data.arbeitsauftrag[0];
 
-          const features = [];
-          for (const entry of result.ar_protokolleArray) {
-            const protokoll = entry.arbeitsprotokoll;
-            const fachobjekt = getFachobjektOfProtocol(protokoll);
-            const feature = {
-              text: "-",
-              id: "arbeitsprotokoll." + protokoll.id,
-              enriched: true,
-              type: "Feature",
-              selected: false,
-              featuretype: "arbeitsprotokoll",
-              fachobjekttype: fachobjekt.type,
-              geometry: geometryFactory(protokoll),
-              crs: {
-                type: "name",
-                properties: {
-                  name: "urn:ogc:def:crs:EPSG::25832",
-                },
-              },
-              properties: { ...protokoll, fachobjekt },
-            };
-            features.push(feature);
+            features = getFeaturesForProtokollArray(result.ar_protokolleArray);
+          } else {
+            features = getFeaturesForProtokollArray(tasklistFeature.properties.ar_protokolleArray);
           }
           dispatch(setFeatureCollectionForMode({ mode: MODES.PROTOCOLS, features }));
           dispatch(setOriginForMode({ mode: MODES.PROTOCOLS, origin: tasklistFeature }));
           dispatch(
             setFeatureCollectionInfoForMode({
               mode: MODES.PROTOCOLS,
-              info: { typeCount: result.ar_protokolleArray.length },
+              info: { typeCount: features.length },
             })
           );
           if (features.length === 1) {
@@ -103,12 +91,39 @@ export const loadProtocollsIntoFeatureCollection = ({
   };
 };
 
+const getFeaturesForProtokollArray = (protokollArray) => {
+  const features = [];
+  for (const entry of protokollArray) {
+    const protokoll = entry.arbeitsprotokoll;
+    const fachobjekt = getFachobjektOfProtocol(protokoll);
+    const feature = {
+      text: "-",
+      id: "arbeitsprotokoll." + protokoll.id,
+      enriched: true,
+      type: "Feature",
+      selected: false,
+      featuretype: "arbeitsprotokoll",
+      fachobjekttype: fachobjekt.type,
+      geometry: geometryFactory(protokoll),
+      crs: {
+        type: "name",
+        properties: {
+          name: "urn:ogc:def:crs:EPSG::25832",
+        },
+      },
+      properties: { ...protokoll, fachobjekt },
+    };
+    features.push(feature);
+  }
+  return features;
+};
+
 const geometryFactory = (prot) => {
   if (prot?.geometrie?.geom?.geo_field) {
     return prot?.geometrie?.geom?.geo_field;
   }
-  if (prot?.tdta_leuchten?.fk_standort?.geom?.geo_field) {
-    return prot.tdta_leuchten.fk_standort.geom?.geo_field;
+  if (prot?.tdta_leuchten?.tdta_standort_mast?.geom?.geo_field) {
+    return prot.tdta_leuchten.tdta_standort_mast.geom?.geo_field;
   }
   if (prot?.tdta_standort_mast?.geom?.geo_field) {
     return prot.tdta_standort_mast.geom?.geo_field;

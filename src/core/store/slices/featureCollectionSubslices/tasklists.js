@@ -24,6 +24,7 @@ import buffer from "@turf/buffer";
 import reproject from "reproject";
 import { projectionData } from "react-cismap/constants/gis";
 import { loadProtocollsIntoFeatureCollection } from "./protocols";
+import { CONNECTIONMODE, getConnectionMode } from "../app";
 const dexieW = dexieworker();
 
 export const loadTaskListsIntoFeatureCollection = ({
@@ -34,43 +35,34 @@ export const loadTaskListsIntoFeatureCollection = ({
 }) => {
   return async (dispatch, getState) => {
     const state = getState();
+    const connectionMode = getConnectionMode(state);
+
     const storedJWT = getJWT(state);
     dispatch(setDoneForMode({ mode: MODES.TASKLISTS, done: false }));
 
     console.log("xxx Arbeitsaufträge für Team " + team?.name + " suchen");
 
-    const gqlQuery = `query q($teamId: Int) {${queries.arbeitsauftraegexx}}`;
-
-    const queryParameter = { teamId: team.id };
-    console.log("xxx query", { gqlQuery, queryParameter }, jwt);
-
     (async () => {
       try {
-        console.time("xxx query returned");
-        const response = await fetchGraphQL(gqlQuery, queryParameter, jwt);
-        console.timeEnd("xxx query returned");
-        console.log("xxx response", response.data);
-        const results = response.data.arbeitsauftrag;
-        const features = [];
-        for (const arbeitsauftrag of results) {
-          const feature = {
-            text: "-",
-            id: "arbeitsauftrag." + arbeitsauftrag.id,
-            enriched: false,
-            type: "Feature",
-            selected: false,
-            featuretype: "arbeitsauftrag",
-            geometry: geometryFactory(arbeitsauftrag),
-            crs: {
-              type: "name",
-              properties: {
-                name: "urn:ogc:def:crs:EPSG::25832",
-              },
-            },
-            properties: arbeitsauftrag,
-          };
-          features.push(feature);
+        let features = [];
+        if (onlineDataForcing || connectionMode === CONNECTIONMODE.ONLINE) {
+          const gqlQuery = `query q($teamId: Int) {${queries.arbeitsauftraegexx}}`;
+
+          const queryParameter = { teamId: team.id };
+          console.time("xxx query returned");
+          const response = await fetchGraphQL(gqlQuery, queryParameter, jwt);
+
+          console.timeEnd("xxx query returned");
+          console.log("xxx response", response.data);
+          const results = response.data.arbeitsauftrag;
+
+          features = createFeaturesForResults(results);
+        } else {
+          //offlineUse
+          const results = await dexieW.getAll("arbeitsauftrag");
+          features = createFeaturesForResults(results, true);
         }
+
         dispatch(setFeatureCollectionForMode({ mode: MODES.PROTOCOLS, features: [] }));
         dispatch(setSelectedFeatureForMode({ mode: MODES.PROTOCOLS, feature: undefined }));
         dispatch(setFeatureCollectionForMode({ mode: MODES.TASKLISTS, features }));
@@ -95,30 +87,54 @@ export const loadTaskListsIntoFeatureCollection = ({
   };
 };
 
+const createFeaturesForResults = (results, enriched = false) => {
+  const features = [];
+  for (const arbeitsauftrag of results) {
+    const feature = {
+      text: "-",
+      id: "arbeitsauftrag." + arbeitsauftrag.id,
+      enriched,
+      type: "Feature",
+      selected: false,
+      featuretype: "arbeitsauftrag",
+      geometry: geometryFactory(arbeitsauftrag),
+      crs: {
+        type: "name",
+        properties: {
+          name: "urn:ogc:def:crs:EPSG::25832",
+        },
+      },
+      properties: arbeitsauftrag,
+    };
+    features.push(feature);
+  }
+  return features;
+};
+
 const geometryFactory = (arbeitsauftrag) => {
   const geoms = [];
   for (const arrayentry of arbeitsauftrag.ar_protokolleArray) {
     const prot = arrayentry.arbeitsprotokoll;
     if (prot?.geometrie?.geom?.geo_field) {
-      geoms.push(createFeature(prot?.geometrie?.geom?.geo_field));
+      geoms.push(createGeomOnlyFeature(prot?.geometrie?.geom?.geo_field));
     }
     if (prot?.tdta_leuchten?.tdta_standort_mast?.geom?.geo_field) {
-      geoms.push(createFeature(prot.tdta_leuchten.tdta_standort_mast.geom?.geo_field));
+      geoms.push(createGeomOnlyFeature(prot.tdta_leuchten.tdta_standort_mast.geom?.geo_field));
     }
     if (prot?.tdta_standort_mast?.geom?.geo_field) {
-      geoms.push(createFeature(prot.tdta_standort_mast.geom?.geo_field));
+      geoms.push(createGeomOnlyFeature(prot.tdta_standort_mast.geom?.geo_field));
     }
     if (prot?.schaltstelle?.geom?.geo_field) {
-      geoms.push(createFeature(prot.schaltstelle.geom?.geo_field));
+      geoms.push(createGeomOnlyFeature(prot.schaltstelle.geom?.geo_field));
     }
     if (prot?.mauerlasche?.geom?.geo_field) {
-      geoms.push(createFeature(prot.mauerlasche.geom?.geo_field));
+      geoms.push(createGeomOnlyFeature(prot.mauerlasche.geom?.geo_field));
     }
     if (prot?.leitung?.geom?.geo_field) {
-      geoms.push(createFeature(prot.leitung.geom?.geo_field));
+      geoms.push(createGeomOnlyFeature(prot.leitung.geom?.geo_field));
     }
     if (prot?.abzweigdose?.geom?.geo_field) {
-      geoms.push(createFeature(prot.abzweigdose.geom?.geo_field));
+      geoms.push(createGeomOnlyFeature(prot.abzweigdose.geom?.geo_field));
     }
   }
   const turfCollection = turfHelpers.featureCollection(geoms);
@@ -127,7 +143,7 @@ const geometryFactory = (arbeitsauftrag) => {
   return convexFeature.geometry;
 };
 
-const createFeature = (geom) => {
+const createGeomOnlyFeature = (geom) => {
   const feature = {
     type: "Feature",
     geometry: geom,
