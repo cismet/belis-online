@@ -80,7 +80,7 @@ export const initIndex = (finished = () => {}) => async (dispatch) => {
         id: "Leitung-" + properties.id,
         text: "-",
         type: "Feature",
-        featuretype: "Leitung",
+        featuretype: "leitung",
         selected: false,
         crs: {
           type: "name",
