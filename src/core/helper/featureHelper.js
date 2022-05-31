@@ -202,11 +202,15 @@ export const getVCard = (feature) => {
       vcard.infobox.header = "Arbeitsauftrag";
       vcard.infobox.title = "Nummer: A" + item.nummer;
       vcard.infobox.more = "angelegt von: " + item.angelegt_von;
-      vcard.infobox.subtitle = "am: " + item.angelegt_am;
+      //propper date formatting
+      vcard.infobox.subtitle =
+        "am: " + item?.angelegt_am ? new Date(item.angelegt_am).toLocaleDateString() : "";
       // List
       vcard.list.main = "A" + item.nummer;
       vcard.list.upperright = item.angelegt_von;
-      vcard.list.subtitle = item.angelegt_am;
+      vcard.list.subtitle = item?.angelegt_am
+        ? new Date(item.angelegt_am).toLocaleDateString()
+        : "";
       vcard.list.lowerright = (item.ar_protokolleArray || []).length;
 
       break;
