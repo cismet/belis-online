@@ -312,7 +312,7 @@ export const renewCache = (key, jwt) => {
     fetchGraphQL(cacheQueries[itemKey], config[itemKey].parameterFactory(state), jwt)
       .then((result) => {
         // console.log(itemKey + " returned with " + result.data[dataKey].length + " results");
-        console.log(itemKey + " returned with ", result.data[dataKey]);
+        // console.log(itemKey + " returned with ", result.data[dataKey]);
         dispatch(setLoadingState({ key, loadingState: "caching" }));
         dispatch(setObjectCount({ key, objectCount: result.data[dataKey].length }));
         dispatch(setUpdateCount({ key, updateCount: result.data[dataKey].length }));
