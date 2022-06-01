@@ -281,13 +281,18 @@ export const renewAllPrimaryInfoCache = (jwt) => {
   };
 };
 
-export const renewCache = (key, jwt) => {
-  console.log("xxx " + key, jwt);
-
+export const renewCache = (
+  key,
+  jwt,
+  overridingStateForParameterFactory,
+  successHook = () => {},
+  errorHook = () => {}
+) => {
   if (key === undefined || jwt === undefined) {
     console.error("renewCache: either key or jwt is undefined. This must be an error.");
   }
   return async (dispatch, getState) => {
+    const stateForParameterFactory = overridingStateForParameterFactory || getState();
     const state = getState();
     const cfg = getCacheInfo(key)(state);
 
@@ -306,10 +311,17 @@ export const renewCache = (key, jwt) => {
     dexieW.addEventListener("message", progressListener);
     console.log("cacheQueries[" + itemKey + "]", { gql: cacheQueries[itemKey] });
     if (itemKey === "arbeitsauftrag") {
-      console.log("cacheControl.config[itemKey]", config[itemKey].parameterFactory(state));
+      console.log(
+        "cacheControl.config[itemKey]",
+        config[itemKey].parameterFactory(stateForParameterFactory)
+      );
     }
 
-    fetchGraphQL(cacheQueries[itemKey], config[itemKey].parameterFactory(state), jwt)
+    fetchGraphQL(
+      cacheQueries[itemKey],
+      config[itemKey].parameterFactory(stateForParameterFactory),
+      jwt
+    )
       .then((result) => {
         // console.log(itemKey + " returned with " + result.data[dataKey].length + " results");
         // console.log(itemKey + " returned with ", result.data[dataKey]);
@@ -342,6 +354,7 @@ export const renewCache = (key, jwt) => {
             //to use the new data for the geometry search
             dispatch(initIndex(() => {}));
           }
+          successHook();
         })();
         // }
       })
@@ -351,6 +364,7 @@ export const renewCache = (key, jwt) => {
         const resetTimer = setTimeout(() => {
           dispatch(setLoadingState({ key, resetTimer, loadingState: undefined }));
         }, 30000);
+        errorHook(error);
       });
   };
 };
