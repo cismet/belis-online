@@ -319,7 +319,8 @@ export const renewCache = (key, jwt) => {
         //async block
         (async () => {
           //put the data in the indexedDB
-          const y = await dexieW.putArray(result.data[dataKey], itemKey);
+          await dexieW.clear(itemKey);
+          await dexieW.putArray(result.data[dataKey], itemKey);
 
           //reset loadingState in 1 minute
           const resetTimer = setTimeout(() => {
