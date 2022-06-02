@@ -213,6 +213,15 @@ tdta_leuchten(where: {tdta_standort_mast: {geom: {geo_field: {_st_intersects: $b
       }
     }
   }
+  fk_dk1: fk_dk1_tkey_doppelkommando {
+    id
+    beschreibung
+  }
+  fk_dk2: fk_dk2_tkey_doppelkommando {
+    id
+    beschreibung
+  }
+
   rundsteuerempfaenger: rundsteuerempfaengerObject {
     id
     anschlusswert
