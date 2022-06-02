@@ -29,6 +29,8 @@ import {
   LightBoxContext,
   LightBoxDispatchContext,
 } from "react-cismap/contexts/LightBoxContextProvider";
+import getLayout4Arbeitsauftrag from "./components/Arbeitsauftrag";
+import getLayout4Protokoll from "./components/Protokoll";
 
 const InfoPanel = () => {
   const dispatch = useDispatch();
@@ -166,17 +168,41 @@ export const InfoPanelComponent = ({ selectedFeature, dispatch }) => {
         rawDataDesc += "des Masts/Standorts";
 
         break;
+      case "arbeitsauftrag":
+        ({ subSections, mainSection, title } = getLayout4Arbeitsauftrag({
+          feature: hit,
+          jwt,
+          dispatch,
+          setIndex,
+          setVisible,
+        }));
+
+        rawDataDesc += "des Arbeitsauftrages";
+
+        break;
+      case "protokoll":
+        ({ subSections, mainSection, title } = getLayout4Protokoll({
+          feature: hit,
+          jwt,
+          dispatch,
+          setIndex,
+          setVisible,
+        }));
+
+        rawDataDesc += "des Protokolls";
+
+        break;
       default:
     }
 
-    if (showRawData || showRawDataFromUrl === "") {
+    if (showRawData || showRawDataFromUrl === "" || process.env.NODE_ENV !== "production") {
       //remove the geometries
       const hitForRawDisplay = JSON.parse(JSON.stringify(hit.properties));
 
       delete hitForRawDisplay.geojson;
       delete hitForRawDisplay.full_tdta_standort_mast;
 
-      for (const doc of hitForRawDisplay.docs) {
+      for (const doc of hitForRawDisplay.docs || []) {
         if (doc.intermediate) {
           // set the url of the first 30 chars of the url to save memory
           doc.url = doc.url.substring(0, 30) + "...";
