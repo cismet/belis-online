@@ -143,7 +143,7 @@ export const getVCard = (feature) => {
       if (item?.schaltstellen_nummer) {
         title = "S " + item?.schaltstellen_nummer;
       } else {
-        title = "Schaltstelle ohne Nummer (ID: " + item?.id + ")";
+        title = "ID: " + item?.id;
       }
 
       const l =

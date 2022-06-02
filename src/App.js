@@ -15,6 +15,8 @@ import TopicMapContextProvider, {
   TopicMapContext,
 } from "react-cismap/contexts/TopicMapContextProvider";
 import { defaultLayerConf } from "react-cismap/tools/layerFactory";
+import { appKey, storagePostfix } from "./Keys";
+
 let persistor = persistStore(store);
 
 const baseLayerConf = { ...defaultLayerConf };
@@ -96,7 +98,7 @@ function App() {
 
               <Route path='/'>
                 <TopicMapContextProvider
-                  appKey='belis-online3.0'
+                  appKey={appKey + "." + storagePostfix}
                   backgroundModes={backgroundModes}
                   backgroundConfigurations={backgroundConfigurations}
                   baseLayerConf={baseLayerConf}
