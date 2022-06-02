@@ -116,13 +116,7 @@ const getLayout4Standort = ({ feature, jwt, dispatch, setVisible, setIndex }) =>
       </Row>
     </SecondaryInfoPanelSection>
   );
-  if (process.env.NODE_ENV !== "production") {
-    subSections.push(
-      <SecondaryInfoPanelSection key={"rawObject" + item?.id} bsStyle='warning' header='Raw'>
-        <pre>{JSON.stringify(item, null, 2)}</pre>
-      </SecondaryInfoPanelSection>
-    );
-  }
+
   return { title, mainSection, subSections };
 };
 

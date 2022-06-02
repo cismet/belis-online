@@ -246,14 +246,6 @@ const getLayout4Leuchte = ({ feature, jwt, dispatch, setIndex, setVisible }) => 
     </SecondaryInfoPanelSection>
   );
 
-  //only in development
-  if (process.env.NODE_ENV !== "production") {
-    subSections.push(
-      <SecondaryInfoPanelSection key={"rawObject" + item?.id} bsStyle='warning' header='Raw'>
-        <pre>{JSON.stringify(item, null, 2)}</pre>
-      </SecondaryInfoPanelSection>
-    );
-  }
   return { title, mainSection, subSections };
 };
 

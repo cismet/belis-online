@@ -117,13 +117,7 @@ const getLayout4Mauerlasche = ({ feature, jwt, dispatch, setVisible, setIndex })
   );
 
   subSections.push(getRSDetailsSection(item?.rundsteuerempfaenger));
-  if (process.env.NODE_ENV !== "production") {
-    subSections.push(
-      <SecondaryInfoPanelSection key={"rawObject" + item?.id} bsStyle='warning' header='Raw'>
-        <pre>{JSON.stringify(item, null, 2)}</pre>
-      </SecondaryInfoPanelSection>
-    );
-  }
+
   return { title, mainSection, subSections };
 };
 
