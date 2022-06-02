@@ -11,7 +11,7 @@ const SideBarListElement = ({ feature, selected }) => {
   // const selectedFeature = useSelector(getSelectedFeature);
   let vcard = getVCard(feature);
   const style = selected ? { background: "lightgray" } : {};
-  const debugColors = true;
+  const debugColors = false;
   const oneRowEllipse = (
     <span>
       <div
@@ -31,9 +31,9 @@ const SideBarListElement = ({ feature, selected }) => {
             whiteSpace: "nowrap",
           }}
         >
-          <p style={{ textAlign: "left" }}>
+          <span style={{ textAlign: "left" }}>
             <b>{vcard.list.main}</b>
-          </p>
+          </span>
         </span>
         <span
           style={{
@@ -87,9 +87,9 @@ const SideBarListElement = ({ feature, selected }) => {
             whiteSpace: "nowrap",
           }}
         >
-          <p style={{ textAlign: "left" }}>
+          <span style={{ textAlign: "left" }}>
             <b>{vcard.list.main}</b>
-          </p>
+          </span>
         </span>
         <span
           style={{
