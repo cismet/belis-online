@@ -12,61 +12,175 @@ const SideBarListElement = ({ feature, selected }) => {
   let vcard = getVCard(feature);
   const style = selected ? { background: "lightgray" } : {};
   const debugColors = false;
-  const oneRowEllipse = ( <span>
-                            <div style={{display: "flex", justifyContent: "space-between", flexWrap: "nowrap", gap: "10px", overflow: "hidden"  }}>
-                            <span style={{ flexBasis: "0%", flexGrow: "1", background: debugColors ? "red" : undefined, whiteSpace: "nowrap" }}>
-                              <p style={{textAlign: "left" }}>
-                              <b>{vcard.list.main}</b>
-                              </p>
-                            </span>
-                            <span style={{ flexBasis: "90%", flexGrow: "1" , textAlign: "right", background: debugColors ? "green" : undefined, whiteSpace: "nowrap", textOverflow: "ellipsis", overflow: "hidden" }}>
-                              {vcard.list.upperright}
-                            </span>
-                          </div>
-                          <div style={{ position: "relative", bottom: "0px", textAlign: "left" }}>
-                            <span style={{ clear: "left", display: "block", background: debugColors ? "yellow": undefined, whiteSpace: "nowrap", textOverflow: "ellipsis", overflow: "hidden" }}>{vcard.list.subtitle}</span>
-                            <span style={{ float: "right", background: "blue" }}>{vcard.list.lowerright}</span>
-                          </div>
-                        </span>
-                        );
-    const lineBreak = (
-                        <span>
-                          <div style={{display: "flex", justifyContent: "space-between", flexWrap: "nowrap", gap: "10px", overflow: "hidden" }}>
-                            <span style={{ flexBasis: "0%", flexGrow: "1", background: debugColors ? "red": undefined, whiteSpace: "nowrap" }}>
-                              <p style={{textAlign: "left" }}>
-                              <b>{vcard.list.main}</b>
-                              </p>
-                            </span>
-                            <span style={{ flexBasis: "90%", flexGrow: "1" , textAlign: "right", background: debugColors ? "green" : undefined }}>
-                              {vcard.list.upperright}
-                            </span>
-                          </div>
-                          <div style={{ position: "relative", bottom: "0px", textAlign: "left" }}>
-                            <span style={{ clear: "left", display: "block", background: debugColors ? "yellow" :undefined }}>{vcard.list.subtitle}</span>
-                            <span style={{ float: "right", background: "blue" }}>{vcard.list.lowerright}</span>
-                          </div>
-                        </span>
-                      );
-    const marquee = (
-                        <span>
-                          <div style={{display: "flex", justifyContent: "space-between", flexWrap: "nowrap", gap: "10px", overflow: "hidden" }}>
-                          <span style={{ flexBasis: "0%", flexGrow: "1", background: debugColors ? "red" : undefined, whiteSpace: "nowrap" }}>
-                            <p style={{textAlign: "left" }}>
-                            <b>{vcard.list.main}</b>
-                            </p>
-                          </span>
-                          {/* <span style={{ flexBasis: "90%", flexGrow: "1" , textAlign: "right", background: "green", margin: "0 auto", whiteSpace: "nowrap", overflow: "hidden", boxSizing: "border-box"  }}>
+  const oneRowEllipse = (
+    <span>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          flexWrap: "nowrap",
+          gap: "10px",
+          overflow: "hidden",
+        }}
+      >
+        <span
+          style={{
+            flexBasis: "0%",
+            flexGrow: "1",
+            background: debugColors ? "red" : undefined,
+            whiteSpace: "nowrap",
+          }}
+        >
+          <p style={{ textAlign: "left" }}>
+            <b>{vcard.list.main}</b>
+          </p>
+        </span>
+        <span
+          style={{
+            flexBasis: "90%",
+            flexGrow: "1",
+            textAlign: "right",
+            background: debugColors ? "green" : undefined,
+            whiteSpace: "nowrap",
+            textOverflow: "ellipsis",
+            overflow: "hidden",
+          }}
+        >
+          {vcard.list.upperright}
+        </span>
+      </div>
+      <div style={{ position: "relative", bottom: "0px", textAlign: "left" }}>
+        <span
+          style={{
+            clear: "left",
+            display: "block",
+            background: debugColors ? "yellow" : undefined,
+            whiteSpace: "nowrap",
+            textOverflow: "ellipsis",
+            overflow: "hidden",
+          }}
+        >
+          {vcard.list.subtitle}
+        </span>
+        <span style={{ float: "right", background: debugColors ? "blue" : undefined }}>
+          {vcard.list.lowerright}
+        </span>
+      </div>
+    </span>
+  );
+  const lineBreak = (
+    <span>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          flexWrap: "nowrap",
+          gap: "10px",
+          overflow: "hidden",
+        }}
+      >
+        <span
+          style={{
+            flexBasis: "0%",
+            flexGrow: "1",
+            background: debugColors ? "red" : undefined,
+            whiteSpace: "nowrap",
+          }}
+        >
+          <p style={{ textAlign: "left" }}>
+            <b>{vcard.list.main}</b>
+          </p>
+        </span>
+        <span
+          style={{
+            flexBasis: "90%",
+            flexGrow: "1",
+            textAlign: "right",
+            background: debugColors ? "green" : undefined,
+          }}
+        >
+          {vcard.list.upperright}
+        </span>
+      </div>
+      <div style={{ position: "relative", bottom: "0px", textAlign: "left" }}>
+        <span
+          style={{
+            clear: "left",
+            display: "block",
+            background: debugColors ? "yellow" : undefined,
+          }}
+        >
+          {vcard.list.subtitle}
+        </span>
+        <span style={{ float: "right", background: debugColors ? "blue" : undefined }}>
+          {vcard.list.lowerright}
+        </span>
+      </div>
+    </span>
+  );
+  const marquee = (
+    <span>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          flexWrap: "nowrap",
+          gap: "10px",
+          overflow: "hidden",
+        }}
+      >
+        <span
+          style={{
+            flexBasis: "0%",
+            flexGrow: "1",
+            background: debugColors ? "red" : undefined,
+            whiteSpace: "nowrap",
+          }}
+        >
+          <p style={{ textAlign: "left" }}>
+            <b>{vcard.list.main}</b>
+          </p>
+        </span>
+        {/* <span style={{ flexBasis: "90%", flexGrow: "1" , textAlign: "right", background: "green", margin: "0 auto", whiteSpace: "nowrap", overflow: "hidden", boxSizing: "border-box"  }}>
                           <span style={{display: "inline-block", paddingLeft: "100%", animation: "marquee 15s linear infinite", webkitAnimation: "marquee 15s linear infinite"}}>{vcard.list.upperright}</span> */}
-                          <span class={(vcard.list.upperright && vcard.list.main && vcard.list.upperright.length > (27 - vcard.list.main.length) ? "marquee" : "")} style={{ flexBasis: "90%", flexGrow: "1" , textAlign: "right", background: "green", margin: "0 auto", whiteSpace: "nowrap", overflow: "hidden", boxSizing: "border-box"  }}>
-                            <span>{vcard.list.upperright}</span>
-                          </span>
-                        </div>
-                        <div style={{ position: "relative", bottom: "0px", textAlign: "left" }}>
-                          <span style={{ clear: "left", display: "block", background: debugColors ? "yellow" : undefined }}>{vcard.list.subtitle}</span>
-                          <span style={{ float: "right",  background: debugColors ? "blue" : undefined }}>{vcard.list.lowerright}</span>
-                        </div>
-                      </span>
-                      );
+        <span
+          class={
+            vcard.list.upperright &&
+            vcard.list.main &&
+            vcard.list.upperright.length > 27 - vcard.list.main.length
+              ? "marquee"
+              : ""
+          }
+          style={{
+            flexBasis: "90%",
+            flexGrow: "1",
+            textAlign: "right",
+            background: "green",
+            margin: "0 auto",
+            whiteSpace: "nowrap",
+            overflow: "hidden",
+            boxSizing: "border-box",
+          }}
+        >
+          <span>{vcard.list.upperright}</span>
+        </span>
+      </div>
+      <div style={{ position: "relative", bottom: "0px", textAlign: "left" }}>
+        <span
+          style={{
+            clear: "left",
+            display: "block",
+            background: debugColors ? "yellow" : undefined,
+          }}
+        >
+          {vcard.list.subtitle}
+        </span>
+        <span style={{ float: "right", background: debugColors ? "blue" : undefined }}>
+          {vcard.list.lowerright}
+        </span>
+      </div>
+    </span>
+  );
 
   return (
     <>
@@ -76,7 +190,6 @@ const SideBarListElement = ({ feature, selected }) => {
           dispatch(setSelectedFeature(feature));
         }}
       >
-        
         {!selected && oneRowEllipse}
         {selected && lineBreak}
         {/* {marquee} */}
