@@ -1,8 +1,9 @@
-import { faDownload, faSync, faTrash } from "@fortawesome/free-solid-svg-icons";
+import { faCheck, faDownload, faSync, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon as Icon } from "@fortawesome/react-fontawesome";
 import { useWindowSize } from "@react-hook/window-size";
-import React, { useEffect } from "react";
+import React, { useContext, useEffect } from "react";
 import Button from "react-bootstrap/Button";
+import { UIDispatchContext } from "react-cismap/contexts/UIContextProvider";
 import { useDispatch, useSelector } from "react-redux";
 import { getJWT, getLoginFromJWT } from "../../../core/store/slices/auth";
 import {
@@ -13,16 +14,21 @@ import {
   renewAllSecondaryInfoCache,
   renewCache,
   setCacheUser,
+  config,
 } from "../../../core/store/slices/cacheControl";
 import { forceRefresh } from "../../../core/store/slices/featureCollection";
+import { getTeam } from "../../../core/store/slices/team";
 import AggregatedCacheItem from "../../app/cache/AggregatedCacheItem";
 import CacheItem from "../../app/cache/CacheItem";
 
 const CacheSettings = () => {
   const dispatch = useDispatch();
   const cacheSettings = useSelector(getCacheSettings);
+  const selectedTeam = useSelector(getTeam);
   const cacheReady = useSelector(isCacheFullUsable);
   const cacheReadyRef = React.useRef();
+  const { setAppMenuActiveMenuSection } = useContext(UIDispatchContext);
+
   useEffect(() => {
     cacheReadyRef.current = cacheReady;
   }, [cacheReady]);
@@ -55,7 +61,6 @@ const CacheSettings = () => {
     .forEach((primaryKey) => {
       primarySettings.push(cacheSettings[primaryKey]);
     });
-
   return (
     <div style={{ marginBottom: 5 }}>
       <div>
@@ -63,6 +68,7 @@ const CacheSettings = () => {
           style={{ margin: 3 }}
           variant='outline-primary'
           size='sm'
+          disabled={selectedTeam?.id >= 0 ? false : true}
           onClick={() => {
             dispatch(renewAllSecondaryInfoCache(jwt));
             let index = 0;
@@ -87,10 +93,22 @@ const CacheSettings = () => {
         >
           <Icon icon={faDownload} /> Kompletten Cache neu füllen
         </Button>
+        {(selectedTeam?.id === undefined || selectedTeam?.id === -1) && (
+          <Button
+            style={{ margin: 3 }}
+            variant='outline-primary'
+            size='sm'
+            onClick={() => {
+              setAppMenuActiveMenuSection("teams");
+            }}
+          >
+            <Icon icon={faCheck} /> Vor dem Füllen des Cache bitte ein Team auswählen
+          </Button>
+        )}
 
-        <Button disabled style={{ margin: 3 }} variant='outline-success' size='sm'>
+        {/* <Button disabled style={{ margin: 3 }} variant='outline-success' size='sm'>
           <Icon icon={faSync} /> Nur neue Objekte laden
-        </Button>
+        </Button> */}
 
         <Button
           onClick={() => {
@@ -135,36 +153,20 @@ const CacheSettings = () => {
               letzte Aktualisierung
             </td>
           </tr>
-          {Object.keys(cacheSettings).map((key, index) => {
-            if (cacheSettings[key].primary === true) {
-              return (
-                <CacheItem
-                  key={"CacheItem." + index}
-                  control={cacheSettings[key]}
-                  renew={() => {
-                    console.log("renew");
+          {Object.keys(config).map((key, index) => {
+            return (
+              <CacheItem
+                key={"CacheItem." + index}
+                config={config[key]}
+                info={cacheSettings[key]}
+                renew={() => {
+                  console.log("renew");
 
-                    dispatch(renewCache(key, jwt));
-                  }}
-                />
-              );
-            }
+                  dispatch(renewCache(key, jwt));
+                }}
+              />
+            );
           })}
-          {/* <AggregatedCacheItem
-            controls={secondarySettings}
-            renew={(key) => {
-              dispatch(renewCache(key, jwt));
-            }}
-          /> */}
-
-          {/* <CacheItem
-								control={cacheSettings.mauerlasche}
-								renew={() => {
-									console.log('renew');
-
-									dispatch(renewCache('mauerlasche'));
-								}}
-							/> */}
         </tbody>
       </table>
     </div>

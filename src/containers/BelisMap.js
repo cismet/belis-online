@@ -286,7 +286,7 @@ const BelisMap = ({ refRoutedMap, width, height, jwt }) => {
       autoFitProcessedHandler={() => this.props.mappingActions.setAutoFit(false)}
       backgroundlayers={_backgroundLayers}
       urlSearchParams={urlSearchParams}
-      fullScreenControlEnabled={false}
+      fullScreenControlEnabled={true}
       locateControlEnabled={true}
       minZoom={11}
       maxZoom={22}

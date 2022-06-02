@@ -40,6 +40,8 @@ import {
   forceRefresh,
   loadTaskLists,
   MODES,
+  setMode,
+  setFeatureCollectionForMode,
 } from "../core/store/slices/featureCollection";
 
 import { getGazData, loadGazeteerEntries } from "../core/store/slices/gazetteerData";
@@ -67,6 +69,7 @@ import { filteredData } from "../core/queries/dev";
 import { fetchGraphQL } from "../core/commons/graphql";
 import queries from "../core/queries/online";
 import { fitBoundsForCollection } from "../core/store/slices/map";
+import localforage from "localforage";
 //---------
 
 const TopNavbar = ({ innerRef, refRoutedMap, setCacheSettingsVisible, jwt }) => {
@@ -124,7 +127,7 @@ const TopNavbar = ({ innerRef, refRoutedMap, setCacheSettingsVisible, jwt }) => 
         key={"navbar." + fcIsDone}
       >
         <Nav className='mr-auto'>
-          <Nav.Link>
+          {/* <Nav.Link>
             <div
               // onClick={() => {
               // 	window.location.reload();
@@ -145,7 +148,7 @@ const TopNavbar = ({ innerRef, refRoutedMap, setCacheSettingsVisible, jwt }) => 
               )}
               {fcIsDone === true && <div style={{ fontSize: 9 }}>{featureCollection.length}</div>}
             </div>
-          </Nav.Link>
+          </Nav.Link> */}
           <Nav.Link>
             <Switch
               disabled={searchForbidden}
@@ -227,13 +230,15 @@ const TopNavbar = ({ innerRef, refRoutedMap, setCacheSettingsVisible, jwt }) => 
           ({selectedTeam.name})
         </Nav>
 
-        <Nav.Link
-          onClick={() => {
-            dispatch(fitBoundsForCollection());
-          }}
-        >
-          <Icon icon={faVial} />
-        </Nav.Link>
+        {process.env.NODE_ENV !== "production" && (
+          <Nav.Link
+            onClick={() => {
+              localforage.clear();
+            }}
+          >
+            <Icon icon={faVial} />
+          </Nav.Link>
+        )}
         <Nav.Link
           onClick={() => {
             dispatch(
@@ -242,7 +247,9 @@ const TopNavbar = ({ innerRef, refRoutedMap, setCacheSettingsVisible, jwt }) => 
                 jwt,
                 done: () => {
                   setTimeout(() => {
+                    dispatch(setMode(MODES.TASKLISTS));
                     dispatch(fitBoundsForCollection());
+                    dispatch(setFeatureCollectionForMode(MODES.PROTOCOLS));
                   }, 400);
                 },
               })

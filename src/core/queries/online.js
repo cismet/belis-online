@@ -618,7 +618,7 @@ arbeitsauftrag(where: {id: {_eq: $aaId}}) {
           hersteller
           lichtfarbe
         }
-        fk_standort: tdta_standort_mast {
+        tdta_standort_mast {
           inbetriebnahme_mast
           letzte_aenderung
           id

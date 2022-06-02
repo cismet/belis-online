@@ -22,6 +22,7 @@ import photoLightboxSlice from "./slices/photoLightbox";
 import { createLogger } from "redux-logger";
 import { persistReducer } from "redux-persist";
 import localForage from "localforage";
+import { appKey, storagePostfix } from "../../Keys";
 
 console.log("store initializing ....");
 const devToolsEnabled =
@@ -30,14 +31,14 @@ console.log("devToolsEnabled:", devToolsEnabled);
 const stateLoggingEnabledFromSearch = new URLSearchParams(window.location.search).get(
   "stateLoggingEnabled"
 );
-const stateLoggingEnabled =
-  stateLoggingEnabledFromSearch !== null && stateLoggingEnabledFromSearch !== "false";
-
-console.log("stateLoggingEnabled:", stateLoggingEnabledFromSearch, "x", stateLoggingEnabled);
 
 const inProduction = process.env.NODE_ENV === "production";
 console.log("in Production Mode:", inProduction);
+const stateLoggingEnabled =
+  (stateLoggingEnabledFromSearch !== null && stateLoggingEnabledFromSearch !== "false") ||
+  !inProduction;
 
+console.log("stateLoggingEnabled:", stateLoggingEnabledFromSearch, "x", stateLoggingEnabled);
 const logger = createLogger({
   collapsed: true,
   // predicate, // if specified this function will be called before each action is processed with this middleware.
@@ -65,53 +66,53 @@ if (stateLoggingEnabled === true) {
 }
 
 const appStateConfig = {
-  key: "@belis.app.state",
+  key: "@" + appKey + "." + storagePostfix + ".app.state",
   storage: localForage,
   whitelist: ["connectionMode"],
 };
 const authConfig = {
-  key: "@belis.app.auth",
+  key: "@" + appKey + "." + storagePostfix + ".app.auth",
   storage: localForage,
   whitelist: ["jwt", "login"],
 };
 
 const featureCollectionConfig = {
-  key: "@belis.app.featureCollection",
+  key: "@" + appKey + "." + storagePostfix + ".app.featureCollection",
   storage: localForage,
   whitelist: ["filter", "inFocusMode"],
 };
 
 const searchConfig = {
-  key: "@belis.app.search",
+  key: "@" + appKey + "." + storagePostfix + ".app.search",
   storage: localForage,
   whitelist: ["active", "wished"],
 };
 
 const backgroundConfig = {
-  key: "@belis.app.background",
+  key: "@" + appKey + "." + storagePostfix + ".app.background",
   storage: localForage,
   whitelist: ["layer"],
 };
 
 const offlineActionDbConfig = {
-  key: "@belis.app.offlineActionDb",
+  key: "@" + appKey + "." + storagePostfix + ".app.offlineActionDb",
   storage: localForage,
   whitelist: ["intermediateResults"],
 };
 
 const paleModeConfig = {
-  key: "@belis.app.paleMode",
+  key: "@" + appKey + "." + storagePostfix + ".app.paleMode",
   storage: localForage,
   whitelist: ["mode"],
 };
 
 const cacheControlConfig = {
-  key: "@belis.app.cacheControl.v2",
+  key: "@" + appKey + "." + storagePostfix + ".app.cacheControl.v2",
   storage: localForage,
 };
 
 const teamConfig = {
-  key: "@belis.app.team",
+  key: "@" + appKey + "." + storagePostfix + ".app.team",
   storage: localForage,
   whitelist: ["selectedTeam"],
 };

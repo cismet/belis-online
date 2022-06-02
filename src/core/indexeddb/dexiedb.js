@@ -1,7 +1,7 @@
 // db.js
 import Dexie from "dexie";
 
-const DBVERSION = 16;
+const DBVERSION = 17;
 const DBNAME = "Belis3";
 
 export const initialize = (db) => {
@@ -16,6 +16,7 @@ export const initialize = (db) => {
     schaltstelle: "id",
     abzweigdose: "id",
     team: "id",
+    arbeitsauftrag: "id",
 
     // anlagengruppe: 'id',
     // arbeitsprotokollstatus: 'id',

@@ -17,47 +17,60 @@ const keys = [];
 //   queryKey: "all_tdta_standort_mast",
 //   dataKey: "tdta_standort_mast",
 // });
-keys.push({ primary: true, name: "Leuchten", queryKey: "tdta_leuchten" });
-keys.push({ primary: true, name: "Masten (ohne Leuchten)", queryKey: "tdta_standort_mast" });
-keys.push({ primary: true, name: "Punktindex", queryKey: "raw_point_index" });
-keys.push({ primary: true, name: "Leitungen", queryKey: "leitung" });
-keys.push({ primary: true, name: "Mauerlaschen", queryKey: "mauerlasche" });
-keys.push({ primary: true, name: "Schaltstellen", queryKey: "schaltstelle" });
-keys.push({ primary: true, name: "Abzweigdosen", queryKey: "abzweigdose" });
-keys.push({ primary: true, name: "Teams", queryKey: "team" });
-// keys.push({ primary: true, name: "Straßen", queryKey: "tkey_strassenschluessel" });
-
-// keys.push({ name: "Anlagengruppen", queryKey: "anlagengruppe" });
-// keys.push({ name: "Arbeitsprotokollstati", queryKey: "arbeitsprotokollstatus" });
-// keys.push({ name: "Bauarten", queryKey: "bauart" });
-// keys.push({ name: "Leitungstypen", queryKey: "leitungstyp" });
-// keys.push({ name: "Leuchtmittel", queryKey: "leuchtmittel" });
-// keys.push({ name: "Materialien (Leitungen)", queryKey: "material_leitung" });
-// keys.push({ name: "Materialien (Mauerlaschen)", queryKey: "material_mauerlasche" });
-// keys.push({ name: "Querschnitte", queryKey: "querschnitt" });
-// keys.push({ primary: true, name: "Teams", queryKey: "team" });
-
-// keys.push({ name: "Teams", queryKey: "team" });
-// keys.push({ name: "Bezirke", queryKey: "tkey_bezirk" });
-// keys.push({ name: "Doppelkommandos", queryKey: "tkey_doppelkommando" });
-// keys.push({ name: "Energielieferanten", queryKey: "tkey_energielieferant" });
-// keys.push({ name: "Kennziffern", queryKey: "tkey_kennziffer" });
-// keys.push({ name: "Klassifizierungen", queryKey: "tkey_klassifizierung" });
-// keys.push({ name: "Mastarten", queryKey: "tkey_mastart" });
-// keys.push({ name: "Unterhaltung (Leuchten)", queryKey: "tkey_unterh_leuchte" });
-// keys.push({ name: "Unterhaltung (Masten)", queryKey: "tkey_unterh_mast" });
-// keys.push({ name: "Veranlassungsarten", queryKey: "veranlassungsart" });
-// keys.push({ name: "Rundsteuerempfänger", queryKey: "rundsteuerempfaenger" });
-// keys.push({ name: "Leuchtentypen", queryKey: "tkey_leuchtentyp" });
-// keys.push({ name: "Masttypen", queryKey: "tkey_masttyp" });
-
-// keys.push({ name:"", queryKey: 'infobaustein' });
-
-// keys.push({ name:"", queryKey: 'arbeitsprotokollaktion' });
-// keys.push({ name:"", queryKey: 'infobaustein_temgstplate' });
-// keys.push({ name:"", queryKey: 'arbeitsauftrag' });
-// keys.push({ name:"", queryKey: 'arbeitsprotokoll' });
-// keys.push({ name:"", queryKey: 'veranlassung' });
+keys.push({
+  primary: true,
+  name: "Leuchten",
+  queryKey: "tdta_leuchten",
+  parameterFactory: () => ({}),
+});
+keys.push({
+  primary: true,
+  name: "Masten (ohne Leuchten)",
+  queryKey: "tdta_standort_mast",
+  parameterFactory: () => ({}),
+});
+keys.push({
+  primary: true,
+  name: "Punktindex",
+  queryKey: "raw_point_index",
+  parameterFactory: () => ({}),
+});
+keys.push({
+  primary: true,
+  name: "Leitungen",
+  queryKey: "leitung",
+  parameterFactory: () => ({}),
+});
+keys.push({
+  primary: true,
+  name: "Mauerlaschen",
+  queryKey: "mauerlasche",
+  parameterFactory: () => ({}),
+});
+keys.push({
+  primary: true,
+  name: "Schaltstellen",
+  queryKey: "schaltstelle",
+  parameterFactory: () => ({}),
+});
+keys.push({
+  primary: true,
+  name: "Abzweigdosen",
+  queryKey: "abzweigdose",
+  parameterFactory: () => ({}),
+});
+keys.push({
+  primary: true,
+  name: "Teams",
+  queryKey: "team",
+  parameterFactory: () => ({}),
+});
+keys.push({
+  primary: true,
+  getName: (selectedTeam) => "Arbeitsaufträge (" + selectedTeam.name + ")",
+  queryKey: "arbeitsauftrag",
+  parameterFactory: (state) => ({ teamId: state.team.selectedTeam.id }),
+});
 
 const objectStoreDefaultState = {
   loadingState: undefined, //"loading", "caching","cached", "problem"
@@ -67,6 +80,7 @@ const objectStoreDefaultState = {
   cachingProgress: -1, //# of objects added to cache
 };
 const initialTypeStateIfNotInLocalStorage = {};
+const configx = {};
 for (const key of keys) {
   initialTypeStateIfNotInLocalStorage[key.queryKey] = JSON.parse(
     JSON.stringify(objectStoreDefaultState)
@@ -75,7 +89,12 @@ for (const key of keys) {
   initialTypeStateIfNotInLocalStorage[key.queryKey].dataKey = key.dataKey;
   initialTypeStateIfNotInLocalStorage[key.queryKey].key = key.queryKey;
   initialTypeStateIfNotInLocalStorage[key.queryKey].name = key.name || key.queryKey;
+  configx[key.queryKey] = key;
 }
+
+console.log("config0", configx);
+
+export const config = configx;
 const initialState = {
   types: initialTypeStateIfNotInLocalStorage,
   user: undefined,
@@ -262,13 +281,18 @@ export const renewAllPrimaryInfoCache = (jwt) => {
   };
 };
 
-export const renewCache = (key, jwt) => {
-  console.log("xxx " + key, jwt);
-
+export const renewCache = (
+  key,
+  jwt,
+  overridingStateForParameterFactory,
+  successHook = () => {},
+  errorHook = () => {}
+) => {
   if (key === undefined || jwt === undefined) {
     console.error("renewCache: either key or jwt is undefined. This must be an error.");
   }
   return async (dispatch, getState) => {
+    const stateForParameterFactory = overridingStateForParameterFactory || getState();
     const state = getState();
     const cfg = getCacheInfo(key)(state);
 
@@ -286,17 +310,29 @@ export const renewCache = (key, jwt) => {
     };
     dexieW.addEventListener("message", progressListener);
     console.log("cacheQueries[" + itemKey + "]", { gql: cacheQueries[itemKey] });
+    if (itemKey === "arbeitsauftrag") {
+      console.log(
+        "cacheControl.config[itemKey]",
+        config[itemKey].parameterFactory(stateForParameterFactory)
+      );
+    }
 
-    fetchGraphQL(cacheQueries[itemKey], {}, jwt)
+    fetchGraphQL(
+      cacheQueries[itemKey],
+      config[itemKey].parameterFactory(stateForParameterFactory),
+      jwt
+    )
       .then((result) => {
         // console.log(itemKey + " returned with " + result.data[dataKey].length + " results");
+        // console.log(itemKey + " returned with ", result.data[dataKey]);
         dispatch(setLoadingState({ key, loadingState: "caching" }));
         dispatch(setObjectCount({ key, objectCount: result.data[dataKey].length }));
         dispatch(setUpdateCount({ key, updateCount: result.data[dataKey].length }));
         //async block
         (async () => {
           //put the data in the indexedDB
-          const y = await dexieW.putArray(result.data[dataKey], itemKey);
+          await dexieW.clear(itemKey);
+          await dexieW.putArray(result.data[dataKey], itemKey);
 
           //reset loadingState in 1 minute
           const resetTimer = setTimeout(() => {
@@ -318,6 +354,7 @@ export const renewCache = (key, jwt) => {
             //to use the new data for the geometry search
             dispatch(initIndex(() => {}));
           }
+          successHook();
         })();
         // }
       })
@@ -327,6 +364,7 @@ export const renewCache = (key, jwt) => {
         const resetTimer = setTimeout(() => {
           dispatch(setLoadingState({ key, resetTimer, loadingState: undefined }));
         }, 30000);
+        errorHook(error);
       });
   };
 };

@@ -77,6 +77,14 @@ export async function getAll(objectStore) {
   }
 }
 
+export async function clear(objectStore) {
+  try {
+    await db[objectStore].clear();
+  } catch (err) {
+    console.log("worker error", err);
+  }
+}
+
 export async function get(id, objectStore) {
   try {
     return await db[objectStore].get(id);

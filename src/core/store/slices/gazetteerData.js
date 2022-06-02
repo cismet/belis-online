@@ -2,6 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 
 import { getGazDataForTopicIds } from "react-cismap/tools/gazetteerHelper";
 import { md5FetchText } from "react-cismap/tools/fetching";
+import { appKey, storagePostfix } from "../../../Keys";
 
 export const gazetteerHost = "https://wupp-topicmaps-data.cismet.de/";
 const topics = ["pois", "kitas", "bezirke", "quartiere", "adressen"];
@@ -20,7 +21,7 @@ const slice = createSlice({
 
 export const loadGazeteerEntries = () => {
   return async (dispatch, getState) => {
-    const prefix = "GazDataForStories";
+    const prefix = appKey + "." + storagePostfix;
     const sources = {};
 
     sources.adressen = await md5FetchText(prefix, gazetteerHost + "/data/3857/adressen.json");

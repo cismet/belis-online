@@ -9,6 +9,7 @@ import {
   getFeatureCollectionMode,
   getSelectedFeature,
   isDone,
+  loadTaskLists,
   MODES,
   setDone,
 } from "../core/store/slices/featureCollection";
@@ -39,6 +40,7 @@ import TopicMapContextProvider from "react-cismap/contexts/TopicMapContextProvid
 import { defaultLayerConf } from "react-cismap/tools/layerFactory";
 import { storeJWT } from "../core/store/slices/auth";
 import { tasklistPostSelection } from "../core/store/slices/featureCollectionSubslices/tasklists";
+import { getTeam } from "../core/store/slices/team";
 //---
 
 const View = () => {
@@ -55,6 +57,7 @@ const View = () => {
   let sizeL = useComponentSize(refLowerToolbar);
   let refSideBar = useRef(null);
   let sizeSide = useComponentSize(refSideBar);
+  const selectedTeam = useSelector(getTeam);
 
   const storedJWT = useSelector(getJWT);
 
@@ -97,14 +100,26 @@ const View = () => {
   }, [refApp]);
 
   //Selection management
-  const featureSelectionMode = useSelector(getFeatureCollectionMode);
+  const featureCollectionMode = useSelector(getFeatureCollectionMode);
   const selectedFeature = useSelector(getSelectedFeature);
 
   useEffect(() => {
-    if (featureSelectionMode === MODES.TASKLISTS && selectedFeature) {
+    if (featureCollectionMode === MODES.TASKLISTS && selectedFeature) {
       dispatch(tasklistPostSelection(selectedFeature, storedJWT));
     }
-  }, [featureSelectionMode, selectedFeature, dispatch]);
+  }, [featureCollectionMode, selectedFeature, storedJWT, dispatch]);
+
+  useEffect(() => {
+    if (selectedTeam && storedJWT) {
+      dispatch(
+        loadTaskLists({
+          team: selectedTeam,
+          jwt: storedJWT,
+          done: () => {},
+        })
+      );
+    }
+  }, [selectedTeam, storedJWT, dispatch]);
 
   const { setAppMenuActiveMenuSection, setAppMenuVisible } = useContext(UIDispatchContext);
 
