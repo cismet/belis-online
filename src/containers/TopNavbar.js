@@ -69,6 +69,7 @@ import { filteredData } from "../core/queries/dev";
 import { fetchGraphQL } from "../core/commons/graphql";
 import queries from "../core/queries/online";
 import { fitBoundsForCollection } from "../core/store/slices/map";
+import localforage from "localforage";
 //---------
 
 const TopNavbar = ({ innerRef, refRoutedMap, setCacheSettingsVisible, jwt }) => {
@@ -229,13 +230,15 @@ const TopNavbar = ({ innerRef, refRoutedMap, setCacheSettingsVisible, jwt }) => 
           ({selectedTeam.name})
         </Nav>
 
-        <Nav.Link
-          onClick={() => {
-            dispatch(fitBoundsForCollection());
-          }}
-        >
-          <Icon icon={faVial} />
-        </Nav.Link>
+        {process.env.NODE_ENV !== "production" && (
+          <Nav.Link
+            onClick={() => {
+              localforage.clear();
+            }}
+          >
+            <Icon icon={faVial} />
+          </Nav.Link>
+        )}
         <Nav.Link
           onClick={() => {
             dispatch(
