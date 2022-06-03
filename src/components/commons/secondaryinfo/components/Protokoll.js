@@ -1,6 +1,6 @@
 import { Descriptions } from "antd";
 import { getVCard } from "../../../../core/helper/featureHelper";
-import { geomFactories } from "../../../../core/queries/full";
+import { geomFactories } from "../../../../core/queries/online";
 import { createFeatureFromData } from "../../../../core/store/slices/featureCollectionSubslices/objects";
 import SecondaryInfoPanelSection from "../SecondaryInfoPanelSection";
 import { clearOptionalDescriptionItems, getDate, getTimelineForActions } from "./helper";
