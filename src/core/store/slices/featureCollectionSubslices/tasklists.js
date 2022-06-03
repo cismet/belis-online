@@ -46,7 +46,7 @@ export const loadTaskListsIntoFeatureCollection = ({
       try {
         let features = [];
         if (onlineDataForcing || connectionMode === CONNECTIONMODE.ONLINE) {
-          const gqlQuery = `query q($teamId: Int) {${queries.arbeitsauftraegexx}}`;
+          const gqlQuery = `query q($teamId: Int) {${queries.arbeitsauftraege_by_team_only_protocolgeoms}}`;
 
           const queryParameter = { teamId: team.id };
           console.time("xxx query returned");

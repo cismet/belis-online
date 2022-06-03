@@ -48,7 +48,7 @@ export const loadProtocollsIntoFeatureCollection = ({
 
       console.log("Protokolle für Arbeitsauftrag " + tasklistFeature.properties.id + " laden");
 
-      const gqlQuery = `query q($aaId: Int) {${queries.singleArbeitsauftragFull}}`;
+      const gqlQuery = `query q($aaId: Int) {${queries.full_arbeitsauftrag_by_id}}`;
 
       const queryParameter = { aaId: tasklistFeature.properties.id };
 
