@@ -1,6 +1,6 @@
-import cacheQueries from "./cache";
+// import cacheQueries from "./cache";
 
-const queries = JSON.parse(JSON.stringify(cacheQueries));
+const queries = {}; //JSON.parse(JSON.stringify(cacheQueries));
 
 queries.abzweigdose = `{
 abzweigdose {
@@ -519,6 +519,7 @@ queries.arbeitsauftrag = `query q($teamId: Int!) {
   zugewiesen_an
   team {
     id
+    name
   }
   ar_protokolleArray {
     arbeitsprotokoll {
@@ -547,6 +548,12 @@ queries.arbeitsauftrag = `query q($teamId: Int!) {
       arbeitsprotokollstatus {
         bezeichnung
         schluessel
+      }
+      arbeitsprotokollaktionArray {
+        aenderung
+        alt
+        id
+        neu
       }
       geometrie {
         bezeichnung

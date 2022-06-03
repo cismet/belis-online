@@ -389,6 +389,7 @@ queries.arbeitsauftraegexx = `
     zugewiesen_an
     team {
       id
+      name
     }
      ar_protokolleArray {
       arbeitsprotokoll {
@@ -405,6 +406,7 @@ queries.arbeitsauftraegexx = `
           bezeichnung
           schluessel
         }
+
         geometrie {
           geom {
             geo_field
@@ -461,6 +463,7 @@ arbeitsauftrag(where: {id: {_eq: $aaId}}) {
   zugewiesen_an
   team {
     id
+    name
   }
   ar_protokolleArray {
     arbeitsprotokoll {
@@ -489,6 +492,12 @@ arbeitsauftrag(where: {id: {_eq: $aaId}}) {
       arbeitsprotokollstatus {
         bezeichnung
         schluessel
+      }
+      arbeitsprotokollaktionArray {
+        aenderung
+        alt
+        id
+        neu
       }
       geometrie {
         bezeichnung

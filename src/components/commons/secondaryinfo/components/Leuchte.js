@@ -181,20 +181,24 @@ const getLayout4Leuchte = ({ feature, jwt, dispatch, setIndex, setVisible }) => 
   );
 
   const leuchtmittelItem = item?.leuchtmittel;
+  if (leuchtmittelItem) {
+    const leuchtMittelItems = [
+      <Descriptions.Item label='Typ'>{leuchtmittelItem?.hersteller}</Descriptions.Item>,
+      <Descriptions.Item label='Lichtfarbe'>{leuchtmittelItem?.lichtfarbe}</Descriptions.Item>,
+    ];
 
-  const leuchtMittelItems = [
-    <Descriptions.Item label='Typ'>{leuchtmittelItem?.hersteller}</Descriptions.Item>,
-    <Descriptions.Item label='Lichtfarbe'>{leuchtmittelItem?.lichtfarbe}</Descriptions.Item>,
-  ];
-
-  subSections.push(
-    <SecondaryInfoPanelSection key={"Leuchtentyp" + item.id} bsStyle='info' header={"Leuchtmittel"}>
-      <Descriptions column={{ xs: 1, sm: 1, md: 2, lg: 2, xxl: 3 }} layout='horizontal' bordered>
-        {clearOptionalDescriptionItems(leuchtMittelItems)}
-      </Descriptions>
-    </SecondaryInfoPanelSection>
-  );
-
+    subSections.push(
+      <SecondaryInfoPanelSection
+        key={"Leuchtentyp" + item.id}
+        bsStyle='info'
+        header={"Leuchtmittel"}
+      >
+        <Descriptions column={{ xs: 1, sm: 1, md: 2, lg: 2, xxl: 3 }} layout='horizontal' bordered>
+          {clearOptionalDescriptionItems(leuchtMittelItems)}
+        </Descriptions>
+      </SecondaryInfoPanelSection>
+    );
+  }
   const leuchtTypItem = item?.fk_leuchttyp;
 
   const leuchtTypItems = [

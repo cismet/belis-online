@@ -180,7 +180,7 @@ export const InfoPanelComponent = ({ selectedFeature, dispatch }) => {
         rawDataDesc += "des Arbeitsauftrages";
 
         break;
-      case "protokoll":
+      case "arbeitsprotokoll":
         ({ subSections, mainSection, title } = getLayout4Protokoll({
           feature: hit,
           jwt,
@@ -193,6 +193,7 @@ export const InfoPanelComponent = ({ selectedFeature, dispatch }) => {
 
         break;
       default:
+        console.log("unbekannter featuretype: " + hit.featuretype);
     }
 
     if (showRawData || showRawDataFromUrl === "" || process.env.NODE_ENV !== "production") {
@@ -201,6 +202,23 @@ export const InfoPanelComponent = ({ selectedFeature, dispatch }) => {
 
       delete hitForRawDisplay.geojson;
       delete hitForRawDisplay.full_tdta_standort_mast;
+      delete hitForRawDisplay.geometrie;
+      delete hitForRawDisplay.fachobjekt;
+      if (hitForRawDisplay.leitung) {
+        delete hitForRawDisplay.leitung.geom;
+      }
+      if (hitForRawDisplay.mauerlasche) {
+        delete hitForRawDisplay.mauerlasche.geom;
+      }
+      if (hitForRawDisplay.schaltstelle) {
+        delete hitForRawDisplay.schaltstelle.geom;
+      }
+      if (hitForRawDisplay.abzweigdose) {
+        delete hitForRawDisplay.abzweigdose.geom;
+      }
+      if (hitForRawDisplay.tdta_standort_mast) {
+        delete hitForRawDisplay.tdta_standort_mast.geom;
+      }
 
       for (const doc of hitForRawDisplay.docs || []) {
         if (doc.intermediate) {
@@ -210,7 +228,12 @@ export const InfoPanelComponent = ({ selectedFeature, dispatch }) => {
       }
 
       subSections.push(
-        <SecondaryInfoPanelSection key='standort' bsStyle='light' header={rawDataDesc}>
+        <SecondaryInfoPanelSection
+          key='standort'
+          bsStyle='light'
+          header={rawDataDesc}
+          collapsedOnStart={true}
+        >
           <div style={{ fontSize: "115%", padding: "10px", paddingTop: "0px" }}>
             <pre key='hitObject'>{JSON.stringify(hitForRawDisplay, null, 2)}</pre>
             {/* <pre key='hits'>{JSON.stringify(hitsForRawDisplay, null, 2)}</pre> */}

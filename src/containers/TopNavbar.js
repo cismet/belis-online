@@ -65,7 +65,6 @@ import { getLoginFromJWT, storeJWT, storeLogin } from "../core/store/slices/auth
 import { useWindowSize } from "@react-hook/window-size";
 import { getDB as getOfflineActionDB } from "../core/store/slices/offlineActionDb";
 import { NavItem } from "react-bootstrap";
-import { filteredData } from "../core/queries/dev";
 import { fetchGraphQL } from "../core/commons/graphql";
 import queries from "../core/queries/online";
 import { fitBoundsForCollection } from "../core/store/slices/map";
