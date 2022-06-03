@@ -118,8 +118,8 @@ const geometryFactory = (arbeitsauftrag) => {
     if (prot?.geometrie?.geom?.geo_field) {
       geoms.push(createGeomOnlyFeature(prot?.geometrie?.geom?.geo_field));
     }
-    if (prot?.tdta_leuchten?.tdta_standort_mast?.geom?.geo_field) {
-      geoms.push(createGeomOnlyFeature(prot.tdta_leuchten.tdta_standort_mast.geom?.geo_field));
+    if (prot?.tdta_leuchten?.fk_standort?.geom?.geo_field) {
+      geoms.push(createGeomOnlyFeature(prot.tdta_leuchten.fk_standort.geom?.geo_field));
     }
     if (prot?.tdta_standort_mast?.geom?.geo_field) {
       geoms.push(createGeomOnlyFeature(prot.tdta_standort_mast.geom?.geo_field));

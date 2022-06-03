@@ -122,8 +122,8 @@ const geometryFactory = (prot) => {
   if (prot?.geometrie?.geom?.geo_field) {
     return prot?.geometrie?.geom?.geo_field;
   }
-  if (prot?.tdta_leuchten?.tdta_standort_mast?.geom?.geo_field) {
-    return prot.tdta_leuchten.tdta_standort_mast.geom?.geo_field;
+  if (prot?.tdta_leuchten?.fk_standort?.geom?.geo_field) {
+    return prot.tdta_leuchten.fk_standort.geom?.geo_field;
   }
   if (prot?.tdta_standort_mast?.geom?.geo_field) {
     return prot.tdta_standort_mast.geom?.geo_field;

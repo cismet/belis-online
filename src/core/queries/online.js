@@ -105,7 +105,7 @@ queries.arbeitsauftraege_by_team_only_protocolgeoms = `
           }
         } 
         tdta_leuchten {
-          tdta_standort_mast {
+          fk_standort: tdta_standort_mast {
             geom {
               geo_field
             }
