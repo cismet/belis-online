@@ -2,7 +2,7 @@ import { db } from "../indexeddb/dexiedb";
 import length from "@turf/length";
 import proj4 from "proj4";
 
-const calcLength = (geom) => {
+export const calcLength = (geom) => {
   let newCoords = [];
   const proj4crs25832def = "+proj=utm +zone=32 +ellps=GRS80 +units=m +no_defs";
   const targetCrs = proj4.defs("EPSG:4326");
@@ -263,9 +263,18 @@ const addDokumenteArrayOfDmsUrls = (docs, dArray, caption) => {
   }
 };
 export const getDocs = (feature) => {
-  const item = feature.properties;
   const docs = [];
-  switch (feature.featuretype) {
+
+  let type, item;
+  if (feature.featuretype === "arbeitsprotokoll") {
+    type = feature.fachobjekttype;
+    item = feature.properties.fachobjekt;
+  } else {
+    type = feature.featuretype;
+    item = feature.properties;
+  }
+
+  switch (type) {
     case "tdta_leuchten":
       addDokumenteArrayOfDmsUrls(docs, item?.dokumenteArray, "Leuchte");
       addDokumenteArrayOfDmsUrls(docs, item?.fk_standort?.dokumenteArray, "Standort");
