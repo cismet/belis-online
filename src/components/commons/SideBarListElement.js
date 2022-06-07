@@ -11,7 +11,7 @@ const SideBarListElement = ({ feature, selected }) => {
   // const selectedFeature = useSelector(getSelectedFeature);
   let vcard = getVCard(feature);
   const style = selected ? { background: "lightgray" } : {};
-  const debugColors = true;
+  const debugColors = false;
   const oneRowEllipse = (
     <span>
       <div
