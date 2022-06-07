@@ -199,3 +199,5 @@ arbeitsauftrag(where: {id: {_eq: $aaId}}) {
 
 `;
 export default queries;
+
+geomFactories.geometrie = defaultGeomFactory;
