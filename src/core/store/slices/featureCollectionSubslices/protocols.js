@@ -115,7 +115,8 @@ const getFeaturesForProtokollArray = (protokollArray) => {
     };
     features.push(feature);
   }
-  return features;
+
+  return features.sort((a, b) => a.properties.protokollnummer - b.properties.protokollnummer);
 };
 
 const geometryFactory = (prot) => {
