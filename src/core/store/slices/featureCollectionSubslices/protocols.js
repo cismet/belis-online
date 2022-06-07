@@ -25,7 +25,7 @@ import convex from "@turf/convex";
 import buffer from "@turf/buffer";
 import reproject from "reproject";
 import { projectionData } from "react-cismap/constants/gis";
-import { getFachobjektOfProtocol } from "../../../helper/featureHelper";
+import { getDocs, getFachobjektOfProtocol } from "../../../helper/featureHelper";
 import { CONNECTIONMODE, getConnectionMode } from "../app";
 
 //this function doesnt check if the app is in online or offline mode
