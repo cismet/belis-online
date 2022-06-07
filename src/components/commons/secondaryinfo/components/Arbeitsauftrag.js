@@ -1,6 +1,13 @@
 import { getVCard } from "../../../../core/helper/featureHelper";
 
-const getLayout4Arbeitsauftrag = ({ feature, jwt, dispatch, setIndex, setVisible }) => {
+const getLayout4Arbeitsauftrag = ({
+  feature,
+  jwt,
+  dispatch,
+  setIndex,
+  setVisible,
+  showAddPhotoAction = true,
+}) => {
   const vcard = getVCard(feature);
   const item = feature.properties;
   const title = vcard.infobox.header;
