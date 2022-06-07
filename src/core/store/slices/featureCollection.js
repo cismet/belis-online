@@ -82,6 +82,15 @@ const featureCollectionSlice = createSlice({
       state.info[mode] = info;
     },
 
+    updateFeatureForMode: (state, action) => {
+      const { mode, feature } = action.payload;
+      const index = state.featuresMap[mode][feature.id];
+      state.features[mode][index] = feature;
+      if (feature.selected) {
+        state.selectedFeature[mode] = feature;
+      }
+    },
+
     setDoneForMode: (state, action) => {
       const { mode, done } = action.payload;
       state.done[mode] = done;
@@ -146,6 +155,7 @@ const featureCollectionSlice = createSlice({
 export const {
   setFeatureCollectionForMode,
   setFeatureCollectionInfoForMode,
+  updateFeatureForMode,
   setDoneForMode,
   setBoundingBox,
   setFilter,
