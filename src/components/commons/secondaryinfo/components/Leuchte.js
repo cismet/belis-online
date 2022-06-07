@@ -78,7 +78,7 @@ const getLayout4Leuchte = ({ feature, jwt, dispatch, setIndex, setVisible }) => 
         />
       )}
       <div>
-        <h1>{vcard.infobox.title}</h1>
+        <h2>{vcard.infobox.title}</h2>
       </div>
       <div>Kennziffer {item?.fk_kennziffer?.kennziffer}</div>
       <div>
