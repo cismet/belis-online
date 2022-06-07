@@ -20,7 +20,14 @@ export const getEventsForMauerlasche = (item) => {
 
   return events;
 };
-const getLayout4Mauerlasche = ({ feature, jwt, dispatch, setVisible, setIndex }) => {
+const getLayout4Mauerlasche = ({
+  feature,
+  jwt,
+  dispatch,
+  setVisible,
+  setIndex,
+  showAddPhotoAction = true,
+}) => {
   const item = feature.properties;
   const subSections = [];
   const vcard = getVCard(feature);
@@ -60,7 +67,7 @@ const getLayout4Mauerlasche = ({ feature, jwt, dispatch, setVisible, setIndex })
         />
       )}
       <div>
-        <h1>{vcard.infobox.title}</h1>
+        <h2>{vcard.infobox.title}</h2>
       </div>
       <div>
         <b>Standort:</b>
@@ -111,7 +118,9 @@ const getLayout4Mauerlasche = ({ feature, jwt, dispatch, setVisible, setIndex })
           paddingBottom: "5px",
         }}
       >
-        {getAddImageButton(dispatch, item, "mauerlasche", feature.geometry)}
+        {showAddPhotoAction &&
+          showAddPhotoAction &&
+          getAddImageButton(dispatch, item, "mauerlasche", feature.geometry)}
       </div>
     </div>
   );

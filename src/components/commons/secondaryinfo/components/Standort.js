@@ -27,7 +27,14 @@ export const getEventsForStandort = (item) => {
   return events;
 };
 
-const getLayout4Standort = ({ feature, jwt, dispatch, setVisible, setIndex }) => {
+const getLayout4Standort = ({
+  feature,
+  jwt,
+  dispatch,
+  setVisible,
+  setIndex,
+  showAddPhotoAction = true,
+}) => {
   const item = feature.properties;
   // const item = mastOhneLeuchte;
 
@@ -70,7 +77,7 @@ const getLayout4Standort = ({ feature, jwt, dispatch, setVisible, setIndex }) =>
       )}
 
       <div>
-        <h1>{vcard.infobox.title}</h1>
+        <h2>{vcard.infobox.title}</h2>
       </div>
       <div>Kennziffer {item?.fk_kennziffer?.kennziffer}</div>
       <div>
@@ -100,7 +107,7 @@ const getLayout4Standort = ({ feature, jwt, dispatch, setVisible, setIndex }) =>
       key={"mast" + item?.fk_standort?.id}
       bsStyle='warning'
       header={"Mast"}
-      extra={getAddImageButton(dispatch, item, "tdta_standort_mast", feature.geometry)}
+      extra={showAddPhotoAction && (dispatch, item, "tdta_standort_mast", feature.geometry)}
     >
       <Row>
         <Col span={12}>

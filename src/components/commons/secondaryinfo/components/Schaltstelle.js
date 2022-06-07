@@ -21,7 +21,14 @@ export const getEventsForSchaltstelle = (item) => {
 
   return events;
 };
-const getLayout4Schaltstelle = ({ feature, jwt, dispatch, setIndex, setVisible }) => {
+const getLayout4Schaltstelle = ({
+  feature,
+  jwt,
+  dispatch,
+  setIndex,
+  setVisible,
+  showAddPhotoAction = true,
+}) => {
   const item = feature.properties;
   const subSections = [];
   const vcard = getVCard(feature);
@@ -98,7 +105,7 @@ const getLayout4Schaltstelle = ({ feature, jwt, dispatch, setIndex, setVisible }
           paddingBottom: "5px",
         }}
       >
-        {getAddImageButton(dispatch, item, "schaltstelle", feature.geometry)}
+        {showAddPhotoAction && getAddImageButton(dispatch, item, "schaltstelle", feature.geometry)}
       </div>
     </div>
   );

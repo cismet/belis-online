@@ -1,13 +1,27 @@
 import { Descriptions } from "antd";
+import { useContext } from "react";
+import { LightBoxContext } from "react-cismap/contexts/LightBoxContextProvider";
 import { getVCard } from "../../../../core/helper/featureHelper";
 import { geomFactories } from "../../../../core/queries/online";
 import { createFeatureFromData } from "../../../../core/store/slices/featureCollectionSubslices/objects";
 import SecondaryInfoPanelSection from "../SecondaryInfoPanelSection";
+import getLayout4Abzweigdose from "./Abzweigdose4Prot";
+import getLayout4FreieGeometrie from "./FreieGeometrie4Prot";
 import { clearOptionalDescriptionItems, getDate, getTimelineForActions } from "./helper";
+import getLayout4Leitung from "./Leitung";
 import getLayout4Leuchte from "./Leuchte";
+import getLayout4Mauerlasche from "./Mauerlasche";
+import getLayout4Schaltstelle from "./Schaltstelle";
 import getLayout4Standort from "./Standort";
 
-const getLayout4Protokoll = ({ feature, jwt, dispatch, setIndex, setVisible }) => {
+const getLayout4Protokoll = ({
+  feature,
+  jwt,
+  dispatch,
+  setIndex,
+  setVisible,
+  showAddPhotoAction = true,
+}) => {
   const vcard = getVCard(feature);
   const item = feature.properties;
 
@@ -108,17 +122,17 @@ const getLayout4Protokoll = ({ feature, jwt, dispatch, setIndex, setVisible }) =
     fachobjektTyp = "Leitung";
     fachobjekt = item.leitung;
     fachobjektFeaturetype = "leitung";
-    //layouter = getLayout4Leitung;
+    layouter = getLayout4Leitung;
   } else if (item.schaltstelle) {
     fachobjektTyp = "Schaltstelle";
     fachobjekt = item.schaltstelle;
     fachobjektFeaturetype = "schaltstelle";
-    //layouter = getLayout4Schaltstelle;
+    layouter = getLayout4Schaltstelle;
   } else if (item.geometrie) {
     fachobjektTyp = "Freie Geometrie";
     fachobjekt = item.geometrie;
     fachobjektFeaturetype = "geometrie";
-    //layouter = getLayout4Geometrie;
+    layouter = getLayout4FreieGeometrie;
   } else if (item.tdta_standort_mast) {
     fachobjektTyp = "Mast";
     fachobjekt = item.tdta_standort_mast;
@@ -128,12 +142,12 @@ const getLayout4Protokoll = ({ feature, jwt, dispatch, setIndex, setVisible }) =
     fachobjektTyp = "Abzweigdose";
     fachobjekt = item.abzweigdose;
     fachobjektFeaturetype = "abzweigdose";
-    //layouter = getLayout4Abzweigdose;
+    layouter = getLayout4Abzweigdose;
   } else if (item.mauerlasche) {
     fachobjektTyp = "Mauerlasche";
     fachobjekt = item.mauerlasche;
     fachobjektFeaturetype = "mauerlasche";
-    //layouter = getLayout4Mauerlasche;
+    layouter = getLayout4Mauerlasche;
   }
   subFeature = createFeatureFromData(fachobjekt, fachobjektFeaturetype);
 
@@ -144,6 +158,7 @@ const getLayout4Protokoll = ({ feature, jwt, dispatch, setIndex, setVisible }) =
       dispatch,
       setIndex,
       setVisible,
+      showAddPhotoAction: false,
     });
 
     fachobjektTitle = layoutResult.title;
@@ -158,6 +173,7 @@ const getLayout4Protokoll = ({ feature, jwt, dispatch, setIndex, setVisible }) =
       key={"fachobjekt.for." + item.id}
       bsStyle='danger'
       header={fachobjektTyp + ": " + fachobjektTitle}
+      collapsedOnStart={true}
     >
       {fachobjektContent}
     </SecondaryInfoPanelSection>
