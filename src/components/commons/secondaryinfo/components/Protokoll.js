@@ -5,6 +5,7 @@ import { createFeatureFromData } from "../../../../core/store/slices/featureColl
 import SecondaryInfoPanelSection from "../SecondaryInfoPanelSection";
 import { clearOptionalDescriptionItems, getDate, getTimelineForActions } from "./helper";
 import getLayout4Leuchte from "./Leuchte";
+import getLayout4Standort from "./Standort";
 
 const getLayout4Protokoll = ({ feature, jwt, dispatch, setIndex, setVisible }) => {
   const vcard = getVCard(feature);
@@ -93,47 +94,70 @@ const getLayout4Protokoll = ({ feature, jwt, dispatch, setIndex, setVisible }) =
   let fachobjektTyp;
   let fachobjektTitle;
   let fachobjektContent;
+
+  let layouter;
+  let subFeature;
+  let fachobjekt;
+  let fachobjektFeaturetype;
   if (item.tdta_leuchten) {
     fachobjektTyp = "Leuchte";
-    console.log("geomFactories", geomFactories);
+    fachobjekt = item.tdta_leuchten;
+    fachobjektFeaturetype = "tdta_leuchten";
+    layouter = getLayout4Leuchte;
+  } else if (item.leitung) {
+    fachobjektTyp = "Leitung";
+    fachobjekt = item.leitung;
+    fachobjektFeaturetype = "leitung";
+    //layouter = getLayout4Leitung;
+  } else if (item.schaltstelle) {
+    fachobjektTyp = "Schaltstelle";
+    fachobjekt = item.schaltstelle;
+    fachobjektFeaturetype = "schaltstelle";
+    //layouter = getLayout4Schaltstelle;
+  } else if (item.geometrie) {
+    fachobjektTyp = "Freie Geometrie";
+    fachobjekt = item.geometrie;
+    fachobjektFeaturetype = "geometrie";
+    //layouter = getLayout4Geometrie;
+  } else if (item.tdta_standort_mast) {
+    fachobjektTyp = "Mast";
+    fachobjekt = item.tdta_standort_mast;
+    fachobjektFeaturetype = "tdta_standort_mast";
+    layouter = getLayout4Standort;
+  } else if (item.abzweigdose) {
+    fachobjektTyp = "Abzweigdose";
+    fachobjekt = item.abzweigdose;
+    fachobjektFeaturetype = "abzweigdose";
+    //layouter = getLayout4Abzweigdose;
+  } else if (item.mauerlasche) {
+    fachobjektTyp = "Mauerlasche";
+    fachobjekt = item.mauerlasche;
+    fachobjektFeaturetype = "mauerlasche";
+    //layouter = getLayout4Mauerlasche;
+  }
+  subFeature = createFeatureFromData(fachobjekt, fachobjektFeaturetype);
 
-    const subFeature = createFeatureFromData(
-      item.tdta_leuchten,
-      "tdta_leuchten",
-      (o) => o?.tdta_standort_mast?.geom
-    );
-    console.log("subFeature", subFeature);
-
-    const { title, mainSection, subSections } = getLayout4Leuchte({
+  if (layouter) {
+    const layoutResult = layouter({
       feature: subFeature,
       jwt,
       dispatch,
       setIndex,
       setVisible,
     });
-    fachobjektTitle = title;
-    fachobjektContent = <div>mainSection</div>;
-  } else if (item.leitung) {
-    fachobjektTyp = "Leitung";
-  } else if (item.schaltstelle) {
-    fachobjektTyp = "Schaltstelle";
-  } else if (item.geometrie) {
-    fachobjektTyp = "Freie Geometrie";
-  } else if (item.tdta_standort_mast) {
-    fachobjektTyp = "Mast";
-  } else if (item.leitung) {
-    fachobjektTyp = "Leitung";
-  } else if (item.abzweigdose) {
-    fachobjektTyp = "Abzweigdose";
-  } else if (item.mauerlasche) {
-    fachobjektTyp = "Mauerlasche";
-  }
 
+    fachobjektTitle = layoutResult.title;
+    fachobjektContent = (
+      <div>
+        {layoutResult.mainSection} {layoutResult.subSections}
+      </div>
+    );
+  }
   subSections.push(
     <SecondaryInfoPanelSection
       key={"fachobjekt.for." + item.id}
       bsStyle='danger'
-      header={fachobjektTitle}
+      header={fachobjektTyp + ": " + fachobjektTitle}
     >
       {fachobjektContent}
     </SecondaryInfoPanelSection>
