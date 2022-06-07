@@ -115,6 +115,7 @@ queries.arbeitsauftrag = `query q($teamId: Int!) {
       mauerlasche { ${mauerlasche_fields} }
       leitung { ${leitung_fields} }
       abzweigdose { ${abzweigdose_fields} }
+      schaltstelle { ${schaltstelle_fields} }
     }
   }
   }
