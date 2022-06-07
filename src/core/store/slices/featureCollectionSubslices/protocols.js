@@ -15,6 +15,7 @@ import {
   setRequestBasis,
   setSelectedFeature,
   setSelectedFeatureForMode,
+  updateFeatureForMode,
 } from "../featureCollection";
 import { storeJWT } from "../auth";
 import { fetchGraphQL } from "../../../commons/graphql";
@@ -27,6 +28,7 @@ import reproject from "reproject";
 import { projectionData } from "react-cismap/constants/gis";
 import { getDocs, getFachobjektOfProtocol } from "../../../helper/featureHelper";
 import { CONNECTIONMODE, getConnectionMode } from "../app";
+import { createArbeitsauftragFeaturesForResults } from "./tasklists";
 
 //this function doesnt check if the app is in online or offline mode
 //it just checks if the taskListFeature is enriched or not
@@ -60,8 +62,16 @@ export const loadProtocollsIntoFeatureCollection = ({
             const response = await fetchGraphQL(gqlQuery, queryParameter, jwt);
             console.timeEnd("query returned");
             console.log("xxx response", response.data);
-            const result = response.data.arbeitsauftrag[0];
 
+            const aaFeatures = createArbeitsauftragFeaturesForResults(
+              response.data.arbeitsauftrag,
+              true
+            );
+            console.log("aaFeature always 1", aaFeatures);
+            const newAAReplacement = aaFeatures[0];
+            newAAReplacement.selected = true;
+            dispatch(updateFeatureForMode({ mode: MODES.TASKLISTS, feature: newAAReplacement }));
+            const result = response.data.arbeitsauftrag[0];
             features = getFeaturesForProtokollArray(result.ar_protokolleArray);
           } else {
             features = getFeaturesForProtokollArray(tasklistFeature.properties.ar_protokolleArray);

@@ -56,11 +56,11 @@ export const loadTaskListsIntoFeatureCollection = ({
           console.log("xxx response", response.data);
           const results = response.data.arbeitsauftrag;
 
-          features = createFeaturesForResults(results);
+          features = createArbeitsauftragFeaturesForResults(results);
         } else {
           //offlineUse
           const results = await dexieW.getAll("arbeitsauftrag");
-          features = createFeaturesForResults(results, true);
+          features = createArbeitsauftragFeaturesForResults(results, true);
         }
 
         dispatch(setFeatureCollectionForMode({ mode: MODES.PROTOCOLS, features: [] }));
@@ -87,7 +87,7 @@ export const loadTaskListsIntoFeatureCollection = ({
   };
 };
 
-const createFeaturesForResults = (results, enriched = false) => {
+export const createArbeitsauftragFeaturesForResults = (results, enriched = false) => {
   const features = [];
   for (const arbeitsauftrag of results) {
     const feature = {
