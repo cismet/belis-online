@@ -101,34 +101,38 @@ export const loadProtocollsIntoFeatureCollection = ({
   };
 };
 
-const getFeaturesForProtokollArray = (protokollArray) => {
+export const getFeaturesForProtokollArray = (protokollArray) => {
   const features = [];
   for (const entry of protokollArray) {
     const protokoll = entry.arbeitsprotokoll;
-    const fachobjekt = getFachobjektOfProtocol(protokoll);
-    const feature = {
-      text: "-",
-      id: "arbeitsprotokoll." + protokoll.id,
-      enriched: true,
-      type: "Feature",
-      selected: false,
-      featuretype: "arbeitsprotokoll",
-      fachobjekttype: fachobjekt.type,
-      geometry: geometryFactory(protokoll),
-      crs: {
-        type: "name",
-        properties: {
-          name: "urn:ogc:def:crs:EPSG::25832",
-        },
-      },
-      properties: { ...protokoll, fachobjekt },
-    };
-    feature.properties.docs = getDocs(feature);
-
+    const feature = getFeatureForProtokoll(protokoll);
     features.push(feature);
   }
 
   return features.sort((a, b) => a.properties.protokollnummer - b.properties.protokollnummer);
+};
+
+export const getFeatureForProtokoll = (protokoll) => {
+  const fachobjekt = getFachobjektOfProtocol(protokoll);
+  const feature = {
+    text: "-",
+    id: "arbeitsprotokoll." + protokoll.id,
+    enriched: true,
+    type: "Feature",
+    selected: false,
+    featuretype: "arbeitsprotokoll",
+    fachobjekttype: fachobjekt.type,
+    geometry: geometryFactory(protokoll),
+    crs: {
+      type: "name",
+      properties: {
+        name: "urn:ogc:def:crs:EPSG::25832",
+      },
+    },
+    properties: { ...protokoll, fachobjekt },
+  };
+  feature.properties.docs = getDocs(feature);
+  return feature;
 };
 
 const geometryFactory = (prot) => {
