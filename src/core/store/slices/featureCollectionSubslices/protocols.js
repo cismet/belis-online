@@ -113,6 +113,8 @@ const getFeaturesForProtokollArray = (protokollArray) => {
       },
       properties: { ...protokoll, fachobjekt },
     };
+    feature.properties.docs = getDocs(feature);
+
     features.push(feature);
   }
 
