@@ -146,7 +146,7 @@ export const loadObjectsIntoFeatureCollection = ({
               for (const key of Object.keys(response.data || {})) {
                 const objects = response.data[key];
                 for (const o of objects) {
-                  const feature = createFeatureFromData(o, key, geomFactories[key]);
+                  const feature = createFeatureFromData(o, key);
                   featureCollection.push(feature);
                 }
               }
@@ -187,7 +187,7 @@ export const loadObjectsIntoFeatureCollection = ({
   }
 };
 
-export const createFeatureFromData = (data, type, geomfactory) => {
+export const createFeatureFromData = (data, type) => {
   const feature = {
     text: "-",
     id: type,
@@ -195,7 +195,8 @@ export const createFeatureFromData = (data, type, geomfactory) => {
     type: "Feature",
     selected: false,
     featuretype: type,
-    geometry: geomfactory(data),
+    // geometry: geomfactory(data),
+    geometry: geomFactories[type](data),
     crs: {
       type: "name",
       properties: {
