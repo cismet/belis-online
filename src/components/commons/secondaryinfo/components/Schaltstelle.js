@@ -27,7 +27,7 @@ const getLayout4Schaltstelle = ({
   dispatch,
   setIndex,
   setVisible,
-  showAddPhotoAction = true,
+  showActions = true,
 }) => {
   const item = feature.properties;
   const subSections = [];
@@ -105,7 +105,7 @@ const getLayout4Schaltstelle = ({
           paddingBottom: "5px",
         }}
       >
-        {showAddPhotoAction && getAddImageButton(dispatch, item, "schaltstelle", feature.geometry)}
+        {showActions && getAddImageButton(dispatch, item, "schaltstelle", feature.geometry)}
       </div>
     </div>
   );

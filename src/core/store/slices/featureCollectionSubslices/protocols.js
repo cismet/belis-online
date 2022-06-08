@@ -61,7 +61,6 @@ export const loadProtocollsIntoFeatureCollection = ({
             console.time("query returned");
             const response = await fetchGraphQL(gqlQuery, queryParameter, jwt);
             console.timeEnd("query returned");
-            console.log("xxx response", response.data);
 
             const aaFeatures = createArbeitsauftragFeaturesForResults(
               response.data.arbeitsauftrag,
@@ -69,7 +68,6 @@ export const loadProtocollsIntoFeatureCollection = ({
             );
             console.log("aaFeature always 1", aaFeatures);
             const newAAReplacement = aaFeatures[0];
-            newAAReplacement.selected = true;
             dispatch(updateFeatureForMode({ mode: MODES.TASKLISTS, feature: newAAReplacement }));
             const result = response.data.arbeitsauftrag[0];
             features = getFeaturesForProtokollArray(result.ar_protokolleArray);

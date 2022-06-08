@@ -187,7 +187,7 @@ export const InfoPanelComponent = ({ selectedFeature, dispatch }) => {
           dispatch,
           setIndex,
           setVisible,
-          showAddPhotoAction: false,
+          showActions: false,
         }));
 
         rawDataDesc += "des Protokolls";

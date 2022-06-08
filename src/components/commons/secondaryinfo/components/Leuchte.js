@@ -43,7 +43,7 @@ const getLayout4Leuchte = ({
   dispatch,
   setIndex,
   setVisible,
-  showAddPhotoAction = true,
+  showActions = true,
 }) => {
   const item = feature.properties;
   // const item = leuchteMitAllenAttributen;
@@ -139,9 +139,7 @@ const getLayout4Leuchte = ({
       key={"leuchte" + item?.id}
       bsStyle='success'
       header={"Leuchte und Gesamtverlauf"}
-      extra={
-        showAddPhotoAction && getAddImageButton(dispatch, item, "tdta_leuchten", feature.geometry)
-      }
+      extra={showActions && getAddImageButton(dispatch, item, "tdta_leuchten", feature.geometry)}
     >
       <Row>
         <Col span={12}>
@@ -253,9 +251,7 @@ const getLayout4Leuchte = ({
       key={"mast" + item?.fk_standort?.id}
       bsStyle='warning'
       header='Mast'
-      extra={
-        showAddPhotoAction && getAddImageButton(dispatch, item?.fk_standort, "tdta_standort_mast")
-      }
+      extra={showActions && getAddImageButton(dispatch, item?.fk_standort, "tdta_standort_mast")}
     >
       {getStandortDetails({ standortItem: item?.fk_standort, docs, jwt, dispatch })}
     </SecondaryInfoPanelSection>

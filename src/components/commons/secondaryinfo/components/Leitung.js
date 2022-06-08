@@ -7,7 +7,7 @@ const getLayout4Leitung = ({
   dispatch,
   setVisible,
   setIndex,
-  showAddPhotoAction = true,
+  showActions = true,
 }) => {
   const laengePart =
     feature?.geometry !== undefined

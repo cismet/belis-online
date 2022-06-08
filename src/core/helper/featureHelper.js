@@ -218,7 +218,7 @@ export const getVCard = (feature) => {
     case "arbeitsprotokoll": {
       // Infobox
       vcard.infobox.header = "Arbeitsprotokoll";
-      vcard.infobox.title = "Nummer " + item.protokollnummer + " - " + item.fachobjekt.shortname;
+      vcard.infobox.title = "# " + item.protokollnummer + " - " + item.fachobjekt.shortname;
       vcard.infobox.subtitle = "Veranlassung " + item.veranlassungsnummer;
       vcard.infobox.more = undefined;
       // List
@@ -301,6 +301,9 @@ export const getDocs = (feature) => {
       addDokumenteArrayOfDmsUrls(docs, item?.dokumenteArray, "Standort");
       addDmsUrl(docs, item?.tkey_masttyp?.dms_url, "Masttyp");
       addDokumenteArrayOfDmsUrls(docs, item?.tkey_masttyp?.dokumenteArray, "Masttyp");
+      return docs;
+    case "arbeitsprotokoll":
+    case "arbeitsauftrag":
       return docs;
     default:
       console.log("unknown featuretype. this should not happen");

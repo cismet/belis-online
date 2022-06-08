@@ -12,7 +12,7 @@ const getLayout4Arbeitsauftrag = ({
   dispatch,
   setIndex,
   setVisible,
-  showAddPhotoAction = true,
+  showActions = true,
 }) => {
   const vcard = getVCard(feature);
   const item = feature.properties;
@@ -54,7 +54,7 @@ const getLayout4Arbeitsauftrag = ({
       dispatch,
       setIndex,
       setVisible,
-      showAddPhotoAction: false,
+      showActions: false,
     });
 
     let style = "default";
@@ -68,17 +68,23 @@ const getLayout4Arbeitsauftrag = ({
       // Fehlmeldung
       style = "danger";
     }
+    console.log("item", item);
 
     subSections.push(
       <SecondaryInfoPanelSection
-        key={"prot.in.aa.for." + item.id}
+        key={"prot.in.aa.for." + pf.id}
         bsStyle={style}
-        header={vcard.list.main + " - " + vcard.list.subtitle}
+        header={
+          <div>
+            <span>{vcard.list.main + " (" + vcard.list.subtitle + ")"}</span>
+            <span style={{ float: "right" }}>
+              {pf?.properties?.arbeitsprotokollstatus?.bezeichnung || "kein Status"}
+            </span>
+          </div>
+        }
         collapsedOnStart={true}
       >
-        <div>
-          {layoutResult.mainSection} {layoutResult.subSections}
-        </div>
+        <div>{layoutResult.subSections}</div>
       </SecondaryInfoPanelSection>
     );
   }

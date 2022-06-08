@@ -4,7 +4,7 @@ const getLayout4FreieGeometrie = ({
   dispatch,
   setVisible,
   setIndex,
-  showAddPhotoAction = true,
+  showActions = true,
 }) => {
   return {
     title: feature.properties.bezeichnung,

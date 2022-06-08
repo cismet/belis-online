@@ -33,7 +33,7 @@ const getLayout4Standort = ({
   dispatch,
   setVisible,
   setIndex,
-  showAddPhotoAction = true,
+  showActions = true,
 }) => {
   const item = feature.properties;
   // const item = mastOhneLeuchte;
@@ -107,7 +107,7 @@ const getLayout4Standort = ({
       key={"mast" + item?.fk_standort?.id}
       bsStyle='warning'
       header={"Mast"}
-      extra={showAddPhotoAction && (dispatch, item, "tdta_standort_mast", feature.geometry)}
+      extra={showActions && (dispatch, item, "tdta_standort_mast", feature.geometry)}
     >
       <Row>
         <Col span={12}>

@@ -1,4 +1,4 @@
-import { Descriptions } from "antd";
+import { Button, Descriptions } from "antd";
 import { useContext } from "react";
 import { LightBoxContext } from "react-cismap/contexts/LightBoxContextProvider";
 import { getVCard } from "../../../../core/helper/featureHelper";
@@ -20,7 +20,7 @@ const getLayout4Protokoll = ({
   dispatch,
   setIndex,
   setVisible,
-  showAddPhotoAction = true,
+  showActions = true,
 }) => {
   const vcard = getVCard(feature);
   const item = feature.properties;
@@ -43,6 +43,9 @@ const getLayout4Protokoll = ({
 
   const mainSection = (
     <div style={mainSectionStyle}>
+      <div>
+        <Button>Arbeitsauftrag</Button>
+      </div>
       <div
         style={{
           display: "grid",
@@ -81,8 +84,8 @@ const getLayout4Protokoll = ({
     <Descriptions.Item label='Grund (Art)'>
       {item?.veranlassung?.veranlassungsart?.bezeichnung}
     </Descriptions.Item>,
-    <Descriptions.Item label='Bezeichnung' span={24}>
-      {item?.veranlassung?.bezeichung}
+    <Descriptions.Item label={"Bezeichnung"} span={24}>
+      {item.veranlassung.bezeichnung}
     </Descriptions.Item>,
     <Descriptions.Item label='Beschreibung' span={3}>
       {item?.veranlassung?.beschreibung}
@@ -158,7 +161,7 @@ const getLayout4Protokoll = ({
       dispatch,
       setIndex,
       setVisible,
-      showAddPhotoAction: false,
+      showActions: false,
     });
 
     fachobjektTitle = layoutResult.title;

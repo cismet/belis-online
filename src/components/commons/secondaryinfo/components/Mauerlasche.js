@@ -26,7 +26,7 @@ const getLayout4Mauerlasche = ({
   dispatch,
   setVisible,
   setIndex,
-  showAddPhotoAction = true,
+  showActions = true,
 }) => {
   const item = feature.properties;
   const subSections = [];
@@ -118,8 +118,8 @@ const getLayout4Mauerlasche = ({
           paddingBottom: "5px",
         }}
       >
-        {showAddPhotoAction &&
-          showAddPhotoAction &&
+        {showActions &&
+          showActions &&
           getAddImageButton(dispatch, item, "mauerlasche", feature.geometry)}
       </div>
     </div>
