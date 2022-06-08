@@ -175,6 +175,7 @@ export const InfoPanelComponent = ({ selectedFeature, dispatch }) => {
           dispatch,
           setIndex,
           setVisible,
+          showActions: true,
         }));
 
         rawDataDesc += "des Arbeitsauftrages";
@@ -187,7 +188,7 @@ export const InfoPanelComponent = ({ selectedFeature, dispatch }) => {
           dispatch,
           setIndex,
           setVisible,
-          showActions: false,
+          showActions: true,
         }));
 
         rawDataDesc += "des Protokolls";
