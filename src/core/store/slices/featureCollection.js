@@ -85,10 +85,13 @@ const featureCollectionSlice = createSlice({
     updateFeatureForMode: (state, action) => {
       const { mode, feature } = action.payload;
       const index = state.featuresMap[mode][feature.id];
-      state.features[mode][index] = feature;
-      if (feature.selected) {
+      feature.index = index;
+      if (state.selectedFeature[mode].id === feature.id) {
+        feature.selected = true;
         state.selectedFeature[mode] = feature;
+      } else {
       }
+      state.features[mode][index] = feature;
     },
 
     setDoneForMode: (state, action) => {
@@ -185,6 +188,7 @@ export const getOrigins = (state) => state.featureCollection.origin;
 export const getFeatureCollectionMode = (state) => state.featureCollection.mode;
 export const getSelectedFeature = (state) =>
   state.featureCollection.selectedFeature[state.featureCollection.mode];
+export const getSelectedFeaturesForAllModes = (state) => state.featureCollection.selectedFeature;
 const getRequestBasis = (state) => state.featureCollection.requestBasis;
 export const isInFocusMode = (state) => state.featureCollection.inFocusMode;
 export const isSecondaryInfoVisible = (state) => state.featureCollection.secondaryInfoVisible;
