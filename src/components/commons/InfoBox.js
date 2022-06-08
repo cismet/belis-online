@@ -256,7 +256,7 @@ const InfoBox = ({ refRoutedMap }) => {
         />
       );
     } else {
-      //Protocolls
+      //Protocols
       links.push(
         <IconLink
           key={`openInfo`}
