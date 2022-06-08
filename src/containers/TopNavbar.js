@@ -69,6 +69,7 @@ import { fetchGraphQL } from "../core/commons/graphql";
 import queries from "../core/queries/online";
 import { fitBoundsForCollection } from "../core/store/slices/map";
 import localforage from "localforage";
+import store from "../core/store";
 //---------
 
 const TopNavbar = ({ innerRef, refRoutedMap, setCacheSettingsVisible, jwt }) => {
@@ -232,7 +233,8 @@ const TopNavbar = ({ innerRef, refRoutedMap, setCacheSettingsVisible, jwt }) => 
         {process.env.NODE_ENV !== "production" && (
           <Nav.Link
             onClick={() => {
-              localforage.clear();
+              //localforage.clear();
+              console.log("state", store.getState());
             }}
           >
             <Icon icon={faVial} />
