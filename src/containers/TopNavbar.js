@@ -234,7 +234,12 @@ const TopNavbar = ({ innerRef, refRoutedMap, setCacheSettingsVisible, jwt }) => 
           <Nav.Link
             onClick={() => {
               //localforage.clear();
-              console.log("state", store.getState());
+              console.log(
+                "refRoutedMap",
+                refRoutedMap?.current?.leafletMap?.leafletElement.getPanes()[
+                  "backgroundvectorLayers"
+                ].style.opacity
+              );
             }}
           >
             <Icon icon={faVial} />
