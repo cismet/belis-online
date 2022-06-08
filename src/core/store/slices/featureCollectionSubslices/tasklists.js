@@ -108,7 +108,16 @@ export const createArbeitsauftragFeaturesForResults = (results, enriched = false
     };
     features.push(feature);
   }
-  return features;
+
+  const sortedFeatures = features.sort((a, b) =>
+    a.properties.nummer.localeCompare(b.properties.nummer)
+  );
+  //add index to features
+  let index = 0;
+  for (const f of sortedFeatures) {
+    f.index = index++;
+  }
+  return sortedFeatures;
 };
 
 const geometryFactory = (arbeitsauftrag) => {

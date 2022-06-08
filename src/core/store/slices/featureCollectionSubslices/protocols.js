@@ -109,7 +109,15 @@ export const getFeaturesForProtokollArray = (protokollArray) => {
     features.push(feature);
   }
 
-  return features.sort((a, b) => a.properties.protokollnummer - b.properties.protokollnummer);
+  const sortedFeatures = features.sort(
+    (a, b) => a.properties.protokollnummer - b.properties.protokollnummer
+  );
+  //add index to features
+  let index = 0;
+  for (const f of sortedFeatures) {
+    f.index = index++;
+  }
+  return sortedFeatures;
 };
 
 export const getFeatureForProtokoll = (protokoll) => {
