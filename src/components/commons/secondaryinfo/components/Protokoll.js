@@ -29,6 +29,7 @@ import {
   setSelectedFeature,
 } from "../../../../core/store/slices/featureCollection";
 import store from "../../../../core/store";
+import { faComment, faListAlt } from "@fortawesome/free-regular-svg-icons";
 const getLayout4Protokoll = ({
   feature,
   jwt,
@@ -68,11 +69,11 @@ const getLayout4Protokoll = ({
             <FontAwesomeIcon icon={faFileInvoice} />
             <span style={{ marginLeft: 5 }}>Arbeitsauftrag</span>
           </Button>
-          <Button style={{ float: "none", marginLeft: 50 }}>
-            <FontAwesomeIcon icon={faArrowCircleRight} />
+          <Button disabled style={{ float: "none", marginLeft: 50 }}>
+            <FontAwesomeIcon icon={faListAlt} />
           </Button>
-          <Button style={{ float: "none", marginLeft: 5 }}>
-            <FontAwesomeIcon icon={faArrowCircleRight} />
+          <Button disabled style={{ float: "none", marginLeft: 5 }}>
+            <FontAwesomeIcon icon={faComment} />
           </Button>
           <Button
             onClick={() => {
