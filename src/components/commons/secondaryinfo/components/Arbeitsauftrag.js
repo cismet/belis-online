@@ -5,6 +5,14 @@ import {
 } from "../../../../core/store/slices/featureCollectionSubslices/protocols";
 import getLayout4Protokoll from "./Protokoll";
 import SecondaryInfoPanelSection from "../SecondaryInfoPanelSection";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faExternalLinkAlt } from "@fortawesome/free-solid-svg-icons";
+import { Button } from "antd";
+import {
+  MODES,
+  setMode,
+  setSelectedFeatureForMode,
+} from "../../../../core/store/slices/featureCollection";
 
 const getLayout4Arbeitsauftrag = ({
   feature,
@@ -75,12 +83,31 @@ const getLayout4Arbeitsauftrag = ({
         key={"prot.in.aa.for." + pf.id}
         bsStyle={style}
         header={
-          <div>
+          <span>
             <span>{vcard.list.main + " (" + vcard.list.subtitle + ")"}</span>
-            <span style={{ float: "right" }}>
-              {pf?.properties?.arbeitsprotokollstatus?.bezeichnung || "kein Status"}
-            </span>
-          </div>
+          </span>
+        }
+        extra={
+          <span>
+            <span>{pf?.properties?.arbeitsprotokollstatus?.bezeichnung || "kein Status"}</span>
+            <a
+              onClick={(e) => {
+                console.log("pf.index", pf.index);
+                dispatch(
+                  setSelectedFeatureForMode({
+                    mode: MODES.PROTOCOLS,
+                    selectedFeatureIndex: pf.index,
+                  })
+                );
+                dispatch(setMode(MODES.PROTOCOLS));
+                e.stopPropagation();
+              }}
+              style={{ marginLeft: 10 }}
+              class='renderAsLink'
+            >
+              <FontAwesomeIcon icon={faExternalLinkAlt} />
+            </a>
+          </span>
         }
         collapsedOnStart={true}
       >

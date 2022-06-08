@@ -1,6 +1,16 @@
+import {
+  faArrowCircleLeft,
+  faArrowCircleRight,
+  faFileInvoice,
+} from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Button, Descriptions } from "antd";
 import { useContext } from "react";
 import { LightBoxContext } from "react-cismap/contexts/LightBoxContextProvider";
+import {
+  selectNextFeature,
+  selectPreviousFeature,
+} from "../../../../core/helper/featureCollectionHelper";
 import { getVCard } from "../../../../core/helper/featureHelper";
 import { geomFactories } from "../../../../core/queries/online";
 import { createFeatureFromData } from "../../../../core/store/slices/featureCollectionSubslices/objects";
@@ -13,7 +23,12 @@ import getLayout4Leuchte from "./Leuchte";
 import getLayout4Mauerlasche from "./Mauerlasche";
 import getLayout4Schaltstelle from "./Schaltstelle";
 import getLayout4Standort from "./Standort";
-
+import {
+  MODES,
+  setMode,
+  setSelectedFeature,
+} from "../../../../core/store/slices/featureCollection";
+import store from "../../../../core/store";
 const getLayout4Protokoll = ({
   feature,
   jwt,
@@ -25,7 +40,7 @@ const getLayout4Protokoll = ({
   const vcard = getVCard(feature);
   const item = feature.properties;
 
-  const title = vcard.infobox.header;
+  const title = <span>{vcard.infobox.header}</span>;
 
   let mainSectionStyle = {};
   const subSections = [];
@@ -43,9 +58,56 @@ const getLayout4Protokoll = ({
 
   const mainSection = (
     <div style={mainSectionStyle}>
-      <div>
-        <Button>Arbeitsauftrag</Button>
-      </div>
+      {showActions && (
+        <div style={{ borderBottom: "solid", paddingBottom: 10, borderColor: "lightgrey" }}>
+          <Button
+            onClick={() => {
+              dispatch(setMode(MODES.TASKLISTS));
+            }}
+          >
+            <FontAwesomeIcon icon={faFileInvoice} />
+            <span style={{ marginLeft: 5 }}>Arbeitsauftrag</span>
+          </Button>
+          <Button style={{ float: "none", marginLeft: 50 }}>
+            <FontAwesomeIcon icon={faArrowCircleRight} />
+          </Button>
+          <Button style={{ float: "none", marginLeft: 5 }}>
+            <FontAwesomeIcon icon={faArrowCircleRight} />
+          </Button>
+          <Button
+            onClick={() => {
+              const state = store.getState();
+              const featureCollection =
+                state.featureCollection.features[state.featureCollection.mode];
+              selectNextFeature({
+                featureCollection,
+                selectedFeature: feature,
+                dispatch,
+                setSelectedFeature,
+              });
+            }}
+            style={{ float: "right", marginLeft: 5 }}
+          >
+            <FontAwesomeIcon icon={faArrowCircleRight} />
+          </Button>
+          <Button
+            onClick={() => {
+              const state = store.getState();
+              const featureCollection =
+                state.featureCollection.features[state.featureCollection.mode];
+              selectPreviousFeature({
+                featureCollection,
+                selectedFeature: feature,
+                dispatch,
+                setSelectedFeature,
+              });
+            }}
+            style={{ float: "right" }}
+          >
+            <FontAwesomeIcon icon={faArrowCircleLeft} />
+          </Button>{" "}
+        </div>
+      )}
       <div
         style={{
           display: "grid",
