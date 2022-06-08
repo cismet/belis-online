@@ -120,7 +120,7 @@ const featureCollectionSlice = createSlice({
     },
 
     setSelectedFeatureForMode: (state, action) => {
-      const { selectedFeature, mode } = action.payload;
+      const { selectedFeature, mode, selectedFeatureIndex } = action.payload;
       console.time("setSelectedFeature");
       const fc = state.features[mode]; //JSON.parse(JSON.stringify(state.features));
 
@@ -137,6 +137,8 @@ const featureCollectionSlice = createSlice({
       if (selectedFeature) {
         // state.selectedFeature = fc.find((f) => f.id === selectedFeature.id);
         state.selectedFeature[mode] = fc[state.featuresMap[mode][selectedFeature.id]];
+      } else if (selectedFeatureIndex) {
+        state.selectedFeature[mode] = fc[selectedFeatureIndex];
       }
       if (state.selectedFeature[mode]) {
         state.selectedFeature[mode].selected = true;
