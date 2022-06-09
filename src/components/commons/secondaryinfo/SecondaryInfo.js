@@ -29,6 +29,8 @@ import {
   LightBoxContext,
   LightBoxDispatchContext,
 } from "react-cismap/contexts/LightBoxContextProvider";
+import getLayout4Arbeitsauftrag from "./components/Arbeitsauftrag";
+import getLayout4Protokoll from "./components/Protokoll";
 
 const InfoPanel = () => {
   const dispatch = useDispatch();
@@ -166,17 +168,61 @@ export const InfoPanelComponent = ({ selectedFeature, dispatch }) => {
         rawDataDesc += "des Masts/Standorts";
 
         break;
+      case "arbeitsauftrag":
+        ({ subSections, mainSection, title } = getLayout4Arbeitsauftrag({
+          feature: hit,
+          jwt,
+          dispatch,
+          setIndex,
+          setVisible,
+          showActions: true,
+        }));
+
+        rawDataDesc += "des Arbeitsauftrages";
+
+        break;
+      case "arbeitsprotokoll":
+        ({ subSections, mainSection, title } = getLayout4Protokoll({
+          feature: hit,
+          jwt,
+          dispatch,
+          setIndex,
+          setVisible,
+          showActions: true,
+        }));
+
+        rawDataDesc += "des Protokolls";
+
+        break;
       default:
+        console.log("unbekannter featuretype: " + hit.featuretype);
     }
 
-    if (showRawData || showRawDataFromUrl === "") {
+    if (showRawData || showRawDataFromUrl === "" || process.env.NODE_ENV !== "production") {
       //remove the geometries
       const hitForRawDisplay = JSON.parse(JSON.stringify(hit.properties));
 
       delete hitForRawDisplay.geojson;
       delete hitForRawDisplay.full_tdta_standort_mast;
+      delete hitForRawDisplay.geometrie;
+      delete hitForRawDisplay.fachobjekt;
+      if (hitForRawDisplay.leitung) {
+        delete hitForRawDisplay.leitung.geom;
+      }
+      if (hitForRawDisplay.mauerlasche) {
+        delete hitForRawDisplay.mauerlasche.geom;
+      }
+      if (hitForRawDisplay.schaltstelle) {
+        delete hitForRawDisplay.schaltstelle.geom;
+      }
+      if (hitForRawDisplay.abzweigdose) {
+        delete hitForRawDisplay.abzweigdose.geom;
+      }
+      if (hitForRawDisplay.tdta_standort_mast) {
+        delete hitForRawDisplay.tdta_standort_mast.geom;
+      }
 
-      for (const doc of hitForRawDisplay.docs) {
+      for (const doc of hitForRawDisplay.docs || []) {
         if (doc.intermediate) {
           // set the url of the first 30 chars of the url to save memory
           doc.url = doc.url.substring(0, 30) + "...";
@@ -184,7 +230,12 @@ export const InfoPanelComponent = ({ selectedFeature, dispatch }) => {
       }
 
       subSections.push(
-        <SecondaryInfoPanelSection key='standort' bsStyle='light' header={rawDataDesc}>
+        <SecondaryInfoPanelSection
+          key='standort'
+          bsStyle='light'
+          header={rawDataDesc}
+          collapsedOnStart={true}
+        >
           <div style={{ fontSize: "115%", padding: "10px", paddingTop: "0px" }}>
             <pre key='hitObject'>{JSON.stringify(hitForRawDisplay, null, 2)}</pre>
             {/* <pre key='hits'>{JSON.stringify(hitsForRawDisplay, null, 2)}</pre> */}

@@ -37,7 +37,14 @@ export const getEvents4Leuchte = (item) => {
   return events;
 };
 
-const getLayout4Leuchte = ({ feature, jwt, dispatch, setIndex, setVisible }) => {
+const getLayout4Leuchte = ({
+  feature,
+  jwt,
+  dispatch,
+  setIndex,
+  setVisible,
+  showActions = true,
+}) => {
   const item = feature.properties;
   // const item = leuchteMitAllenAttributen;
   const subSections = [];
@@ -78,7 +85,7 @@ const getLayout4Leuchte = ({ feature, jwt, dispatch, setIndex, setVisible }) => 
         />
       )}
       <div>
-        <h1>{vcard.infobox.title}</h1>
+        <h2>{vcard.infobox.title}</h2>
       </div>
       <div>Kennziffer {item?.fk_kennziffer?.kennziffer}</div>
       <div>
@@ -132,7 +139,7 @@ const getLayout4Leuchte = ({ feature, jwt, dispatch, setIndex, setVisible }) => 
       key={"leuchte" + item?.id}
       bsStyle='success'
       header={"Leuchte und Gesamtverlauf"}
-      extra={getAddImageButton(dispatch, item, "tdta_leuchten", feature.geometry)}
+      extra={showActions && getAddImageButton(dispatch, item, "tdta_leuchten", feature.geometry)}
     >
       <Row>
         <Col span={12}>
@@ -181,20 +188,24 @@ const getLayout4Leuchte = ({ feature, jwt, dispatch, setIndex, setVisible }) => 
   );
 
   const leuchtmittelItem = item?.leuchtmittel;
+  if (leuchtmittelItem) {
+    const leuchtMittelItems = [
+      <Descriptions.Item label='Typ'>{leuchtmittelItem?.hersteller}</Descriptions.Item>,
+      <Descriptions.Item label='Lichtfarbe'>{leuchtmittelItem?.lichtfarbe}</Descriptions.Item>,
+    ];
 
-  const leuchtMittelItems = [
-    <Descriptions.Item label='Typ'>{leuchtmittelItem?.hersteller}</Descriptions.Item>,
-    <Descriptions.Item label='Lichtfarbe'>{leuchtmittelItem?.lichtfarbe}</Descriptions.Item>,
-  ];
-
-  subSections.push(
-    <SecondaryInfoPanelSection key={"Leuchtentyp" + item.id} bsStyle='info' header={"Leuchtmittel"}>
-      <Descriptions column={{ xs: 1, sm: 1, md: 2, lg: 2, xxl: 3 }} layout='horizontal' bordered>
-        {clearOptionalDescriptionItems(leuchtMittelItems)}
-      </Descriptions>
-    </SecondaryInfoPanelSection>
-  );
-
+    subSections.push(
+      <SecondaryInfoPanelSection
+        key={"Leuchtentyp" + item.id}
+        bsStyle='info'
+        header={"Leuchtmittel"}
+      >
+        <Descriptions column={{ xs: 1, sm: 1, md: 2, lg: 2, xxl: 3 }} layout='horizontal' bordered>
+          {clearOptionalDescriptionItems(leuchtMittelItems)}
+        </Descriptions>
+      </SecondaryInfoPanelSection>
+    );
+  }
   const leuchtTypItem = item?.fk_leuchttyp;
 
   const leuchtTypItems = [
@@ -240,20 +251,12 @@ const getLayout4Leuchte = ({ feature, jwt, dispatch, setIndex, setVisible }) => 
       key={"mast" + item?.fk_standort?.id}
       bsStyle='warning'
       header='Mast'
-      extra={getAddImageButton(dispatch, item?.fk_standort, "tdta_standort_mast")}
+      extra={showActions && getAddImageButton(dispatch, item?.fk_standort, "tdta_standort_mast")}
     >
       {getStandortDetails({ standortItem: item?.fk_standort, docs, jwt, dispatch })}
     </SecondaryInfoPanelSection>
   );
 
-  //only in development
-  if (process.env.NODE_ENV !== "production") {
-    subSections.push(
-      <SecondaryInfoPanelSection key={"rawObject" + item?.id} bsStyle='warning' header='Raw'>
-        <pre>{JSON.stringify(item, null, 2)}</pre>
-      </SecondaryInfoPanelSection>
-    );
-  }
   return { title, mainSection, subSections };
 };
 

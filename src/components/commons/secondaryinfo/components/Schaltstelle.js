@@ -21,7 +21,14 @@ export const getEventsForSchaltstelle = (item) => {
 
   return events;
 };
-const getLayout4Schaltstelle = ({ feature, jwt, dispatch, setIndex, setVisible }) => {
+const getLayout4Schaltstelle = ({
+  feature,
+  jwt,
+  dispatch,
+  setIndex,
+  setVisible,
+  showActions = true,
+}) => {
   const item = feature.properties;
   const subSections = [];
   const vcard = getVCard(feature);
@@ -98,19 +105,13 @@ const getLayout4Schaltstelle = ({ feature, jwt, dispatch, setIndex, setVisible }
           paddingBottom: "5px",
         }}
       >
-        {getAddImageButton(dispatch, item, "schaltstelle", feature.geometry)}
+        {showActions && getAddImageButton(dispatch, item, "schaltstelle", feature.geometry)}
       </div>
     </div>
   );
 
   subSections.push(getRSDetailsSection(item?.rundsteuerempfaenger));
-  if (process.env.NODE_ENV !== "production") {
-    subSections.push(
-      <SecondaryInfoPanelSection key={"rawObject" + item?.id} bsStyle='warning' header='Raw'>
-        <pre>{JSON.stringify(item, null, 2)}</pre>
-      </SecondaryInfoPanelSection>
-    );
-  }
+
   return { title, mainSection, subSections };
 };
 

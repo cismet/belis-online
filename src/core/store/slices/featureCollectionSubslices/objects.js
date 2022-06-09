@@ -16,7 +16,7 @@ import {
   setSelectedFeature,
 } from "../featureCollection";
 import booleanIntersects from "@turf/boolean-intersects";
-import onlineQueryParts, { geomFactories, fragments } from "../../../queries/full";
+import onlineQueryParts, { geomFactories, fragments } from "../../../queries/online";
 
 import { removeIntermediateResults } from "../offlineActionDb";
 import {
@@ -146,34 +146,7 @@ export const loadObjectsIntoFeatureCollection = ({
               for (const key of Object.keys(response.data || {})) {
                 const objects = response.data[key];
                 for (const o of objects) {
-                  const feature = {
-                    text: "-",
-                    id: key,
-                    enriched: true,
-                    type: "Feature",
-                    selected: false,
-                    featuretype: key,
-                    geometry: geomFactories[key](o),
-                    crs: {
-                      type: "name",
-                      properties: {
-                        name: "urn:ogc:def:crs:EPSG::25832",
-                      },
-                    },
-                    properties: {},
-                  };
-
-                  //The geometry could be deleted to save some memory
-                  //need to be a different approach in the geometryfactory then
-                  //not sure beacuse the properties would double up the memoryconsumption though
-                  //
-                  // const properties=JSON.parse(JSON.stringify(o));
-                  // delete propertiesgeomFactories[key](o)
-
-                  feature.properties = o;
-
-                  feature.id = feature.id + "-" + o.id;
-                  feature.properties.docs = getDocs(feature);
+                  const feature = createFeatureFromData(o, key);
                   featureCollection.push(feature);
                 }
               }
@@ -212,6 +185,39 @@ export const loadObjectsIntoFeatureCollection = ({
       // }
     };
   }
+};
+
+export const createFeatureFromData = (data, type) => {
+  const feature = {
+    text: "-",
+    id: type,
+    enriched: true,
+    type: "Feature",
+    selected: false,
+    featuretype: type,
+    // geometry: geomfactory(data),
+    geometry: geomFactories[type](data),
+    crs: {
+      type: "name",
+      properties: {
+        name: "urn:ogc:def:crs:EPSG::25832",
+      },
+    },
+    properties: {},
+  };
+
+  //The geometry could be deleted to save some memory
+  //need to be a different approach in the geometryfactory then
+  //not sure beacuse the properties would double up the memoryconsumption though
+  //
+  // const properties=JSON.parse(JSON.stringify(o));
+  // delete propertiesgeomFactories[key](o)
+
+  feature.properties = data;
+
+  feature.id = feature.id + "-" + data.id;
+  feature.properties.docs = getDocs(feature);
+  return feature;
 };
 
 const enrichAndSetFeatures = (

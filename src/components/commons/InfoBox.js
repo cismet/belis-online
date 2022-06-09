@@ -41,6 +41,10 @@ import { addDotThumbnail } from "./secondaryinfo/components/helper";
 import { getDB, processAddImageToObject } from "../../core/store/slices/offlineActionDb";
 import { bufferBBox } from "../../core/helper/gisHelper";
 import { zoomToFeature } from "../../core/helper/mapHelper";
+import {
+  selectNextFeature,
+  selectPreviousFeature,
+} from "../../core/helper/featureCollectionHelper";
 
 //---
 
@@ -137,19 +141,20 @@ const InfoBox = ({ refRoutedMap }) => {
   };
 
   const _next = () => {
-    if (featureCollection) {
-      const newIndex = (selectedFeature.index + 1) % featureCollection.length;
-      dispatch(setSelectedFeature(featureCollection[newIndex]));
-    }
+    selectNextFeature({
+      featureCollection,
+      selectedFeature,
+      dispatch,
+      setSelectedFeature,
+    });
   };
   const _previous = () => {
-    if (featureCollection) {
-      let newIndex = (selectedFeature.index - 1) % featureCollection.length;
-      if (newIndex === -1) {
-        newIndex = featureCollection.length - 1;
-      }
-      dispatch(setSelectedFeature(featureCollection[newIndex]));
-    }
+    selectPreviousFeature({
+      featureCollection,
+      selectedFeature,
+      dispatch,
+      setSelectedFeature,
+    });
   };
 
   let currentlyShownCountLabel = featureCollection.length + " Objekte gefunden";
@@ -251,7 +256,7 @@ const InfoBox = ({ refRoutedMap }) => {
         />
       );
     } else {
-      //Protocolls
+      //Protocols
       links.push(
         <IconLink
           key={`openInfo`}

@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
 import { MappingConstants, RoutedMap } from "react-cismap";
-import { DivOverlay } from "react-leaflet";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory, useLocation } from "react-router-dom";
 import BelisFeatureCollection from "../components/app/FeatureCollection";
@@ -45,6 +44,8 @@ import {
   TopicMapStylingDispatchContext,
 } from "react-cismap/contexts/TopicMapStylingContextProvider";
 import { setMapRef } from "../core/store/slices/map";
+import Empty from "../components/leaflet/PaleOverlay";
+import PaleOverlay from "../components/leaflet/PaleOverlay";
 
 //---
 
@@ -322,21 +323,8 @@ const BelisMap = ({ refRoutedMap, width, height, jwt }) => {
       {selectedFeature !== undefined && selectedFeature !== null && (
         <InfoBox refRoutedMap={refRoutedMap} />
       )}
-      {inPaleMode && (
-        <div
-          style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            zIndex: 401,
-            width: mapStyle.width,
-            height: mapStyle.height,
-            opacity: 0.5,
-            background: "#ffffff",
-            mrgin: 10,
-          }}
-        />
-      )}
+
+      {inPaleMode && <PaleOverlay />}
       {overlayFeature && (
         <ProjSingleGeoJson
           key={JSON.stringify(overlayFeature)}

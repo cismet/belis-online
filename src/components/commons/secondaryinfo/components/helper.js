@@ -118,6 +118,55 @@ export const getSquaredThumbnails = ({ docs, type, jwt, setIndex, setVisible }) 
 
 export const collectEvents = (item, eventPath) => {};
 
+export const getTimelineForActions = ({ actions }) => {
+  if (actions.length > 0) {
+    const sorted = actions.sort((a, b) => (a.id < b.id ? -1 : 1));
+
+    return (
+      <Timeline style={{ paddingTop: 10 }} mode={"left"}>
+        {sorted.map((action, index) => {
+          let dot, color;
+          if (action[2] === "today") {
+            dot = <FontAwesomeIcon icon={faBullseye} />;
+            color = "green";
+          } else if (action[2] === "M") {
+            dot = <FontAwesomeIcon icon={faGripLinesVertical} />;
+            color = "black";
+          } else if (action[2] === "L") {
+            dot = <FontAwesomeIcon className='fa-rotate-180' icon={faGlassMartini} />;
+            color = "blue";
+          }
+
+          return (
+            <Timeline.Item
+              style={{ paddingBottom: 0 }}
+              color={color}
+              dot={dot}
+              label={action.aenderung}
+            >
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr 1fr",
+                }}
+              >
+                <div>
+                  <b>{action.neu}</b>
+                </div>
+                <div style={{ color: "grey" }}>
+                  <i>{action.alt}</i>
+                </div>
+              </div>
+            </Timeline.Item>
+          );
+        })}
+      </Timeline>
+    );
+  } else {
+    return null;
+  }
+};
+
 export const getTimelineForEvents = ({ events, includeToday = true }) => {
   let e;
   if (includeToday) {

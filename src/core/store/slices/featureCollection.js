@@ -82,6 +82,18 @@ const featureCollectionSlice = createSlice({
       state.info[mode] = info;
     },
 
+    updateFeatureForMode: (state, action) => {
+      const { mode, feature } = action.payload;
+      const index = state.featuresMap[mode][feature.id];
+      feature.index = index;
+      if (state.selectedFeature[mode].id === feature.id) {
+        feature.selected = true;
+        state.selectedFeature[mode] = feature;
+      } else {
+      }
+      state.features[mode][index] = feature;
+    },
+
     setDoneForMode: (state, action) => {
       const { mode, done } = action.payload;
       state.done[mode] = done;
@@ -108,7 +120,7 @@ const featureCollectionSlice = createSlice({
     },
 
     setSelectedFeatureForMode: (state, action) => {
-      const { selectedFeature, mode } = action.payload;
+      const { selectedFeature, mode, selectedFeatureIndex } = action.payload;
       console.time("setSelectedFeature");
       const fc = state.features[mode]; //JSON.parse(JSON.stringify(state.features));
 
@@ -125,6 +137,8 @@ const featureCollectionSlice = createSlice({
       if (selectedFeature) {
         // state.selectedFeature = fc.find((f) => f.id === selectedFeature.id);
         state.selectedFeature[mode] = fc[state.featuresMap[mode][selectedFeature.id]];
+      } else if (selectedFeatureIndex) {
+        state.selectedFeature[mode] = fc[selectedFeatureIndex];
       }
       if (state.selectedFeature[mode]) {
         state.selectedFeature[mode].selected = true;
@@ -146,6 +160,7 @@ const featureCollectionSlice = createSlice({
 export const {
   setFeatureCollectionForMode,
   setFeatureCollectionInfoForMode,
+  updateFeatureForMode,
   setDoneForMode,
   setBoundingBox,
   setFilter,
@@ -175,6 +190,7 @@ export const getOrigins = (state) => state.featureCollection.origin;
 export const getFeatureCollectionMode = (state) => state.featureCollection.mode;
 export const getSelectedFeature = (state) =>
   state.featureCollection.selectedFeature[state.featureCollection.mode];
+export const getSelectedFeaturesForAllModes = (state) => state.featureCollection.selectedFeature;
 const getRequestBasis = (state) => state.featureCollection.requestBasis;
 export const isInFocusMode = (state) => state.featureCollection.inFocusMode;
 export const isSecondaryInfoVisible = (state) => state.featureCollection.secondaryInfoVisible;

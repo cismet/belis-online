@@ -65,11 +65,11 @@ import { getLoginFromJWT, storeJWT, storeLogin } from "../core/store/slices/auth
 import { useWindowSize } from "@react-hook/window-size";
 import { getDB as getOfflineActionDB } from "../core/store/slices/offlineActionDb";
 import { NavItem } from "react-bootstrap";
-import { filteredData } from "../core/queries/dev";
 import { fetchGraphQL } from "../core/commons/graphql";
 import queries from "../core/queries/online";
 import { fitBoundsForCollection } from "../core/store/slices/map";
 import localforage from "localforage";
+import store from "../core/store";
 //---------
 
 const TopNavbar = ({ innerRef, refRoutedMap, setCacheSettingsVisible, jwt }) => {
@@ -233,7 +233,13 @@ const TopNavbar = ({ innerRef, refRoutedMap, setCacheSettingsVisible, jwt }) => 
         {process.env.NODE_ENV !== "production" && (
           <Nav.Link
             onClick={() => {
-              localforage.clear();
+              //localforage.clear();
+              console.log(
+                "refRoutedMap",
+                refRoutedMap?.current?.leafletMap?.leafletElement.getPanes()[
+                  "backgroundvectorLayers"
+                ].style.opacity
+              );
             }}
           >
             <Icon icon={faVial} />

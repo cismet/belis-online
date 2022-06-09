@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import cacheQueries from "../../queries/cacheFullObjects";
+import cacheQueries from "../../queries/cache";
 import dexieworker from "workerize-loader!../../workers/dexie"; // eslint-disable-line import/no-webpack-loader-syntax
 import { fetchGraphQL } from "../../commons/graphql";
 import { initIndex } from "./spatialIndex";

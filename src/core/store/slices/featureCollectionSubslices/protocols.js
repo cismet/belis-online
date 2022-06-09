@@ -15,6 +15,7 @@ import {
   setRequestBasis,
   setSelectedFeature,
   setSelectedFeatureForMode,
+  updateFeatureForMode,
 } from "../featureCollection";
 import { storeJWT } from "../auth";
 import { fetchGraphQL } from "../../../commons/graphql";
@@ -25,8 +26,9 @@ import convex from "@turf/convex";
 import buffer from "@turf/buffer";
 import reproject from "reproject";
 import { projectionData } from "react-cismap/constants/gis";
-import { getFachobjektOfProtocol } from "../../../helper/featureHelper";
+import { getDocs, getFachobjektOfProtocol } from "../../../helper/featureHelper";
 import { CONNECTIONMODE, getConnectionMode } from "../app";
+import { createArbeitsauftragFeaturesForResults } from "./tasklists";
 
 //this function doesnt check if the app is in online or offline mode
 //it just checks if the taskListFeature is enriched or not
@@ -48,7 +50,7 @@ export const loadProtocollsIntoFeatureCollection = ({
 
       console.log("Protokolle für Arbeitsauftrag " + tasklistFeature.properties.id + " laden");
 
-      const gqlQuery = `query q($aaId: Int) {${queries.singleArbeitsauftragFull}}`;
+      const gqlQuery = `query q($aaId: Int) {${queries.full_arbeitsauftrag_by_id}}`;
 
       const queryParameter = { aaId: tasklistFeature.properties.id };
 
@@ -59,9 +61,15 @@ export const loadProtocollsIntoFeatureCollection = ({
             console.time("query returned");
             const response = await fetchGraphQL(gqlQuery, queryParameter, jwt);
             console.timeEnd("query returned");
-            console.log("xxx response", response.data);
-            const result = response.data.arbeitsauftrag[0];
 
+            const aaFeatures = createArbeitsauftragFeaturesForResults(
+              response.data.arbeitsauftrag,
+              true
+            );
+            console.log("aaFeature always 1", aaFeatures);
+            const newAAReplacement = aaFeatures[0];
+            dispatch(updateFeatureForMode({ mode: MODES.TASKLISTS, feature: newAAReplacement }));
+            const result = response.data.arbeitsauftrag[0];
             features = getFeaturesForProtokollArray(result.ar_protokolleArray);
           } else {
             features = getFeaturesForProtokollArray(tasklistFeature.properties.ar_protokolleArray);
@@ -91,39 +99,54 @@ export const loadProtocollsIntoFeatureCollection = ({
   };
 };
 
-const getFeaturesForProtokollArray = (protokollArray) => {
+export const getFeaturesForProtokollArray = (protokollArray) => {
   const features = [];
   for (const entry of protokollArray) {
     const protokoll = entry.arbeitsprotokoll;
-    const fachobjekt = getFachobjektOfProtocol(protokoll);
-    const feature = {
-      text: "-",
-      id: "arbeitsprotokoll." + protokoll.id,
-      enriched: true,
-      type: "Feature",
-      selected: false,
-      featuretype: "arbeitsprotokoll",
-      fachobjekttype: fachobjekt.type,
-      geometry: geometryFactory(protokoll),
-      crs: {
-        type: "name",
-        properties: {
-          name: "urn:ogc:def:crs:EPSG::25832",
-        },
-      },
-      properties: { ...protokoll, fachobjekt },
-    };
+    const feature = getFeatureForProtokoll(protokoll);
     features.push(feature);
   }
-  return features;
+
+  const sortedFeatures = features.sort(
+    (a, b) => a.properties.protokollnummer - b.properties.protokollnummer
+  );
+  //add index to features
+  let index = 0;
+  for (const f of sortedFeatures) {
+    f.index = index++;
+  }
+  return sortedFeatures;
+};
+
+export const getFeatureForProtokoll = (protokoll) => {
+  const fachobjekt = getFachobjektOfProtocol(protokoll);
+  const feature = {
+    text: "-",
+    id: "arbeitsprotokoll." + protokoll.id,
+    enriched: true,
+    type: "Feature",
+    selected: false,
+    featuretype: "arbeitsprotokoll",
+    fachobjekttype: fachobjekt.type,
+    geometry: geometryFactory(protokoll),
+    crs: {
+      type: "name",
+      properties: {
+        name: "urn:ogc:def:crs:EPSG::25832",
+      },
+    },
+    properties: { ...protokoll, fachobjekt },
+  };
+  feature.properties.docs = getDocs(feature);
+  return feature;
 };
 
 const geometryFactory = (prot) => {
   if (prot?.geometrie?.geom?.geo_field) {
     return prot?.geometrie?.geom?.geo_field;
   }
-  if (prot?.tdta_leuchten?.tdta_standort_mast?.geom?.geo_field) {
-    return prot.tdta_leuchten.tdta_standort_mast.geom?.geo_field;
+  if (prot?.tdta_leuchten?.fk_standort?.geom?.geo_field) {
+    return prot.tdta_leuchten.fk_standort.geom?.geo_field;
   }
   if (prot?.tdta_standort_mast?.geom?.geo_field) {
     return prot.tdta_standort_mast.geom?.geo_field;

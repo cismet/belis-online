@@ -46,7 +46,7 @@ export const loadTaskListsIntoFeatureCollection = ({
       try {
         let features = [];
         if (onlineDataForcing || connectionMode === CONNECTIONMODE.ONLINE) {
-          const gqlQuery = `query q($teamId: Int) {${queries.arbeitsauftraegexx}}`;
+          const gqlQuery = `query q($teamId: Int) {${queries.arbeitsauftraege_by_team_only_protocolgeoms}}`;
 
           const queryParameter = { teamId: team.id };
           console.time("xxx query returned");
@@ -56,11 +56,11 @@ export const loadTaskListsIntoFeatureCollection = ({
           console.log("xxx response", response.data);
           const results = response.data.arbeitsauftrag;
 
-          features = createFeaturesForResults(results);
+          features = createArbeitsauftragFeaturesForResults(results);
         } else {
           //offlineUse
           const results = await dexieW.getAll("arbeitsauftrag");
-          features = createFeaturesForResults(results, true);
+          features = createArbeitsauftragFeaturesForResults(results, true);
         }
 
         dispatch(setFeatureCollectionForMode({ mode: MODES.PROTOCOLS, features: [] }));
@@ -87,7 +87,7 @@ export const loadTaskListsIntoFeatureCollection = ({
   };
 };
 
-const createFeaturesForResults = (results, enriched = false) => {
+export const createArbeitsauftragFeaturesForResults = (results, enriched = false) => {
   const features = [];
   for (const arbeitsauftrag of results) {
     const feature = {
@@ -108,7 +108,16 @@ const createFeaturesForResults = (results, enriched = false) => {
     };
     features.push(feature);
   }
-  return features;
+
+  const sortedFeatures = features.sort((a, b) =>
+    a.properties.nummer.localeCompare(b.properties.nummer)
+  );
+  //add index to features
+  let index = 0;
+  for (const f of sortedFeatures) {
+    f.index = index++;
+  }
+  return sortedFeatures;
 };
 
 const geometryFactory = (arbeitsauftrag) => {
@@ -118,8 +127,8 @@ const geometryFactory = (arbeitsauftrag) => {
     if (prot?.geometrie?.geom?.geo_field) {
       geoms.push(createGeomOnlyFeature(prot?.geometrie?.geom?.geo_field));
     }
-    if (prot?.tdta_leuchten?.tdta_standort_mast?.geom?.geo_field) {
-      geoms.push(createGeomOnlyFeature(prot.tdta_leuchten.tdta_standort_mast.geom?.geo_field));
+    if (prot?.tdta_leuchten?.fk_standort?.geom?.geo_field) {
+      geoms.push(createGeomOnlyFeature(prot.tdta_leuchten.fk_standort.geom?.geo_field));
     }
     if (prot?.tdta_standort_mast?.geom?.geo_field) {
       geoms.push(createGeomOnlyFeature(prot.tdta_standort_mast.geom?.geo_field));

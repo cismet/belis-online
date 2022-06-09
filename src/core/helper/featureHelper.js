@@ -2,7 +2,7 @@ import { db } from "../indexeddb/dexiedb";
 import length from "@turf/length";
 import proj4 from "proj4";
 
-const calcLength = (geom) => {
+export const calcLength = (geom) => {
   let newCoords = [];
   const proj4crs25832def = "+proj=utm +zone=32 +ellps=GRS80 +units=m +no_defs";
   const targetCrs = proj4.defs("EPSG:4326");
@@ -218,7 +218,7 @@ export const getVCard = (feature) => {
     case "arbeitsprotokoll": {
       // Infobox
       vcard.infobox.header = "Arbeitsprotokoll";
-      vcard.infobox.title = "Nummer " + item.protokollnummer + " - " + item.fachobjekt.shortname;
+      vcard.infobox.title = "# " + item.protokollnummer + " - " + item.fachobjekt.shortname;
       vcard.infobox.subtitle = "Veranlassung " + item.veranlassungsnummer;
       vcard.infobox.more = undefined;
       // List
@@ -263,9 +263,18 @@ const addDokumenteArrayOfDmsUrls = (docs, dArray, caption) => {
   }
 };
 export const getDocs = (feature) => {
-  const item = feature.properties;
   const docs = [];
-  switch (feature.featuretype) {
+
+  let type, item;
+  if (feature.featuretype === "arbeitsprotokoll") {
+    type = feature.fachobjekttype;
+    item = feature.properties.fachobjekt;
+  } else {
+    type = feature.featuretype;
+    item = feature.properties;
+  }
+
+  switch (type) {
     case "tdta_leuchten":
       addDokumenteArrayOfDmsUrls(docs, item?.dokumenteArray, "Leuchte");
       addDokumenteArrayOfDmsUrls(docs, item?.fk_standort?.dokumenteArray, "Standort");
@@ -292,6 +301,9 @@ export const getDocs = (feature) => {
       addDokumenteArrayOfDmsUrls(docs, item?.dokumenteArray, "Standort");
       addDmsUrl(docs, item?.tkey_masttyp?.dms_url, "Masttyp");
       addDokumenteArrayOfDmsUrls(docs, item?.tkey_masttyp?.dokumenteArray, "Masttyp");
+      return docs;
+    case "arbeitsprotokoll":
+    case "arbeitsauftrag":
       return docs;
     default:
       console.log("unknown featuretype. this should not happen");

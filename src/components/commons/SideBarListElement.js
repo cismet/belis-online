@@ -23,6 +23,7 @@ const SideBarListElement = ({ feature, selected }) => {
           overflow: "hidden",
         }}
       >
+        {/* first row (unselected) */}
         <span
           style={{
             flexBasis: "0%",
@@ -49,10 +50,12 @@ const SideBarListElement = ({ feature, selected }) => {
           {vcard.list.upperright}
         </span>
       </div>
+      {/* second row (unselected)*/}
       <div style={{ position: "relative", bottom: "0px", textAlign: "left" }}>
         <span
           style={{
             clear: "left",
+            float: vcard.list.lowerright ? "left" : "none", //ugly winning: this works for the taslist but not for the objects (atm there is no lowerright info there)
             display: "block",
             background: debugColors ? "yellow" : undefined,
             whiteSpace: "nowrap",
@@ -62,9 +65,11 @@ const SideBarListElement = ({ feature, selected }) => {
         >
           {vcard.list.subtitle}
         </span>
-        <span style={{ float: "right", background: debugColors ? "blue" : undefined }}>
-          {vcard.list.lowerright}
-        </span>
+        {vcard.list.lowerright && (
+          <span style={{ float: "right", background: debugColors ? "blue" : undefined }}>
+            {vcard.list.lowerright}
+          </span>
+        )}
       </div>
     </span>
   );
@@ -79,6 +84,7 @@ const SideBarListElement = ({ feature, selected }) => {
           overflow: "hidden",
         }}
       >
+        {/* first row (selected) */}
         <span
           style={{
             flexBasis: "0%",
@@ -103,6 +109,7 @@ const SideBarListElement = ({ feature, selected }) => {
           {vcard.list.upperright}
         </span>
       </div>
+      {/* second row (selected) */}
       <div style={{ position: "relative", bottom: "0px", textAlign: "left" }}>
         <span
           style={{
