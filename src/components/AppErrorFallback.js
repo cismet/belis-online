@@ -254,6 +254,7 @@ const FallbackComponent = ({ error, resetErrorBoundary }) => {
               let confirmation = window.confirm(
                 "Mit dieser Aktion werden die in der Taskliste gespeicherten Aktion" +
                   " gelöscht. Bitte speichern Sie ggf. vorher die Aktionen über den grünen Button *Taskliste speichern* \n\n" +
+                  "(Schon auf dem Server gespeicherte Aktionen erscheinen, bei vorhandener Internetverbindung, wieder in Ihrem Browser)\n\n" +
                   "Sind Sie sicher, dass Sie die gespeicherten Aktionen löschen wollen?"
               );
               if (confirmation) {
