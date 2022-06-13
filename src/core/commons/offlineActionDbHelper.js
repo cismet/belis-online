@@ -6,6 +6,7 @@ import RxDBSchemaCheckModule from "rxdb/plugins/schema-check";
 import RxDBErrorMessagesModule from "rxdb/plugins/error-messages";
 import RxDBValidateModule from "rxdb/plugins/validate";
 import { isArray } from "lodash";
+import { OFFLINE_ACTIONS_ENDPOINT_URL, OFFLINE_ACTIONS_SYNC_URL } from "../../constants/belis";
 
 RxDB.plugin(RxDBSchemaCheckModule);
 RxDB.plugin(RxDBErrorMessagesModule);
@@ -14,7 +15,6 @@ RxDB.plugin(RxDBReplicationGraphQL);
 RxDB.plugin(require("pouchdb-adapter-idb"));
 
 const completedIds = {};
-const syncURL = "https://offline-actions.cismet.de/v1/graphql";
 export const ERR_CODE_INVALID_JWT = "invalid-jwt";
 export const ERR_CODE_NO_CONNECTION = "Failed to fetch";
 const ERR_MSG_INVALID_JWT = "Could not verify JWT";
@@ -147,7 +147,7 @@ export class GraphQLReplicator {
 
   async setupGraphQLReplication(auth, errorCallback) {
     const replicationState = this.db.actions.syncGraphQL({
-      url: syncURL,
+      url: OFFLINE_ACTIONS_SYNC_URL,
       headers: {
         Authorization: `Bearer ${auth.idToken}`,
       },
@@ -179,8 +179,7 @@ export class GraphQLReplicator {
 
   setupGraphQLSubscription(auth, replicationState, updateCallback, errorCallback) {
     // Change this url to point to your hasura graphql url
-    const endpointURL = "wss://offline-actions.cismet.de/v1/graphql";
-    const wsClient = new SubscriptionClient(endpointURL, {
+    const wsClient = new SubscriptionClient(OFFLINE_ACTIONS_ENDPOINT_URL, {
       reconnect: true,
       connectionParams: {
         headers: {

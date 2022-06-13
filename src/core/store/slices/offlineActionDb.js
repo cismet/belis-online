@@ -4,6 +4,7 @@ import { getJWT, getLoginFromJWT } from "./auth";
 import { integrateIntermediateResultsIntofeatureCollection, setDone } from "./featureCollection";
 import uuidv4 from "uuid/v4";
 import { getTaskForAction } from "../../commons/taskHelper";
+import slugify from "slugify";
 
 const initialState = { tasks: [], rawTasks: [] };
 
@@ -225,6 +226,25 @@ const addIntermediateResult = (intermediateResult) => {
     }
     dispatch(storeIntermediateResults(intermediateResults));
     dispatch(integrateIntermediateResultsIntofeatureCollection(intermediateResults));
+  };
+};
+function downloadObjectAsJson(exportObj, exportName) {
+  var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportObj));
+  var downloadAnchorNode = document.createElement("a");
+  downloadAnchorNode.setAttribute("href", dataStr);
+  downloadAnchorNode.setAttribute("download", exportName + ".json");
+  document.body.appendChild(downloadAnchorNode); // required for firefox
+  downloadAnchorNode.click();
+  downloadAnchorNode.remove();
+}
+
+export const downloadTasks = () => {
+  return async (dispatch, getState) => {
+    const state = getState();
+    const rawTasks = getRawTasks(state);
+    console.log("will export", rawTasks);
+
+    downloadObjectAsJson(rawTasks, "tasks" + slugify(new Date().toLocaleString()));
   };
 };
 

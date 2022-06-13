@@ -70,6 +70,7 @@ import queries from "../core/queries/online";
 import { fitBoundsForCollection } from "../core/store/slices/map";
 import localforage from "localforage";
 import store from "../core/store";
+import { getArtificialError, setArtificialError } from "../core/store/slices/app";
 //---------
 
 const TopNavbar = ({ innerRef, refRoutedMap, setCacheSettingsVisible, jwt }) => {
@@ -117,6 +118,11 @@ const TopNavbar = ({ innerRef, refRoutedMap, setCacheSettingsVisible, jwt }) => 
   const longPress = useLongPress(() => {
     window.location.reload();
   });
+
+  const artificialError = useSelector(getArtificialError);
+  if (artificialError) {
+    throw new Error("artificialError");
+  }
 
   return (
     <div style={{ fontSize }}>
@@ -240,6 +246,7 @@ const TopNavbar = ({ innerRef, refRoutedMap, setCacheSettingsVisible, jwt }) => 
                   "backgroundvectorLayers"
                 ].style.opacity
               );
+              dispatch(setArtificialError(true));
             }}
           >
             <Icon icon={faVial} />

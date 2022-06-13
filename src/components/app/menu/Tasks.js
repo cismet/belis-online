@@ -3,24 +3,19 @@ import { useEffect, useState } from "react";
 // import Button from "react-bootstrap/Button";
 import { useDispatch, useSelector } from "react-redux";
 import { getLogin } from "../../../core/store/slices/auth";
-import { getDB, getRawTasks, getTasks } from "../../../core/store/slices/offlineActionDb";
+import {
+  downloadTasks,
+  getDB,
+  getRawTasks,
+  getTasks,
+} from "../../../core/store/slices/offlineActionDb";
 
 const Tasks = () => {
   const dispatch = useDispatch();
   const tasks = useSelector(getTasks);
-  const rawTasks = useSelector(getRawTasks);
-  const login = useSelector(getLogin);
   const [showAll, setShowAll] = useState(false);
   const [shownTasks, setShownTasks] = useState([]);
-  function downloadObjectAsJson(exportObj, exportName) {
-    var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportObj));
-    var downloadAnchorNode = document.createElement("a");
-    downloadAnchorNode.setAttribute("href", dataStr);
-    downloadAnchorNode.setAttribute("download", exportName + ".json");
-    document.body.appendChild(downloadAnchorNode); // required for firefox
-    downloadAnchorNode.click();
-    downloadAnchorNode.remove();
-  }
+
   useEffect(() => {
     let results;
 
@@ -97,8 +92,7 @@ const Tasks = () => {
         <a
           className='renderAsLink'
           onClick={() => {
-            downloadObjectAsJson(rawTasks, "tasks");
-            console.log("shownTasks", rawTasks);
+            dispatch(downloadTasks());
           }}
         >
           Link

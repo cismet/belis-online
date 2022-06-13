@@ -4,7 +4,7 @@ import "./App.css";
 import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
 import MobileApp from "./containers/MobileApp";
 import Test from "./containers/Test";
-import { Provider } from "react-redux";
+import { Provider, useSelector } from "react-redux";
 import store from "./core/store";
 import "antd/dist/antd.css";
 import { PersistGate } from "redux-persist/integration/react";
@@ -16,7 +16,9 @@ import TopicMapContextProvider, {
 } from "react-cismap/contexts/TopicMapContextProvider";
 import { defaultLayerConf } from "react-cismap/tools/layerFactory";
 import { appKey, storagePostfix } from "./Keys";
-
+import { getArtificialError } from "./core/store/slices/app";
+import { ErrorBoundary } from "react-error-boundary";
+import AppErrorFallback from "./components/AppErrorFallback";
 let persistor = persistStore(store);
 
 const baseLayerConf = { ...defaultLayerConf };
@@ -82,47 +84,51 @@ if (!baseLayerConf.namedLayers.dark_matter_pale) {
 }
 
 function App() {
+  //check for queryParam artificialError
+
   return (
     <Provider store={store}>
-      <PersistGate loading={null} persistor={persistor}>
-        <Router>
-          <div className='App'>
-            <Switch>
-              <Route path='/app'>
-                <MobileApp />
-              </Route>
-
-              <Route path='/test'>
-                <Test />
-              </Route>
-
-              <Route path='/'>
-                <TopicMapContextProvider
-                  appKey={appKey + "." + storagePostfix}
-                  backgroundModes={backgroundModes}
-                  backgroundConfigurations={backgroundConfigurations}
-                  baseLayerConf={baseLayerConf}
-                  offlineCacheConfig={offlineConfig}
-                  persistenceSettings={{
-                    ui: ["appMenuVisible", "appMenuActiveMenuSection", "collapsedInfoBox"],
-                    featureCollection: ["filterState", "filterMode", "clusteringEnabled"],
-                    responsive: [],
-                    styling: [
-                      "activeAdditionalLayerKeys",
-                      "namedMapStyle",
-                      "selectedBackground",
-                      "markerSymbolSize",
-                    ],
-                    offlinelayers: ["vectorLayerOfflineEnabled"],
-                  }}
-                >
+      <ErrorBoundary FallbackComponent={AppErrorFallback}>
+        <PersistGate loading={null} persistor={persistor}>
+          <Router>
+            <div className='App'>
+              <Switch>
+                <Route path='/app'>
                   <MobileApp />
-                </TopicMapContextProvider>
-              </Route>
-            </Switch>
-          </div>
-        </Router>
-      </PersistGate>
+                </Route>
+
+                <Route path='/test'>
+                  <Test />
+                </Route>
+
+                <Route path='/'>
+                  <TopicMapContextProvider
+                    appKey={appKey + "." + storagePostfix}
+                    backgroundModes={backgroundModes}
+                    backgroundConfigurations={backgroundConfigurations}
+                    baseLayerConf={baseLayerConf}
+                    offlineCacheConfig={offlineConfig}
+                    persistenceSettings={{
+                      ui: ["appMenuVisible", "appMenuActiveMenuSection", "collapsedInfoBox"],
+                      featureCollection: ["filterState", "filterMode", "clusteringEnabled"],
+                      responsive: [],
+                      styling: [
+                        "activeAdditionalLayerKeys",
+                        "namedMapStyle",
+                        "selectedBackground",
+                        "markerSymbolSize",
+                      ],
+                      offlinelayers: ["vectorLayerOfflineEnabled"],
+                    }}
+                  >
+                    <MobileApp />
+                  </TopicMapContextProvider>
+                </Route>
+              </Switch>
+            </div>
+          </Router>
+        </PersistGate>
+      </ErrorBoundary>
     </Provider>
   );
 }
