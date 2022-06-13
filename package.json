@@ -59,6 +59,7 @@
     "redux-persist": "^6.0.0",
     "rxdb": "^8.7.4",
     "rxjs": "^6.1.0",
+    "slugify": "^1.6.5",
     "stacktrace-js": "^2.0.2",
     "subscriptions-transport-ws": "^0.9.19",
     "turf-linestring": "^1.0.2",
