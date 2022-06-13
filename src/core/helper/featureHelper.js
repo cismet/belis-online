@@ -753,6 +753,8 @@ export const getIntermediateResultsToBeRemoved = (feature) => {
 };
 
 export const integrateIntermediateResults = (feature, intermediateResults) => {
+  console.log("xxx integrateIntermediateResults", feature, intermediateResults);
+
   const item = feature.properties;
   let docs = [];
   //remove intermediate results in item.docs
