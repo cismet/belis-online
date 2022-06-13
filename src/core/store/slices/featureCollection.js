@@ -208,6 +208,7 @@ export const setSelectedFeature = (selectedFeature) => {
     const mapRef = getMapRef(state);
     const oldSelectedFeature = getSelectedFeature(state);
     if (selectedFeature && oldSelectedFeature?.id === selectedFeature?.id) {
+      dispatch(setSelectedFeatureForMode({ selectedFeature, mode }));
       zoomToFeature({ feature: selectedFeature, mapRef });
     } else {
       dispatch(setSelectedFeatureForMode({ selectedFeature, mode }));
@@ -345,13 +346,14 @@ export const loadTaskLists = ({ onlineDataForcing, team, done = () => {} }) => {
   };
 };
 
-export const reSetSelecteFeatureFromCollection = () => {
+export const reSetSelecteFeatureFromCollection = (_featureCollection) => {
   return (dispatch, getState) => {
     const state = getState();
-    const featureCollection = getFeatureCollection(state);
+    const featureCollection = _featureCollection || getFeatureCollection(state);
     const oldSelectedFeature = getSelectedFeature(state);
     const selectedFeature = featureCollection.find((f) => f.id === oldSelectedFeature.id);
-    dispatch(setSelectedFeature(selectedFeature));
+    const mode = state.featureCollection.mode;
+    dispatch(setSelectedFeatureForMode({ selectedFeature, mode }));
   };
 };
 
@@ -370,7 +372,7 @@ export const integrateIntermediateResultsIntofeatureCollection = (intermediateRe
 
     //re set the featurecollection
     dispatch(setFeatureCollection(featureCollection));
-    dispatch(reSetSelecteFeatureFromCollection());
+    dispatch(reSetSelecteFeatureFromCollection(featureCollection));
   };
 };
 
