@@ -172,7 +172,6 @@ export const getStandortDetails = ({
       {standortItem?.unterhaltspflicht_mast?.unterhalt_mast}
     </Descriptions.Item>,
   ];
-  console.log("xxx docs", docs);
 
   return (
     <>
