@@ -14,7 +14,7 @@ RxDB.plugin(RxDBReplicationGraphQL);
 RxDB.plugin(require("pouchdb-adapter-idb"));
 
 const completedIds = {};
-const syncURL = "https://offline-actions.cismet.de/v1/graphql";
+const syncURL = "https://offline-actions-belis-cloud.cismet.de/v1/graphql";
 export const ERR_CODE_INVALID_JWT = "invalid-jwt";
 export const ERR_CODE_NO_CONNECTION = "Failed to fetch";
 const ERR_MSG_INVALID_JWT = "Could not verify JWT";
