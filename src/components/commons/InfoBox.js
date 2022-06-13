@@ -58,7 +58,9 @@ const InfoBox = ({ refRoutedMap }) => {
   const { setCollapsedInfoBox } = useContext(UIDispatchContext);
   const { collapsedInfoBox } = useContext(UIContext);
   const mode = useSelector(getFeatureCollectionMode);
-  const { setAll: setPhotoLightBoxData, setVisible } = useContext(LightBoxDispatchContext);
+  const { setAll: setPhotoLightBoxData, setVisible, setCaptions } = useContext(
+    LightBoxDispatchContext
+  );
 
   let header = <span>Feature title</span>;
   const minified = collapsedInfoBox;
@@ -132,6 +134,7 @@ const InfoBox = ({ refRoutedMap }) => {
       caption: captions,
       visible: false,
     });
+    setCaptions(captions);
   }, [selectedFeature, jwt, dispatch, vcard]);
 
   const setLightBoxVisible = (visible) => {
