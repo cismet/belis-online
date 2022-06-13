@@ -7,7 +7,7 @@ import { getBelisVersion } from "../constants/versions";
 import store from "../core/store";
 import { CONNECTIONMODE, setConnectionMode } from "../core/store/slices/app";
 import { deleteCacheDB } from "../core/store/slices/cacheControl";
-import { truncateActionTables } from "../core/store/slices/offlineActionDb";
+import { downloadTasks, truncateActionTables } from "../core/store/slices/offlineActionDb";
 const FallbackComponent = ({ error, resetErrorBoundary }) => {
   const br = "\n";
   const [errorStack, setErrorStack] = React.useState({});
@@ -204,13 +204,7 @@ const FallbackComponent = ({ error, resetErrorBoundary }) => {
           <button
             style={{ marginLeft: 20, backgroundColor: "green" }}
             onClick={() => {
-              var dataStr = "data:text/plain;charset=utf-8," + encodeURIComponent(attachmentText);
-              var downloadAnchorNode = document.createElement("a");
-              downloadAnchorNode.setAttribute("href", dataStr);
-              downloadAnchorNode.setAttribute("download", "problemReport.belis-online.txt");
-              window.document.body.appendChild(downloadAnchorNode); // required for firefox
-              downloadAnchorNode.click();
-              downloadAnchorNode.remove();
+              dispatch(downloadTasks());
             }}
           >
             Taskliste speichern
