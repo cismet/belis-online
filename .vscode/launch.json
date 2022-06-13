@@ -22,10 +22,16 @@
       "type": "chrome",
       "request": "launch",
       "name": "App Schaltstelle 1444 ",
-      "url": "    http://localhost:3000/?lat=51.2720809518546&lng=7.199995806095103&showRawData&stateLoggingEnabled=true&zoom=22#",
+      "url": "http://localhost:3000/?lat=51.2720809518546&lng=7.199995806095103&showRawData&stateLoggingEnabled=true&zoom=22#",
       "webRoot": "${workspaceFolder}"
     },
-
+    {
+      "type": "chrome",
+      "request": "launch",
+      "name": "App Test Arbeitsauftrag ",
+      "url": "http://localhost:3000/?lat=51.275220203403514&lng=7.221346250098578&zoom=19",
+      "webRoot": "${workspaceFolder}"
+    },
     {
       "type": "chrome",
       "request": "launch",
