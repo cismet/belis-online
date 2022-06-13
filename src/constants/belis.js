@@ -1,3 +1,9 @@
+export const REST_SERVICE = "https://belis-cloud.cismet.de/belis2-test/api";
+const OFFLINE_ACTIONS_ROUTE = "offline-actions-belis-cloud.cismet.de/v1/graphql";
+export const OFFLINE_ACTIONS_SYNC_URL = "https://" + OFFLINE_ACTIONS_ROUTE;
+
+export const OFFLINE_ACTIONS_ENDPOINT_URL = "wss://" + OFFLINE_ACTIONS_ROUTE;
+
 export const backgrounds = {
   stadtplan: "vectorCityMap",
   lbk: "lbk",
@@ -76,7 +82,7 @@ export const offlineConfig = {
 };
 
 // export const REST_SERVICE = "http://bender:8890";
-export const REST_SERVICE = "https://belis-cloud.cismet.de/belis2-test/api";
+
 export const getWebDavUrl = (jwt, doc) => {
   if (doc.intermediate === true) {
     return doc.url;
