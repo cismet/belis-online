@@ -253,7 +253,7 @@ const getLayout4Leuchte = ({
       header='Mast'
       extra={showActions && getAddImageButton(dispatch, item?.fk_standort, "tdta_standort_mast")}
     >
-      {getStandortDetails({ standortItem: item?.fk_standort, docs, jwt, dispatch })}
+      {getStandortDetails({ standortItem: item?.fk_standort, docs, jwt, setIndex, setVisible })}
     </SecondaryInfoPanelSection>
   );
 

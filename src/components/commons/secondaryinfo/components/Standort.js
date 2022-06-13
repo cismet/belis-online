@@ -131,7 +131,8 @@ export const getStandortDetails = ({
   standortItem,
   docs,
   jwt,
-  dispatch,
+  setIndex,
+  setVisible,
   columns = { xs: 1, sm: 1, md: 2, lg: 2, xxl: 3 },
 }) => {
   const standortItems = [
@@ -171,13 +172,16 @@ export const getStandortDetails = ({
       {standortItem?.unterhaltspflicht_mast?.unterhalt_mast}
     </Descriptions.Item>,
   ];
+  console.log("xxx docs", docs);
+
   return (
     <>
       <Descriptions column={columns} layout='horizontal' bordered>
         {clearOptionalDescriptionItems(standortItems)}
         {/* {standortItems} */}
       </Descriptions>
-      {docs.length > 1 && getSquaredThumbnails(docs, "Standort", jwt, dispatch)}
+      {docs.length > 1 &&
+        getSquaredThumbnails({ docs, type: "Standort", jwt, setIndex, setVisible })}
     </>
   );
 };
