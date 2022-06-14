@@ -5,7 +5,7 @@ import { integrateIntermediateResultsIntofeatureCollection, setDone } from "./fe
 import uuidv4 from "uuid/v4";
 import { getTaskForAction } from "../../commons/taskHelper";
 import slugify from "slugify";
-
+import actions from "./actionSubslices";
 const initialState = { tasks: [], rawTasks: [] };
 
 const slice = createSlice({
@@ -182,7 +182,7 @@ export const removeIntermediateResults = (intermediateResultsToRemove) => {
     }
   };
 };
-const addIntermediateResult = (intermediateResult) => {
+export const addIntermediateResult = (intermediateResult) => {
   return async (dispatch, getState) => {
     // intermediate result has the following attributes
     // object_typ: class of the object
@@ -248,42 +248,44 @@ export const downloadTasks = () => {
   };
 };
 
-export const processAddImageToObject = (addImageParameter) => {
-  return async (dispatch, getState) => {
-    const state = getState();
-    const offlineActionDb = getDB(state);
-    const jwt = getJWT(state);
-    const login = getLoginFromJWT(jwt);
-    offlineActionDb.actions.insert({
-      id: uuidv4(),
-      action: "uploadDocument",
-      jwt: jwt,
-      parameter: JSON.stringify(addImageParameter),
-      isCompleted: false,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      applicationId: login + "@belis",
-    });
+// export const addImageToObjectAction = (addImageParameter) => {
+//   return async (dispatch, getState) => {
+//     const state = getState();
+//     const offlineActionDb = getDB(state);
+//     const jwt = getJWT(state);
+//     const login = getLoginFromJWT(jwt);
+//     offlineActionDb.actions.insert({
+//       id: uuidv4(),
+//       action: "uploadDocument",
+//       jwt: jwt,
+//       parameter: JSON.stringify(addImageParameter),
+//       isCompleted: false,
+//       createdAt: new Date().toISOString(),
+//       updatedAt: new Date().toISOString(),
+//       applicationId: login + "@belis",
+//     });
 
-    console.log("added object to offline db to uploadDocument", addImageParameter);
+//     console.log("added object to offline db to uploadDocument", addImageParameter);
 
-    const intermediateResult = {
-      object_type: addImageParameter.objekt_typ,
-      object_id: addImageParameter.objekt_id,
-      data: {
-        imageData: addImageParameter.ImageData,
-        ending: addImageParameter.ending,
-        prefix: addImageParameter.prefix,
-        description: addImageParameter.description,
-      },
-      ts: addImageParameter.ts,
-      action: "uploadDocument",
-      resultType: "image",
-    };
+//     const intermediateResult = {
+//       object_type: addImageParameter.objekt_typ,
+//       object_id: addImageParameter.objekt_id,
+//       data: {
+//         imageData: addImageParameter.ImageData,
+//         ending: addImageParameter.ending,
+//         prefix: addImageParameter.prefix,
+//         description: addImageParameter.description,
+//       },
+//       ts: addImageParameter.ts,
+//       action: "uploadDocument",
+//       resultType: "image",
+//     };
 
-    //add parameterInfo to intermediateResults
-    dispatch(addIntermediateResult(intermediateResult));
-  };
-};
+//     //add parameterInfo to intermediateResults
+//     dispatch(addIntermediateResult(intermediateResult));
+//   };
+// };
+
+export const { addImageToObjectAction } = actions;
 
 export const uploadDocumemt = () => {};
