@@ -1,7 +1,7 @@
 export const REST_SERVICE = "https://belis-cloud.cismet.de/belis2-test/api";
+export const DOMAIN = "BELIS2-TEST";
 const OFFLINE_ACTIONS_ROUTE = "offline-actions-belis-cloud.cismet.de/v1/graphql";
 export const OFFLINE_ACTIONS_SYNC_URL = "https://" + OFFLINE_ACTIONS_ROUTE;
-
 export const OFFLINE_ACTIONS_ENDPOINT_URL = "wss://" + OFFLINE_ACTIONS_ROUTE;
 
 export const backgrounds = {
@@ -92,8 +92,6 @@ export const getWebDavUrl = (jwt, doc) => {
     return `${REST_SERVICE}/secres/${jwt}/beliswebdav/${doc.doc}`;
   }
 };
-
-export const DOMAIN = "BELIS2-TEST";
 
 export const backgroundConfigurations = {
   lbk: {
