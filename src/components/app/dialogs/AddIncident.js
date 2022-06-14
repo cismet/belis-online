@@ -1,6 +1,6 @@
-import { useState } from "react";
-import { useSelector } from "react-redux";
-import { Modal, Upload, Button, Typography, Form, Input } from "antd";
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { Modal, Upload, Button, Typography, Form, Input, Select } from "antd";
 import { LoadingOutlined, PlusOutlined } from "@ant-design/icons";
 import { UploadOutlined } from "@ant-design/icons";
 import { getJWT } from "../../../core/store/slices/auth";
@@ -8,7 +8,17 @@ import uuidv4 from "uuid/v4";
 import { getDB } from "../../../core/store/slices/offlineActionDb";
 import extensions from "../../../core/helper/extensions";
 import TextArea from "antd/lib/input/TextArea";
+import { getWorker } from "../../../core/store/slices/dexie";
+import { renewCache } from "../../../core/store/slices/cacheControl";
+import { getTeam } from "../../../core/store/slices/team";
 const { Text, Link } = Typography;
+const { Option } = Select;
+export const ADD_INCIDENT_MODES = {
+  VERANLASSUNG: "VERANLASSUNG",
+  EINZELAUFTRAG: "EINZELAUFTRAG",
+  ADD2ARBEITSAUFTRAG: "ADD2ARBEITSAUFTRAG",
+};
+
 const getBase64 = (img, callback) => {
   const reader = new FileReader();
   reader.addEventListener("load", () => {
@@ -27,6 +37,28 @@ const AddIncidentDialog = ({
   onClose = (output) => {},
   input = {},
 }) => {
+  const dispatch = useDispatch();
+  const jwt = useSelector(getJWT);
+
+  const dexieW = useSelector(getWorker);
+  const [teams, setTeams] = useState([]);
+  const [preferredIncidentTeam, setPreferredIncidentTeam] = useState();
+  const myTeam = useSelector(getTeam);
+  useEffect(() => {
+    //async block
+    (async () => {
+      try {
+        const teams = await dexieW.getAll("team");
+        if (teams && teams.length > 0) {
+          setTeams(teams);
+        } else {
+          dispatch(renewCache("team", jwt));
+        }
+      } catch (e) {
+        console.log("Error in fetching teams");
+      }
+    })();
+  }, []);
   const [imageData, setImageData] = useState();
   console.log("AddIncidentDialog", input);
 
@@ -43,13 +75,22 @@ const AddIncidentDialog = ({
     }
   };
   const [form] = Form.useForm();
+  let modeinfo;
+  if (input.mode === ADD_INCIDENT_MODES.VERANLASSUNG) {
+    modeinfo = "(Es wird nur eine Veranlassung angelegt.)";
+  } else if (input.mode === ADD_INCIDENT_MODES.EINZELAUFTRAG) {
+    modeinfo = "(Ein Einzelauftrag wird angelegt.)";
+  } else if (input.mode === ADD_INCIDENT_MODES.ADD2ARBEITSAUFTRAG) {
+    modeinfo = "(A" + input.arbeitsauftrag.properties.nummer + " wird ergänzt)";
+  }
 
   return (
     <Modal
       zIndex={30000001}
       title={
         <>
-          <div>Störung melden</div> <Text type='secondary'>{input?.vcard?.infobox?.title}</Text>
+          <div>Störung melden {modeinfo}</div>{" "}
+          <Text type='secondary'>{input?.vcard?.infobox?.title}</Text>
         </>
       }
       centered
@@ -111,11 +152,27 @@ const AddIncidentDialog = ({
         >
           <Input />
         </Form.Item>
+
+        {input.mode === ADD_INCIDENT_MODES.EINZELAUFTRAG && (
+          <Form.Item name='team' label='Team'>
+            <Select
+              defaultValue={preferredIncidentTeam?.id || myTeam?.id}
+              style={{ width: "100%" }}
+              onChange={(x) => {
+                console.log("change", x);
+              }}
+            >
+              {teams.map((team) => (
+                <Option value={team.id}>{team.name}</Option>
+              ))}
+            </Select>
+          </Form.Item>
+        )}
         <Form.Item name='description' label='Beschreibung'>
-          <TextArea rows={3} />
+          <TextArea />
         </Form.Item>
         <Form.Item name='remarks' label='Bemerkungen'>
-          <TextArea rows={3} />
+          <TextArea />
         </Form.Item>
         <Form.Item
           name='picture'

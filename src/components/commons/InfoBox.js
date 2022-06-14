@@ -33,7 +33,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFilePdf } from "@fortawesome/free-regular-svg-icons";
 import Button from "react-bootstrap/Button";
 import AddImageDialog from "../app/dialogs/AddImage";
-import AddIncidentDialog from "../app/dialogs/AddIncident";
+import AddIncidentDialog, { ADD_INCIDENT_MODES } from "../app/dialogs/AddIncident";
 import { getWebDavUrl } from "../../constants/belis";
 
 import { LightBoxDispatchContext } from "react-cismap/contexts/LightBoxContextProvider";
@@ -48,6 +48,7 @@ import {
 } from "../../core/helper/featureCollectionHelper";
 
 import { Menu, Dropdown } from "antd";
+import { faAsterisk, faFileInvoice, faInbox, faPlus } from "@fortawesome/free-solid-svg-icons";
 
 //---
 
@@ -65,7 +66,7 @@ const InfoBox = ({ refRoutedMap }) => {
     LightBoxDispatchContext
   );
   const selectedArbeitsauftrag = useSelector(
-    (state) => state.featureCollection.selectedFeature[MODES.TASKLISTS]
+    (state) => state.featureCollection.selectedFeature[FEATURECOLLECTION_MODES.TASKLISTS]
   );
   let header = <span>Feature title</span>;
   const minified = collapsedInfoBox;
@@ -235,15 +236,19 @@ const InfoBox = ({ refRoutedMap }) => {
       let subs = [
         {
           tooltip: "Nur Veranlassung",
-          title: "Nur Veranlasszung",
-          iconname: "exclamation-triangle",
+          title: "Nur Veranlassung",
+          iconspan: (
+            <span className='fa-layers fa-fw'>
+              <FontAwesomeIcon icon={faInbox}></FontAwesomeIcon>
+            </span>
+          ),
           onClick: () => {
             const dialog = (
               <AddIncidentDialog
                 close={() => {
                   dispatch(showDialog());
                 }}
-                input={{ feature: selectedFeature, vcard }}
+                input={{ feature: selectedFeature, vcard, mode: ADD_INCIDENT_MODES.VERANLASSUNG }}
                 onClose={(params) => {
                   console.log("addIncident", params);
                 }}
@@ -256,14 +261,19 @@ const InfoBox = ({ refRoutedMap }) => {
         {
           tooltip: "Einzelauftrag",
           title: "Einzelauftrag",
-          iconname: "exclamation-triangle",
+          iconspan: (
+            <span className='fa-layers fa-fw'>
+              <FontAwesomeIcon icon={faFileInvoice}></FontAwesomeIcon>
+              <FontAwesomeIcon icon={faAsterisk} transform='shrink-9 right-11 up-5' />
+            </span>
+          ),
           onClick: () => {
             const dialog = (
               <AddIncidentDialog
                 close={() => {
                   dispatch(showDialog());
                 }}
-                input={{ feature: selectedFeature, vcard }}
+                input={{ feature: selectedFeature, vcard, mode: ADD_INCIDENT_MODES.EINZELAUFTRAG }}
                 onClose={(params) => {
                   console.log("addIncident", params);
                 }}
@@ -274,18 +284,31 @@ const InfoBox = ({ refRoutedMap }) => {
           },
         },
       ];
+      console.log("selectedArbeitsauftrag", selectedArbeitsauftrag);
+
       if (selectedArbeitsauftrag) {
         subs.push({
-          tooltip: "Einzelauftrag",
-          title: selectedArbeitsauftrag.properties.nummer + "ergänzen",
-          iconname: "exclamation-triangle",
+          tooltip: "Arbeitsauftrag ergänzen",
+          title: selectedArbeitsauftrag.properties.nummer + " ergänzen",
+          // iconname: "exclamation-triangle",
+          iconspan: (
+            <span className='fa-layers fa-fw'>
+              <FontAwesomeIcon icon={faFileInvoice}></FontAwesomeIcon>
+              <FontAwesomeIcon icon={faPlus} transform='shrink-9 right-10 up-5' />
+            </span>
+          ),
           onClick: () => {
             const dialog = (
               <AddIncidentDialog
                 close={() => {
                   dispatch(showDialog());
                 }}
-                input={{ feature: selectedFeature, vcard }}
+                input={{
+                  feature: selectedFeature,
+                  vcard,
+                  mode: ADD_INCIDENT_MODES.ADD2ARBEITSAUFTRAG,
+                  arbeitsauftrag: selectedArbeitsauftrag,
+                }}
                 onClose={(params) => {
                   console.log("addIncident", params);
                 }}
@@ -300,21 +323,6 @@ const InfoBox = ({ refRoutedMap }) => {
       actionLinkInfos.push({
         tooltip: "Störung meldenn",
         subs,
-        // onClick: () => {
-        //   const dialog = (
-        //     <AddIncidentDialog
-        //       close={() => {
-        //         dispatch(showDialog());
-        //       }}
-        //       input={{ feature: selectedFeature, vcard }}
-        //       onClose={(params) => {
-        //         console.log("addIncident", params);
-        //       }}
-        //     />
-        //   );
-        //   console.log("Störung melden", dialog);
-        //   dispatch(showDialog(dialog));
-        // },
         iconname: "exclamation-triangle",
       });
     } else if (mode === FEATURECOLLECTION_MODES.TASKLISTS) {
@@ -493,7 +501,7 @@ const InfoBox = ({ refRoutedMap }) => {
     divWhenCollapsed = noCurrentFeatureTitle;
     collapsibleDiv = <div style={{ paddingRight: 2 }}>{noCurrentFeatureContent}</div>;
   }
-
+  console.log("selectedFeature", selectedFeature);
   return (
     <div>
       <ResponsiveInfoBox
@@ -523,112 +531,30 @@ const InfoBox = ({ refRoutedMap }) => {
                 if (li.subs) {
                   console.log("li.subs", li.subs);
 
-                  const itemsx = li.subs.map((sub, index) => {
+                  const items = li.subs.map((sub, index) => {
                     return {
                       key: index,
-                      label: sub.title,
-                      xx: <div onClick={sub.onClick}>{sub.title}</div>,
+                      label: (
+                        <h3 onClick={sub.onClick}>
+                          <span
+                            style={{
+                              marginRight: 10,
+                              opacity: 0.5,
+                            }}
+                          >
+                            {sub.iconname && <Icon name={sub.iconname} />}
+                            {sub.iconspan && sub.iconspan}
+                          </span>
+                          {sub.title}
+                        </h3>
+                      ),
                     };
                   });
 
-                  const items = [
-                    {
-                      key: "1",
-                      label: (
-                        <a
-                          target='_blank'
-                          rel='noopener noreferrer'
-                          href='https://www.antgroup.com'
-                        >
-                          1st menu item
-                        </a>
-                      ),
-                    },
-                    {
-                      key: "2",
-                      label: (
-                        <a target='_blank' rel='noopener noreferrer' href='https://www.aliyun.com'>
-                          2nd menu item (disabled)
-                        </a>
-                      ),
-
-                      disabled: true,
-                    },
-                    {
-                      key: "3",
-                      label: (
-                        <a
-                          target='_blank'
-                          rel='noopener noreferrer'
-                          href='https://www.luohanacademy.com'
-                        >
-                          3rd menu item (disabled)
-                        </a>
-                      ),
-                      disabled: true,
-                    },
-                    {
-                      key: "4",
-                      danger: true,
-                      label: "a danger item",
-                    },
-                  ];
-                  console.log("items", items);
-
-                  const menuX = <Menu items={items} />;
-
-                  const menu = (
-                    <Menu
-                      items={[
-                        {
-                          key: "1",
-                          label: (
-                            <a
-                              target='_blank'
-                              rel='noopener noreferrer'
-                              href='https://www.antgroup.com'
-                            >
-                              1st menu item
-                            </a>
-                          ),
-                        },
-                        {
-                          key: "2",
-                          label: (
-                            <a
-                              target='_blank'
-                              rel='noopener noreferrer'
-                              href='https://www.aliyun.com'
-                            >
-                              2nd menu item (disabled)
-                            </a>
-                          ),
-                          disabled: true,
-                        },
-                        {
-                          key: "3",
-                          label: (
-                            <a
-                              target='_blank'
-                              rel='noopener noreferrer'
-                              href='https://www.luohanacademy.com'
-                            >
-                              3rd menu item (disabled)
-                            </a>
-                          ),
-                          disabled: true,
-                        },
-                        {
-                          key: "4",
-                          danger: true,
-                          label: "a danger item",
-                        },
-                      ]}
-                    />
-                  );
+                  const menu = <Menu style={{ opacity: 0.8 }} items={items} />;
 
                   return (
-                    <Dropdown overlay={menu} placement='topRight' arrow>
+                    <Dropdown overlay={menu} placement='topRight' trigger={["click"]}>
                       <Button
                         style={{
                           opacity: 0.7,
