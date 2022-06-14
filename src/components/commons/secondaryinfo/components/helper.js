@@ -6,7 +6,7 @@ import { getVCard } from "../../../../core/helper/featureHelper";
 import IconLink from "react-cismap/commons/IconLink";
 import { showDialog } from "../../../../core/store/slices/app";
 import AddImageDialog from "../../../app/dialogs/AddImage";
-import { processAddImageToObject } from "../../../../core/store/slices/offlineActionDb";
+import { addImageToObjectAction } from "../../../../core/store/slices/offlineActionDb";
 
 export const getDate = (d) => {
   if (d) {
@@ -242,7 +242,7 @@ export const getAddImageButton = (dispatch, item, type, geometry) => {
                 }}
                 input={{ feature: artificialFeature, vcard }}
                 onClose={(addImageParamater) => {
-                  dispatch(processAddImageToObject(addImageParamater));
+                  dispatch(addImageToObjectAction(addImageParamater));
                 }}
               />
             )
