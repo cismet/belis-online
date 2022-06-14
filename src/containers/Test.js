@@ -1,58 +1,38 @@
 import React from "react";
-import { Button, Dropdown, Menu } from "antd";
+import { Button, Dropdown, Menu, Select } from "antd";
 import "antd/dist/antd.css";
-const menu = (
-  <Menu
-    items={[
-      {
-        key: "1",
-        label: (
-          <a target='_blank' rel='noopener noreferrer' href='https://www.antgroup.com'>
-            1st menu item
-          </a>
-        ),
-      },
-      {
-        key: "2",
-        label: (
-          <a target='_blank' rel='noopener noreferrer' href='https://www.aliyun.com'>
-            2nd menu item
-          </a>
-        ),
-      },
-      {
-        key: "3",
-        label: (
-          <a target='_blank' rel='noopener noreferrer' href='https://www.luohanacademy.com'>
-            3rd menu item
-          </a>
-        ),
-      },
-    ]}
-  />
-);
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faAsterisk,
+  faFile,
+  faFileInvoice,
+  faInbox,
+  faPlus,
+} from "@fortawesome/free-solid-svg-icons";
+import IconComp from "react-cismap/commons/Icon";
+const { Option } = Select;
+
 const Test = () => {
+  const select = (
+    <Select
+      defaultValue='lucy'
+      style={{ width: "100%" }}
+      onChange={(x) => {
+        console.log("change", x);
+      }}
+    >
+      <Option value='jack'>Jack</Option>
+      <Option value='lucy'>Lucy</Option>
+      <Option value='disabled' disabled>
+        Disabled
+      </Option>
+      <Option value='Yiminghe'>yiminghe</Option>
+    </Select>
+  );
   return (
     <>
-      <Dropdown overlay={menu} placement='bottomLeft' arrow>
-        <Button>bottomLeft</Button>
-      </Dropdown>
-      <Dropdown overlay={menu} placement='bottom' arrow>
-        <Button>bottom</Button>
-      </Dropdown>
-      <Dropdown overlay={menu} placement='bottomRight' arrow>
-        <Button>bottomRight</Button>
-      </Dropdown>
-      <br />
-      <Dropdown overlay={menu} placement='topLeft' arrow>
-        <Button>topLeft</Button>
-      </Dropdown>
-      <Dropdown overlay={menu} placement='top' arrow>
-        <Button>top</Button>
-      </Dropdown>
-      <Dropdown overlay={menu} placement='topRight' arrow>
-        <Button>topRight</Button>
-      </Dropdown>
+      <div style={{ margin: 100 }}>{select}</div>
+      <div style={{ margin: 100 }}></div>
     </>
   );
 };
