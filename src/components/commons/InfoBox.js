@@ -33,12 +33,13 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFilePdf } from "@fortawesome/free-regular-svg-icons";
 import Button from "react-bootstrap/Button";
 import AddImageDialog from "../app/dialogs/AddImage";
+import AddIncidentDialog from "../app/dialogs/AddIncident";
 import { getWebDavUrl } from "../../constants/belis";
 
 import { LightBoxDispatchContext } from "react-cismap/contexts/LightBoxContextProvider";
 
 import { addDotThumbnail } from "./secondaryinfo/components/helper";
-import { getDB, processAddImageToObject } from "../../core/store/slices/offlineActionDb";
+import { getDB, addImageToObjectAction } from "../../core/store/slices/offlineActionDb";
 import { bufferBBox } from "../../core/helper/gisHelper";
 import { zoomToFeature } from "../../core/helper/mapHelper";
 import {
@@ -74,7 +75,7 @@ const InfoBox = ({ refRoutedMap }) => {
   let subtitle = "feature subtitle";
   let additionalInfo = "info";
   let hideNavigator = false;
-  let links = [];
+  let actionLinkInfos = [];
 
   // const lightBoxDispatchContext = useContext(LightBoxDispatchContext);
   const pixelwidth = 350;
@@ -182,117 +183,97 @@ const InfoBox = ({ refRoutedMap }) => {
     vcard = getVCard(selectedFeature);
     header = <span>Feature{vcard}</span>;
 
-    links = getActionLinksForFeature(selectedFeature, {
-      entityClassName: config.navigator.noun.singular,
-      displayZoomToFeature: true,
-      zoomToFeature: (feature) => {
-        zoomToFeature({ feature, mapRef: refRoutedMap.current.leafletMap.leafletElement });
+    actionLinkInfos = [
+      {
+        tooltip: "Auf Objekt zoomen",
+        onClick: () => {
+          zoomToFeature({
+            feature: selectedFeature,
+            mapRef: refRoutedMap.current.leafletMap.leafletElement,
+          });
+        },
+        iconname: "search-location",
       },
-      displaySecondaryInfoAction: false,
-      setVisibleStateOfSecondaryInfo: (vis) => {
-        return false;
-      },
-    });
+    ];
 
     if (mode === FEATURECOLLECTION_MODES.OBJECTS) {
       if (
         selectedFeature?.featuretype !== "Leitung" &&
         selectedFeature?.featuretype !== "abzweigdose"
       )
-        links.push(
-          <IconLink
-            key={`openInfo`}
-            tooltip={"Öffne Datenblatt"}
-            onClick={() => {
-              dispatch(setSecondaryInfoVisible(!secondaryInfoVisible));
-            }}
-            iconname={"info"}
-            href='#'
-          />
-        );
-
-      links.push(
-        <IconLink
-          key={`addPhoto`}
-          tooltip={"Foto hinzufügen"}
-          onClick={() => {
-            dispatch(
-              showDialog(
-                <AddImageDialog
-                  close={() => {
-                    dispatch(showDialog());
-                  }}
-                  input={{ feature: selectedFeature, vcard }}
-                  onClose={(addImageParamater) => {
-                    dispatch(processAddImageToObject(addImageParamater));
-                  }}
-                />
-              )
-            );
-          }}
-          iconname={"camera"}
-          href='#'
-        />
-      );
-
-      links.push(
-        <IconLink
-          key={`addIncident`}
-          tooltip={"Störung melden"}
-          onClick={() => {
-            // dispatch(setSecondaryInfoVisible(!secondaryInfoVisible));
-          }}
-          iconname={"exclamation-triangle"}
-          href='#'
-        />
-      );
-    } else if (mode === FEATURECOLLECTION_MODES.TASKLISTS) {
-      links.push(
-        <IconLink
-          key={`openInfo`}
-          tooltip={"Öffne Datenblatt"}
-          onClick={() => {
+        actionLinkInfos.push({
+          tooltip: "Öffne Datenblatt",
+          onClick: () => {
             dispatch(setSecondaryInfoVisible(!secondaryInfoVisible));
-          }}
-          iconname={"info"}
-          href='#'
-        />
-      );
+          },
+          iconname: "info",
+        });
+
+      actionLinkInfos.push({
+        tooltip: "Foto hinzufügen",
+        onClick: () => {
+          const dialog = (
+            <AddImageDialog
+              close={() => {
+                dispatch(showDialog());
+              }}
+              input={{ feature: selectedFeature, vcard }}
+              onClose={(addImageParamater) => {
+                dispatch(addImageToObjectAction(addImageParamater));
+              }}
+            />
+          );
+          dispatch(showDialog(dialog));
+        },
+        iconname: "camera",
+      });
+
+      actionLinkInfos.push({
+        tooltip: "Störung meldenn",
+        onClick: () => {
+          const dialog = (
+            <AddIncidentDialog
+              close={() => {
+                dispatch(showDialog());
+              }}
+              input={{ feature: selectedFeature, vcard }}
+              onClose={(params) => {
+                console.log("addIncident", params);
+              }}
+            />
+          );
+          console.log("Störung melden", dialog);
+          dispatch(showDialog(dialog));
+        },
+        iconname: "exclamation-triangle",
+      });
+    } else if (mode === FEATURECOLLECTION_MODES.TASKLISTS) {
+      actionLinkInfos.push({
+        tooltip: "Öffne Datenblatt",
+        onClick: () => {
+          dispatch(setSecondaryInfoVisible(!secondaryInfoVisible));
+        },
+        iconname: "info",
+      });
     } else {
       //Protocols
-      links.push(
-        <IconLink
-          key={`openInfo`}
-          tooltip={"Öffne Datenblatt"}
-          onClick={() => {
-            dispatch(setSecondaryInfoVisible(!secondaryInfoVisible));
-          }}
-          iconname={"info"}
-          href='#'
-        />
-      );
-      links.push(
-        <IconLink
-          key={`protocolAction`}
-          tooltip={"Aktionen"}
-          onClick={() => {
-            // dispatch(setSecondaryInfoVisible(!secondaryInfoVisible));
-          }}
-          iconname={"list-alt"}
-          href='#'
-        />
-      );
-      links.push(
-        <IconLink
-          key={`statusAction`}
-          tooltip={"Status ändern"}
-          onClick={() => {
-            // dispatch(setSecondaryInfoVisible(!secondaryInfoVisible));
-          }}
-          iconname={"comment"}
-          href='#'
-        />
-      );
+      actionLinkInfos.push({
+        tooltip: "Öffne Datenblatt",
+        onClick: () => {
+          dispatch(setSecondaryInfoVisible(!secondaryInfoVisible));
+        },
+        iconname: "info",
+      });
+      actionLinkInfos.push({
+        tooltip: "Aktionen",
+        onClick: () => {},
+        iconname: "list-alt",
+      });
+      actionLinkInfos.push({
+        tooltip: "Status ändern",
+        onClick: () => {},
+        iconname: "list-alt",
+      });
     }
 
     header = <span>{vcard?.infobox?.header || config.header}</span>;
@@ -367,8 +348,18 @@ const InfoBox = ({ refRoutedMap }) => {
               </td>
               {minified === true && (
                 <td style={{ textAlign: "right", paddingRight: 7 }}>
-                  {links.map((link, index) => {
-                    return <span style={{ paddingLeft: index > 0 ? 3 : 0 }}>{link}</span>;
+                  {actionLinkInfos.map((li, index) => {
+                    return (
+                      <span style={{ paddingLeft: index > 0 ? 3 : 0 }}>
+                        <IconLink
+                          key={`iconlink` + index}
+                          tooltip={li.tooltip}
+                          onClick={li.onClick}
+                          iconname={li.iconname}
+                          href='#'
+                        />
+                      </span>
+                    );
                   })}
                 </td>
               )}
@@ -455,19 +446,24 @@ const InfoBox = ({ refRoutedMap }) => {
                 paddingBottom: 5,
               }}
             >
-              {links.map((link, index) => {
+              {actionLinkInfos.map((li, index) => {
                 return (
                   <Button
                     style={{
                       opacity: 0.7,
                       marginLeft: index === 0 ? 0 : 5,
-                      marginRight: index === links.length - 1 ? 0 : 5,
+                      marginRight: index === actionLinkInfos.length - 1 ? 0 : 5,
                       width: "100%",
                     }}
+                    key={"actionbutton." + index}
                     size='lg'
                     variant='light'
+                    onClick={li.onClick}
+                    tooltip={li.tooltip}
                   >
-                    {link}
+                    <h2>
+                      <Icon name={li.iconname} />
+                    </h2>
                   </Button>
                 );
               })}
