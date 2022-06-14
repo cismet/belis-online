@@ -47,6 +47,8 @@ import {
   selectPreviousFeature,
 } from "../../core/helper/featureCollectionHelper";
 
+import { Menu, Dropdown } from "antd";
+
 //---
 
 const InfoBox = ({ refRoutedMap }) => {
@@ -62,7 +64,9 @@ const InfoBox = ({ refRoutedMap }) => {
   const { setAll: setPhotoLightBoxData, setVisible, setCaptions } = useContext(
     LightBoxDispatchContext
   );
-
+  const selectedArbeitsauftrag = useSelector(
+    (state) => state.featureCollection.selectedFeature[MODES.TASKLISTS]
+  );
   let header = <span>Feature title</span>;
   const minified = collapsedInfoBox;
   const minify = setCollapsedInfoBox;
@@ -228,23 +232,89 @@ const InfoBox = ({ refRoutedMap }) => {
         iconname: "camera",
       });
 
+      let subs = [
+        {
+          tooltip: "Nur Veranlassung",
+          title: "Nur Veranlasszung",
+          iconname: "exclamation-triangle",
+          onClick: () => {
+            const dialog = (
+              <AddIncidentDialog
+                close={() => {
+                  dispatch(showDialog());
+                }}
+                input={{ feature: selectedFeature, vcard }}
+                onClose={(params) => {
+                  console.log("addIncident", params);
+                }}
+              />
+            );
+            console.log("Störung melden", dialog);
+            dispatch(showDialog(dialog));
+          },
+        },
+        {
+          tooltip: "Einzelauftrag",
+          title: "Einzelauftrag",
+          iconname: "exclamation-triangle",
+          onClick: () => {
+            const dialog = (
+              <AddIncidentDialog
+                close={() => {
+                  dispatch(showDialog());
+                }}
+                input={{ feature: selectedFeature, vcard }}
+                onClose={(params) => {
+                  console.log("addIncident", params);
+                }}
+              />
+            );
+            console.log("Störung melden", dialog);
+            dispatch(showDialog(dialog));
+          },
+        },
+      ];
+      if (selectedArbeitsauftrag) {
+        subs.push({
+          tooltip: "Einzelauftrag",
+          title: selectedArbeitsauftrag.properties.nummer + "ergänzen",
+          iconname: "exclamation-triangle",
+          onClick: () => {
+            const dialog = (
+              <AddIncidentDialog
+                close={() => {
+                  dispatch(showDialog());
+                }}
+                input={{ feature: selectedFeature, vcard }}
+                onClose={(params) => {
+                  console.log("addIncident", params);
+                }}
+              />
+            );
+            console.log("Störung melden", dialog);
+            dispatch(showDialog(dialog));
+          },
+        });
+      }
+
       actionLinkInfos.push({
         tooltip: "Störung meldenn",
-        onClick: () => {
-          const dialog = (
-            <AddIncidentDialog
-              close={() => {
-                dispatch(showDialog());
-              }}
-              input={{ feature: selectedFeature, vcard }}
-              onClose={(params) => {
-                console.log("addIncident", params);
-              }}
-            />
-          );
-          console.log("Störung melden", dialog);
-          dispatch(showDialog(dialog));
-        },
+        subs,
+        // onClick: () => {
+        //   const dialog = (
+        //     <AddIncidentDialog
+        //       close={() => {
+        //         dispatch(showDialog());
+        //       }}
+        //       input={{ feature: selectedFeature, vcard }}
+        //       onClose={(params) => {
+        //         console.log("addIncident", params);
+        //       }}
+        //     />
+        //   );
+        //   console.log("Störung melden", dialog);
+        //   dispatch(showDialog(dialog));
+        // },
         iconname: "exclamation-triangle",
       });
     } else if (mode === FEATURECOLLECTION_MODES.TASKLISTS) {
@@ -349,17 +419,20 @@ const InfoBox = ({ refRoutedMap }) => {
               {minified === true && (
                 <td style={{ textAlign: "right", paddingRight: 7 }}>
                   {actionLinkInfos.map((li, index) => {
-                    return (
-                      <span style={{ paddingLeft: index > 0 ? 3 : 0 }}>
-                        <IconLink
-                          key={`iconlink` + index}
-                          tooltip={li.tooltip}
-                          onClick={li.onClick}
-                          iconname={li.iconname}
-                          href='#'
-                        />
-                      </span>
-                    );
+                    if (li.subs) {
+                    } else {
+                      return (
+                        <span style={{ paddingLeft: index > 0 ? 3 : 0 }}>
+                          <IconLink
+                            key={`iconlink` + index}
+                            tooltip={li.tooltip}
+                            onClick={li.onClick}
+                            iconname={li.iconname}
+                            href='#'
+                          />
+                        </span>
+                      );
+                    }
                   })}
                 </td>
               )}
@@ -447,25 +520,154 @@ const InfoBox = ({ refRoutedMap }) => {
               }}
             >
               {actionLinkInfos.map((li, index) => {
-                return (
-                  <Button
-                    style={{
-                      opacity: 0.7,
-                      marginLeft: index === 0 ? 0 : 5,
-                      marginRight: index === actionLinkInfos.length - 1 ? 0 : 5,
-                      width: "100%",
-                    }}
-                    key={"actionbutton." + index}
-                    size='lg'
-                    variant='light'
-                    onClick={li.onClick}
-                    tooltip={li.tooltip}
-                  >
-                    <h2>
-                      <Icon name={li.iconname} />
-                    </h2>
-                  </Button>
-                );
+                if (li.subs) {
+                  console.log("li.subs", li.subs);
+
+                  const itemsx = li.subs.map((sub, index) => {
+                    return {
+                      key: index,
+                      label: sub.title,
+                      xx: <div onClick={sub.onClick}>{sub.title}</div>,
+                    };
+                  });
+
+                  const items = [
+                    {
+                      key: "1",
+                      label: (
+                        <a
+                          target='_blank'
+                          rel='noopener noreferrer'
+                          href='https://www.antgroup.com'
+                        >
+                          1st menu item
+                        </a>
+                      ),
+                    },
+                    {
+                      key: "2",
+                      label: (
+                        <a target='_blank' rel='noopener noreferrer' href='https://www.aliyun.com'>
+                          2nd menu item (disabled)
+                        </a>
+                      ),
+
+                      disabled: true,
+                    },
+                    {
+                      key: "3",
+                      label: (
+                        <a
+                          target='_blank'
+                          rel='noopener noreferrer'
+                          href='https://www.luohanacademy.com'
+                        >
+                          3rd menu item (disabled)
+                        </a>
+                      ),
+                      disabled: true,
+                    },
+                    {
+                      key: "4",
+                      danger: true,
+                      label: "a danger item",
+                    },
+                  ];
+                  console.log("items", items);
+
+                  const menuX = <Menu items={items} />;
+
+                  const menu = (
+                    <Menu
+                      items={[
+                        {
+                          key: "1",
+                          label: (
+                            <a
+                              target='_blank'
+                              rel='noopener noreferrer'
+                              href='https://www.antgroup.com'
+                            >
+                              1st menu item
+                            </a>
+                          ),
+                        },
+                        {
+                          key: "2",
+                          label: (
+                            <a
+                              target='_blank'
+                              rel='noopener noreferrer'
+                              href='https://www.aliyun.com'
+                            >
+                              2nd menu item (disabled)
+                            </a>
+                          ),
+                          disabled: true,
+                        },
+                        {
+                          key: "3",
+                          label: (
+                            <a
+                              target='_blank'
+                              rel='noopener noreferrer'
+                              href='https://www.luohanacademy.com'
+                            >
+                              3rd menu item (disabled)
+                            </a>
+                          ),
+                          disabled: true,
+                        },
+                        {
+                          key: "4",
+                          danger: true,
+                          label: "a danger item",
+                        },
+                      ]}
+                    />
+                  );
+
+                  return (
+                    <Dropdown overlay={menu} placement='topRight' arrow>
+                      <Button
+                        style={{
+                          opacity: 0.7,
+                          marginLeft: index === 0 ? 0 : 5,
+                          marginRight: index === actionLinkInfos.length - 1 ? 0 : 5,
+                          width: "100%",
+                        }}
+                        key={"actionbutton." + index}
+                        size='lg'
+                        variant='light'
+                        tooltip={li.tooltip}
+                      >
+                        <h2>
+                          <Icon name={li.iconname} />
+                        </h2>
+                      </Button>
+                    </Dropdown>
+                  );
+                } else {
+                  return (
+                    <Button
+                      style={{
+                        opacity: 0.7,
+                        marginLeft: index === 0 ? 0 : 5,
+                        marginRight: index === actionLinkInfos.length - 1 ? 0 : 5,
+                        width: "100%",
+                      }}
+                      key={"actionbutton." + index}
+                      size='lg'
+                      variant='light'
+                      onClick={li.onClick}
+                      tooltip={li.tooltip}
+                    >
+                      <h2>
+                        <Icon name={li.iconname} />
+                      </h2>
+                    </Button>
+                  );
+                }
               })}
             </div>
           ) : (
