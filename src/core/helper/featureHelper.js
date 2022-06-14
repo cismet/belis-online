@@ -979,3 +979,29 @@ export const getFachobjektOfProtocol = (item) => {
     };
   }
 };
+
+const getActionInfo = (feature) => {
+  const type = feature.featuretype;
+
+  switch (type) {
+    case "Leitung":
+      return [];
+    case "leitung":
+      return [];
+    case "mauerlasche":
+      return [];
+    case "schaltstelle":
+      return [];
+    case "abzweigdose":
+      return [];
+    case "tdta_standort_mast":
+      return [];
+    case "arbeitsprotokoll":
+      return [];
+    case "arbeitsauftrag":
+      return [];
+    default:
+      console.log("unknown featuretype. this should not happen", type);
+      return [];
+  }
+};
