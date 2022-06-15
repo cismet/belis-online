@@ -1,12 +1,14 @@
-import { useState } from "react";
-import { useSelector } from "react-redux";
-import { Modal, Upload, Button, Typography, Form, Input } from "antd";
 import { LoadingOutlined, PlusOutlined } from "@ant-design/icons";
 import { UploadOutlined } from "@ant-design/icons";
-import { getJWT } from "../../../core/store/slices/auth";
+import { Button, Form, Input, Modal, Typography, Upload } from "antd";
+import { useState } from "react";
+import { useSelector } from "react-redux";
 import uuidv4 from "uuid/v4";
-import { getDB } from "../../../core/store/slices/offlineActionDb";
+
 import extensions from "../../../core/helper/extensions";
+import { getJWT } from "../../../core/store/slices/auth";
+import { getDB } from "../../../core/store/slices/offlineActionDb";
+
 const { Text, Link } = Typography;
 const getBase64 = (img, callback) => {
   const reader = new FileReader();
