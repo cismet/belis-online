@@ -1,32 +1,6 @@
-import {
-  faCalendarAlt,
-  faCalendarCheck,
-  faHdd,
-  faLightbulb,
-  faMinusSquare,
-} from "@fortawesome/free-regular-svg-icons";
-import {
-  faAsterisk,
-  faBatteryEmpty,
-  faBinoculars,
-  faBolt,
-  faCalendarDay,
-  faCheckCircle,
-  faFileInvoice,
-  faFilter,
-  faInbox,
-  faPaintRoller,
-  faPlus,
-  faSignal,
-  faStream,
-  faSync,
-} from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React from "react";
-
 import AddImageDialog from "../../components/app/dialogs/AddImage";
 import AddIncidentDialog, { ADD_INCIDENT_MODES } from "../../components/app/dialogs/AddIncident";
-import store from "../store";
 import addIncidentAction from "../store/slices/actionSubslices/addIncidentAction";
 import { showDialog } from "../store/slices/app";
 import {
