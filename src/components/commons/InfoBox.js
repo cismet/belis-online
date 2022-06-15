@@ -1,54 +1,50 @@
-import React, { useContext } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import {
-  getFeatureCollection,
-  getSelectedFeature,
-  setSelectedFeature,
-  isSecondaryInfoVisible,
-  setSecondaryInfoVisible,
-  getFeatureCollectionMode,
-} from "../../core/store/slices/featureCollection";
-// import ResponsiveInfoBox from "./ResponsiveInfoBox";
-import ResponsiveInfoBox, { MODES } from "react-cismap/topicmaps/ResponsiveInfoBox";
-
-import { MODES as FEATURECOLLECTION_MODES } from "../../core/store/slices/featureCollection";
-import { getActionLinksForFeature } from "react-cismap/tools/uiHelper";
-import { getVCard } from "../../core/helper/featureHelper";
-import { projectionData } from "react-cismap/constants/gis";
-import { convertBBox2Bounds } from "react-cismap/tools/gisHelper";
-import { getType } from "@turf/invariant";
-import proj4 from "proj4";
-import envelope from "@turf/envelope";
-
-import IconLink from "react-cismap/commons/IconLink";
-import { UIContext, UIDispatchContext } from "react-cismap/contexts/UIContextProvider";
-import Icon from "react-cismap/commons/Icon";
-
-import { useEffect } from "react";
-import { useState } from "react";
-import { getJWT, getLoginFromJWT } from "../../core/store/slices/auth";
-import { showDialog } from "../../core/store/slices/app";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 // import { faFilePdf } from "@fortawesome/free-solid-svg-icons";
 import { faFilePdf } from "@fortawesome/free-regular-svg-icons";
+import { faAsterisk, faFileInvoice, faInbox, faPlus } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import envelope from "@turf/envelope";
+import { getType } from "@turf/invariant";
+import { Dropdown, Menu } from "antd";
+import proj4 from "proj4";
+import React, { useContext } from "react";
+import { useEffect } from "react";
+import { useState } from "react";
 import Button from "react-bootstrap/Button";
-import AddImageDialog from "../app/dialogs/AddImage";
-import AddIncidentDialog, { ADD_INCIDENT_MODES } from "../app/dialogs/AddIncident";
-import { getWebDavUrl } from "../../constants/belis";
-
+import Icon from "react-cismap/commons/Icon";
+import IconLink from "react-cismap/commons/IconLink";
+import { projectionData } from "react-cismap/constants/gis";
 import { LightBoxDispatchContext } from "react-cismap/contexts/LightBoxContextProvider";
+import { UIContext, UIDispatchContext } from "react-cismap/contexts/UIContextProvider";
+import { convertBBox2Bounds } from "react-cismap/tools/gisHelper";
+import { getActionLinksForFeature } from "react-cismap/tools/uiHelper";
+// import ResponsiveInfoBox from "./ResponsiveInfoBox";
+import ResponsiveInfoBox, { MODES } from "react-cismap/topicmaps/ResponsiveInfoBox";
+import { useDispatch, useSelector } from "react-redux";
 
-import { addDotThumbnail } from "./secondaryinfo/components/helper";
-import { getDB, addImageToObjectAction } from "../../core/store/slices/offlineActionDb";
-import { bufferBBox } from "../../core/helper/gisHelper";
-import { zoomToFeature } from "../../core/helper/mapHelper";
+import { getWebDavUrl } from "../../constants/belis";
+import { getObjectActionInfos } from "../../core/helper/actionHelper";
 import {
   selectNextFeature,
   selectPreviousFeature,
 } from "../../core/helper/featureCollectionHelper";
-
-import { Menu, Dropdown } from "antd";
-import { faAsterisk, faFileInvoice, faInbox, faPlus } from "@fortawesome/free-solid-svg-icons";
+import { getVCard } from "../../core/helper/featureHelper";
+import { zoomToFeature } from "../../core/helper/mapHelper";
+import addIncidentAction from "../../core/store/slices/actionSubslices/addIncidentAction";
+import { showDialog } from "../../core/store/slices/app";
+import { getJWT, getLoginFromJWT } from "../../core/store/slices/auth";
+import {
+  getFeatureCollection,
+  getFeatureCollectionMode,
+  getSelectedFeature,
+  isSecondaryInfoVisible,
+  setSecondaryInfoVisible,
+  setSelectedFeature,
+} from "../../core/store/slices/featureCollection";
+import { MODES as FEATURECOLLECTION_MODES } from "../../core/store/slices/featureCollection";
+import { addImageToObjectAction } from "../../core/store/slices/offlineActionDb";
+import AddImageDialog from "../app/dialogs/AddImage";
+import AddIncidentDialog, { ADD_INCIDENT_MODES } from "../app/dialogs/AddIncident";
+import { addDotThumbnail } from "./secondaryinfo/components/helper";
 
 //---
 
@@ -144,8 +140,6 @@ const InfoBox = ({ refRoutedMap }) => {
   }, [selectedFeature, jwt, dispatch, vcard]);
 
   const setLightBoxVisible = (visible) => {
-    console.log("xxx setvisible", visible);
-
     setVisible(visible);
   };
 
@@ -188,171 +182,13 @@ const InfoBox = ({ refRoutedMap }) => {
     vcard = getVCard(selectedFeature);
     header = <span>Feature{vcard}</span>;
 
-    actionLinkInfos = [
-      {
-        tooltip: "Auf Objekt zoomen",
-        onClick: () => {
-          zoomToFeature({
-            feature: selectedFeature,
-            mapRef: refRoutedMap.current.leafletMap.leafletElement,
-          });
-        },
-        iconname: "search-location",
-      },
-    ];
-
-    if (mode === FEATURECOLLECTION_MODES.OBJECTS) {
-      if (
-        selectedFeature?.featuretype !== "Leitung" &&
-        selectedFeature?.featuretype !== "abzweigdose"
-      )
-        actionLinkInfos.push({
-          tooltip: "Öffne Datenblatt",
-          onClick: () => {
-            dispatch(setSecondaryInfoVisible(!secondaryInfoVisible));
-          },
-          iconname: "info",
-        });
-
-      actionLinkInfos.push({
-        tooltip: "Foto hinzufügen",
-        onClick: () => {
-          const dialog = (
-            <AddImageDialog
-              close={() => {
-                dispatch(showDialog());
-              }}
-              input={{ feature: selectedFeature, vcard }}
-              onClose={(addImageParamater) => {
-                dispatch(addImageToObjectAction(addImageParamater));
-              }}
-            />
-          );
-          dispatch(showDialog(dialog));
-        },
-        iconname: "camera",
-      });
-
-      let subs = [
-        {
-          tooltip: "Nur Veranlassung",
-          title: "Nur Veranlassung",
-          iconspan: (
-            <span className='fa-layers fa-fw'>
-              <FontAwesomeIcon icon={faInbox}></FontAwesomeIcon>
-            </span>
-          ),
-          onClick: () => {
-            const dialog = (
-              <AddIncidentDialog
-                close={() => {
-                  dispatch(showDialog());
-                }}
-                input={{ feature: selectedFeature, vcard, mode: ADD_INCIDENT_MODES.VERANLASSUNG }}
-                onClose={(params) => {
-                  console.log("addIncident", params);
-                }}
-              />
-            );
-            console.log("Störung melden", dialog);
-            dispatch(showDialog(dialog));
-          },
-        },
-        {
-          tooltip: "Einzelauftrag",
-          title: "Einzelauftrag",
-          iconspan: (
-            <span className='fa-layers fa-fw'>
-              <FontAwesomeIcon icon={faFileInvoice}></FontAwesomeIcon>
-              <FontAwesomeIcon icon={faAsterisk} transform='shrink-9 right-11 up-5' />
-            </span>
-          ),
-          onClick: () => {
-            const dialog = (
-              <AddIncidentDialog
-                close={() => {
-                  dispatch(showDialog());
-                }}
-                input={{ feature: selectedFeature, vcard, mode: ADD_INCIDENT_MODES.EINZELAUFTRAG }}
-                onClose={(params) => {
-                  console.log("addIncident", params);
-                }}
-              />
-            );
-            console.log("Störung melden", dialog);
-            dispatch(showDialog(dialog));
-          },
-        },
-      ];
-      console.log("selectedArbeitsauftrag", selectedArbeitsauftrag);
-
-      if (selectedArbeitsauftrag) {
-        subs.push({
-          tooltip: "Arbeitsauftrag ergänzen",
-          title: selectedArbeitsauftrag.properties.nummer + " ergänzen",
-          // iconname: "exclamation-triangle",
-          iconspan: (
-            <span className='fa-layers fa-fw'>
-              <FontAwesomeIcon icon={faFileInvoice}></FontAwesomeIcon>
-              <FontAwesomeIcon icon={faPlus} transform='shrink-9 right-10 up-5' />
-            </span>
-          ),
-          onClick: () => {
-            const dialog = (
-              <AddIncidentDialog
-                close={() => {
-                  dispatch(showDialog());
-                }}
-                input={{
-                  feature: selectedFeature,
-                  vcard,
-                  mode: ADD_INCIDENT_MODES.ADD2ARBEITSAUFTRAG,
-                  arbeitsauftrag: selectedArbeitsauftrag,
-                }}
-                onClose={(params) => {
-                  console.log("addIncident", params);
-                }}
-              />
-            );
-            console.log("Störung melden", dialog);
-            dispatch(showDialog(dialog));
-          },
-        });
-      }
-
-      actionLinkInfos.push({
-        tooltip: "Störung meldenn",
-        subs,
-        iconname: "exclamation-triangle",
-      });
-    } else if (mode === FEATURECOLLECTION_MODES.TASKLISTS) {
-      actionLinkInfos.push({
-        tooltip: "Öffne Datenblatt",
-        onClick: () => {
-          dispatch(setSecondaryInfoVisible(!secondaryInfoVisible));
-        },
-        iconname: "info",
-      });
-    } else {
-      //Protocols
-      actionLinkInfos.push({
-        tooltip: "Öffne Datenblatt",
-        onClick: () => {
-          dispatch(setSecondaryInfoVisible(!secondaryInfoVisible));
-        },
-        iconname: "info",
-      });
-      actionLinkInfos.push({
-        tooltip: "Aktionen",
-        onClick: () => {},
-        iconname: "list-alt",
-      });
-      actionLinkInfos.push({
-        tooltip: "Status ändern",
-        onClick: () => {},
-        iconname: "list-alt",
-      });
-    }
+    actionLinkInfos = getObjectActionInfos({
+      selectedFeature,
+      selectedArbeitsauftrag,
+      refRoutedMap,
+      mode,
+      dispatch,
+    });
 
     header = <span>{vcard?.infobox?.header || config.header}</span>;
     title = vcard?.infobox?.title;
@@ -501,7 +337,7 @@ const InfoBox = ({ refRoutedMap }) => {
     divWhenCollapsed = noCurrentFeatureTitle;
     collapsibleDiv = <div style={{ paddingRight: 2 }}>{noCurrentFeatureContent}</div>;
   }
-  console.log("selectedFeature", selectedFeature);
+
   return (
     <div>
       <ResponsiveInfoBox
@@ -529,13 +365,11 @@ const InfoBox = ({ refRoutedMap }) => {
             >
               {actionLinkInfos.map((li, index) => {
                 if (li.subs) {
-                  console.log("li.subs", li.subs);
-
                   const items = li.subs.map((sub, index) => {
                     return {
                       key: index,
                       label: (
-                        <h3 onClick={sub.onClick}>
+                        <h4 onClick={sub.onClick}>
                           <span
                             style={{
                               marginRight: 10,
@@ -545,8 +379,8 @@ const InfoBox = ({ refRoutedMap }) => {
                             {sub.iconname && <Icon name={sub.iconname} />}
                             {sub.iconspan && sub.iconspan}
                           </span>
-                          {sub.title}
-                        </h3>
+                          <span style={{ margin: 3 }}>{sub.title}</span>
+                        </h4>
                       ),
                     };
                   });
@@ -568,7 +402,8 @@ const InfoBox = ({ refRoutedMap }) => {
                         tooltip={li.tooltip}
                       >
                         <h2>
-                          <Icon name={li.iconname} />
+                          {li.iconname && <Icon name={li.iconname} />}
+                          {li.iconspan && li.iconspan}
                         </h2>
                       </Button>
                     </Dropdown>
@@ -589,7 +424,8 @@ const InfoBox = ({ refRoutedMap }) => {
                       tooltip={li.tooltip}
                     >
                       <h2>
-                        <Icon name={li.iconname} />
+                        {li.iconname && <Icon name={li.iconname} />}
+                        {li.iconspan && li.iconspan}
                       </h2>
                     </Button>
                   );
