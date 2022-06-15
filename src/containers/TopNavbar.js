@@ -271,7 +271,7 @@ const TopNavbar = ({ innerRef, refRoutedMap, setCacheSettingsVisible, jwt }) => 
         >
           <Icon icon={faBookOpen} />
         </Nav.Link>
-        <Form
+        <span
           className={narrow ? "reducedSizeInputComponnet" : undefined}
           style={{ marginRight: 10 }}
         >
@@ -293,7 +293,7 @@ const TopNavbar = ({ innerRef, refRoutedMap, setCacheSettingsVisible, jwt }) => 
             referenceSystemDefinition={MappingConstants.proj4crs3857def}
             autoFocus={false}
           />
-        </Form>
+        </span>
 
         <Nav.Link
           style={{ marginLeft: 10, marginRight: 10, color: "#377CF6" }}
