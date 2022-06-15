@@ -34,6 +34,7 @@ import {
   setSecondaryInfoVisible,
 } from "../store/slices/featureCollection";
 import { addImageToObjectAction } from "../store/slices/offlineActionDb";
+import { addIncidentActionIcons, protocolActionIcons } from "./actionIcons";
 import { getVCard } from "./featureHelper";
 import { zoomToFeature } from "./mapHelper";
 
@@ -148,11 +149,7 @@ const getSubActionInfoForAddIncident = ({ selectedFeature, selectedArbeitsauftra
     {
       tooltip: "Nur Veranlassung",
       title: "Nur Veranlassung",
-      iconspan: (
-        <span className='fa-layers fa-fw'>
-          <FontAwesomeIcon icon={faInbox}></FontAwesomeIcon>
-        </span>
-      ),
+      iconspan: addIncidentActionIcons.veranlassung,
       onClick: () => {
         const dialog = (
           <AddIncidentDialog
@@ -172,12 +169,7 @@ const getSubActionInfoForAddIncident = ({ selectedFeature, selectedArbeitsauftra
     {
       tooltip: "Einzelauftrag",
       title: "Einzelauftrag",
-      iconspan: (
-        <span className='fa-layers fa-fw'>
-          <FontAwesomeIcon icon={faFileInvoice}></FontAwesomeIcon>
-          <FontAwesomeIcon icon={faAsterisk} transform='shrink-9 right-11 up-5' />
-        </span>
-      ),
+      iconspan: addIncidentActionIcons.einzelauftrag,
       onClick: () => {
         const dialog = (
           <AddIncidentDialog
@@ -201,12 +193,7 @@ const getSubActionInfoForAddIncident = ({ selectedFeature, selectedArbeitsauftra
       tooltip: "Arbeitsauftrag ergänzen",
       title: selectedArbeitsauftrag.properties.nummer + " ergänzen",
       // iconname: "exclamation-triangle",
-      iconspan: (
-        <span className='fa-layers fa-fw'>
-          <FontAwesomeIcon icon={faFileInvoice}></FontAwesomeIcon>
-          <FontAwesomeIcon icon={faPlus} transform='shrink-9 right-10 up-5' />
-        </span>
-      ),
+      iconspan: addIncidentActionIcons.add2arbeitsauftrag,
       onClick: () => {
         const dialog = (
           <AddIncidentDialog
@@ -243,12 +230,7 @@ const getSubActionInfoForProtocolAction = ({ selectedFeature, dispatch }) => {
     case "tdta_leuchten":
       subs.push({
         title: "Leuchtenerneuerung",
-        iconspan: (
-          <span className='fa-layers fa-fw'>
-            <FontAwesomeIcon icon={faFilter} transform='rotate-180'></FontAwesomeIcon>
-            <FontAwesomeIcon icon={faSync} transform='shrink-9 right-10 up-5'></FontAwesomeIcon>
-          </span>
-        ),
+        iconspan: protocolActionIcons.leuchtenerneuerung,
         onClick: () => {
           // const dialog = (
           // );
@@ -257,16 +239,7 @@ const getSubActionInfoForProtocolAction = ({ selectedFeature, dispatch }) => {
       });
       subs.push({
         title: "Leuchtmittelwechsel mit EP",
-        iconspan: (
-          <span className='fa-layers fa-fw'>
-            <FontAwesomeIcon icon={faLightbulb} transform='rotate-180'></FontAwesomeIcon>
-            <FontAwesomeIcon icon={faSync} transform='shrink-9 right-10 up-5'></FontAwesomeIcon>
-            <FontAwesomeIcon
-              icon={faCheckCircle}
-              transform='shrink-9 right-10 down-5'
-            ></FontAwesomeIcon>
-          </span>
-        ),
+        iconspan: protocolActionIcons.leuchtmittelwechselEP,
         onClick: () => {
           // const dialog = (
           // );
@@ -275,12 +248,7 @@ const getSubActionInfoForProtocolAction = ({ selectedFeature, dispatch }) => {
       });
       subs.push({
         title: "Leuchtmittelwechsel",
-        iconspan: (
-          <span className='fa-layers fa-fw'>
-            <FontAwesomeIcon icon={faLightbulb} transform='rotate-180'></FontAwesomeIcon>
-            <FontAwesomeIcon icon={faSync} transform='shrink-9 right-10 up-5'></FontAwesomeIcon>
-          </span>
-        ),
+        iconspan: protocolActionIcons.leuchtmittelwechsel,
         onClick: () => {
           // const dialog = (
           // );
@@ -289,16 +257,7 @@ const getSubActionInfoForProtocolAction = ({ selectedFeature, dispatch }) => {
       });
       subs.push({
         title: "Rundsteuerempfängerwechsel",
-        iconspan: (
-          <span className='fa-layers fa-fw'>
-            <FontAwesomeIcon
-              icon={faMinusSquare}
-              transform='shrink-1 left-2 up-1'
-            ></FontAwesomeIcon>
-            <FontAwesomeIcon icon={faSignal} transform='shrink-9 right-10 down-5'></FontAwesomeIcon>
-            <FontAwesomeIcon icon={faSync} transform='shrink-9 right-11 up-5'></FontAwesomeIcon>
-          </span>
-        ),
+        iconspan: protocolActionIcons.rundsteuerempfaengerwechsel,
         onClick: () => {
           // const dialog = (
           // );
@@ -307,12 +266,7 @@ const getSubActionInfoForProtocolAction = ({ selectedFeature, dispatch }) => {
       });
       subs.push({
         title: "Vorschaltgerätewechsel",
-        iconspan: (
-          <span className='fa-layers fa-fw'>
-            <FontAwesomeIcon icon={faHdd} transform='rotate-90'></FontAwesomeIcon>
-            <FontAwesomeIcon icon={faSync} transform='shrink-9 right-11 up-5'></FontAwesomeIcon>
-          </span>
-        ),
+        iconspan: protocolActionIcons.vorschaltgeraetewechsel,
         onClick: () => {
           // const dialog = (
           // );
@@ -324,11 +278,7 @@ const getSubActionInfoForProtocolAction = ({ selectedFeature, dispatch }) => {
     case "tdta_standort_mast":
       subs.push({
         title: "Anstricharbeiten",
-        iconspan: (
-          <span className='fa-layers fa-fw'>
-            <FontAwesomeIcon icon={faPaintRoller}></FontAwesomeIcon>
-          </span>
-        ),
+        iconspan: protocolActionIcons.anstricharbeiten,
         onClick: () => {
           // const dialog = (
           // );
@@ -337,15 +287,7 @@ const getSubActionInfoForProtocolAction = ({ selectedFeature, dispatch }) => {
       });
       subs.push({
         title: "Elektrische Prüfung",
-        iconspan: (
-          <span className='fa-layers fa-fw'>
-            <FontAwesomeIcon icon={faBolt}></FontAwesomeIcon>
-            <FontAwesomeIcon
-              icon={faCheckCircle}
-              transform='shrink-9 right-10 up-5'
-            ></FontAwesomeIcon>
-          </span>
-        ),
+        iconspan: protocolActionIcons.ep,
         onClick: () => {
           // const dialog = (
           // );
@@ -354,12 +296,7 @@ const getSubActionInfoForProtocolAction = ({ selectedFeature, dispatch }) => {
       });
       subs.push({
         title: "Masterneuerung",
-        iconspan: (
-          <span className='fa-layers fa-fw'>
-            <FontAwesomeIcon icon={faBatteryEmpty} transform='rotate-90 down-2'></FontAwesomeIcon>
-            <FontAwesomeIcon icon={faSync} transform='shrink-9 right-10 up-5'></FontAwesomeIcon>
-          </span>
-        ),
+        iconspan: protocolActionIcons.masterneuerung,
         onClick: () => {
           // const dialog = (
           // );
@@ -368,15 +305,7 @@ const getSubActionInfoForProtocolAction = ({ selectedFeature, dispatch }) => {
       });
       subs.push({
         title: "Revision",
-        iconspan: (
-          <span className='fa-layers fa-fw'>
-            <FontAwesomeIcon icon={faCalendarAlt}></FontAwesomeIcon>
-            <FontAwesomeIcon
-              icon={faCheckCircle}
-              transform='shrink-9 right-11 down-5'
-            ></FontAwesomeIcon>
-          </span>
-        ),
+        iconspan: protocolActionIcons.revision,
         onClick: () => {
           // const dialog = (
           // );
@@ -385,16 +314,7 @@ const getSubActionInfoForProtocolAction = ({ selectedFeature, dispatch }) => {
       });
       subs.push({
         title: "Standsicherheitsprüfung",
-        iconspan: (
-          <span className='fa-layers fa-fw'>
-            <FontAwesomeIcon icon={faBatteryEmpty} transform='rotate-90 down-2'></FontAwesomeIcon>
-
-            <FontAwesomeIcon
-              icon={faCheckCircle}
-              transform='shrink-9 right-11 down-5'
-            ></FontAwesomeIcon>
-          </span>
-        ),
+        iconspan: protocolActionIcons.standsicherheitspruefung,
         onClick: () => {
           // const dialog = (
           // );
@@ -407,15 +327,7 @@ const getSubActionInfoForProtocolAction = ({ selectedFeature, dispatch }) => {
     case "schaltstelle":
       subs.push({
         title: "Revision",
-        iconspan: (
-          <span className='fa-layers fa-fw'>
-            <FontAwesomeIcon icon={faCalendarAlt}></FontAwesomeIcon>
-            <FontAwesomeIcon
-              icon={faCheckCircle}
-              transform='shrink-9 right-11 down-5'
-            ></FontAwesomeIcon>
-          </span>
-        ),
+        iconspan: protocolActionIcons.revision,
         onClick: () => {
           // const dialog = (
           // );
@@ -429,15 +341,7 @@ const getSubActionInfoForProtocolAction = ({ selectedFeature, dispatch }) => {
     case "mauerlasche":
       subs.push({
         title: "Prüfung",
-        iconspan: (
-          <span className='fa-layers fa-fw'>
-            <FontAwesomeIcon icon={faBinoculars}></FontAwesomeIcon>
-            <FontAwesomeIcon
-              icon={faCheckCircle}
-              transform='shrink-9 right-12 down-5'
-            ></FontAwesomeIcon>
-          </span>
-        ),
+        iconspan: protocolActionIcons.pruefung,
         onClick: () => {
           // const dialog = (
           // );
@@ -452,12 +356,7 @@ const getSubActionInfoForProtocolAction = ({ selectedFeature, dispatch }) => {
   subs.push({
     tooltip: "Sonstiges",
     title: "Sonstiges",
-    iconspan: (
-      <span className='fa-layers fa-fw'>
-        <FontAwesomeIcon icon={faStream}></FontAwesomeIcon>
-        <FontAwesomeIcon icon={faPlus} transform='shrink-9 right-12 up-0'></FontAwesomeIcon>
-      </span>
-    ),
+    iconspan: protocolActionIcons.sonstiges,
     onClick: () => {
       // const dialog = (
       // );
