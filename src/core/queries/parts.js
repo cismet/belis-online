@@ -418,4 +418,21 @@ export const veranlassung_fields = `
         username
         datum
         bemerkungen
+        ar_dokumenteArray {
+          dms_url {
+            description
+            id
+            name
+            url {
+              id
+              object_name
+              url_base {
+                prot_prefix
+                server
+                path
+              }
+            }
+          }
+        }
+        
 `;
