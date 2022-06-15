@@ -1,16 +1,15 @@
+import { UploadOutlined } from "@ant-design/icons";
+import { Button, Col, Form, Input, Modal, Row, Select, Typography, Upload } from "antd";
+import TextArea from "antd/lib/input/TextArea";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Modal, Upload, Button, Typography, Form, Input, Select } from "antd";
-import { LoadingOutlined, PlusOutlined } from "@ant-design/icons";
-import { UploadOutlined } from "@ant-design/icons";
-import { getJWT } from "../../../core/store/slices/auth";
-import uuidv4 from "uuid/v4";
-import { getDB } from "../../../core/store/slices/offlineActionDb";
+
 import extensions from "../../../core/helper/extensions";
-import TextArea from "antd/lib/input/TextArea";
-import { getWorker } from "../../../core/store/slices/dexie";
+import { getJWT } from "../../../core/store/slices/auth";
 import { renewCache } from "../../../core/store/slices/cacheControl";
+import { getWorker } from "../../../core/store/slices/dexie";
 import { getTeam } from "../../../core/store/slices/team";
+
 const { Text, Link } = Typography;
 const { Option } = Select;
 export const ADD_INCIDENT_MODES = {
@@ -60,10 +59,9 @@ const AddIncidentDialog = ({
       }
     })();
   }, []);
-  const [imageData, setImageData] = useState();
-  console.log("AddIncidentDialog", input);
+  const [imageData, setImageData] = useState({});
 
-  const handleChange = (info) => {
+  const handleUploadChange = (info) => {
     if (info.file.status === "uploading") {
       return;
     }
@@ -71,7 +69,16 @@ const AddIncidentDialog = ({
       // Get this url from response in real world.
       getBase64(info.file.originFileObj, (imageUrl) => {
         //info.file.imageData=imageUrl;
-        setImageData(imageUrl);
+        setTimeout(() => {
+          setImageData((old) => {
+            return { ...old, [info.file.uid]: { uid: info.file.uid, title: undefined, imageUrl } };
+          });
+        }, 100);
+      });
+    } else if (info.file.status === "removed") {
+      setImageData((old) => {
+        delete old[info.file.uid];
+        return { ...old };
       });
     }
   };
@@ -104,27 +111,29 @@ const AddIncidentDialog = ({
             let mimeType, ending;
 
             if (imageData) {
-              mimeType = imageData.match("data:(.*);")[1];
-              ending = extensions[mimeType];
             }
             const feature = input.feature;
-            console.log("form", form, values);
 
+            const images = Object.keys(imageData).map((key) => {
+              mimeType = imageData[key].imageUrl.match("data:(.*);")[1];
+              ending = extensions[mimeType];
+              return {
+                ImageData: imageData[key].imageUrl,
+                ending,
+                description: imageData[key].title,
+                ts: Date.now(),
+                prefix: "dev",
+              };
+            });
             const parameter = {
-              // ImageData: imageData,
-              // ending,
+              IMAGES: images,
               objekt_id: feature.properties.id,
               objekt_typ: feature.featuretype,
               bezeichnung: values.title,
               beschreibung: values.description,
               bemerkung: values.remarks,
-              IMAGES: [],
               arbeitsauftrag: input.arbeitsauftrag?.properties?.id,
               aktion: input.mode,
-              //ARBEITSAUFTRAG_ZUGEWIESEN_AN: input.arbeitsauftrag?.properties?.zugewiesen_an,
-
-              // ts: Date.now(),
-              // prefix: "dev", //the dev prefix should only be set in a dev environment to protect the webdav from cluttering
             };
             if (input.mode === ADD_INCIDENT_MODES.EINZELAUFTRAG) {
               parameter.ARBEITSAUFTRAG_ZUGEWIESEN_AN = selectedTeamId;
@@ -191,8 +200,8 @@ const AddIncidentDialog = ({
           <TextArea />
         </Form.Item>
         <Form.Item
-          name='picture'
-          label='Bild'
+          name='images'
+          label='Foto aufnehmen oder schon aufgenommenes Foto auswählen'
           rules={[
             {
               required: false,
@@ -201,39 +210,64 @@ const AddIncidentDialog = ({
           ]}
         >
           <Upload
-            //style={{ width: "100%" }}
             name='upload'
-            _listType='picture-card'
+            listType='picture-card'
+            // listType='picture'
             className='avatar-uploader'
-            showUploadList={true}
-            // beforeUpload={beforeUpload}
-            onChange={handleChange}
+            showUploadList={{ showPreviewIcon: false, showDownloadIcon: false }}
+            onChange={handleUploadChange}
             customRequest={dummyRequest}
           >
             <Button style_={{ width: "100%" }} icon={<UploadOutlined />}>
-              Foto aufnehmen oder schon aufgenommenes Foto auswählen
+              Foto
             </Button>
           </Upload>
         </Form.Item>
 
-        <div style={{ marginTop: 20 }}>
-          {imageData && (
-            <div>
-              <img src={imageData} alt='avatar' style={{ width: "100%", marginBottom: 20 }} />
-            </div>
-          )}
-        </div>
         <Form.Item
-          name='picname'
-          label='Bildname'
-          rules={[
-            {
-              required: false,
-              message: "Bitte geben Sie eine Namen für das Bild an.",
-            },
-          ]}
+          key={
+            "bildertitel" +
+            // form.getFieldValue("images")?.fileList.length +
+            JSON.stringify(imageData)
+          }
+          imageData={imageData}
+          yname='images'
+          label='Bildertitel'
         >
-          <Input />
+          {form.getFieldValue("images")?.fileList &&
+            form.getFieldValue("images").fileList.map((fileListEntry, index) => {
+              return (
+                <div key={index}>
+                  <Row justify='space-around' align='middle'>
+                    <Col align='middle' span={4}>
+                      <img style={{ width: "60%" }} src={fileListEntry.thumbUrl} alt='preview' />
+                    </Col>
+                    <Col span={20}>
+                      <div>
+                        <Form.Item
+                          name={"picname" + fileListEntry.uid}
+                          rules={[
+                            {
+                              required: true,
+                              message: "Bitte geben Sie eine Bezeichnung für das Bild an.",
+                            },
+                          ]}
+                        >
+                          <Input
+                            onChange={(e) => {
+                              setImageData((old) => {
+                                old[fileListEntry.uid].title = e.target.value;
+                                return old;
+                              });
+                            }}
+                          />
+                        </Form.Item>
+                      </div>
+                    </Col>
+                  </Row>
+                </div>
+              );
+            })}
         </Form.Item>
       </Form>
     </Modal>

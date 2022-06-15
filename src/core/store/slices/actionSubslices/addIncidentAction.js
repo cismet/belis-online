@@ -1,6 +1,7 @@
-import { getJWT, getLoginFromJWT } from "../auth";
-import { getDB, addIntermediateResult } from "../offlineActionDb";
 import uuidv4 from "uuid/v4";
+
+import { getJWT, getLoginFromJWT } from "../auth";
+import { getDB } from "../offlineActionDb";
 
 const addIncidentAction = (params) => {
   return async (dispatch, getState) => {
