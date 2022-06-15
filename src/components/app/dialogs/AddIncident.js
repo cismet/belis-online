@@ -44,6 +44,7 @@ const AddIncidentDialog = ({
   const [teams, setTeams] = useState([]);
   const [preferredIncidentTeam, setPreferredIncidentTeam] = useState();
   const myTeam = useSelector(getTeam);
+  const [selectedTeamId, setSelectedTeamId] = useState(myTeam.id);
   useEffect(() => {
     //async block
     (async () => {
@@ -100,22 +101,37 @@ const AddIncidentDialog = ({
           .validateFields()
           .then((values) => {
             // imageData comes from state not from values
+            let mimeType, ending;
 
-            // const mimeType = imageData.match("data:(.*);")[1];
-            // const ending = extensions[mimeType];
-            // const feature = input.feature;
+            if (imageData) {
+              mimeType = imageData.match("data:(.*);")[1];
+              ending = extensions[mimeType];
+            }
+            const feature = input.feature;
+            console.log("form", form, values);
 
-            const parameter = { erstmal: "nochnix" };
-            // const parameter = {
-            //   ImageData: imageData,
-            //   ending,
-            //   description: values.name,
-            //   objekt_id: feature.properties.id,
-            //   objekt_typ: feature.featuretype,
-            //   object_name: feature.properties.name,
-            //   ts: Date.now(),
-            //   prefix: "dev", //the dev prefix should only be set in a dev environment to protect the webdav from cluttering
-            // };
+            const parameter = {
+              // ImageData: imageData,
+              // ending,
+              objekt_id: feature.properties.id,
+              objekt_typ: feature.featuretype,
+              bezeichnung: values.title,
+              beschreibung: values.description,
+              bemerkung: values.remarks,
+              IMAGES: [],
+              arbeitsauftrag: input.arbeitsauftrag?.properties?.id,
+              aktion: input.mode,
+              //ARBEITSAUFTRAG_ZUGEWIESEN_AN: input.arbeitsauftrag?.properties?.zugewiesen_an,
+
+              // ts: Date.now(),
+              // prefix: "dev", //the dev prefix should only be set in a dev environment to protect the webdav from cluttering
+            };
+            if (input.mode === ADD_INCIDENT_MODES.EINZELAUFTRAG) {
+              parameter.ARBEITSAUFTRAG_ZUGEWIESEN_AN = selectedTeamId;
+            } else if (input.mode === ADD_INCIDENT_MODES.ADD2ARBEITSAUFTRAG) {
+              parameter.ARBEITSAUFTRAG_ZUGEWIESEN_AN =
+                input.arbeitsauftrag?.properties?.zugewiesen_an;
+            }
 
             form.resetFields();
             onClose(parameter);
@@ -154,17 +170,17 @@ const AddIncidentDialog = ({
         </Form.Item>
 
         {input.mode === ADD_INCIDENT_MODES.EINZELAUFTRAG && (
-          <Form.Item name='team' label='Team'>
+          <Form.Item name='aa_team' label='Team'>
             <Select
               defaultValue={preferredIncidentTeam?.id || myTeam?.id}
               style={{ width: "100%" }}
               onChange={(x) => {
-                console.log("change", x);
+                setSelectedTeamId(x);
               }}
             >
-              {teams.map((team) => (
-                <Option value={team.id}>{team.name}</Option>
-              ))}
+              {teams.map((team) => {
+                return <Option value={team.id}>{team.name}</Option>;
+              })}
             </Select>
           </Form.Item>
         )}
@@ -189,7 +205,7 @@ const AddIncidentDialog = ({
             name='upload'
             _listType='picture-card'
             className='avatar-uploader'
-            showUploadList={false}
+            showUploadList={true}
             // beforeUpload={beforeUpload}
             onChange={handleChange}
             customRequest={dummyRequest}
