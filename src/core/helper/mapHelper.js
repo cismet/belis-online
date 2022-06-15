@@ -7,7 +7,6 @@ import { getType } from "@turf/invariant";
 export const zoomToFeature = ({ feature, mapRef }) => {
   console.log("xxx zoomToFeature", mapRef);
   const bufferAroundObject = 50;
-
   let refDef;
   if (feature.crs) {
     const code = feature?.crs?.properties?.name?.split("EPSG::")[1];
@@ -15,7 +14,6 @@ export const zoomToFeature = ({ feature, mapRef }) => {
   } else {
     refDef = projectionData["25832"].def;
   }
-
   if (mapRef !== undefined) {
     const type = getType(feature);
     if (type === "Point") {
@@ -29,12 +27,9 @@ export const zoomToFeature = ({ feature, mapRef }) => {
       mapRef.fitBounds(convertBBox2Bounds(bufferedBBox, refDef));
     } else {
       const bbox = envelope(feature.geometry).bbox;
-
       //create buffer around bbox
-
       const bufferedBBox = bufferBBox(bbox, bufferAroundObject);
       // console.log("xxx buffered_bbox", bufferedBBox);
-
       mapRef.fitBounds(convertBBox2Bounds(bufferedBBox, refDef));
     }
   }
