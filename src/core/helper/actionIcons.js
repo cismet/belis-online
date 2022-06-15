@@ -1,6 +1,5 @@
 import {
   faCalendarAlt,
-  faCalendarCheck,
   faHdd,
   faLightbulb,
   faMinusSquare,
@@ -10,7 +9,6 @@ import {
   faBatteryEmpty,
   faBinoculars,
   faBolt,
-  faCalendarDay,
   faCheckCircle,
   faFileInvoice,
   faFilter,
