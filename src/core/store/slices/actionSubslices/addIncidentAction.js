@@ -22,7 +22,7 @@ const addIncidentAction = (params) => {
 
     offlineActionDb.actions.insert(offlineAction);
 
-    console.log("added object to offline db to addIncident", offlineAction, params);
+    console.log("added object to offline db to addIncident", params, offlineAction);
 
     // const intermediateResult = {
     //   object_type: addImageParameter.objekt_typ,
