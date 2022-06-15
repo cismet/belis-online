@@ -323,7 +323,7 @@ export const renewCache = (
       jwt
     )
       .then((result) => {
-        // console.log(itemKey + " returned with " + result.data[dataKey].length + " results");
+        console.log(itemKey + " returned with " + result.data[dataKey].length + " results");
         // console.log(itemKey + " returned with ", result.data[dataKey]);
         dispatch(setLoadingState({ key, loadingState: "caching" }));
         dispatch(setObjectCount({ key, objectCount: result.data[dataKey].length }));
@@ -331,8 +331,13 @@ export const renewCache = (
         //async block
         (async () => {
           //put the data in the indexedDB
+          console.log(itemKey + " in async block");
+
           await dexieW.clear(itemKey);
+          console.log(itemKey + " clear executed");
+
           await dexieW.putArray(result.data[dataKey], itemKey);
+          console.log(itemKey + " putArray executed");
 
           //reset loadingState in 1 minute
           const resetTimer = setTimeout(() => {
@@ -342,6 +347,7 @@ export const renewCache = (
           //set loading state done
           dispatch(setLoadingState({ key, resetTimer, loadingState: "cached" }));
           dispatch(setLastUpdate({ key, lastUpdate: new Date().getTime() }));
+          console.log(itemKey + " setLoadingState: cached");
 
           //remove the intermediate results of this datatype
           dispatch(clearIntermediateResults(key));
