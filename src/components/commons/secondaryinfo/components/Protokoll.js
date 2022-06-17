@@ -17,7 +17,12 @@ import { createFeatureFromData } from "../../../../core/store/slices/featureColl
 import SecondaryInfoPanelSection from "../SecondaryInfoPanelSection";
 import getLayout4Abzweigdose from "./Abzweigdose4Prot";
 import getLayout4FreieGeometrie from "./FreieGeometrie4Prot";
-import { clearOptionalDescriptionItems, getDate, getTimelineForActions } from "./helper";
+import {
+  clearOptionalDescriptionItems,
+  getDate,
+  getSquaredThumbnails,
+  getTimelineForActions,
+} from "./helper";
 import getLayout4Leitung from "./Leitung";
 import getLayout4Leuchte from "./Leuchte";
 import getLayout4Mauerlasche from "./Mauerlasche";
@@ -157,6 +162,7 @@ const getLayout4Protokoll = ({
     <Descriptions.Item label='angelegt am'>{getDate(item?.veranlassung?.datum)}</Descriptions.Item>,
     <Descriptions.Item label='Bemerkungen'>{item?.veranlassung?.bemerkungen}</Descriptions.Item>,
   ];
+  console.log("xxx item", item);
 
   subSections.push(
     <SecondaryInfoPanelSection
@@ -168,6 +174,7 @@ const getLayout4Protokoll = ({
         {/* {clearOptionalDescriptionItems(veranlassungsItems)} */}
         {veranlassungsItems}
       </Descriptions>
+      {getSquaredThumbnails({ docs: item?.docs, type: "Veranlassung", jwt, setIndex, setVisible })}
     </SecondaryInfoPanelSection>
   );
 
