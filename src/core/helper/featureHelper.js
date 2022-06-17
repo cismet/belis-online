@@ -266,6 +266,12 @@ export const getDocs = (feature) => {
 
   let type, item;
   if (feature.featuretype === "arbeitsprotokoll") {
+    addDokumenteArrayOfDmsUrls(
+      docs,
+      feature?.properties?.veranlassung?.ar_dokumenteArray,
+      "Veranlassung"
+    );
+
     type = feature.fachobjekttype;
     item = feature.properties.fachobjekt;
   } else {
@@ -302,6 +308,7 @@ export const getDocs = (feature) => {
       addDokumenteArrayOfDmsUrls(docs, item?.tkey_masttyp?.dokumenteArray, "Masttyp");
       return docs;
     case "arbeitsprotokoll":
+      return docs;
     case "arbeitsauftrag":
       return docs;
     default:

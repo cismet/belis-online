@@ -87,7 +87,6 @@ export const addDotThumbnail = (_url) => {
 };
 
 export const getSquaredThumbnails = ({ docs, type, jwt, setIndex, setVisible }) => {
-  console.log("getSquaredThumbnails", { docs, type, jwt, setIndex, setVisible });
   if (docs === undefined) {
     console.trace();
     return null;
