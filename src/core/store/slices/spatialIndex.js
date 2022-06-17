@@ -2,7 +2,8 @@ import { createSlice } from "@reduxjs/toolkit";
 import bbox from "@turf/bbox";
 import Flatbush from "flatbush";
 import kdbush from "kdbush";
-import { db as dexiedb } from "../../indexeddb/dexiedb";
+// import { db as dexiedb } from "../../indexeddb/dexiedb";
+import { getDexieDB } from "./dexie";
 
 // const idb = idbworker();
 // idb.init();
@@ -36,8 +37,10 @@ export const getPointIndex = (state) => state.spatialIndex.pointIndex;
 export const getLineIndex = (state) => state.spatialIndex.lineIndex;
 export const getLoadingState = (state) => state.spatialIndex.loading;
 
-export const initIndex = (finished = () => {}) => async (dispatch) => {
+export const initIndex = (finished = () => {}) => async (dispatch, getState) => {
   dispatch(startLoading());
+  const state = getState();
+  const dexiedb = getDexieDB(state);
   const current = new Date().getTime();
   // console.log("yyy initIndex", new Error());
 

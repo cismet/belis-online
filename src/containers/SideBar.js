@@ -138,8 +138,10 @@ const SideBar = ({ innerRef, height }) => {
           <Tabs
             centered
             activeKey={mode}
-            onChange={(key) => {
+            onTabClick={(key) => {
               if (key === mode) {
+                console.log("fitBoundsForCollection");
+
                 dispatch(fitBoundsForCollection());
               } else {
                 dispatch(setMode(key));

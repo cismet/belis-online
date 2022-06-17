@@ -10,7 +10,7 @@ import SecondaryInfoPanelSection from "../SecondaryInfoPanelSection";
 import { getWebDavUrl } from "../../../../constants/belis";
 import { getVCard } from "../../../../core/helper/featureHelper";
 import { showDialog } from "../../../../core/store/slices/app";
-import { processAddImageToObject } from "../../../../core/store/slices/offlineActionDb";
+import { addImageToObjectAction } from "../../../../core/store/slices/offlineActionDb";
 // import { setIndex, setVisible } from "../../../../core/store/slices/photoLightbox";
 
 import AddImageDialog from "../../../app/dialogs/AddImage";

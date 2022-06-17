@@ -1,50 +1,50 @@
-import React, { useContext } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import {
-  getFeatureCollection,
-  getSelectedFeature,
-  setSelectedFeature,
-  isSecondaryInfoVisible,
-  setSecondaryInfoVisible,
-  getFeatureCollectionMode,
-} from "../../core/store/slices/featureCollection";
-// import ResponsiveInfoBox from "./ResponsiveInfoBox";
-import ResponsiveInfoBox, { MODES } from "react-cismap/topicmaps/ResponsiveInfoBox";
-
-import { MODES as FEATURECOLLECTION_MODES } from "../../core/store/slices/featureCollection";
-import { getActionLinksForFeature } from "react-cismap/tools/uiHelper";
-import { getVCard } from "../../core/helper/featureHelper";
-import { projectionData } from "react-cismap/constants/gis";
-import { convertBBox2Bounds } from "react-cismap/tools/gisHelper";
-import { getType } from "@turf/invariant";
-import proj4 from "proj4";
-import envelope from "@turf/envelope";
-
-import IconLink from "react-cismap/commons/IconLink";
-import { UIContext, UIDispatchContext } from "react-cismap/contexts/UIContextProvider";
-import Icon from "react-cismap/commons/Icon";
-
-import { useEffect } from "react";
-import { useState } from "react";
-import { getJWT, getLoginFromJWT } from "../../core/store/slices/auth";
-import { showDialog } from "../../core/store/slices/app";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 // import { faFilePdf } from "@fortawesome/free-solid-svg-icons";
 import { faFilePdf } from "@fortawesome/free-regular-svg-icons";
+import { faAsterisk, faFileInvoice, faInbox, faPlus } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import envelope from "@turf/envelope";
+import { getType } from "@turf/invariant";
+import { Dropdown, Menu } from "antd";
+import proj4 from "proj4";
+import React, { useContext } from "react";
+import { useEffect } from "react";
+import { useState } from "react";
 import Button from "react-bootstrap/Button";
-import AddImageDialog from "../app/dialogs/AddImage";
-import { getWebDavUrl } from "../../constants/belis";
-
+import Icon from "react-cismap/commons/Icon";
+import IconLink from "react-cismap/commons/IconLink";
+import { projectionData } from "react-cismap/constants/gis";
 import { LightBoxDispatchContext } from "react-cismap/contexts/LightBoxContextProvider";
+import { UIContext, UIDispatchContext } from "react-cismap/contexts/UIContextProvider";
+import { convertBBox2Bounds } from "react-cismap/tools/gisHelper";
+import { getActionLinksForFeature } from "react-cismap/tools/uiHelper";
+// import ResponsiveInfoBox from "./ResponsiveInfoBox";
+import ResponsiveInfoBox, { MODES } from "react-cismap/topicmaps/ResponsiveInfoBox";
+import { useDispatch, useSelector } from "react-redux";
 
-import { addDotThumbnail } from "./secondaryinfo/components/helper";
-import { getDB, processAddImageToObject } from "../../core/store/slices/offlineActionDb";
-import { bufferBBox } from "../../core/helper/gisHelper";
-import { zoomToFeature } from "../../core/helper/mapHelper";
+import { getWebDavUrl } from "../../constants/belis";
+import { getObjectActionInfos } from "../../core/helper/actionHelper";
 import {
   selectNextFeature,
   selectPreviousFeature,
 } from "../../core/helper/featureCollectionHelper";
+import { getVCard } from "../../core/helper/featureHelper";
+import { zoomToFeature } from "../../core/helper/mapHelper";
+import addIncidentAction from "../../core/store/slices/actionSubslices/addIncidentAction";
+import { showDialog } from "../../core/store/slices/app";
+import { getJWT, getLoginFromJWT } from "../../core/store/slices/auth";
+import {
+  getFeatureCollection,
+  getFeatureCollectionMode,
+  getSelectedFeature,
+  isSecondaryInfoVisible,
+  setSecondaryInfoVisible,
+  setSelectedFeature,
+} from "../../core/store/slices/featureCollection";
+import { MODES as FEATURECOLLECTION_MODES } from "../../core/store/slices/featureCollection";
+import { addImageToObjectAction } from "../../core/store/slices/offlineActionDb";
+import AddImageDialog from "../app/dialogs/AddImage";
+import AddIncidentDialog, { ADD_INCIDENT_MODES } from "../app/dialogs/AddIncident";
+import { addDotThumbnail } from "./secondaryinfo/components/helper";
 
 //---
 
@@ -61,7 +61,9 @@ const InfoBox = ({ refRoutedMap }) => {
   const { setAll: setPhotoLightBoxData, setVisible, setCaptions } = useContext(
     LightBoxDispatchContext
   );
-
+  const selectedArbeitsauftrag = useSelector(
+    (state) => state.featureCollection.selectedFeature[FEATURECOLLECTION_MODES.TASKLISTS]
+  );
   let header = <span>Feature title</span>;
   const minified = collapsedInfoBox;
   const minify = setCollapsedInfoBox;
@@ -74,7 +76,7 @@ const InfoBox = ({ refRoutedMap }) => {
   let subtitle = "feature subtitle";
   let additionalInfo = "info";
   let hideNavigator = false;
-  let links = [];
+  let actionLinkInfos = [];
 
   // const lightBoxDispatchContext = useContext(LightBoxDispatchContext);
   const pixelwidth = 350;
@@ -138,8 +140,6 @@ const InfoBox = ({ refRoutedMap }) => {
   }, [selectedFeature, jwt, dispatch, vcard]);
 
   const setLightBoxVisible = (visible) => {
-    console.log("xxx setvisible", visible);
-
     setVisible(visible);
   };
 
@@ -182,118 +182,13 @@ const InfoBox = ({ refRoutedMap }) => {
     vcard = getVCard(selectedFeature);
     header = <span>Feature{vcard}</span>;
 
-    links = getActionLinksForFeature(selectedFeature, {
-      entityClassName: config.navigator.noun.singular,
-      displayZoomToFeature: true,
-      zoomToFeature: (feature) => {
-        zoomToFeature({ feature, mapRef: refRoutedMap.current.leafletMap.leafletElement });
-      },
-      displaySecondaryInfoAction: false,
-      setVisibleStateOfSecondaryInfo: (vis) => {
-        return false;
-      },
+    actionLinkInfos = getObjectActionInfos({
+      selectedFeature,
+      selectedArbeitsauftrag,
+      refRoutedMap,
+      mode,
+      dispatch,
     });
-
-    if (mode === FEATURECOLLECTION_MODES.OBJECTS) {
-      if (
-        selectedFeature?.featuretype !== "Leitung" &&
-        selectedFeature?.featuretype !== "abzweigdose"
-      )
-        links.push(
-          <IconLink
-            key={`openInfo`}
-            tooltip={"Öffne Datenblatt"}
-            onClick={() => {
-              dispatch(setSecondaryInfoVisible(!secondaryInfoVisible));
-            }}
-            iconname={"info"}
-            href='#'
-          />
-        );
-
-      links.push(
-        <IconLink
-          key={`addPhoto`}
-          tooltip={"Foto hinzufügen"}
-          onClick={() => {
-            dispatch(
-              showDialog(
-                <AddImageDialog
-                  close={() => {
-                    dispatch(showDialog());
-                  }}
-                  input={{ feature: selectedFeature, vcard }}
-                  onClose={(addImageParamater) => {
-                    dispatch(processAddImageToObject(addImageParamater));
-                  }}
-                />
-              )
-            );
-          }}
-          iconname={"camera"}
-          href='#'
-        />
-      );
-
-      links.push(
-        <IconLink
-          key={`addIncident`}
-          tooltip={"Störung melden"}
-          onClick={() => {
-            // dispatch(setSecondaryInfoVisible(!secondaryInfoVisible));
-          }}
-          iconname={"exclamation-triangle"}
-          href='#'
-        />
-      );
-    } else if (mode === FEATURECOLLECTION_MODES.TASKLISTS) {
-      links.push(
-        <IconLink
-          key={`openInfo`}
-          tooltip={"Öffne Datenblatt"}
-          onClick={() => {
-            dispatch(setSecondaryInfoVisible(!secondaryInfoVisible));
-          }}
-          iconname={"info"}
-          href='#'
-        />
-      );
-    } else {
-      //Protocols
-      links.push(
-        <IconLink
-          key={`openInfo`}
-          tooltip={"Öffne Datenblatt"}
-          onClick={() => {
-            dispatch(setSecondaryInfoVisible(!secondaryInfoVisible));
-          }}
-          iconname={"info"}
-          href='#'
-        />
-      );
-      links.push(
-        <IconLink
-          key={`protocolAction`}
-          tooltip={"Aktionen"}
-          onClick={() => {
-            // dispatch(setSecondaryInfoVisible(!secondaryInfoVisible));
-          }}
-          iconname={"list-alt"}
-          href='#'
-        />
-      );
-      links.push(
-        <IconLink
-          key={`statusAction`}
-          tooltip={"Status ändern"}
-          onClick={() => {
-            // dispatch(setSecondaryInfoVisible(!secondaryInfoVisible));
-          }}
-          iconname={"comment"}
-          href='#'
-        />
-      );
-    }
 
     header = <span>{vcard?.infobox?.header || config.header}</span>;
     title = vcard?.infobox?.title;
@@ -367,8 +262,21 @@ const InfoBox = ({ refRoutedMap }) => {
               </td>
               {minified === true && (
                 <td style={{ textAlign: "right", paddingRight: 7 }}>
-                  {links.map((link, index) => {
-                    return <span style={{ paddingLeft: index > 0 ? 3 : 0 }}>{link}</span>;
+                  {actionLinkInfos.map((li, index) => {
+                    if (li.subs) {
+                    } else {
+                      return (
+                        <span style={{ paddingLeft: index > 0 ? 3 : 0 }}>
+                          <IconLink
+                            key={`iconlink` + index}
+                            tooltip={li.tooltip}
+                            onClick={li.onClick}
+                            iconname={li.iconname}
+                            href='#'
+                          />
+                        </span>
+                      );
+                    }
                   })}
                 </td>
               )}
@@ -455,21 +363,73 @@ const InfoBox = ({ refRoutedMap }) => {
                 paddingBottom: 5,
               }}
             >
-              {links.map((link, index) => {
-                return (
-                  <Button
-                    style={{
-                      opacity: 0.7,
-                      marginLeft: index === 0 ? 0 : 5,
-                      marginRight: index === links.length - 1 ? 0 : 5,
-                      width: "100%",
-                    }}
-                    size='lg'
-                    variant='light'
-                  >
-                    {link}
-                  </Button>
-                );
+              {actionLinkInfos.map((li, index) => {
+                if (li.subs) {
+                  const items = li.subs.map((sub, index) => {
+                    return {
+                      key: index,
+                      label: (
+                        <h4 onClick={sub.onClick}>
+                          <span
+                            style={{
+                              marginRight: 10,
+                              opacity: 0.5,
+                            }}
+                          >
+                            {sub.iconname && <Icon name={sub.iconname} />}
+                            {sub.iconspan && sub.iconspan}
+                          </span>
+                          <span style={{ margin: 3 }}>{sub.title}</span>
+                        </h4>
+                      ),
+                    };
+                  });
+
+                  const menu = <Menu style={{ opacity: 0.8 }} items={items} />;
+
+                  return (
+                    <Dropdown overlay={menu} placement='topRight' trigger={["click"]}>
+                      <Button
+                        style={{
+                          opacity: 0.7,
+                          marginLeft: index === 0 ? 0 : 5,
+                          marginRight: index === actionLinkInfos.length - 1 ? 0 : 5,
+                          width: "100%",
+                        }}
+                        key={"actionbutton." + index}
+                        size='lg'
+                        variant='light'
+                        tooltip={li.tooltip}
+                      >
+                        <h2>
+                          {li.iconname && <Icon name={li.iconname} />}
+                          {li.iconspan && li.iconspan}
+                        </h2>
+                      </Button>
+                    </Dropdown>
+                  );
+                } else {
+                  return (
+                    <Button
+                      style={{
+                        opacity: 0.7,
+                        marginLeft: index === 0 ? 0 : 5,
+                        marginRight: index === actionLinkInfos.length - 1 ? 0 : 5,
+                        width: "100%",
+                      }}
+                      key={"actionbutton." + index}
+                      size='lg'
+                      variant='light'
+                      onClick={li.onClick}
+                      tooltip={li.tooltip}
+                    >
+                      <h2>
+                        {li.iconname && <Icon name={li.iconname} />}
+                        {li.iconspan && li.iconspan}
+                      </h2>
+                    </Button>
+                  );
+                }
               })}
             </div>
           ) : (

@@ -226,7 +226,6 @@ const enrichAndSetFeatures = (
   featureCollectionIn,
   removeFromIntermediateResults
 ) => {
-  console.log("xxx entry enrichAndSetFeatures");
   console.time("features enirched");
 
   const tasks = [];
@@ -266,8 +265,6 @@ const enrichAndSetFeatures = (
       console.time("cycling through enriched fc");
 
       for (const feature of enrichedFeatureCollection) {
-        console.log("xxx feature", feature);
-
         feature.intermediateResultsIntegrated = new Date().getTime();
         //  console.log("feature", feature.intermediateResultsIntegrated, feature);
         if (removeFromIntermediateResults === true) {
