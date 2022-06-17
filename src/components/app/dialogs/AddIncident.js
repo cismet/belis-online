@@ -133,6 +133,7 @@ const AddIncidentDialog = ({
               beschreibung: values.description,
               bemerkung: values.remarks,
               arbeitsauftrag: input.arbeitsauftrag?.properties?.id,
+              arbeitsauftragNummer: input.arbeitsauftrag?.properties?.nummer,
               aktion: input.mode,
             };
             if (input.mode === ADD_INCIDENT_MODES.EINZELAUFTRAG) {

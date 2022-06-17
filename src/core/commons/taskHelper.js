@@ -10,6 +10,7 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { type2Caption } from "../helper/featureHelper";
 import { gold, red, blue, green, grey } from "@ant-design/colors";
+import { ADD_INCIDENT_MODES } from "../../components/app/dialogs/AddIncident";
 
 const getTitleForAction = (action) => {
   switch (action) {
@@ -89,10 +90,25 @@ export const createDescriptionForTask = (type, parameters) => {
   switch (type) {
     case "uploadDocument":
       return parameters.description;
-    case "addIncident":
-      return "tbd";
+    case "addIncident": {
+      switch (parameters.aktion) {
+        case ADD_INCIDENT_MODES.VERANLASSUNG:
+          return "Störung (nur Veranlassung): " + parameters.bezeichnung;
+        case ADD_INCIDENT_MODES.EINZELAUFTRAG:
+          return "Störung (Einzelauftrag): " + parameters.bezeichnung;
+        case ADD_INCIDENT_MODES.ADD2ARBEITSAUFTRAG:
+          return (
+            "Störung (+ A" +
+            (parameters.arbeitsauftragNummer || "rbeitsauftrag") +
+            "): " +
+            parameters.bezeichnung
+          );
+        default:
+          return "Störung ohne Aktion (Fehler)";
+      }
+    }
     default:
-      return "";
+      return "tbd";
   }
 };
 
