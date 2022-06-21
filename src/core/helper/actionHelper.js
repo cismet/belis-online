@@ -1,6 +1,8 @@
-import React from "react";
 import AddImageDialog from "../../components/app/dialogs/AddImage";
 import AddIncidentDialog, { ADD_INCIDENT_MODES } from "../../components/app/dialogs/AddIncident";
+import PALeuchtenErneuerung from "../../components/app/dialogs/PALeuchtenerneuerung";
+import PASonstigesDialog from "../../components/app/dialogs/PASonstiges";
+import SetStatusDialog from "../../components/app/dialogs/SetStatus";
 import addIncidentAction from "../store/slices/actionSubslices/addIncidentAction";
 import { showDialog } from "../store/slices/app";
 import {
@@ -19,15 +21,15 @@ export const getObjectActionInfos = ({
   mode,
   dispatch,
 }) => {
-  const type = selectedFeature.featuretype;
   const vcard = getVCard(selectedFeature);
-
   const actionLinkInfos = [
     {
       tooltip: "Auf Objekt zoomen",
       onClick: () => {
+        console.log("selectedFeature", selectedFeature);
+
         zoomToFeature({
-          selectedFeature,
+          feature: selectedFeature,
           mapRef: refRoutedMap.current.leafletMap.leafletElement,
         });
       },
@@ -95,7 +97,21 @@ export const getObjectActionInfos = ({
     });
     actionLinkInfos.push({
       tooltip: "Status ändern",
-      onClick: () => {},
+      onClick: () => {
+        const dialog = (
+          <SetStatusDialog
+            close={() => {
+              dispatch(showDialog());
+            }}
+            input={{ feature: selectedFeature, vcard }}
+            onClose={(params) => {
+              console.log("setStatus", params);
+            }}
+          />
+        );
+
+        dispatch(showDialog(dialog));
+      },
       iconname: "tasks",
     });
     const actionSubs = getSubActionInfoForProtocolAction({ selectedFeature, dispatch });
@@ -206,9 +222,19 @@ const getSubActionInfoForProtocolAction = ({ selectedFeature, dispatch }) => {
         title: "Leuchtenerneuerung",
         iconspan: protocolActionIcons.leuchtenerneuerung,
         onClick: () => {
-          // const dialog = (
-          // );
-          // dispatch(showDialog(dialog));
+          const dialog = (
+            <PALeuchtenErneuerung
+              close={() => {
+                dispatch(showDialog());
+              }}
+              input={{ feature: selectedFeature, vcard }}
+              onClose={(params) => {
+                console.log("setStatus", params);
+              }}
+            />
+          );
+
+          dispatch(showDialog(dialog));
         },
       });
       subs.push({
@@ -327,14 +353,26 @@ const getSubActionInfoForProtocolAction = ({ selectedFeature, dispatch }) => {
     default:
       console.log("unknown featuretype. this should not happen", type);
   }
+  const vcard = getVCard(selectedFeature);
+
   subs.push({
     tooltip: "Sonstiges",
     title: "Sonstiges",
     iconspan: protocolActionIcons.sonstiges,
     onClick: () => {
-      // const dialog = (
-      // );
-      // dispatch(showDialog(dialog));
+      const dialog = (
+        <PASonstigesDialog
+          close={() => {
+            dispatch(showDialog());
+          }}
+          input={{ feature: selectedFeature, vcard }}
+          onClose={(params) => {
+            console.log("setStatus", params);
+          }}
+        />
+      );
+
+      dispatch(showDialog(dialog));
     },
   });
   return subs;
