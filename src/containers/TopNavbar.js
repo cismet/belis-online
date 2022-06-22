@@ -63,7 +63,10 @@ import {
 } from "../core/store/slices/cacheControl";
 import { getLoginFromJWT, storeJWT, storeLogin } from "../core/store/slices/auth";
 import { useWindowSize } from "@react-hook/window-size";
-import { getDB as getOfflineActionDB } from "../core/store/slices/offlineActionDb";
+import {
+  getDB as getOfflineActionDB,
+  storeIntermediateResults,
+} from "../core/store/slices/offlineActionDb";
 import { NavItem } from "react-bootstrap";
 import { fetchGraphQL } from "../core/commons/graphql";
 import queries from "../core/queries/online";
@@ -246,7 +249,8 @@ const TopNavbar = ({ innerRef, refRoutedMap, setCacheSettingsVisible, jwt }) => 
                   "backgroundvectorLayers"
                 ].style.opacity
               );
-              dispatch(setArtificialError(true));
+              //dispatch(setArtificialError(true));
+              dispatch(storeIntermediateResults({}));
             }}
           >
             <Icon icon={faVial} />
