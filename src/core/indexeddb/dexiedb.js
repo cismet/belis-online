@@ -1,7 +1,7 @@
 // db.js
 import Dexie from "dexie";
 
-const DBVERSION = 18;
+const DBVERSION = 20;
 const DBNAME = "Belis3";
 
 export const initialize = (db) => {
@@ -18,7 +18,8 @@ export const initialize = (db) => {
     team: "id",
     arbeitsauftrag: "id",
     tkey_leuchtentyp: "id",
-
+    leuchtmittel: "id",
+    rundsteuerempfaenger: "id",
     // anlagengruppe: 'id',
     // arbeitsprotokollstatus: 'id',
     // bauart: 'id',
