@@ -247,6 +247,7 @@ const getSubActionInfoForProtocolAction = ({ selectedFeature, dispatch }) => {
       subs.push(getSubInfoForKey("leuchtmittelwechselEP", dispatch, selectedFeature));
       subs.push(getSubInfoForKey("leuchtmittelwechsel", dispatch, selectedFeature));
       subs.push(getSubInfoForKey("rundsteuerempfaengerwechsel", dispatch, selectedFeature));
+      subs.push(getSubInfoForKey("sonderturnus", dispatch, selectedFeature));
       subs.push(getSubInfoForKey("vorschaltgeraetewechsel", dispatch, selectedFeature));
       break;
     case "tdta_standort_mast":
