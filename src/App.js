@@ -19,6 +19,9 @@ import { appKey, storagePostfix } from "./Keys";
 import { getArtificialError } from "./core/store/slices/app";
 import { ErrorBoundary } from "react-error-boundary";
 import AppErrorFallback from "./components/AppErrorFallback";
+import { ConfigProvider } from "antd";
+import deDE from "antd/lib/locale/de_DE";
+
 let persistor = persistStore(store);
 
 const baseLayerConf = { ...defaultLayerConf };
@@ -89,45 +92,47 @@ function App() {
   return (
     <Provider store={store}>
       <ErrorBoundary FallbackComponent={AppErrorFallback}>
-        <PersistGate loading={null} persistor={persistor}>
-          <Router>
-            <div className='App'>
-              <Switch>
-                <Route path='/app'>
-                  <MobileApp />
-                </Route>
-
-                <Route path='/test'>
-                  <Test />
-                </Route>
-
-                <Route path='/'>
-                  <TopicMapContextProvider
-                    appKey={appKey + "." + storagePostfix}
-                    backgroundModes={backgroundModes}
-                    backgroundConfigurations={backgroundConfigurations}
-                    baseLayerConf={baseLayerConf}
-                    offlineCacheConfig={offlineConfig}
-                    persistenceSettings={{
-                      ui: ["appMenuVisible", "appMenuActiveMenuSection", "collapsedInfoBox"],
-                      featureCollection: ["filterState", "filterMode", "clusteringEnabled"],
-                      responsive: [],
-                      styling: [
-                        "activeAdditionalLayerKeys",
-                        "namedMapStyle",
-                        "selectedBackground",
-                        "markerSymbolSize",
-                      ],
-                      offlinelayers: ["vectorLayerOfflineEnabled"],
-                    }}
-                  >
+        <ConfigProvider locale={deDE}>
+          <PersistGate loading={null} persistor={persistor}>
+            <Router>
+              <div className='App'>
+                <Switch>
+                  <Route path='/app'>
                     <MobileApp />
-                  </TopicMapContextProvider>
-                </Route>
-              </Switch>
-            </div>
-          </Router>
-        </PersistGate>
+                  </Route>
+
+                  <Route path='/test'>
+                    <Test />
+                  </Route>
+
+                  <Route path='/'>
+                    <TopicMapContextProvider
+                      appKey={appKey + "." + storagePostfix}
+                      backgroundModes={backgroundModes}
+                      backgroundConfigurations={backgroundConfigurations}
+                      baseLayerConf={baseLayerConf}
+                      offlineCacheConfig={offlineConfig}
+                      persistenceSettings={{
+                        ui: ["appMenuVisible", "appMenuActiveMenuSection", "collapsedInfoBox"],
+                        featureCollection: ["filterState", "filterMode", "clusteringEnabled"],
+                        responsive: [],
+                        styling: [
+                          "activeAdditionalLayerKeys",
+                          "namedMapStyle",
+                          "selectedBackground",
+                          "markerSymbolSize",
+                        ],
+                        offlinelayers: ["vectorLayerOfflineEnabled"],
+                      }}
+                    >
+                      <MobileApp />
+                    </TopicMapContextProvider>
+                  </Route>
+                </Switch>
+              </div>
+            </Router>
+          </PersistGate>
+        </ConfigProvider>
       </ErrorBoundary>
     </Provider>
   );
