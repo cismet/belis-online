@@ -10,6 +10,7 @@ import {
   faBinoculars,
   faBolt,
   faCheckCircle,
+  faExclamationCircle,
   faFileInvoice,
   faFilter,
   faInbox,
@@ -84,8 +85,11 @@ export const protocolActionInfos = {
     title: "Sonderturnus",
     icon: (
       <span className='fa-layers fa-fw'>
-        <FontAwesomeIcon icon={faLightbulb} transform='rotate-180'></FontAwesomeIcon>
-        <FontAwesomeIcon icon={faSync} transform='shrink-9 right-10 up-5'></FontAwesomeIcon>
+        <FontAwesomeIcon icon={faCalendarAlt}></FontAwesomeIcon>
+        <FontAwesomeIcon
+          icon={faExclamationCircle}
+          transform='shrink-9 right-11 down-5'
+        ></FontAwesomeIcon>
       </span>
     ),
   },
