@@ -249,8 +249,7 @@ const TopNavbar = ({ innerRef, refRoutedMap, setCacheSettingsVisible, jwt }) => 
                   "backgroundvectorLayers"
                 ].style.opacity
               );
-              //dispatch(setArtificialError(true));
-              dispatch(storeIntermediateResults({}));
+              dispatch(setArtificialError(true));
             }}
           >
             <Icon icon={faVial} />
