@@ -122,4 +122,11 @@ queries.arbeitsauftrag = `query q($teamId: Int!) {
 }
 `;
 
+queries.tkey_leuchtentyp = `{
+  tkey_leuchtentyp {
+    id
+    leuchtentyp
+    fabrikat
+  }
+}`;
 export default queries;
