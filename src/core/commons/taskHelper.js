@@ -11,13 +11,18 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { type2Caption } from "../helper/featureHelper";
 import { gold, red, blue, green, grey } from "@ant-design/colors";
 import { ADD_INCIDENT_MODES } from "../../components/app/dialogs/AddIncident";
+import { protocolActionIcons } from "../helper/actionIcons";
 
 const getTitleForAction = (action) => {
+  console.log("getTitleForAction", action);
+
   switch (action) {
     case "uploadDocument":
       return <FontAwesomeIcon icon={faCamera} title='Foto hinzufügen' />;
     case "addIncident":
       return <FontAwesomeIcon icon={faExclamationTriangle} title='Störung melden' />;
+    case "protokollStatusAenderung":
+      return protocolActionIcons[action];
     default:
       return action;
   }
@@ -107,6 +112,9 @@ export const createDescriptionForTask = (type, parameters) => {
           return "Störung ohne Aktion (Fehler)";
       }
     }
+    case "protokollStatusAenderung": {
+      return parameters.protocolDescription || "Statusänderung";
+    }
     default:
       return "tbd";
   }
@@ -145,6 +153,10 @@ export const getTaskForAction = (resultObject) => {
     try {
       parameters = JSON.parse(parameter);
     } catch (e) {}
+
+    // if (parameters.objekt_typ===undefined && action===)
+
+    console.log("parameters.objekt_typ", parameters.objekt_typ);
 
     const task = {
       id: id,
