@@ -70,7 +70,6 @@ const CacheSettings = () => {
           size='sm'
           disabled={selectedTeam?.id >= 0 ? false : true}
           onClick={() => {
-            dispatch(renewAllSecondaryInfoCache(jwt));
             let index = 0;
             for (const setting of [...primarySettings]) {
               setTimeout(() => {
@@ -158,7 +157,7 @@ const CacheSettings = () => {
               <CacheItem
                 key={"CacheItem." + index}
                 config={config[key]}
-                info={cacheSettings[key]}
+                info={cacheSettings[key] || {}}
                 renew={() => {
                   console.log("renew");
 
