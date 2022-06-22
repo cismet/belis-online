@@ -1,7 +1,6 @@
 import AddImageDialog from "../../components/app/dialogs/AddImage";
 import AddIncidentDialog, { ADD_INCIDENT_MODES } from "../../components/app/dialogs/AddIncident";
-import PALeuchtenErneuerung from "../../components/app/dialogs/PALeuchtenerneuerung";
-import PASonstigesDialog from "../../components/app/dialogs/PASonstiges";
+import ProtokollAction from "../../components/app/dialogs/ProtokollAction";
 import SetStatusDialog from "../../components/app/dialogs/SetStatus";
 import addIncidentAction from "../store/slices/actionSubslices/addIncidentAction";
 import protocolAction from "../store/slices/actionSubslices/protocolAction";
@@ -11,7 +10,7 @@ import {
   setSecondaryInfoVisible,
 } from "../store/slices/featureCollection";
 import { addImageToObjectAction } from "../store/slices/offlineActionDb";
-import { addIncidentActionIcons, protocolActionIcons } from "./actionIcons";
+import { addIncidentActionIcons, protocolActionInfos } from "./actionInfos";
 import { getVCard } from "./featureHelper";
 import { zoomToFeature } from "./mapHelper";
 
@@ -106,7 +105,7 @@ export const getObjectActionInfos = ({
             }}
             input={{ feature: selectedFeature, vcard }}
             onClose={(params) => {
-              dispatch(protocolAction("protokollStatusAenderung", params));
+              dispatch(protocolAction(params));
               console.log("setStatus", params);
             }}
           />
@@ -210,172 +209,69 @@ const getSubActionInfoForAddIncident = ({ selectedFeature, selectedArbeitsauftra
   return subs;
 };
 
-const getSubActionInfoForProtocolAction = ({ selectedFeature, dispatch }) => {
-  console.log("selectedFeature", selectedFeature);
-  const type = selectedFeature.fachobjekttype;
-  console.log("type", type);
-
-  const subs = [];
-  switch (type) {
-    case "geom":
-      break;
-    case "tdta_leuchten":
-      subs.push({
-        title: "Leuchtenerneuerung",
-        iconspan: protocolActionIcons.leuchtenerneuerung,
-        onClick: () => {
-          const dialog = (
-            <PALeuchtenErneuerung
-              close={() => {
-                dispatch(showDialog());
-              }}
-              input={{ feature: selectedFeature, vcard }}
-              onClose={(params) => {
-                console.log("setStatus", params);
-              }}
-            />
-          );
-
-          dispatch(showDialog(dialog));
-        },
-      });
-      subs.push({
-        title: "Leuchtmittelwechsel mit EP",
-        iconspan: protocolActionIcons.leuchtmittelwechselEP,
-        onClick: () => {
-          // const dialog = (
-          // );
-          // dispatch(showDialog(dialog));
-        },
-      });
-      subs.push({
-        title: "Leuchtmittelwechsel",
-        iconspan: protocolActionIcons.leuchtmittelwechsel,
-        onClick: () => {
-          // const dialog = (
-          // );
-          // dispatch(showDialog(dialog));
-        },
-      });
-      subs.push({
-        title: "Rundsteuerempfängerwechsel",
-        iconspan: protocolActionIcons.rundsteuerempfaengerwechsel,
-        onClick: () => {
-          // const dialog = (
-          // );
-          // dispatch(showDialog(dialog));
-        },
-      });
-      subs.push({
-        title: "Vorschaltgerätewechsel",
-        iconspan: protocolActionIcons.vorschaltgeraetewechsel,
-        onClick: () => {
-          // const dialog = (
-          // );
-          // dispatch(showDialog(dialog));
-        },
-      });
-
-      break;
-    case "tdta_standort_mast":
-      subs.push({
-        title: "Anstricharbeiten",
-        iconspan: protocolActionIcons.anstricharbeiten,
-        onClick: () => {
-          // const dialog = (
-          // );
-          // dispatch(showDialog(dialog));
-        },
-      });
-      subs.push({
-        title: "Elektrische Prüfung",
-        iconspan: protocolActionIcons.ep,
-        onClick: () => {
-          // const dialog = (
-          // );
-          // dispatch(showDialog(dialog));
-        },
-      });
-      subs.push({
-        title: "Masterneuerung",
-        iconspan: protocolActionIcons.masterneuerung,
-        onClick: () => {
-          // const dialog = (
-          // );
-          // dispatch(showDialog(dialog));
-        },
-      });
-      subs.push({
-        title: "Revision",
-        iconspan: protocolActionIcons.revision,
-        onClick: () => {
-          // const dialog = (
-          // );
-          // dispatch(showDialog(dialog));
-        },
-      });
-      subs.push({
-        title: "Standsicherheitsprüfung",
-        iconspan: protocolActionIcons.standsicherheitspruefung,
-        onClick: () => {
-          // const dialog = (
-          // );
-          // dispatch(showDialog(dialog));
-        },
-      });
-      break;
-    case "leitung":
-      break;
-    case "schaltstelle":
-      subs.push({
-        title: "Revision",
-        iconspan: protocolActionIcons.revision,
-        onClick: () => {
-          // const dialog = (
-          // );
-          // dispatch(showDialog(dialog));
-        },
-      });
-      break;
-    case "abzweigdose":
-      break;
-
-    case "mauerlasche":
-      subs.push({
-        title: "Prüfung",
-        iconspan: protocolActionIcons.pruefung,
-        onClick: () => {
-          // const dialog = (
-          // );
-          // dispatch(showDialog(dialog));
-        },
-      });
-      break;
-
-    default:
-      console.log("unknown featuretype. this should not happen", type);
-  }
+const getSubInfoForKey = (key, dispatch, selectedFeature) => {
   const vcard = getVCard(selectedFeature);
-
-  subs.push({
-    tooltip: "Sonstiges",
-    title: "Sonstiges",
-    iconspan: protocolActionIcons.sonstiges,
+  const info = protocolActionInfos[key];
+  return {
+    title: info.title,
+    iconspan: info.icon,
     onClick: () => {
       const dialog = (
-        <PASonstigesDialog
+        <ProtokollAction
           close={() => {
             dispatch(showDialog());
           }}
           input={{ feature: selectedFeature, vcard }}
+          actionname={info.actionname}
+          actionkey={key}
           onClose={(params) => {
-            console.log("setStatus", params);
+            console.log(info.title, params);
+            dispatch(protocolAction(params));
           }}
+          title={info.title}
         />
       );
 
       dispatch(showDialog(dialog));
     },
-  });
+  };
+};
+const getSubActionInfoForProtocolAction = ({ selectedFeature, dispatch }) => {
+  const type = selectedFeature.fachobjekttype;
+  const subs = [];
+  switch (type) {
+    case "geom":
+      break;
+    case "tdta_leuchten":
+      subs.push(getSubInfoForKey("leuchtenerneuerung", dispatch, selectedFeature));
+      subs.push(getSubInfoForKey("leuchtmittelwechselEP", dispatch, selectedFeature));
+      subs.push(getSubInfoForKey("leuchtmittelwechsel", dispatch, selectedFeature));
+      subs.push(getSubInfoForKey("rundsteuerempfaengerwechsel", dispatch, selectedFeature));
+      subs.push(getSubInfoForKey("vorschaltgeraetewechsel", dispatch, selectedFeature));
+      break;
+    case "tdta_standort_mast":
+      subs.push(getSubInfoForKey("anstricharbeiten", dispatch, selectedFeature));
+      subs.push(getSubInfoForKey("ep", dispatch, selectedFeature));
+      subs.push(getSubInfoForKey("masterneuerung", dispatch, selectedFeature));
+      subs.push(getSubInfoForKey("standortrevision", dispatch, selectedFeature));
+      subs.push(getSubInfoForKey("standsicherheitspruefung", dispatch, selectedFeature));
+      break;
+    case "leitung":
+      break;
+    case "schaltstelle":
+      subs.push(getSubInfoForKey("schaltstellerevision", dispatch, selectedFeature));
+      break;
+    case "abzweigdose":
+      break;
+    case "mauerlasche":
+      subs.push(getSubInfoForKey("pruefung", dispatch, selectedFeature));
+      break;
+    default:
+      console.log("unknown featuretype. this should not happen", type);
+  }
+
+  //Sonstiges für alle
+  subs.push(getSubInfoForKey("sonstiges", dispatch, selectedFeature));
+
   return subs;
 };

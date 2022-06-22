@@ -11,7 +11,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { type2Caption } from "../helper/featureHelper";
 import { gold, red, blue, green, grey } from "@ant-design/colors";
 import { ADD_INCIDENT_MODES } from "../../components/app/dialogs/AddIncident";
-import { protocolActionIcons } from "../helper/actionIcons";
+import { protocolActionInfos } from "../helper/actionInfos";
 
 const getTitleForAction = (action) => {
   console.log("getTitleForAction", action);
@@ -21,10 +21,8 @@ const getTitleForAction = (action) => {
       return <FontAwesomeIcon icon={faCamera} title='Foto hinzufügen' />;
     case "addIncident":
       return <FontAwesomeIcon icon={faExclamationTriangle} title='Störung melden' />;
-    case "protokollStatusAenderung":
-      return protocolActionIcons[action];
     default:
-      return action;
+      return protocolActionInfos[action] || action;
   }
 };
 

@@ -3,7 +3,7 @@ import uuidv4 from "uuid/v4";
 import { getJWT, getLoginFromJWT } from "../auth";
 import { addIntermediateResult, getDB } from "../offlineActionDb";
 
-const protocolAction = (actionname, params) => {
+const protocolAction = (params) => {
   return async (dispatch, getState) => {
     const state = getState();
     const offlineActionDb = getDB(state);
@@ -12,7 +12,7 @@ const protocolAction = (actionname, params) => {
 
     const offlineAction = {
       id: uuidv4(),
-      action: actionname,
+      action: params.actionname,
       jwt: jwt,
       parameter: JSON.stringify(params),
       isCompleted: false,
@@ -28,11 +28,10 @@ const protocolAction = (actionname, params) => {
       object_type: "arbeitsprotokoll",
       object_id: params.protokoll_id,
       data: {
-        action: actionname,
         ...params,
       },
       ts: params.ts,
-      action: actionname,
+      action: params.actionname,
       resultType: "object",
     };
     dispatch(addIntermediateResult(intermediateResult));

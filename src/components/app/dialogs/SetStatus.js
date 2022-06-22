@@ -1,9 +1,8 @@
 import { DatePicker, Form, Input, Modal, Radio, Typography } from "antd";
 import TextArea from "antd/lib/input/TextArea";
 import moment from "moment";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 
-import { getJWT } from "../../../core/store/slices/auth";
 import {
   getSelectedFeaturesForAllModes,
   MODES,
@@ -56,6 +55,7 @@ const SetStatusDialog = ({
             }
 
             const parameter = {
+              actionname: "protokollStatusAenderung",
               protokoll_id: feature.properties.id,
               status: values.status || input.feature?.properties?.arbeitsprotokollstatus?.id,
               material: values.material || input.feature?.properties?.material,
@@ -124,9 +124,7 @@ const SetStatusDialog = ({
         <Form.Item name='date' label='Datum'>
           <DatePicker
             defaultValue={
-              input.feature?.properties?.datum
-                ? moment(input.feature?.properties?.datum)
-                : undefined
+              input.feature?.properties?.datum ? moment(input.feature?.properties?.datum) : moment()
             }
             style={{ width: "100%" }}
           />
