@@ -4,6 +4,7 @@ import PALeuchtenErneuerung from "../../components/app/dialogs/PALeuchtenerneuer
 import PASonstigesDialog from "../../components/app/dialogs/PASonstiges";
 import SetStatusDialog from "../../components/app/dialogs/SetStatus";
 import addIncidentAction from "../store/slices/actionSubslices/addIncidentAction";
+import protocolAction from "../store/slices/actionSubslices/protocolAction";
 import { showDialog } from "../store/slices/app";
 import {
   MODES as FEATURECOLLECTION_MODES,
@@ -105,6 +106,7 @@ export const getObjectActionInfos = ({
             }}
             input={{ feature: selectedFeature, vcard }}
             onClose={(params) => {
+              dispatch(protocolAction("protokollStatusAenderung", params));
               console.log("setStatus", params);
             }}
           />
