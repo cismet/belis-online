@@ -13,16 +13,27 @@ import { gold, red, blue, green, grey } from "@ant-design/colors";
 import { ADD_INCIDENT_MODES } from "../../components/app/dialogs/AddIncident";
 import { protocolActionInfos } from "../helper/actionInfos";
 
-const getTitleForAction = (action) => {
-  console.log("getTitleForAction", action);
+const convertActionameToActionKey = (actionname) => {
+  for (const key of Object.keys(protocolActionInfos)) {
+    if (protocolActionInfos[key].actionname === actionname) {
+      return key;
+    }
+  }
+};
 
+const getTitleForAction = (action) => {
   switch (action) {
     case "uploadDocument":
       return <FontAwesomeIcon icon={faCamera} title='Foto hinzufügen' />;
     case "addIncident":
       return <FontAwesomeIcon icon={faExclamationTriangle} title='Störung melden' />;
     default:
-      return protocolActionInfos[action]?.icon || action;
+      const actionKey = convertActionameToActionKey(action);
+      if (actionKey) {
+        return protocolActionInfos[actionKey]?.icon || action;
+      } else {
+        return action;
+      }
   }
 };
 
@@ -110,11 +121,18 @@ export const createDescriptionForTask = (type, parameters) => {
           return "Störung ohne Aktion (Fehler)";
       }
     }
-    case "protokollStatusAenderung": {
-      return parameters.protocolDescription || "Statusänderung";
+    default: {
+      if (parameters.protocolDescription) {
+        return parameters.protocolDescription;
+      } else {
+        const actionKey = convertActionameToActionKey(type);
+        if (actionKey) {
+          return protocolActionInfos[actionKey]?.title;
+        } else {
+          return "tbd";
+        }
+      }
     }
-    default:
-      return "tbd";
   }
 };
 
