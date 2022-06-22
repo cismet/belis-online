@@ -1,4 +1,14 @@
-import { DatePicker, Form, Input, Modal, Radio, Select, Typography } from "antd";
+import {
+  DatePicker,
+  Form,
+  Input,
+  InputNumber,
+  Modal,
+  Radio,
+  Select,
+  Switch,
+  Typography,
+} from "antd";
 import TextArea from "antd/lib/input/TextArea";
 import moment from "moment";
 import { useEffect, useState } from "react";
@@ -34,6 +44,12 @@ const SetStatusDialog = ({
   const [leuchtentypen, setLeuchtentypen] = useState([]);
   const [preferredLeuchtentyp, setPreferredLeuchtentyp] = useState();
 
+  const [leuchtmittel, setLeuchtmittel] = useState([]);
+  const [prefferredLeuchtmittel, setPrefferredLeuchtmittel] = useState([]);
+
+  const [rundsteuerempfaenger, setRundsteuerempfaenger] = useState([]);
+  const [preferredRundsteuerempfaenger, setPreferredRundsteuerempfaenger] = useState();
+
   useEffect(() => {
     //async block
     (async () => {
@@ -44,6 +60,30 @@ const SetStatusDialog = ({
             setLeuchtentypen(lts);
           } else {
             dispatch(renewCache("tkey_leuchtentyp", jwt));
+          }
+        } catch (e) {
+          console.log("Error in fetching teams", e);
+        }
+      }
+      if (actionkey === "leuchtmittelwechsel" || actionkey === "leuchtmittelwechselEP") {
+        try {
+          const lm = await dexieW.getAll("leuchtmittel");
+          if (lm && lm.length > 0) {
+            setLeuchtmittel(lm);
+          } else {
+            dispatch(renewCache("leuchtmittel", jwt));
+          }
+        } catch (e) {
+          console.log("Error in fetching teams", e);
+        }
+      }
+      if (actionkey === "rundsteuerempfaengerwechsel") {
+        try {
+          const rse = await dexieW.getAll("rundsteuerempfaenger");
+          if (rse && rse.length > 0) {
+            setRundsteuerempfaenger(rse);
+          } else {
+            dispatch(renewCache("rundsteuerempfaenger", jwt));
           }
         } catch (e) {
           console.log("Error in fetching teams", e);
@@ -65,6 +105,8 @@ const SetStatusDialog = ({
         form
           .validateFields()
           .then((values) => {
+            console.log("formvalues", values);
+
             const feature = input.feature;
             const momentStatusDate =
               values.statusdate ||
@@ -77,6 +119,10 @@ const SetStatusDialog = ({
             }
 
             const inbetriebnahmeD = (values.inbetriebnahme || moment()).valueOf();
+            const pruefdatumD = (values.pruefdatum || moment()).valueOf();
+            const wechseldatumD = (values.wechseldatum || moment()).valueOf();
+            const einbaudatumD = (values.einbaudatum || moment()).valueOf();
+            const sonderturnusdatumD = (values.sonderturnusdatum || moment()).valueOf();
 
             const parameter = {
               //leuchtenerneuerung
@@ -84,6 +130,23 @@ const SetStatusDialog = ({
               leuchtentyp: values.leuchtentyp,
 
               //leuchtmittelwechselEP
+              pruefdatum: pruefdatumD,
+              erdung_in_ordnung: values.erdung === true ? "ja" : "nein",
+              //leuchtmittelwechselEP && leuchtmittelwechsel
+              leuchtmittel: values.leuchtmittel,
+              wechseldatum: wechseldatumD,
+              lebensdauer: values.lebensdauer,
+
+              //rundsteuerempfaengerwechsel
+              einbaudatum: einbaudatumD,
+              rundsteuerempfaenger: values.rundsteuerempfaenger,
+
+              //sonderturnus
+              //TODO
+
+              //vorschaltgeraetewechsel
+              vorschaltgeraet: values.vorschaltgeraet,
+              //wechseldatum: wechseldatumD, //wird weiter oben schon gesetzt
 
               //sonstiges
               bemerkung: values.infos,
@@ -99,9 +162,9 @@ const SetStatusDialog = ({
               objekt_typ: "arbeitsprotokoll",
               object_name: input?.vcard?.infobox?.title + " (A" + arbeitsauftrag.nummer + ")",
             };
-            Object.keys(parameter).forEach((key) =>
-              parameter[key] === undefined ? delete parameter[key] : {}
-            );
+            // Object.keys(parameter).forEach((key) =>
+            //   parameter[key] === undefined ? delete parameter[key] : {}
+            // );
             form.resetFields();
 
             onClose(parameter);
@@ -162,6 +225,147 @@ const SetStatusDialog = ({
                   );
                 })}
               </Select>
+            </Form.Item>
+          </>
+        )}
+
+        {actionkey === "leuchtmittelwechselEP" && (
+          <>
+            <Form.Item name='pruefdatum' label='Elektrische Prüfung am Mast'>
+              <DatePicker defaultValue={moment()} style={{ width: "100%" }} />
+            </Form.Item>
+            <Form.Item label='Erdung in Ordnung' name='erdung'>
+              <Switch />
+            </Form.Item>
+          </>
+        )}
+        {(actionkey === "leuchtmittelwechsel" || actionkey === "leuchtmittelwechselEP") && (
+          <>
+            <Form.Item name='wechseldatum' label='Wechseldatum'>
+              <DatePicker defaultValue={moment()} style={{ width: "100%" }} />
+            </Form.Item>
+            <Form.Item
+              name='leuchtmittel'
+              label='eingesetztes Leuchtmittel'
+              rules={[
+                {
+                  required: true,
+                  message: "Bitte geben Sie das Leuchtmittel an.",
+                },
+              ]}
+            >
+              <Select
+                showSearch
+                defaultValue={prefferredLeuchtmittel?.id}
+                style={{ width: "100%" }}
+                filterOption={(input, option) => {
+                  const testChilds = option.children.map((child) => child.toLowerCase().trim());
+                  return testChilds.join(" ").search(input.toLowerCase().trim()) >= 0;
+                }}
+                optionFilterProp='children'
+                filterSort={(optionA, optionB) =>
+                  optionA.children
+                    .join(" ")
+                    .toLowerCase()
+                    .localeCompare(optionB.children.join(" ").toLowerCase())
+                }
+                // onChange={(x) => {
+                //   setSelectedTeamId(x);
+                // }}
+              >
+                {leuchtmittel.map((leuchtmittel) => {
+                  return (
+                    <Select.Option value={leuchtmittel.id}>
+                      {leuchtmittel.hersteller} - {leuchtmittel.lichtfarbe}
+                    </Select.Option>
+                  );
+                })}
+              </Select>
+            </Form.Item>
+            <Form.Item
+              name='lebensdauer'
+              label='Lebensdauer des Leuchtmittels'
+              rules={[
+                {
+                  required: true,
+                  message: "Bitte geben Sie die Lebensdauer an.",
+                },
+              ]}
+            >
+              <InputNumber placeholder='in Monaten' style={{ width: "100%" }} />
+            </Form.Item>
+          </>
+        )}
+        {actionkey === "rundsteuerempfaengerwechsel" && (
+          <>
+            <Form.Item name='einbaudatum' label='Einbaudatum'>
+              <DatePicker defaultValue={moment()} style={{ width: "100%" }} />
+            </Form.Item>
+            <Form.Item
+              name='rundsteuerempfaenger'
+              label='Rundsteuerempfänger'
+              rules={[
+                {
+                  required: true,
+                  message: "Bitte geben Sie den Rundsteuerempfänger an.",
+                },
+              ]}
+            >
+              <Select
+                showSearch
+                defaultValue={preferredRundsteuerempfaenger?.id}
+                style={{ width: "100%" }}
+                filterOption={(input, option) => {
+                  const testChilds = option.children.map((child) => child.toLowerCase().trim());
+                  return testChilds.join(" ").search(input.toLowerCase().trim()) >= 0;
+                }}
+                optionFilterProp='children'
+                filterSort={(optionA, optionB) =>
+                  optionA.children
+                    .join(" ")
+                    .toLowerCase()
+                    .localeCompare(optionB.children.join(" ").toLowerCase())
+                }
+                // onChange={(x) => {
+                //   setSelectedTeamId(x);
+                // }}
+              >
+                {rundsteuerempfaenger.map((rs) => {
+                  return (
+                    <Select.Option value={rs.id}>
+                      {rs.herrsteller_rs || "ohne Hersteller"} - {rs.rs_typ}
+                    </Select.Option>
+                  );
+                })}
+              </Select>
+            </Form.Item>
+          </>
+        )}
+
+        {actionkey === "sonderturnus" && (
+          <>
+            <Form.Item name='sonderturnusdatum' label='Sonderturnus'>
+              <DatePicker defaultValue={moment()} style={{ width: "100%" }} />
+            </Form.Item>
+          </>
+        )}
+
+        {actionkey === "vorschaltgeraetewechsel" && (
+          <>
+            <Form.Item name='wechseldatum' label='Einbaudatum'>
+              <DatePicker defaultValue={moment()} style={{ width: "100%" }} />
+            </Form.Item>
+            <Form.Item
+              name='vorschaltgeraet'
+              label='Vorschaltgerät'
+              rules={[
+                {
+                  required: true,
+                  message: "Bitte geben Sie das Vorschaltgerät an.",
+                },
+              ]}
+            >
+              <Input />
             </Form.Item>
           </>
         )}
