@@ -1,23 +1,12 @@
-// import { faFilePdf } from "@fortawesome/free-solid-svg-icons";
 import { faFilePdf } from "@fortawesome/free-regular-svg-icons";
-import { faAsterisk, faFileInvoice, faInbox, faPlus } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import envelope from "@turf/envelope";
-import { getType } from "@turf/invariant";
 import { Dropdown, Menu } from "antd";
-import proj4 from "proj4";
-import React, { useContext } from "react";
-import { useEffect } from "react";
-import { useState } from "react";
+import React, { useContext, useEffect } from "react";
 import Button from "react-bootstrap/Button";
 import Icon from "react-cismap/commons/Icon";
 import IconLink from "react-cismap/commons/IconLink";
-import { projectionData } from "react-cismap/constants/gis";
 import { LightBoxDispatchContext } from "react-cismap/contexts/LightBoxContextProvider";
 import { UIContext, UIDispatchContext } from "react-cismap/contexts/UIContextProvider";
-import { convertBBox2Bounds } from "react-cismap/tools/gisHelper";
-import { getActionLinksForFeature } from "react-cismap/tools/uiHelper";
-// import ResponsiveInfoBox from "./ResponsiveInfoBox";
 import ResponsiveInfoBox, { MODES } from "react-cismap/topicmaps/ResponsiveInfoBox";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -28,22 +17,15 @@ import {
   selectPreviousFeature,
 } from "../../core/helper/featureCollectionHelper";
 import { getVCard } from "../../core/helper/featureHelper";
-import { zoomToFeature } from "../../core/helper/mapHelper";
-import addIncidentAction from "../../core/store/slices/actionSubslices/addIncidentAction";
-import { showDialog } from "../../core/store/slices/app";
-import { getJWT, getLoginFromJWT } from "../../core/store/slices/auth";
+import { getJWT } from "../../core/store/slices/auth";
 import {
+  MODES as FEATURECOLLECTION_MODES,
   getFeatureCollection,
   getFeatureCollectionMode,
   getSelectedFeature,
   isSecondaryInfoVisible,
-  setSecondaryInfoVisible,
   setSelectedFeature,
 } from "../../core/store/slices/featureCollection";
-import { MODES as FEATURECOLLECTION_MODES } from "../../core/store/slices/featureCollection";
-import { addImageToObjectAction } from "../../core/store/slices/offlineActionDb";
-import AddImageDialog from "../app/dialogs/AddImage";
-import AddIncidentDialog, { ADD_INCIDENT_MODES } from "../app/dialogs/AddIncident";
 import { addDotThumbnail } from "./secondaryinfo/components/helper";
 
 //---
