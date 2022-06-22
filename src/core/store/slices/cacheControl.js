@@ -37,6 +37,12 @@ keys.push({
 });
 keys.push({
   primary: true,
+  name: "Rundsteuerempfänger",
+  queryKey: "rundsteuerempfaenger",
+  parameterFactory: () => ({}),
+});
+keys.push({
+  primary: true,
   name: "Masten (ohne Leuchten)",
   queryKey: "tdta_standort_mast",
   parameterFactory: () => ({}),

@@ -138,4 +138,12 @@ queries.leuchtmittel = `{
   lichtfarbe
   }
 }`;
+queries.rundsteuerempfaenger = `{
+  rundsteuerempfaenger {
+    id
+    herrsteller_rs
+    rs_typ
+  }  
+}`;
+
 export default queries;
