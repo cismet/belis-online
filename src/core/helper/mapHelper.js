@@ -5,16 +5,17 @@ import envelope from "@turf/envelope";
 import { getType } from "@turf/invariant";
 
 export const zoomToFeature = ({ feature, mapRef }) => {
-  console.log("xxx zoomToFeature", mapRef);
+  console.log("xxx zoomToFeature", feature, mapRef);
+
   const bufferAroundObject = 50;
   let refDef;
-  if (feature.crs) {
+  if (feature?.crs) {
     const code = feature?.crs?.properties?.name?.split("EPSG::")[1];
     refDef = projectionData[code].def;
   } else {
     refDef = projectionData["25832"].def;
   }
-  if (mapRef !== undefined) {
+  if (feature && mapRef !== undefined) {
     const type = getType(feature);
     if (type === "Point") {
       const bbox = [
@@ -32,5 +33,8 @@ export const zoomToFeature = ({ feature, mapRef }) => {
       // console.log("xxx buffered_bbox", bufferedBBox);
       mapRef.fitBounds(convertBBox2Bounds(bufferedBBox, refDef));
     }
+  }
+  if (!feature) {
+    console.trace("xxx zoomToFeature no feature");
   }
 };

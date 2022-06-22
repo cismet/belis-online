@@ -25,6 +25,12 @@ keys.push({
 });
 keys.push({
   primary: true,
+  name: "Leuchtentypen",
+  queryKey: "tkey_leuchtentyp",
+  parameterFactory: () => ({}),
+});
+keys.push({
+  primary: true,
   name: "Masten (ohne Leuchten)",
   queryKey: "tdta_standort_mast",
   parameterFactory: () => ({}),
@@ -79,16 +85,25 @@ const objectStoreDefaultState = {
   updateCount: -1, //# of all retrieved objects
   cachingProgress: -1, //# of objects added to cache
 };
+
+const initializeForKey = (key) => {
+  if (key) {
+    const ret = JSON.parse(JSON.stringify(objectStoreDefaultState));
+    ret.primary = key.primary;
+    ret.dataKey = key.dataKey;
+    ret.key = key.queryKey;
+    ret.name = key.name || key.queryKey;
+    configx[key.queryKey] = key;
+    return ret;
+  } else {
+    console.trace("why is key undefined", key);
+  }
+};
+
 const initialTypeStateIfNotInLocalStorage = {};
 const configx = {};
 for (const key of keys) {
-  initialTypeStateIfNotInLocalStorage[key.queryKey] = JSON.parse(
-    JSON.stringify(objectStoreDefaultState)
-  );
-  initialTypeStateIfNotInLocalStorage[key.queryKey].primary = key.primary;
-  initialTypeStateIfNotInLocalStorage[key.queryKey].dataKey = key.dataKey;
-  initialTypeStateIfNotInLocalStorage[key.queryKey].key = key.queryKey;
-  initialTypeStateIfNotInLocalStorage[key.queryKey].name = key.name || key.queryKey;
+  initialTypeStateIfNotInLocalStorage[key.queryKey] = initializeForKey(key);
   configx[key.queryKey] = key;
 }
 
@@ -105,6 +120,9 @@ const cacheSlice = createSlice({
   initialState: initialState,
   reducers: {
     setLoadingState(state, action) {
+      if (!state.types[action.payload.key]) {
+        state.types[action.payload.key] = initializeForKey(configx[action.payload.key]);
+      }
       if (
         state.types[action.payload.key].resetTimer !== undefined &&
         action.payload.loadingState === "loading"
@@ -120,20 +138,31 @@ const cacheSlice = createSlice({
       return state;
     },
     setLastUpdate(state, action) {
+      if (!state.types[action.payload.key]) {
+        state.types[action.payload.key] = initializeForKey(configx[action.payload.key]);
+      }
       state.types[action.payload.key].lastUpdate = action.payload.lastUpdate;
 
       return state;
     },
     setObjectCount(state, action) {
+      if (!state.types[action.payload.key]) {
+        state.types[action.payload.key] = initializeForKey(configx[action.payload.key]);
+      }
       state.types[action.payload.key].objectCount = action.payload.objectCount;
-
       return state;
     },
     setUpdateCount(state, action) {
+      if (!state.types[action.payload.key]) {
+        state.types[action.payload.key] = initializeForKey(configx[action.payload.key]);
+      }
       state.types[action.payload.key].updateCount = action.payload.updateCount;
       return state;
     },
     setCachingProgress(state, action) {
+      if (!state.types[action.payload.key]) {
+        state.types[action.payload.key] = initializeForKey(configx[action.payload.key]);
+      }
       state.types[action.payload.key].cachingProgress = action.payload.cachingProgress;
       return state;
     },
@@ -171,10 +200,11 @@ export const getCacheInfo = (key) => {
 export const isCacheFullUsable = (state) => {
   for (const key of getAllInfoKeys(state)) {
     if (
-      state.cacheControl.types[key].lastUpdate === undefined ||
-      state.cacheControl.types[key].lastUpdate === -1 ||
-      state.cacheControl.types[key].loadingState === "loading" ||
-      state.cacheControl.types[key].loadingState === "caching"
+      key &&
+      (state.cacheControl.types[key].lastUpdate === undefined ||
+        state.cacheControl.types[key].lastUpdate === -1 ||
+        state.cacheControl.types[key].loadingState === "loading" ||
+        state.cacheControl.types[key].loadingState === "caching")
     ) {
       return false;
     }
@@ -280,6 +310,21 @@ export const renewAllPrimaryInfoCache = (jwt) => {
     dispatch(setCacheUser(getLoginFromJWT(jwt)));
   };
 };
+export const renewAllCaches = (jwt) => {
+  return async (dispatch, getState) => {
+    const state = getState();
+
+    let index = 0;
+    for (const key of Object.keys(state.cacheControl.types)) {
+      if (key) {
+        dispatch(renewCache(key, jwt));
+      } else {
+        console.log("why key is undefined");
+      }
+    }
+    dispatch(setCacheUser(getLoginFromJWT(jwt)));
+  };
+};
 
 export const renewCache = (
   key,
@@ -294,10 +339,10 @@ export const renewCache = (
   return async (dispatch, getState) => {
     const stateForParameterFactory = overridingStateForParameterFactory || getState();
     const state = getState();
-    const cfg = getCacheInfo(key)(state);
+    const cfg = keys.find((k) => k.queryKey === key);
 
     const itemKey = key;
-    const dataKey = cfg.dataKey || key;
+    const dataKey = cfg.queryKey || key;
 
     dispatch(setLoadingState({ key, loadingState: "loading" }));
     dispatch(setCachingProgress({ key, cachingProgress: 0 }));

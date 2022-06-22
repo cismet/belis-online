@@ -1,8 +1,9 @@
 import uuidv4 from "uuid/v4";
 
+import { ADD_INCIDENT_MODES } from "../../../../components/app/dialogs/AddIncident";
 import { getJWT, getLoginFromJWT } from "../auth";
 import { getDB } from "../offlineActionDb";
-
+import { addIntermediateResult } from "../offlineActionDb";
 const addIncidentAction = (params) => {
   return async (dispatch, getState) => {
     const state = getState();
@@ -24,23 +25,37 @@ const addIncidentAction = (params) => {
     offlineActionDb.actions.insert(offlineAction);
 
     console.log("added object to offline db to addIncident", params, offlineAction);
-
-    // const intermediateResult = {
-    //   object_type: addImageParameter.objekt_typ,
-    //   object_id: addImageParameter.objekt_id,
-    //   data: {
-    //     imageData: addImageParameter.ImageData,
-    //     ending: addImageParameter.ending,
-    //     prefix: addImageParameter.prefix,
-    //     description: addImageParameter.description,
-    //   },
-    //   ts: addImageParameter.ts,
-    //   action: "uploadDocument",
-    //   resultType: "image",
-    // };
+    let intermediateResult;
+    if (params.aktion === ADD_INCIDENT_MODES.VERANLASSUNG) {
+      //nothing to do, because we don't show Veranlassung in the mobile application
+    } else if (params.aktion === ADD_INCIDENT_MODES.EINZELAUFTRAG) {
+      intermediateResult = {
+        object_type: "arbeitsauftrag",
+        object_id: "*",
+        data: {
+          ...params,
+        },
+        ts: params.ts,
+        action: "uploadDocument",
+        resultType: "object",
+      };
+    } else if (params.aktion === ADD_INCIDENT_MODES.ADD2ARBEITSAUFTRAG) {
+      intermediateResult = {
+        object_type: "arbeitsauftrag",
+        object_id: params.arbeitsauftrag,
+        data: {
+          ...params,
+        },
+        ts: params.ts,
+        action: "uploadDocument",
+        resultType: "object",
+      };
+    }
 
     // //add parameterInfo to intermediateResults
-    // dispatch(addIntermediateResult(intermediateResult));
+    if (intermediateResult) {
+      dispatch(addIntermediateResult(intermediateResult));
+    }
   };
 };
 

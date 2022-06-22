@@ -337,6 +337,9 @@ export const type2Caption = (type) => {
       return "Abzweigdose";
     case "tdta_standort_mast":
       return "Standort";
+    case "arbeitsprotokoll":
+      return "Protokoll";
+
     default:
   }
 };

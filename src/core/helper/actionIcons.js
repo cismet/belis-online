@@ -19,10 +19,16 @@ import {
   faStream,
   faSync,
 } from "@fortawesome/free-solid-svg-icons";
+import { faTasks } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React from "react";
 
 export const protocolActionIcons = {
+  protokollStatusAenderung: (
+    <span className='fa-layers fa-fw' title='Statusänderung'>
+      <FontAwesomeIcon icon={faTasks}></FontAwesomeIcon>
+    </span>
+  ),
   leuchtenerneuerung: (
     <span className='fa-layers fa-fw'>
       <FontAwesomeIcon icon={faFilter} transform='rotate-180'></FontAwesomeIcon>
