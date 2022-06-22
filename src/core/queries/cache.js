@@ -130,4 +130,12 @@ queries.tkey_leuchtentyp = `{
     fabrikat
   }
 }`;
+
+queries.leuchtmittel = `{
+  leuchtmittel(where: {hersteller: {_is_null:false}}) {
+  id
+  hersteller
+  lichtfarbe
+  }
+}`;
 export default queries;

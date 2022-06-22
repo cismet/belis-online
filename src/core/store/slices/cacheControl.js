@@ -31,6 +31,12 @@ keys.push({
 });
 keys.push({
   primary: true,
+  name: "Leuchtmitteltypen",
+  queryKey: "leuchtmittel",
+  parameterFactory: () => ({}),
+});
+keys.push({
+  primary: true,
   name: "Masten (ohne Leuchten)",
   queryKey: "tdta_standort_mast",
   parameterFactory: () => ({}),
@@ -368,6 +374,8 @@ export const renewCache = (
       jwt
     )
       .then((result) => {
+        console.log("result", result);
+
         console.log(itemKey + " returned with " + result.data[dataKey].length + " results");
         // console.log(itemKey + " returned with ", result.data[dataKey]);
         dispatch(setLoadingState({ key, loadingState: "caching" }));
