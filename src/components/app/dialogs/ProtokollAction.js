@@ -123,6 +123,9 @@ const SetStatusDialog = ({
             const wechseldatumD = (values.wechseldatum || moment()).valueOf();
             const einbaudatumD = (values.einbaudatum || moment()).valueOf();
             const sonderturnusdatumD = (values.sonderturnusdatum || moment()).valueOf();
+            const mastanstrichD = (values.mastanstrich || moment()).valueOf();
+            const revisionD = (values.revision || moment()).valueOf();
+            const naechstes_pruefdatumD = (values.naechstes_pruefdatum || moment()).valueOf();
 
             const parameter = {
               //leuchtenerneuerung
@@ -142,11 +145,34 @@ const SetStatusDialog = ({
               rundsteuerempfaenger: values.rundsteuerempfaenger,
 
               //sonderturnus
-              //TODO
+              sonderturnusdatum: sonderturnusdatumD,
 
               //vorschaltgeraetewechsel
               vorschaltgeraet: values.vorschaltgeraet,
               //wechseldatum: wechseldatumD, //wird weiter oben schon gesetzt
+
+              //mastanstricharbeiten
+              anstrichdatum: mastanstrichD,
+              anstrichfarbe: values.anstrichfarbe,
+
+              //elektrischepruefung
+              // pruefdatum: pruefdatumD,  //wird weiter oben schon gesetzt
+              // erdung_in_ordnung: values.erdung === true ? "ja" : "nein", //wird weiter oben schon gesetzt
+
+              //masterneuerung
+              // inbetriebnahmedatum: inbetriebnahmeD, //wird weiter oben schon gesetzt
+              montagefirma: values.montagefirma,
+
+              //standortrevision
+              revisionsdatum: revisionD,
+
+              //standsicherheitspruefung
+              // pruefdatum: pruefdatumD, //wird weiter oben schon gesetzt
+              verfahren: values.verfahren,
+              naechstes_pruefdatum: naechstes_pruefdatumD,
+
+              //schaltstellerevision
+              // pruefdatum: pruefdatumD, //wird weiter oben schon gesetzt
 
               //sonstiges
               bemerkung: values.infos,
@@ -157,14 +183,17 @@ const SetStatusDialog = ({
               monteur: values.monteur || input.feature?.properties?.monteur,
               datum: statusD,
 
+              //pruefung
+              // pruefdatum: pruefdatumD, //wird weiter oben schon gesetzt
+
               //metainformation
               actionname,
               objekt_typ: "arbeitsprotokoll",
               object_name: input?.vcard?.infobox?.title + " (A" + arbeitsauftrag.nummer + ")",
             };
-            // Object.keys(parameter).forEach((key) =>
-            //   parameter[key] === undefined ? delete parameter[key] : {}
-            // );
+            Object.keys(parameter).forEach((key) =>
+              parameter[key] === undefined ? delete parameter[key] : {}
+            );
             form.resetFields();
 
             onClose(parameter);
@@ -366,6 +395,94 @@ const SetStatusDialog = ({
               ]}
             >
               <Input />
+            </Form.Item>
+          </>
+        )}
+
+        {actionkey === "anstricharbeiten" && (
+          <>
+            <Form.Item name='mastanstrich' label='Mastanstrich'>
+              <DatePicker defaultValue={moment()} style={{ width: "100%" }} />
+            </Form.Item>
+            <Form.Item
+              name='anstrichfarbe'
+              label='Anstrichfarbe'
+              rules={[
+                {
+                  required: true,
+                  message: "Bitte geben Sie die Farbe an.",
+                },
+              ]}
+            >
+              <Input />
+            </Form.Item>
+          </>
+        )}
+
+        {actionkey === "ep" && (
+          <>
+            <Form.Item name='pruefdatum' label='Elektrische Prüfung am Mast'>
+              <DatePicker defaultValue={moment()} style={{ width: "100%" }} />
+            </Form.Item>
+            <Form.Item name='erdung' label='Erdung in Ordnung'>
+              <Switch />
+            </Form.Item>
+          </>
+        )}
+
+        {actionkey === "masterneuerung" && (
+          <>
+            <Form.Item name='inbetriebnahme' label='Inbetriebnahme'>
+              <DatePicker defaultValue={moment()} style={{ width: "100%" }} />
+            </Form.Item>
+            <Form.Item
+              name='montagefirma'
+              label='Montagefirma'
+              rules={[
+                {
+                  required: true,
+                  message: "Bitte geben Sie die Montagefirma an.",
+                },
+              ]}
+            >
+              <Input />
+            </Form.Item>
+          </>
+        )}
+        {actionkey === "standortrevision" && (
+          <>
+            <Form.Item name='revisionsdatum' label='Revision'>
+              <DatePicker defaultValue={moment()} style={{ width: "100%" }} />
+            </Form.Item>
+          </>
+        )}
+        {actionkey === "standsicherheitspruefung" && (
+          <>
+            <Form.Item name='pruefdatum' label='Standsicherheitsprüfung'>
+              <DatePicker defaultValue={moment()} style={{ width: "100%" }} />
+            </Form.Item>
+            <Form.Item
+              name='verfahren'
+              label='Verfahren'
+              rules={[
+                {
+                  required: true,
+                  message: "Bitte geben Sie das Verfahren an.",
+                },
+              ]}
+            >
+              <Input />
+            </Form.Item>
+            <Form.Item name='naechstes_pruefdatum' label='Nächstes Prüfdatum'>
+              <DatePicker defaultValue={moment()} style={{ width: "100%" }} />
+            </Form.Item>
+          </>
+        )}
+
+        {(actionkey === "schaltstellerevision" || actionkey === "pruefung") && (
+          <>
+            <Form.Item name='pruefdatum' label='Prüfdatum'>
+              <DatePicker defaultValue={moment()} style={{ width: "100%" }} />
             </Form.Item>
           </>
         )}
