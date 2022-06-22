@@ -95,6 +95,7 @@ queries.arbeitsauftrag = `query q($teamId: Int!) {
       defekt
       datum
       arbeitsprotokollstatus {
+        id
         bezeichnung
         schluessel
       }
