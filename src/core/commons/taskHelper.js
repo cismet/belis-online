@@ -22,7 +22,7 @@ const getTitleForAction = (action) => {
     case "addIncident":
       return <FontAwesomeIcon icon={faExclamationTriangle} title='Störung melden' />;
     default:
-      return protocolActionInfos[action].icon || action;
+      return protocolActionInfos[action]?.icon || action;
   }
 };
 
