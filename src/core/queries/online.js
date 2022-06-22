@@ -95,6 +95,7 @@ queries.arbeitsauftraege_by_team_only_protocolgeoms = `
         defekt
         datum
         arbeitsprotokollstatus {
+          id
           bezeichnung
           schluessel
         }
@@ -172,6 +173,7 @@ arbeitsauftrag(where: {id: {_eq: $aaId}}) {
       defekt
       datum
       arbeitsprotokollstatus {
+        id
         bezeichnung
         schluessel
       }
