@@ -246,6 +246,41 @@ const InfoBox = ({ refRoutedMap }) => {
                 <td style={{ textAlign: "right", paddingRight: 7 }}>
                   {actionLinkInfos.map((li, index) => {
                     if (li.subs) {
+                      const items = li.subs.map((sub, index) => {
+                        return {
+                          key: index,
+                          label: (
+                            <h4 onClick={sub.onClick}>
+                              <span
+                                style={{
+                                  marginRight: 10,
+                                  opacity: 0.5,
+                                }}
+                              >
+                                {sub.iconname && <Icon name={sub.iconname} />}
+                                {sub.iconspan && sub.iconspan}
+                              </span>
+                              <span style={{ margin: 3 }}>{sub.title}</span>
+                            </h4>
+                          ),
+                        };
+                      });
+
+                      const menu = <Menu style={{ opacity: 0.8 }} items={items} />;
+
+                      return (
+                        <Dropdown overlay={menu} placement='topRight' trigger={["click"]}>
+                          <span style={{ paddingLeft: index > 0 ? 3 : 0 }}>
+                            <IconLink
+                              key={`iconlink` + index}
+                              tooltip={li.tooltip}
+                              onClick={li.onClick}
+                              iconname={li.iconname || li.iconspan}
+                              href='#'
+                            />
+                          </span>
+                        </Dropdown>
+                      );
                     } else {
                       return (
                         <span style={{ paddingLeft: index > 0 ? 3 : 0 }}>
