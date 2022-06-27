@@ -267,7 +267,7 @@ const InfoBox = ({ refRoutedMap }) => {
                       });
 
                       const menu = <Menu style={{ opacity: 0.8 }} items={items} />;
-
+                      console.log("xxx li", li);
                       return (
                         <Dropdown overlay={menu} placement='topRight' trigger={["click"]}>
                           <span style={{ paddingLeft: index > 0 ? 3 : 0 }}>
@@ -282,15 +282,34 @@ const InfoBox = ({ refRoutedMap }) => {
                         </Dropdown>
                       );
                     } else {
+                      console.log("xxx li else", li);
+
                       return (
                         <span style={{ paddingLeft: index > 0 ? 3 : 0 }}>
-                          <IconLink
-                            key={`iconlink` + index}
-                            tooltip={li.tooltip}
-                            onClick={li.onClick}
-                            iconname={li.iconname}
-                            href='#'
-                          />
+                          {li.iconname && (
+                            <IconLink
+                              key={`iconlink` + index}
+                              tooltip={li.tooltip}
+                              onClick={li.onClick}
+                              iconname={li.iconname || li.iconspan}
+                              href='#'
+                            />
+                          )}
+                          {li.iconspan && (
+                            <a
+                              style={{
+                                fontSize: "1.5rem",
+                                paddingRight: "2px",
+                                paddingTop: "3px",
+                                color: "grey",
+                                width: "26px",
+                                textAlign: "center",
+                              }}
+                              onClick={li.onClick}
+                            >
+                              {li.iconspan}
+                            </a>
+                          )}
                         </span>
                       );
                     }
