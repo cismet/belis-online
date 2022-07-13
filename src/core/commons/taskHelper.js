@@ -172,7 +172,7 @@ export const getTaskForAction = (resultObject) => {
 
     // if (parameters.objekt_typ===undefined && action===)
 
-    console.log("parameters.objekt_typ", parameters.objekt_typ);
+    // console.log("parameters.objekt_typ", parameters.objekt_typ);
 
     const task = {
       id: id,
