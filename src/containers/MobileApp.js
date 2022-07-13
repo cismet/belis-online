@@ -41,6 +41,8 @@ import { defaultLayerConf } from "react-cismap/tools/layerFactory";
 import { storeJWT } from "../core/store/slices/auth";
 import { tasklistPostSelection } from "../core/store/slices/featureCollectionSubslices/tasklists";
 import { getTeam } from "../core/store/slices/team";
+import { getWorker } from "../core/store/slices/dexie";
+import { renewCache } from "../core/store/slices/cacheControl";
 //---
 
 const View = () => {
@@ -48,6 +50,8 @@ const View = () => {
   const history = useHistory();
   const [windowWidth, windowHeight] = useWindowSize();
   const onlineStatus = useOnlineStatus();
+  const dexieW = useSelector(getWorker);
+  const jwt = useSelector(getJWT);
 
   let refRoutedMap = useRef(null);
   let refApp = useRef(null);
@@ -99,6 +103,39 @@ const View = () => {
     }
   }, [refApp]);
 
+  useEffect(() => {
+    //async block
+    (async () => {
+      if (jwt && dexieW) {
+        try {
+          //Teams
+          const teams = await dexieW.getAll("team");
+          if (!teams || teams.length === 0) {
+            dispatch(renewCache("team", jwt));
+          }
+
+          //tkey_leuchtentyp
+          const tkey_leuchtentyp = await dexieW.getAll("tkey_leuchtentyp");
+          if (!tkey_leuchtentyp || tkey_leuchtentyp.length === 0) {
+            dispatch(renewCache("tkey_leuchtentyp", jwt));
+          }
+          //rundsteuerempfaenger
+          const rundsteuerempfaenger = await dexieW.getAll("rundsteuerempfaenger");
+          if (!rundsteuerempfaenger || rundsteuerempfaenger.length === 0) {
+            dispatch(renewCache("rundsteuerempfaenger", jwt));
+          }
+
+          //leuchtmittel
+          const leuchtmittel = await dexieW.getAll("leuchtmittel");
+          if (!leuchtmittel || leuchtmittel.length === 0) {
+            dispatch(renewCache("leuchtmittel", jwt));
+          }
+        } catch (e) {
+          console.log("Error in fetching needed data from dexie", e);
+        }
+      }
+    })();
+  }, [jwt, dexieW, dispatch]);
   //Selection management
   const featureCollectionMode = useSelector(getFeatureCollectionMode);
   const selectedFeature = useSelector(getSelectedFeature);
