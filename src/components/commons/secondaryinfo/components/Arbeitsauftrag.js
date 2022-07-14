@@ -76,7 +76,6 @@ const getLayout4Arbeitsauftrag = ({
       // Fehlmeldung
       style = "danger";
     }
-    console.log("item", item);
 
     subSections.push(
       <SecondaryInfoPanelSection
@@ -103,7 +102,7 @@ const getLayout4Arbeitsauftrag = ({
                 e.stopPropagation();
               }}
               style={{ marginLeft: 10 }}
-              class='renderAsLink'
+              className='renderAsLink'
             >
               <FontAwesomeIcon icon={faExternalLinkAlt} />
             </a>
