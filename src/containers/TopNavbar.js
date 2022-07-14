@@ -65,6 +65,7 @@ import { getLoginFromJWT, storeJWT, storeLogin } from "../core/store/slices/auth
 import { useWindowSize } from "@react-hook/window-size";
 import {
   getDB as getOfflineActionDB,
+  getIntermediateResults,
   storeIntermediateResults,
 } from "../core/store/slices/offlineActionDb";
 import { NavItem } from "react-bootstrap";
@@ -88,6 +89,7 @@ const TopNavbar = ({ innerRef, refRoutedMap, setCacheSettingsVisible, jwt }) => 
   const featureCollection = useSelector(getFeatureCollection);
   const searchForbidden = useSelector(isSearchForbidden);
   const offlineActionDB = useSelector(getOfflineActionDB);
+  const intermediateResult = useSelector(getIntermediateResults);
   const selectedArbeitsauftrag = useSelector(
     (state) => state.featureCollection.selectedFeature[MODES.TASKLISTS]
   );
@@ -243,13 +245,15 @@ const TopNavbar = ({ innerRef, refRoutedMap, setCacheSettingsVisible, jwt }) => 
           <Nav.Link
             onClick={() => {
               //localforage.clear();
-              console.log(
-                "refRoutedMap",
-                refRoutedMap?.current?.leafletMap?.leafletElement.getPanes()[
-                  "backgroundvectorLayers"
-                ].style.opacity
-              );
-              dispatch(setArtificialError(true));
+              // console.log(
+              //   "refRoutedMap",
+              //   refRoutedMap?.current?.leafletMap?.leafletElement.getPanes()[
+              //     "backgroundvectorLayers"
+              //   ].style.opacity
+              // );
+              // dispatch(setArtificialError(true));
+
+              console.log("xxx intermediateResult ", intermediateResult);
             }}
           >
             <Icon icon={faVial} />
