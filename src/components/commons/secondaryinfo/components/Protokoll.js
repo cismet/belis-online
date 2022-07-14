@@ -126,7 +126,7 @@ const getLayout4Protokoll = ({
           <span style={{ color: "grey" }}>
             {item?.arbeitsprotokollstatus?.bezeichnung || "kein Status"}
           </span>{" "}
-          {vcard.list.upperright}
+          {vcard.list.upperright} {item?.arbeitsprotokollstatusIntermediate === true ? "*" : ""}
         </h3>
       </div>
       <Descriptions column={{ xs: 1, sm: 1, md: 2, lg: 2, xxl: 2 }} layout='horizontal' bordered>
@@ -162,7 +162,6 @@ const getLayout4Protokoll = ({
     <Descriptions.Item label='angelegt am'>{getDate(item?.veranlassung?.datum)}</Descriptions.Item>,
     <Descriptions.Item label='Bemerkungen'>{item?.veranlassung?.bemerkungen}</Descriptions.Item>,
   ];
-  console.log("xxx item", item);
 
   subSections.push(
     <SecondaryInfoPanelSection
