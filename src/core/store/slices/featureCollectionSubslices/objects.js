@@ -18,9 +18,9 @@ import {
 import booleanIntersects from "@turf/boolean-intersects";
 import onlineQueryParts, { geomFactories, fragments } from "../../../queries/online";
 
-import { removeIntermediateResults } from "../offlineActionDb";
 import {
   addPropertiesToFeature,
+  cloneFeature,
   compareFeature,
   getDocs,
   getIntermediateResultsToBeRemoved,
@@ -223,8 +223,8 @@ export const createFeatureFromData = (data, type) => {
 const enrichAndSetFeatures = (
   dispatch,
   state,
-  featureCollectionIn,
-  removeFromIntermediateResults
+  featureCollectionIn
+  // removeFromIntermediateResults
 ) => {
   console.time("features enirched");
 
@@ -250,10 +250,10 @@ const enrichAndSetFeatures = (
   //dispatch(setFeatureCollection(featureCollection));
 
   for (const f of featureCollection) {
-    tasks.push(addPropertiesToFeature(f));
+    tasks.push(cloneFeature(f));
   }
   const selectedFeature = getSelectedFeature(state);
-  let intermediateResultsToBeRemoved = [];
+  // let intermediateResultsToBeRemoved = [];
 
   Promise.all(tasks).then(
     (enrichedFeatureCollection) => {
@@ -266,13 +266,6 @@ const enrichAndSetFeatures = (
 
       for (const feature of enrichedFeatureCollection) {
         feature.intermediateResultsIntegrated = new Date().getTime();
-        //  console.log("feature", feature.intermediateResultsIntegrated, feature);
-        if (removeFromIntermediateResults === true) {
-          const throwAway = getIntermediateResultsToBeRemoved(feature);
-          intermediateResultsToBeRemoved = [...intermediateResultsToBeRemoved, ...throwAway];
-        } else {
-          integrateIntermediateResults(feature, state.offlineActionDb.intermediateResults);
-        }
 
         if (typeCount[feature.featuretype] === undefined) {
           typeCount[feature.featuretype] = 1;
@@ -304,7 +297,6 @@ const enrichAndSetFeatures = (
         f.index = index++;
       }
 
-      dispatch(removeIntermediateResults(intermediateResultsToBeRemoved));
       dispatch(setFeatureCollectionInfoForMode({ mode: MODES.OBJECTS, info: { typeCount } }));
       console.log("will setFeatureCollection");
       // console.log("sortedElements", sortedElements);
