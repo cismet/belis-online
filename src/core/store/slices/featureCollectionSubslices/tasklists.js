@@ -46,19 +46,20 @@ export const loadTaskListsIntoFeatureCollection = ({
       try {
         let features = [];
         if (onlineDataForcing || connectionMode === CONNECTIONMODE.ONLINE) {
+          console.log("xxx will get tasklist from server");
+
           const gqlQuery = `query q($teamId: Int) {${queries.arbeitsauftraege_by_team_only_protocolgeoms}}`;
 
           const queryParameter = { teamId: team.id };
-          console.time("xxx query returned");
+          console.time("tasklist query returned");
           const response = await fetchGraphQL(gqlQuery, queryParameter, jwt);
-
-          console.timeEnd("xxx query returned");
-          console.log("xxx response", response.data);
+          console.timeEnd("tasklist query returned");
           const results = response.data.arbeitsauftrag;
 
           features = createArbeitsauftragFeaturesForResults(results);
         } else {
           //offlineUse
+          console.log("xxx will get tasklist from local cache");
           const results = await dexieW.getAll("arbeitsauftrag");
           features = createArbeitsauftragFeaturesForResults(results, true);
         }
