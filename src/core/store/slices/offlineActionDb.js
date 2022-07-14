@@ -159,29 +159,6 @@ export const clearIntermediateResults = (object_type) => {
   };
 };
 
-export const removeIntermediateResults = (intermediateResultsToRemove) => {
-  return async (dispatch, getState) => {
-    console.log("removeIntermediateResults");
-
-    const stateIntermediateResults = getIntermediateResults(getState()) || {};
-    let intermediateResultsCopy;
-    for (const intermediateResult of intermediateResultsToRemove) {
-      const { object_type, object_id } = intermediateResult;
-      if (
-        stateIntermediateResults[object_type] &&
-        stateIntermediateResults[object_type][object_id]
-      ) {
-        if (!intermediateResultsCopy) {
-          intermediateResultsCopy = JSON.parse(JSON.stringify(stateIntermediateResults));
-        }
-        delete intermediateResultsCopy[object_type][object_id];
-      }
-    }
-    if (intermediateResultsCopy) {
-      dispatch(storeIntermediateResults(intermediateResultsCopy));
-    }
-  };
-};
 export const addIntermediateResult = (intermediateResult) => {
   return async (dispatch, getState) => {
     // intermediate result has the following attributes
