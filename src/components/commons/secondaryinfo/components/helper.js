@@ -30,7 +30,7 @@ export const getStrasse = (streetObject, hausnummer) => {
 };
 
 export const sortAndFilterEvents = (events) => {
-  console.log("events vor sort", events);
+  // console.log("events vor sort", events);
   const result = events.filter((x) => x[1] !== undefined && x[1] !== null);
   result.sort((a, b) => {
     try {
@@ -46,10 +46,10 @@ export const sortAndFilterEvents = (events) => {
     }
   });
 
-  console.log("events nach sort & filter");
-  for (const r of result) {
-    console.log(r[0], r[1], new Date(r[1]).getTime(), new Date(r[1]));
-  }
+  // console.log("events nach sort & filter");
+  // for (const r of result) {
+  // console.log(r[0], r[1], new Date(r[1]).getTime(), new Date(r[1]));
+  // }
   return result;
 };
 
