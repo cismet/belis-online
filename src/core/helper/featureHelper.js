@@ -377,6 +377,7 @@ const integrateIntermediateResultsIntoObjects = (intermediateResults, item, type
       for (const ir of irs.object) {
         for (const key of Object.keys(ir)) {
           item[key] = ir[key];
+          //will ad a property with _iv postfix to the item, so that the ui can recognize it
           item[key + "_iv"] = true;
         }
       }
