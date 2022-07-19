@@ -10,10 +10,13 @@ import { addImageToObjectAction } from "../../../../core/store/slices/offlineAct
 
 export const getDate = (d) => {
   if (d) {
-    if (typeof d !== "string") {
+    if (typeof d === "string") {
+      return new Date(Date.parse(d)).toLocaleDateString();
+    } else if (typeof d === "number") {
+      return new Date(d).toLocaleDateString();
+    } else {
       console.log("d", d, typeof d);
     }
-    return new Date(Date.parse(d)).toLocaleDateString();
   } else {
     return undefined;
   }
