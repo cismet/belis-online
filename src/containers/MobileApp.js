@@ -43,6 +43,12 @@ import { tasklistPostSelection } from "../core/store/slices/featureCollectionSub
 import { getTeam } from "../core/store/slices/team";
 import { getWorker } from "../core/store/slices/dexie";
 import { renewCache } from "../core/store/slices/cacheControl";
+import {
+  fillLeuchtentypenFromDexie,
+  fillLeuchtmittelFromDexie,
+  fillRundsteuerempfaengerFromDexie,
+  fillTeamsFromDexie,
+} from "../core/store/slices/keytables";
 //---
 
 const View = () => {
@@ -111,24 +117,48 @@ const View = () => {
           //Teams
           const teams = await dexieW.getAll("team");
           if (!teams || teams.length === 0) {
-            dispatch(renewCache("team", jwt));
+            dispatch(
+              renewCache("team", jwt, undefined, () => {
+                dispatch(fillTeamsFromDexie());
+              })
+            );
+          } else {
+            dispatch(fillTeamsFromDexie());
           }
 
           //tkey_leuchtentyp
           const tkey_leuchtentyp = await dexieW.getAll("tkey_leuchtentyp");
           if (!tkey_leuchtentyp || tkey_leuchtentyp.length === 0) {
-            dispatch(renewCache("tkey_leuchtentyp", jwt));
+            dispatch(
+              renewCache("tkey_leuchtentyp", jwt, undefined, () => {
+                dispatch(fillLeuchtentypenFromDexie());
+              })
+            );
+          } else {
+            dispatch(fillLeuchtentypenFromDexie());
           }
           //rundsteuerempfaenger
           const rundsteuerempfaenger = await dexieW.getAll("rundsteuerempfaenger");
           if (!rundsteuerempfaenger || rundsteuerempfaenger.length === 0) {
-            dispatch(renewCache("rundsteuerempfaenger", jwt));
+            dispatch(
+              renewCache("rundsteuerempfaenger", jwt, undefined, () => {
+                dispatch(fillRundsteuerempfaengerFromDexie());
+              })
+            );
+          } else {
+            dispatch(fillRundsteuerempfaengerFromDexie());
           }
 
           //leuchtmittel
           const leuchtmittel = await dexieW.getAll("leuchtmittel");
           if (!leuchtmittel || leuchtmittel.length === 0) {
-            dispatch(renewCache("leuchtmittel", jwt));
+            dispatch(
+              renewCache("leuchtmittel", jwt, undefined, () => {
+                dispatch(fillLeuchtmittelFromDexie());
+              })
+            );
+          } else {
+            dispatch(fillLeuchtmittelFromDexie());
           }
         } catch (e) {
           console.log("Error in fetching needed data from dexie", e);
