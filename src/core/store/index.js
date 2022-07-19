@@ -17,8 +17,8 @@ import mapInfoSlice from "./slices/mapInfo";
 import mapSlice from "./slices/map";
 import teamSlice from "./slices/team";
 import offlineActionDb from "./slices/offlineActionDb";
+import keytablesSlice from "./slices/keytables";
 
-import photoLightboxSlice from "./slices/photoLightbox";
 import { createLogger } from "redux-logger";
 import { persistReducer } from "redux-persist";
 import localForage from "localforage";
@@ -117,6 +117,11 @@ const teamConfig = {
   whitelist: ["selectedTeam"],
 };
 
+const keyTablesConfig = {
+  key: "@" + appKey + "." + storagePostfix + ".keytables",
+  storage: localForage,
+  whitelist: ["teams", "leuchtmittel", "rundsteuerempfaenger", "tkey_leuchtentyp"],
+};
 const store = configureStore({
   reducer: {
     app: persistReducer(appStateConfig, appStateSlice.reducer),
@@ -136,6 +141,7 @@ const store = configureStore({
     dexie: dexieSlice.reducer,
     mapInfo: mapInfoSlice.reducer,
     map: mapSlice.reducer,
+    keytables: keytablesSlice.reducer,
   },
   devTools: devToolsEnabled === true && inProduction === false,
   middleware,
