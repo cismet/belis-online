@@ -506,41 +506,67 @@ export const integrateIntermediateResults = (feature, intermediateResults) => {
                   "tdta_leuchten",
                   item.tdta_leuchten.id
                 );
-                // integrateIntermediateResultsIntoObjects(intermediateResults, item.tdta_leuchten, "tdta_standort_mast", item.tdta_leuchten.id);
+                integrateIntermediateResultsIntoObjects(
+                  intermediateResults,
+                  item.tdta_leuchten.fk_standort,
+                  "tdta_standort_mast",
+                  item.tdta_leuchten.fk_standort.id
+                );
 
                 break;
               case "protokollLeuchteLeuchtmittelwechsel":
-                setStatusAndAktionsArrayStuff(ir, item);
-                break;
               case "protokollLeuchteRundsteuerempfaengerwechsel":
-                setStatusAndAktionsArrayStuff(ir, item);
-                break;
               case "protokollLeuchteSonderturnus":
-                setStatusAndAktionsArrayStuff(ir, item);
-                break;
               case "protokollLeuchteVorschaltgeraetwechsel":
                 setStatusAndAktionsArrayStuff(ir, item);
+                integrateIntermediateResultsIntoObjects(
+                  intermediateResults,
+                  item.tdta_leuchten,
+                  "tdta_leuchten",
+                  item.tdta_leuchten.id
+                );
                 break;
               case "protokollStandortAnstricharbeiten":
-                setStatusAndAktionsArrayStuff(ir, item);
-                break;
               case "protokollStandortElektrischePruefung":
-                setStatusAndAktionsArrayStuff(ir, item);
-                break;
               case "protokollStandortMasterneuerung":
-                setStatusAndAktionsArrayStuff(ir, item);
-                break;
               case "protokollStandortRevision":
-                setStatusAndAktionsArrayStuff(ir, item);
-                break;
               case "protokollStandortStandsicherheitspruefung":
                 setStatusAndAktionsArrayStuff(ir, item);
+
+                if (item.tdta_standort_mast) {
+                  integrateIntermediateResultsIntoObjects(
+                    intermediateResults,
+                    item.tdta_standort_mast,
+                    "tdta_standort_mast",
+                    item.tdta_standort_mast.id
+                  );
+                } else if (item.tdta_leuchten.fk_standort) {
+                  integrateIntermediateResultsIntoObjects(
+                    intermediateResults,
+                    item.tdta_leuchten.fk_standort,
+                    "tdta_standort_mast",
+                    item.tdta_leuchten.fk_standort.id
+                  );
+                }
                 break;
+
               case "protokollMauerlaschePruefung":
                 setStatusAndAktionsArrayStuff(ir, item);
+                integrateIntermediateResultsIntoObjects(
+                  intermediateResults,
+                  item.mauerlasche,
+                  "mauerlasche",
+                  item.mauerlasche.id
+                );
                 break;
               case "protokollSchaltstelleRevision":
                 setStatusAndAktionsArrayStuff(ir, item);
+                integrateIntermediateResultsIntoObjects(
+                  intermediateResults,
+                  item.schaltstelle,
+                  "schaltstelle",
+                  item.schaltstelle.id
+                );
                 break;
               case "protokollFortfuehrungsantrag":
                 setStatusAndAktionsArrayStuff(ir, item);
