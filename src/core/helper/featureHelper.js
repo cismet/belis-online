@@ -574,6 +574,14 @@ const setStatusAndAktionsArrayStuff = (ir, item) => {
   if (ir.material && ir.material !== item?.material) {
     item.material = ir.material + "*";
   }
+  if (ir.monteur && ir.monteur !== item?.monteur) {
+    item.monteur = ir.monteur + "*";
+  }
+
+  if (ir.datum && ir.datum !== item?.datum) {
+    item.datum = ir.datum;
+    item.datum_iv = true;
+  }
 
   //Todo check if the change is already in so that we not need to disp,ay the intermediate change
 
