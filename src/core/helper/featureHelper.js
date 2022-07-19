@@ -371,7 +371,7 @@ const getIntermediateResultsImages = (item, intermediateResults, itemtype) => {
 const integrateIntermediateResultsIntoObjects = (intermediateResults, item, type, id) => {
   console.log("integrateIntermediateResultsIntoObjects " + type, id);
 
-  if (intermediateResults[type]) {
+  if (intermediateResults && intermediateResults[type]) {
     const irs = intermediateResults[type][id];
     if (irs?.object) {
       for (const ir of irs.object) {
