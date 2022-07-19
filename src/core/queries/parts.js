@@ -270,6 +270,66 @@ fk_strassenschluessel: tkey_strassenschluessel {
 }
 `;
 
+export const rundsteuerempfaenger_fields = `
+  id
+  anschlusswert
+  dms_url {
+    description
+    url {
+      object_name
+      url_base {
+        path
+        prot_prefix
+        server
+      }
+    }
+  }
+  foto
+  herrsteller_rs
+  programm
+  rs_typ`;
+export const leuchtentyp_fields = `
+  bestueckung
+    dokumenteArray {
+      dms_url {
+        description
+        url {
+          object_name
+          url_base {
+            path
+            prot_prefix
+            server
+          }
+        }
+      }
+      tkey_leuchtentyp_reference
+      id
+    }
+    dms_url {
+      description
+      url {
+        object_name
+        url_base {
+          path
+          prot_prefix
+          server
+        }
+      }
+    }
+    vorschaltgeraet
+    typenbezeichnung
+    leuchtentyp
+    leistung_reduziert
+    leistung_brutto_reduziert
+    leistung_brutto
+    leistung2stufe
+    leistung
+    lampe
+    id
+    foto
+    fabrikat
+    einbau_vorschaltgeraet`;
+
 export const leuchte_fields = `
 id
 leuchtennummer
@@ -316,23 +376,7 @@ fk_dk2: fk_dk2_tkey_doppelkommando {
 }
 
 rundsteuerempfaenger: rundsteuerempfaengerObject {
-  id
-  anschlusswert
-  dms_url {
-    description
-    url {
-      object_name
-      url_base {
-        path
-        prot_prefix
-        server
-      }
-    }
-  }
-  foto
-  herrsteller_rs
-  programm
-  rs_typ
+  ${rundsteuerempfaenger_fields}
 }
 fk_strassenschluessel: tkey_strassenschluessel {
   id
@@ -345,46 +389,7 @@ fk_kennziffer: tkey_kennziffer {
   kennziffer
 }
 fk_leuchttyp: tkey_leuchtentyp {
-  bestueckung
-  dokumenteArray {
-    dms_url {
-      description
-      url {
-        object_name
-        url_base {
-          path
-          prot_prefix
-          server
-        }
-      }
-    }
-    tkey_leuchtentyp_reference
-    id
-  }
-  dms_url {
-    description
-    url {
-      object_name
-      url_base {
-        path
-        prot_prefix
-        server
-      }
-    }
-  }
-  vorschaltgeraet
-  typenbezeichnung
-  leuchtentyp
-  leistung_reduziert
-  leistung_brutto_reduziert
-  leistung_brutto
-  leistung2stufe
-  leistung
-  lampe
-  id
-  foto
-  fabrikat
-  einbau_vorschaltgeraet
+  ${leuchtentyp_fields}
 }
 fk_unterhaltspflicht_leuchte: tkey_unterh_leuchte {
   id
