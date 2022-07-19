@@ -23,15 +23,24 @@ import {
   getTimelineForEvents,
 } from "./helper";
 import { getEventsForStandort, getStandortDetails } from "./Standort";
+import { ivAsterisk } from "../../../../core/helper/secondaryInfoHelper";
 
 export const getEvents4Leuchte = (item) => {
   const events = [
-    ["Einbau RS", item?.einbaudatum, "L"],
-    ["Sonderturnus", item?.wartungszyklus, "L"],
-    ["Nächster Wechsel", item?.naechster_wechsel, "L"],
-    ["Wechsel Vorschaltgerät", item?.wechselvorschaltgeraet, "L"],
-    ["Leuchtmittelwechsel", item?.wechseldatum, "L"],
-    ["Inbetriebnahme", item?.inbetriebnahme_leuchte, "L"],
+    ["Einbau RS" + ivAsterisk(item?.einbaudatum_iv), item?.einbaudatum, "L"],
+    ["Sonderturnus" + ivAsterisk(item?.wartungszyklus_iv), item?.wartungszyklus, "L"],
+    ["Nächster Wechsel" + ivAsterisk(item?.naechster_wechsel_iv), item?.naechster_wechsel, "L"],
+    [
+      "Wechsel Vorschaltgerät" + ivAsterisk(item?.wechselvorschaltgeraet_iv),
+      item?.wechselvorschaltgeraet,
+      "L",
+    ],
+    ["Leuchtmittelwechsel" + ivAsterisk(item?.wechseldatum_iv), item?.wechseldatum, "L"],
+    [
+      "Inbetriebnahme" + ivAsterisk(item?.inbetriebnahme_leuchte_iv),
+      item?.inbetriebnahme_leuchte,
+      "L",
+    ],
     ...getEventsForStandort(item?.fk_standort),
   ];
   return events;
@@ -52,6 +61,7 @@ const getLayout4Leuchte = ({
   const title = vcard.infobox.header;
 
   const events = getEvents4Leuchte(item);
+  console.log("events", events);
 
   let mainDoc;
   let docs = [];
@@ -196,7 +206,7 @@ const getLayout4Leuchte = ({
 
     subSections.push(
       <SecondaryInfoPanelSection
-        key={"Leuchtentyp" + item.id}
+        key={"Leuchtmittel" + item.id}
         bsStyle='info'
         header={"Leuchtmittel"}
       >
@@ -236,7 +246,9 @@ const getLayout4Leuchte = ({
     <SecondaryInfoPanelSection
       key={"Leuchtentyp" + item.id}
       bsStyle='info'
-      header={"Leuchtentyp (" + leuchtTypItem?.typenbezeichnung + ")"}
+      header={
+        "Leuchtentyp (" + leuchtTypItem?.typenbezeichnung + ")" + ivAsterisk(item.fk_leuchttyp_iv)
+      }
     >
       <Descriptions column={{ xs: 1, sm: 1, md: 3, lg: 3, xxl: 3 }} layout='horizontal' bordered>
         {clearOptionalDescriptionItems(leuchtTypItems)}
