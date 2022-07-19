@@ -11,17 +11,26 @@ import {
   getTimelineForEvents,
 } from "./helper";
 import SecondaryInfoPanelSection from "../SecondaryInfoPanelSection";
+import { ivAsterisk } from "../../../../core/helper/secondaryInfoHelper";
 
 export const getEventsForStandort = (item) => {
   const events = [
-    ["elektrische Prüfung", item?.elek_pruefung, "M"],
-    ["Inbetriebnahme", item?.inbetriebnahme_mast, "M"],
-    ["letzte Änderung", item?.letzte_aenderung, "M"],
-    ["Mastanstrich", item?.mastanstrich, "M"],
-    ["Mastschutz", item?.mastschutz, "M"],
-    ["Nächste Prüfung", item?.naechstes_pruefdatum, "M"],
-    ["Revision", item?.revision, "M"],
-    ["Standsicherheitsprüfung", item?.standsicherheitspruefung, "M"],
+    ["elektrische Prüfung" + ivAsterisk(item?.elek_pruefung_iv), item?.elek_pruefung, "M"],
+    ["Inbetriebnahme" + ivAsterisk(item?.inbetriebnahme_mast_iv), item?.inbetriebnahme_mast, "M"],
+    ["letzte Änderung" + ivAsterisk(item?.letzte_aenderung_iv), item?.letzte_aenderung, "M"],
+    ["Mastanstrich" + ivAsterisk(item?.mastanstrich_iv), item?.mastanstrich, "M"],
+    ["Mastschutz" + ivAsterisk(item?.mastschutz_iv), item?.mastschutz, "M"],
+    [
+      "Nächste Prüfung" + ivAsterisk(item?.naechstes_pruefdatum_iv),
+      item?.naechstes_pruefdatum,
+      "M",
+    ],
+    ["Revision" + ivAsterisk(item?.revision_iv), item?.revision, "M"],
+    [
+      "Standsicherheitsprüfung" + ivAsterisk(item?.standsicherheitspruefung_iv),
+      item?.standsicherheitspruefung,
+      "M",
+    ],
   ];
 
   return events;

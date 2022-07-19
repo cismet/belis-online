@@ -11,11 +11,12 @@ import {
 } from "./helper";
 import { getRSDetailItems, getRSDetailsSection } from "./Leuchte";
 import SecondaryInfoPanelSection from "react-cismap/topicmaps/SecondaryInfoPanelSection";
+import { ivAsterisk } from "../../../../core/helper/secondaryInfoHelper";
 
 export const getEventsForMauerlasche = (item) => {
   const events = [
     ["Erstellung", item?.erstellungsjahr, "M"],
-    ["Prüfdatum", item?.pruefdatum, "M"],
+    ["Prüfdatum" + ivAsterisk(item?.pruefdatum_iv), item?.pruefdatum, "M"],
   ];
 
   return events;

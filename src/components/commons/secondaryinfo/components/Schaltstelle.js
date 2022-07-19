@@ -11,12 +11,13 @@ import {
 } from "./helper";
 import { getRSDetailItems, getRSDetailsSection } from "./Leuchte";
 import SecondaryInfoPanelSection from "react-cismap/topicmaps/SecondaryInfoPanelSection";
+import { ivAsterisk } from "../../../../core/helper/secondaryInfoHelper";
 
 export const getEventsForSchaltstelle = (item) => {
   const events = [
     ["Erstellung", item?.erstellungsjahr, "M"],
-    ["Prüfdatum", item?.pruefdatum, "M"],
-    ["Einbau Rundsteuerempfänger", item?.einbaudatum_rs, "M"],
+    ["Prüfdatum" + ivAsterisk(item?.pruefdatum_iv), item?.pruefdatum, "M"],
+    ["Einbau Rundsteuerempfänger" + ivAsterisk(item?.einbaudatum_rs_iv), item?.einbaudatum_rs, "M"],
   ];
 
   return events;
