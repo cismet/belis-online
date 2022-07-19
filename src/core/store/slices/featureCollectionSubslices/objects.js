@@ -266,6 +266,7 @@ const enrichAndSetFeatures = (
 
       for (const feature of enrichedFeatureCollection) {
         feature.intermediateResultsIntegrated = new Date().getTime();
+        integrateIntermediateResults(feature, state.offlineActionDb.intermediateResults);
 
         if (typeCount[feature.featuretype] === undefined) {
           typeCount[feature.featuretype] = 1;

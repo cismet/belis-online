@@ -368,6 +368,22 @@ const getIntermediateResultsImages = (item, intermediateResults, itemtype) => {
   return [];
 };
 
+const integrateIntermediateResultsIntoObjects = (intermediateResults, item, type, id) => {
+  console.log("integrateIntermediateResultsIntoObjects " + type, id);
+
+  if (intermediateResults[type]) {
+    const irs = intermediateResults[type][id];
+    if (irs?.object) {
+      for (const ir of irs.object) {
+        for (const key of Object.keys(ir)) {
+          item[key] = ir[key];
+          item[key + "_iv"] = true;
+        }
+      }
+    }
+  }
+};
+
 export const integrateIntermediateResults = (feature, intermediateResults) => {
   const item = feature.properties;
   let docs = [];
@@ -378,10 +394,10 @@ export const integrateIntermediateResults = (feature, intermediateResults) => {
   console.log("xxx integrateIntermediateResults");
 
   docs = getIntermediateResultsImages(item, intermediateResults, feature.featuretype.toLowerCase());
+
   switch (feature.featuretype) {
     case "tdta_leuchten":
       //docs
-
       docs = [
         ...docs,
         ...getIntermediateResultsImages(
@@ -406,11 +422,22 @@ export const integrateIntermediateResults = (feature, intermediateResults) => {
           "tkey_masttyp"
         ),
       ];
+      integrateIntermediateResultsIntoObjects(intermediateResults, item, "tdta_leuchten", item.id);
+      integrateIntermediateResultsIntoObjects(
+        intermediateResults,
+        item.fk_standort,
+        "tdta_standort_mast",
+        item.fk_standort.id
+      );
+
       break;
     case "Leitung":
     case "leitung":
+      integrateIntermediateResultsIntoObjects(intermediateResults, item, "leitung", item.id);
       break;
     case "mauerlasche":
+      integrateIntermediateResultsIntoObjects(intermediateResults, item, "mauerlasche", item.id);
+
       break;
     case "schaltstelle":
       docs.concat(
@@ -420,79 +447,159 @@ export const integrateIntermediateResults = (feature, intermediateResults) => {
           "Rundsteuerempfänger"
         )
       );
+      integrateIntermediateResultsIntoObjects(intermediateResults, item, "schaltstelle", item.id);
 
       break;
     case "abzweigdose":
       item.docs.concat(docs);
+      integrateIntermediateResultsIntoObjects(intermediateResults, item, "abzweigdose", item.id);
+
       break;
     case "tdta_standort_mast":
       docs.concat(
         getIntermediateResultsImages(item?.tkey_masttyp, intermediateResults, "tkey_masttyp")
       );
+      integrateIntermediateResultsIntoObjects(
+        intermediateResults,
+        item,
+        "tdta_standort_mast",
+        item.id
+      );
+
       break;
     case "arbeitsprotokoll":
-      const irs = intermediateResults.arbeitsprotokoll[item.id];
-      if (irs?.object) {
-        for (const ir of irs.object) {
-          console.log("xxx intermediate results integration. ir", ir);
+      if (intermediateResults.arbeitsprotokoll) {
+        const irs = intermediateResults[feature.featuretype][item.id];
+        console.log("xxxx irs", feature.featuretype, item.id);
 
-          console.log("xxx intermediate results integration. item before", item);
+        if (irs?.object) {
+          for (const ir of irs.object) {
+            console.log("xxx intermediate results integration. ir", ir);
 
-          switch (ir.actionname) {
-            case "protokollStatusAenderung":
-              if (ir.bemerkung && ir.bemerkung !== item?.bemerkung) {
-                item.bemerkung = ir.bemerkung + "*";
-              }
-              if (ir.status && ir.status !== item?.arbeitsprotokollstatus?.id) {
-                item.arbeitsprotokollstatus = getProtokollStatusForId(ir.status);
-                item.arbeitsprotokollstatusIntermediate = true;
-              }
-              if (ir.material && ir.material !== item?.material) {
-                item.material = ir.material + "*";
-              }
-              break;
-            case "protokollLeuchteLeuchtenerneuerung":
-              break;
-            case "protokollLeuchteLeuchtmittelwechselElekpruefung":
-              break;
-            case "protokollLeuchteLeuchtmittelwechsel":
-              break;
-            case "protokollLeuchteRundsteuerempfaengerwechsel":
-              break;
-            case "protokollLeuchteSonderturnus":
-              break;
-            case "protokollLeuchteVorschaltgeraetwechsel":
-              break;
-            case "protokollStandortAnstricharbeiten":
-              break;
-            case "protokollStandortElektrischePruefung":
-              break;
-            case "protokollStandortMasterneuerung":
-              break;
-            case "protokollStandortRevision":
-              break;
-            case "protokollStandortStandsicherheitspruefung":
-              break;
-            case "protokollMauerlaschePruefung":
-              break;
-            case "protokollSchaltstelleRevision":
-              break;
-            case "protokollFortfuehrungsantrag":
-              break;
+            console.log("xxx intermediate results integration. item before", item);
 
-            default:
+            switch (ir.actionname) {
+              case "protokollStatusAenderung":
+                setStatusAndAktionsArrayStuff(ir, item);
+                break;
+              case "protokollLeuchteLeuchtenerneuerung":
+                setStatusAndAktionsArrayStuff(ir, item);
+                //zuerst muss das angehängte fachobjekt aktualisiert werden
+                // ir.inbetriebnahmedatum
+                // ir.leuchtentyp
+                //alerdings muss in der action selbst noch ein intermediate result für die leuchte selbst angelegt werden.
+                //etl. kann dieses intermediate result auch hier für die aktualisierung des angehängten fachobjektes genutzt werden
+                integrateIntermediateResultsIntoObjects(
+                  intermediateResults,
+                  item.tdta_leuchten,
+                  "tdta_leuchten",
+                  item.tdta_leuchten.id
+                );
+
+                break;
+              case "protokollLeuchteLeuchtmittelwechselElekpruefung":
+                setStatusAndAktionsArrayStuff(ir, item);
+                integrateIntermediateResultsIntoObjects(
+                  intermediateResults,
+                  item.tdta_leuchten,
+                  "tdta_leuchten",
+                  item.tdta_leuchten.id
+                );
+                // integrateIntermediateResultsIntoObjects(intermediateResults, item.tdta_leuchten, "tdta_standort_mast", item.tdta_leuchten.id);
+
+                break;
+              case "protokollLeuchteLeuchtmittelwechsel":
+                setStatusAndAktionsArrayStuff(ir, item);
+                break;
+              case "protokollLeuchteRundsteuerempfaengerwechsel":
+                setStatusAndAktionsArrayStuff(ir, item);
+                break;
+              case "protokollLeuchteSonderturnus":
+                setStatusAndAktionsArrayStuff(ir, item);
+                break;
+              case "protokollLeuchteVorschaltgeraetwechsel":
+                setStatusAndAktionsArrayStuff(ir, item);
+                break;
+              case "protokollStandortAnstricharbeiten":
+                setStatusAndAktionsArrayStuff(ir, item);
+                break;
+              case "protokollStandortElektrischePruefung":
+                setStatusAndAktionsArrayStuff(ir, item);
+                break;
+              case "protokollStandortMasterneuerung":
+                setStatusAndAktionsArrayStuff(ir, item);
+                break;
+              case "protokollStandortRevision":
+                setStatusAndAktionsArrayStuff(ir, item);
+                break;
+              case "protokollStandortStandsicherheitspruefung":
+                setStatusAndAktionsArrayStuff(ir, item);
+                break;
+              case "protokollMauerlaschePruefung":
+                setStatusAndAktionsArrayStuff(ir, item);
+                break;
+              case "protokollSchaltstelleRevision":
+                setStatusAndAktionsArrayStuff(ir, item);
+                break;
+              case "protokollFortfuehrungsantrag":
+                setStatusAndAktionsArrayStuff(ir, item);
+                break;
+
+              default:
+            }
           }
+          console.log("intermediate results integration. item after", item);
         }
-        console.log("intermediate results integration. item after", item);
       }
-
       break;
     default:
   }
+
   if (item.docs) {
     item.docs = [...item.docs, ...docs];
   } else {
     item.docs = docs;
+  }
+};
+
+const setStatusAndAktionsArrayStuff = (ir, item) => {
+  if (ir.bemerkung && ir.bemerkung !== item?.bemerkung) {
+    item.bemerkung = ir.bemerkung + "*";
+  }
+  if (ir.status && ir.status !== item?.arbeitsprotokollstatus?.id) {
+    item.arbeitsprotokollstatus = getProtokollStatusForId(ir.status);
+    item.arbeitsprotokollstatusIntermediate = true;
+  }
+  if (ir.material && ir.material !== item?.material) {
+    item.material = ir.material + "*";
+  }
+
+  //Todo check if the change is already in so that we not need to disp,ay the intermediate change
+
+  // probably check whether the ts from the inetrmediate action is newer than the retrieved ts
+
+  item.arbeitsprotokollaktionArray = JSON.parse(
+    JSON.stringify(item.arbeitsprotokollaktionArray || [])
+  );
+  for (const protAktion of ir.protokollAktionArray || []) {
+    // console.log("xxxx setStatusAndAktionsArrayStuff", protAktion);
+    // console.log("xxxx before", item.arbeitsprotokollaktionArray);
+
+    //check if the action is already in the array
+    //params to check: aenderung, alt, neu, ccnonce
+
+    const found = item.arbeitsprotokollaktionArray.find(
+      (a) =>
+        a.aenderung + "*" === protAktion.aenderung &&
+        a.alt === protAktion.alt &&
+        a.neu === protAktion.neu &&
+        a.ccnonce === protAktion.ccnonce
+    );
+
+    if (!found) {
+      item.arbeitsprotokollaktionArray.push(protAktion);
+    }
+    // console.log("xxxx after", item.arbeitsprotokollaktionArray);
   }
 };
 

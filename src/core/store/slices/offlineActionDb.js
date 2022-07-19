@@ -145,6 +145,9 @@ export const resyncDb = () => {
 
 export const clearIntermediateResults = (object_type) => {
   return async (dispatch, getState) => {
+    if (object_type === "arbeitsauftrag") {
+      dispatch(clearIntermediateResults("arbeitsprotokoll"));
+    }
     const stateIntermediateResults = getIntermediateResults(getState()) || {};
     let intermediateResultsCopy;
     if (stateIntermediateResults[object_type]) {
@@ -219,7 +222,7 @@ export const downloadTasks = () => {
   return async (dispatch, getState) => {
     const state = getState();
     const rawTasks = getRawTasks(state);
-    console.log("will export", rawTasks);
+    console.log("will export" + rawTasks?.length + " tasks");
 
     downloadObjectAsJson(rawTasks, "tasks" + slugify(new Date().toLocaleString()));
   };

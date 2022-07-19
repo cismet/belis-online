@@ -91,3 +91,7 @@ const getDescriptions = (feature) => {
   }
   return descriptions;
 };
+
+export const ivAsterisk = (isIntermediateAttribute) => {
+  return isIntermediateAttribute === true ? "*" : "";
+};

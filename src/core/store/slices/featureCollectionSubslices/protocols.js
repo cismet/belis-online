@@ -63,6 +63,8 @@ export const loadProtocollsIntoFeatureCollection = ({
         try {
           let features = [];
           if (tasklistFeature.enriched !== true) {
+            //not enriched (thats the case when loading the first time online)
+
             console.log("xxx Protokolle werden vom Service geladen");
 
             console.time("query returned");
@@ -79,17 +81,24 @@ export const loadProtocollsIntoFeatureCollection = ({
             const result = response.data.arbeitsauftrag[0];
             features = getFeaturesForProtokollArray(result.ar_protokolleArray);
           } else {
+            //not enriched (thats the case when loading offline or after the second time online)
+
             features = getFeaturesForProtokollArray(tasklistFeature.properties.ar_protokolleArray);
 
             console.log(
               "xxx Protokolle waren schon im Arbeitsprotokoll vorhanden (entweder offline mode oder durch vorherigen Requeust)",
               features
             );
-            for (const feature of features) {
-              integrateIntermediateResults(feature, state.offlineActionDb.intermediateResults);
-            }
           }
 
+          const featureClones = [];
+
+          for (const feature of features) {
+            const f = JSON.parse(JSON.stringify(feature));
+            featureClones.push(f);
+            integrateIntermediateResults(f, state.offlineActionDb.intermediateResults);
+          }
+          features = featureClones;
           dispatch(setFeatureCollectionForMode({ mode: MODES.PROTOCOLS, features }));
           dispatch(setOriginForMode({ mode: MODES.PROTOCOLS, origin: tasklistFeature }));
           dispatch(

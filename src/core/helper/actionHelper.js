@@ -105,7 +105,7 @@ export const getObjectActionInfos = ({
             }}
             input={{ feature: selectedFeature, vcard }}
             onClose={(params) => {
-              dispatch(protocolAction(params));
+              dispatch(protocolAction(params, selectedFeature.properties));
               console.log("setStatus", params);
             }}
           />
@@ -226,7 +226,7 @@ const getSubInfoForKey = (key, dispatch, selectedFeature) => {
           actionkey={key}
           onClose={(params) => {
             console.log(info.title, params);
-            dispatch(protocolAction(params));
+            dispatch(protocolAction(params, selectedFeature.properties));
           }}
           title={info.title}
         />
