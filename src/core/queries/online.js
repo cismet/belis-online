@@ -182,6 +182,7 @@ arbeitsauftrag(where: {id: {_eq: $aaId}}) {
         alt
         id
         neu
+        ccnonce
       }
       geometrie {
         bezeichnung
