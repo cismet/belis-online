@@ -599,7 +599,7 @@ const setStatusAndAktionsArrayStuff = (ir, item) => {
 
     const found = item.arbeitsprotokollaktionArray.find(
       (a) =>
-        a.aenderung + "*" === protAktion.aenderung &&
+        (a.aenderung + "*" === protAktion.aenderung || a.aenderung === protAktion.aenderung) &&
         a.alt === protAktion.alt &&
         a.neu === protAktion.neu &&
         a.ccnonce === protAktion.ccnonce
