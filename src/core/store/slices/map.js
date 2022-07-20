@@ -1,10 +1,10 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { getFeatureCollection } from "./featureCollection";
 import envelope from "@turf/envelope";
-import { projectionData } from "react-cismap/constants/gis";
 import { featureCollection } from "@turf/helpers";
-import { useDispatch } from "react-redux";
+import { projectionData } from "react-cismap/constants/gis";
 import { convertBBox2Bounds } from "react-cismap/tools/mappingHelpers";
+
+import { getFeatureCollection } from "./featureCollection";
 
 const initialState = { mapRef: undefined };
 

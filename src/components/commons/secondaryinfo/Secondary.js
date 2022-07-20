@@ -1,10 +1,10 @@
-import Icon from "react-cismap/commons/Icon";
+import { useWindowSize } from "@react-hook/window-size";
 import PropTypes from "prop-types";
-import React, { useContext } from "react";
+import React from "react";
 import { Button, Modal } from "react-bootstrap";
+import Icon from "react-cismap/commons/Icon";
 import CismetFooterAcks from "react-cismap/topicmaps/wuppertal/CismetFooterAcknowledgements";
 import GenericRVRStadtplanwerkMenuFooter from "react-cismap/topicmaps/wuppertal/GenericRVRStadtplanwerkMenuFooter";
-import { useWindowSize } from "@react-hook/window-size";
 
 const Comp = ({
   visible,

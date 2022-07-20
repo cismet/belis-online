@@ -1,3 +1,4 @@
+import { faComment, faListAlt } from "@fortawesome/free-regular-svg-icons";
 import {
   faArrowCircleLeft,
   faArrowCircleRight,
@@ -5,14 +6,19 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Button, Descriptions } from "antd";
-import { useContext } from "react";
-import { LightBoxContext } from "react-cismap/contexts/LightBoxContextProvider";
+
 import {
   selectNextFeature,
   selectPreviousFeature,
 } from "../../../../core/helper/featureCollectionHelper";
 import { getVCard } from "../../../../core/helper/featureHelper";
-import { geomFactories } from "../../../../core/queries/online";
+import { ivAsterisk } from "../../../../core/helper/secondaryInfoHelper";
+import store from "../../../../core/store";
+import {
+  MODES,
+  setMode,
+  setSelectedFeature,
+} from "../../../../core/store/slices/featureCollection";
 import { createFeatureFromData } from "../../../../core/store/slices/featureCollectionSubslices/objects";
 import SecondaryInfoPanelSection from "../SecondaryInfoPanelSection";
 import getLayout4Abzweigdose from "./Abzweigdose4Prot";
@@ -28,14 +34,7 @@ import getLayout4Leuchte from "./Leuchte";
 import getLayout4Mauerlasche from "./Mauerlasche";
 import getLayout4Schaltstelle from "./Schaltstelle";
 import getLayout4Standort from "./Standort";
-import {
-  MODES,
-  setMode,
-  setSelectedFeature,
-} from "../../../../core/store/slices/featureCollection";
-import store from "../../../../core/store";
-import { faComment, faListAlt } from "@fortawesome/free-regular-svg-icons";
-import { ivAsterisk } from "../../../../core/helper/secondaryInfoHelper";
+
 const getLayout4Protokoll = ({
   feature,
   jwt,

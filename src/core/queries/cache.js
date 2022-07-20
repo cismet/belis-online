@@ -1,8 +1,8 @@
 import {
   abzweigdose_fields,
   leitung_fields,
-  leuchtentyp_fields,
   leuchte_fields,
+  leuchtentyp_fields,
   mast_fields,
   mauerlasche_fields,
   rundsteuerempfaenger_fields,

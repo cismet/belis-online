@@ -1,5 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { CACHE_JWT } from "react-cismap/tools/fetching";
+
 const initialState = {};
 
 const slice = createSlice({

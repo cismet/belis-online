@@ -1,10 +1,20 @@
 import { useWindowSize } from "@react-hook/window-size";
 import useComponentSize from "@rehooks/component-size";
 import useOnlineStatus from "@rehooks/online-status";
-import React, { useRef, useState, useEffect, useContext } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
+import { UIDispatchContext } from "react-cismap/contexts/UIContextProvider";
+import PhotoLightBox from "react-cismap/topicmaps/PhotoLightbox";
 import { useDispatch, useSelector } from "react-redux";
+import { useHistory, useLocation } from "react-router-dom/cjs/react-router-dom.min";
+
+import LoginForm from "../components/app/LoginForm";
 import MapBlocker from "../components/app/MapBlocker";
-import { CONNECTIONMODE, getConnectionMode } from "../core/store/slices/app";
+import Menu from "../components/app/menu/Menu";
+import { CONNECTIONMODE, getConnectionMode, getDialog } from "../core/store/slices/app";
+import { getJWT } from "../core/store/slices/auth";
+import { storeJWT } from "../core/store/slices/auth";
+import { renewCache } from "../core/store/slices/cacheControl";
+import { getWorker } from "../core/store/slices/dexie";
 import {
   getFeatureCollectionMode,
   getSelectedFeature,
@@ -13,42 +23,20 @@ import {
   MODES,
   setDone,
 } from "../core/store/slices/featureCollection";
-import BelisMap from "./BelisMap";
-import BottomNavbar from "./BottomNavbar";
-import TopNavbar from "./TopNavbar";
-import SideBar from "./SideBar";
-import LoginForm from "../components/app/LoginForm";
-import { getJWT } from "../core/store/slices/auth";
-import { getDialog } from "../core/store/slices/app";
-import { useHistory, useLocation } from "react-router-dom/cjs/react-router-dom.min";
-import { modifyQueryPart } from "../core/commons/routingHelper";
-import Menu from "../components/app/menu/Menu";
-import { UIDispatchContext } from "react-cismap/contexts/UIContextProvider";
-import ResponsiveTopicMapContextProvider from "react-cismap/contexts/ResponsiveTopicMapContextProvider";
-// import {
-//   getCaptions,
-//   getIndex,
-//   getPhotoUrls,
-//   getTitle,
-//   isVisible,
-//   setIndex,
-//   setVisible,
-// } from "../core/store/slices/photoLightbox";
-import PhotoLightBox from "react-cismap/topicmaps/PhotoLightbox";
-import { initialize, resyncDb } from "../core/store/slices/offlineActionDb";
-import TopicMapContextProvider from "react-cismap/contexts/TopicMapContextProvider";
-import { defaultLayerConf } from "react-cismap/tools/layerFactory";
-import { storeJWT } from "../core/store/slices/auth";
 import { tasklistPostSelection } from "../core/store/slices/featureCollectionSubslices/tasklists";
-import { getTeam } from "../core/store/slices/team";
-import { getWorker } from "../core/store/slices/dexie";
-import { renewCache } from "../core/store/slices/cacheControl";
 import {
   fillLeuchtentypenFromDexie,
   fillLeuchtmittelFromDexie,
   fillRundsteuerempfaengerFromDexie,
   fillTeamsFromDexie,
 } from "../core/store/slices/keytables";
+import { initialize, resyncDb } from "../core/store/slices/offlineActionDb";
+import { getTeam } from "../core/store/slices/team";
+import BelisMap from "./BelisMap";
+import BottomNavbar from "./BottomNavbar";
+import SideBar from "./SideBar";
+import TopNavbar from "./TopNavbar";
+
 //---
 
 const View = () => {

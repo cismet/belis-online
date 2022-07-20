@@ -1,80 +1,50 @@
+import { faBars, faBookOpen, faPowerOff, faRedo, faVial } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon as Icon } from "@fortawesome/react-fontawesome";
+import { useWindowSize } from "@react-hook/window-size";
 import React, { useEffect } from "react";
-
 import Button from "react-bootstrap/Button";
-import Form from "react-bootstrap/Form";
-import FormControl from "react-bootstrap/FormControl";
-import InputGroup from "react-bootstrap/InputGroup";
 import Nav from "react-bootstrap/Nav";
 import Navbar from "react-bootstrap/Navbar";
 import NavDropdown from "react-bootstrap/NavDropdown";
+import { MappingConstants } from "react-cismap";
+import GazetteerSearchComponent from "react-cismap/GazetteerSearchComponent";
+import { useDispatch, useSelector } from "react-redux";
 import { useLongPress } from "use-long-press";
 
-import {
-  faBars,
-  faBookOpen,
-  faCertificate,
-  faGlobeEurope,
-  faLock,
-  faLockOpen,
-  faPowerOff,
-  faRedo,
-  faSpinner,
-  faTimes,
-  faVial,
-} from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon as Icon } from "@fortawesome/react-fontawesome";
-
 import Switch from "../components/commons/Switch";
-
+import { getArtificialError } from "../core/store/slices/app";
+import { storeJWT, storeLogin } from "../core/store/slices/auth";
+import { getBackground } from "../core/store/slices/background";
 import {
-  setFilter,
-  loadObjects,
   isDone as featureCollectionIsDone,
-  getFilter,
-  getFeatureCollection,
-  isSearchForbidden,
-  setGazetteerHit,
-  getGazetteerHit,
-  setOverlayFeature,
-  getOverlayFeature,
   forceRefresh,
+  getFeatureCollection,
+  getFilter,
+  getGazetteerHit,
+  getOverlayFeature,
+  isSearchForbidden,
+  loadObjects,
   loadTaskLists,
   MODES,
-  setMode,
   setFeatureCollectionForMode,
+  setFilter,
+  setGazetteerHit,
+  setMode,
+  setOverlayFeature,
 } from "../core/store/slices/featureCollection";
-
 import { getGazData, loadGazeteerEntries } from "../core/store/slices/gazetteerData";
-import { getTeam } from "../core/store/slices/team";
-import { useDispatch, useSelector, useStore } from "react-redux";
+import { fitBoundsForCollection } from "../core/store/slices/map";
 import {
+  getIntermediateResults,
+  getDB as getOfflineActionDB,
+} from "../core/store/slices/offlineActionDb";
+import {
+  isSearchModeActive,
   setActive as setSearchModeActive,
   setWished as setSearchModeWish,
-  isSearchModeActive,
 } from "../core/store/slices/search";
-import { getBackground } from "../core/store/slices/background";
-import GazetteerSearchComponent from "react-cismap/GazetteerSearchComponent";
-import { MappingConstants } from "react-cismap";
-import { REST_SERVICE } from "../constants/belis";
-import {
-  getCacheDate,
-  renewAllPrimaryInfoCache,
-  renewAllSecondaryInfoCache,
-} from "../core/store/slices/cacheControl";
-import { getLoginFromJWT, storeJWT, storeLogin } from "../core/store/slices/auth";
-import { useWindowSize } from "@react-hook/window-size";
-import {
-  getDB as getOfflineActionDB,
-  getIntermediateResults,
-  storeIntermediateResults,
-} from "../core/store/slices/offlineActionDb";
-import { NavItem } from "react-bootstrap";
-import { fetchGraphQL } from "../core/commons/graphql";
-import queries from "../core/queries/online";
-import { fitBoundsForCollection } from "../core/store/slices/map";
-import localforage from "localforage";
-import store from "../core/store";
-import { getArtificialError, setArtificialError } from "../core/store/slices/app";
+import { getTeam } from "../core/store/slices/team";
+
 //---------
 
 const TopNavbar = ({ innerRef, refRoutedMap, setCacheSettingsVisible, jwt }) => {

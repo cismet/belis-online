@@ -1,12 +1,11 @@
 import { createSlice } from "@reduxjs/toolkit";
-import cacheQueries from "../../queries/cache";
 import dexieworker from "workerize-loader!../../workers/dexie"; // eslint-disable-line import/no-webpack-loader-syntax
+
 import { fetchGraphQL } from "../../commons/graphql";
-import { initIndex } from "./spatialIndex";
+import cacheQueries from "../../queries/cache";
 import { getLoginFromJWT } from "./auth";
 import { clearIntermediateResults } from "./offlineActionDb";
-import { useSelector } from "react-redux";
-import { getWorker } from "./dexie";
+import { initIndex } from "./spatialIndex";
 
 const dexieW = dexieworker();
 

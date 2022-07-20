@@ -1,34 +1,31 @@
 import bboxPolygon from "@turf/bbox-polygon";
+import booleanIntersects from "@turf/boolean-intersects";
+
+import dexieworker from "workerize-loader!../../../workers/dexie"; // eslint-disable-line import/no-webpack-loader-syntax
+
+import { fetchGraphQL } from "../../../commons/graphql";
+import {
+  cloneFeature,
+  compareFeature,
+  getDocs,
+  integrateIntermediateResults,
+} from "../../../helper/featureHelper";
 import { convertBoundingBox, createQueryGeomFromBB } from "../../../helper/gisHelper";
+import onlineQueryParts, { geomFactories } from "../../../queries/online";
 import { CONNECTIONMODE, getConnectionMode } from "../app";
+import { storeJWT } from "../auth";
 import {
   getFeatureCollection,
   getFilter,
   getSelectedFeature,
   MODES,
-  setDone,
   setDoneForMode,
-  setFeatureCollection,
   setFeatureCollectionForMode,
-  setFeatureCollectionInfo,
   setFeatureCollectionInfoForMode,
   setRequestBasis,
   setSelectedFeature,
 } from "../featureCollection";
-import booleanIntersects from "@turf/boolean-intersects";
-import onlineQueryParts, { geomFactories, fragments } from "../../../queries/online";
 
-import {
-  addPropertiesToFeature,
-  cloneFeature,
-  compareFeature,
-  getDocs,
-  getIntermediateResultsToBeRemoved,
-  integrateIntermediateResults,
-} from "../../../helper/featureHelper";
-import { storeJWT } from "../auth";
-import { fetchGraphQL } from "../../../commons/graphql";
-import dexieworker from "workerize-loader!../../../workers/dexie"; // eslint-disable-line import/no-webpack-loader-syntax
 const dexieW = dexieworker();
 
 export const loadObjectsIntoFeatureCollection = ({

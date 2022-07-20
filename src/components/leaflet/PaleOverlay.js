@@ -1,8 +1,5 @@
 import L from "leaflet";
-
 import { GridLayer } from "react-leaflet";
-import { isEqual, reduce } from "lodash";
-import { EVENTS_RE } from "react-leaflet/lib/MapComponent";
 
 class PaleOverlay extends GridLayer {
   createLeafletElement(props) {

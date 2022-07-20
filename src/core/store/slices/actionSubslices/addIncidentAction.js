@@ -2,8 +2,8 @@ import uuidv4 from "uuid/v4";
 
 import { ADD_INCIDENT_MODES } from "../../../../components/app/dialogs/AddIncident";
 import { getJWT, getLoginFromJWT } from "../auth";
-import { getDB } from "../offlineActionDb";
-import { addIntermediateResult } from "../offlineActionDb";
+import { addIntermediateResult, getDB } from "../offlineActionDb";
+
 const addIncidentAction = (params) => {
   return async (dispatch, getState) => {
     const state = getState();

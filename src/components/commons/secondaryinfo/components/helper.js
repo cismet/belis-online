@@ -1,12 +1,13 @@
-import { Descriptions, Badge, Timeline } from "antd";
-import { getWebDavUrl } from "../../../../constants/belis";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBullseye, faGlassMartini, faGripLinesVertical } from "@fortawesome/free-solid-svg-icons";
-import { getVCard } from "../../../../core/helper/featureHelper";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { Timeline } from "antd";
 import IconLink from "react-cismap/commons/IconLink";
+
+import { getWebDavUrl } from "../../../../constants/belis";
+import { getVCard } from "../../../../core/helper/featureHelper";
 import { showDialog } from "../../../../core/store/slices/app";
-import AddImageDialog from "../../../app/dialogs/AddImage";
 import { addImageToObjectAction } from "../../../../core/store/slices/offlineActionDb";
+import AddImageDialog from "../../../app/dialogs/AddImage";
 
 export const getDate = (d) => {
   if (d) {

@@ -1,36 +1,22 @@
 import React, { useContext, useState } from "react";
+import { LightBoxDispatchContext } from "react-cismap/contexts/LightBoxContextProvider";
 import { version as reactCismapVersion } from "react-cismap/meta";
-import SecondaryInfo from "./Secondary";
-// import SecondaryInfoPanelSection from "react-cismap/topicmaps/SecondaryInfoPanelSection";
-import SecondaryInfoPanelSection from "./SecondaryInfoPanelSection";
+import { useDispatch, useSelector } from "react-redux";
 
+import { getBelisVersion } from "../../../constants/versions";
+import { getJWT } from "../../../core/store/slices/auth";
 import {
-  getFeatureCollection,
   getSelectedFeature,
   setSecondaryInfoVisible,
 } from "../../../core/store/slices/featureCollection";
-import { useDispatch, useSelector } from "react-redux";
-import { getVCard } from "../../../core/helper/featureHelper";
-import { getSecondaryInfo } from "../../../core/helper/secondaryInfoHelper";
-// import { getApplicationVersion } from "../version";
-
-import { Descriptions } from "antd";
-import { getDate, getDoppelkommandos } from "./components/helper";
-import { leuchteMitAllenAttributen } from "./devData";
-
-import getLayout4Leuchte from "./components/Leuchte";
-import { getJWT } from "../../../core/store/slices/auth";
-import getLayout4Standort from "./components/Standort";
-import getLayout4Schaltstelle from "./components/Schaltstelle";
-import getLayout4Mauerlasche from "./components/Mauerlasche";
-import { getBelisVersion } from "../../../constants/versions";
-
-import {
-  LightBoxContext,
-  LightBoxDispatchContext,
-} from "react-cismap/contexts/LightBoxContextProvider";
 import getLayout4Arbeitsauftrag from "./components/Arbeitsauftrag";
+import getLayout4Leuchte from "./components/Leuchte";
+import getLayout4Mauerlasche from "./components/Mauerlasche";
 import getLayout4Protokoll from "./components/Protokoll";
+import getLayout4Schaltstelle from "./components/Schaltstelle";
+import getLayout4Standort from "./components/Standort";
+import SecondaryInfo from "./Secondary";
+import SecondaryInfoPanelSection from "./SecondaryInfoPanelSection";
 
 const InfoPanel = () => {
   const dispatch = useDispatch();

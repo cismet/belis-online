@@ -1,17 +1,16 @@
-import { Descriptions, Row, Col } from "antd";
+import { Col, Row } from "antd";
+
 import { getWebDavUrl } from "../../../../constants/belis";
 import { getVCard } from "../../../../core/helper/featureHelper";
+import { ivAsterisk } from "../../../../core/helper/secondaryInfoHelper";
 import {
   addDotThumbnail,
-  clearOptionalDescriptionItems,
   getAddImageButton,
   getSquaredThumbnails,
   getStrasse,
   getTimelineForEvents,
 } from "./helper";
-import { getRSDetailItems, getRSDetailsSection } from "./Leuchte";
-import SecondaryInfoPanelSection from "react-cismap/topicmaps/SecondaryInfoPanelSection";
-import { ivAsterisk } from "../../../../core/helper/secondaryInfoHelper";
+import { getRSDetailsSection } from "./Leuchte";
 
 export const getEventsForMauerlasche = (item) => {
   const events = [

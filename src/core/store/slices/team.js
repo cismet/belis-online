@@ -1,4 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
+
 const initialState = { selectedTeam: { id: -1, name: "-" } };
 
 const slice = createSlice({

@@ -1,8 +1,9 @@
-import { projectionData } from "react-cismap/constants/gis";
-import { bufferBBox } from "./gisHelper";
-import { convertBBox2Bounds } from "react-cismap/tools/gisHelper";
 import envelope from "@turf/envelope";
 import { getType } from "@turf/invariant";
+import { projectionData } from "react-cismap/constants/gis";
+import { convertBBox2Bounds } from "react-cismap/tools/gisHelper";
+
+import { bufferBBox } from "./gisHelper";
 
 export const zoomToFeature = ({ feature, mapRef }) => {
   console.log("xxx zoomToFeature", feature, mapRef);

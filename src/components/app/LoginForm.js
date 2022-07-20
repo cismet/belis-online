@@ -1,18 +1,17 @@
 import { useWindowSize } from "@react-hook/window-size";
 import localforage from "localforage";
-import { useContext, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button, Form, Modal } from "react-bootstrap";
 import IconComp from "react-cismap/commons/Icon";
 import { CACHE_JWT } from "react-cismap/tools/fetching";
 import { useDispatch, useSelector } from "react-redux";
-import { getLogin, storeJWT, storeLogin } from "../../core/store/slices/auth";
+
 import { DOMAIN, REST_SERVICE } from "../../constants/belis";
-import { isCacheFullUsable } from "../../core/store/slices/cacheControl";
 import { CONNECTIONMODE, setConnectionMode } from "../../core/store/slices/app";
-import {
-  forceRefresh,
-  loadObjectsIntoFeatureCollection,
-} from "../../core/store/slices/featureCollection";
+import { getLogin, storeJWT, storeLogin } from "../../core/store/slices/auth";
+import { isCacheFullUsable } from "../../core/store/slices/cacheControl";
+import { forceRefresh } from "../../core/store/slices/featureCollection";
+
 const LoginForm = ({
   setJWT = (jwt) => {
     console.log("you need to set the attribute setJWT in the <Login> component", jwt);

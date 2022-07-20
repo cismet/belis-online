@@ -1,17 +1,16 @@
-import { Descriptions, Row, Col, Timeline } from "antd";
+import { Col, Descriptions, Row } from "antd";
+
 import { getWebDavUrl } from "../../../../constants/belis";
 import { getVCard } from "../../../../core/helper/featureHelper";
-import { mastOhneLeuchte } from "../devData";
+import { ivAsterisk } from "../../../../core/helper/secondaryInfoHelper";
+import SecondaryInfoPanelSection from "../SecondaryInfoPanelSection";
 import {
   addDotThumbnail,
   clearOptionalDescriptionItems,
-  getAddImageButton,
   getSquaredThumbnails,
   getStrasse,
   getTimelineForEvents,
 } from "./helper";
-import SecondaryInfoPanelSection from "../SecondaryInfoPanelSection";
-import { ivAsterisk } from "../../../../core/helper/secondaryInfoHelper";
 
 export const getEventsForStandort = (item) => {
   const events = [

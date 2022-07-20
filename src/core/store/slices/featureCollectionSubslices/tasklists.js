@@ -1,30 +1,23 @@
+import buffer from "@turf/buffer";
+import convex from "@turf/convex";
+import * as turfHelpers from "@turf/helpers";
+import { projectionData } from "react-cismap/constants/gis";
+import reproject from "reproject";
+import dexieworker from "workerize-loader!../../../workers/dexie"; // eslint-disable-line import/no-webpack-loader-syntax
+
+import { fetchGraphQL } from "../../../commons/graphql";
+import queries from "../../../queries/online";
+import { CONNECTIONMODE, getConnectionMode } from "../app";
+import { getJWT } from "../auth";
 import {
-  getFeatureCollection,
-  getFilter,
-  getSelectedFeature,
   MODES,
-  setDone,
   setDoneForMode,
-  setFeatureCollection,
   setFeatureCollectionForMode,
-  setFeatureCollectionInfo,
   setFeatureCollectionInfoForMode,
-  setMode,
-  setRequestBasis,
-  setSelectedFeature,
   setSelectedFeatureForMode,
 } from "../featureCollection";
-import { getJWT, storeJWT } from "../auth";
-import { fetchGraphQL } from "../../../commons/graphql";
-import dexieworker from "workerize-loader!../../../workers/dexie"; // eslint-disable-line import/no-webpack-loader-syntax
-import queries from "../../../queries/online";
-import * as turfHelpers from "@turf/helpers";
-import convex from "@turf/convex";
-import buffer from "@turf/buffer";
-import reproject from "reproject";
-import { projectionData } from "react-cismap/constants/gis";
 import { loadProtocollsIntoFeatureCollection } from "./protocols";
-import { CONNECTIONMODE, getConnectionMode } from "../app";
+
 const dexieW = dexieworker();
 
 export const loadTaskListsIntoFeatureCollection = ({

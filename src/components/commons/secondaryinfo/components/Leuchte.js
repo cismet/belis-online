@@ -1,19 +1,12 @@
-import { faCamera, faInfoCircle } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { Button, Col, Descriptions, Row } from "antd";
-import React, { useContext } from "react";
-import IconLink from "react-cismap/commons/IconLink";
-// import { version as reactCismapVersion } from "react-cismap/meta";
-// import SecondaryInfoPanelSection from "react-cismap/topicmaps/SecondaryInfoPanelSection";
-import SecondaryInfoPanelSection from "../SecondaryInfoPanelSection";
+import { Col, Descriptions, Row } from "antd";
+import React from "react";
 
 import { getWebDavUrl } from "../../../../constants/belis";
 import { getVCard } from "../../../../core/helper/featureHelper";
-import { showDialog } from "../../../../core/store/slices/app";
-import { addImageToObjectAction } from "../../../../core/store/slices/offlineActionDb";
-// import { setIndex, setVisible } from "../../../../core/store/slices/photoLightbox";
 
-import AddImageDialog from "../../../app/dialogs/AddImage";
+import { ivAsterisk } from "../../../../core/helper/secondaryInfoHelper";
+
+import SecondaryInfoPanelSection from "../SecondaryInfoPanelSection";
 import {
   addDotThumbnail,
   clearOptionalDescriptionItems,
@@ -23,7 +16,6 @@ import {
   getTimelineForEvents,
 } from "./helper";
 import { getEventsForStandort, getStandortDetails } from "./Standort";
-import { ivAsterisk } from "../../../../core/helper/secondaryInfoHelper";
 
 export const getEvents4Leuchte = (item) => {
   const events = [

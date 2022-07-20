@@ -1,17 +1,18 @@
+import { blue, gold, green, grey, red } from "@ant-design/colors";
 import { faCheckCircle, faHdd, faQuestionCircle } from "@fortawesome/free-regular-svg-icons";
 import {
   faCamera,
-  faServer,
   faExclamation,
   faExclamationTriangle,
+  faServer,
   faSpinner,
   faUserSlash,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { type2Caption } from "../helper/featureHelper";
-import { gold, red, blue, green, grey } from "@ant-design/colors";
+
 import { ADD_INCIDENT_MODES } from "../../components/app/dialogs/AddIncident";
 import { protocolActionInfos } from "../helper/actionInfos";
+import { type2Caption } from "../helper/featureHelper";
 
 const convertActionameToActionKey = (actionname) => {
   for (const key of Object.keys(protocolActionInfos)) {

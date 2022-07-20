@@ -19,8 +19,8 @@ import {
   faSignal,
   faStream,
   faSync,
+  faTasks,
 } from "@fortawesome/free-solid-svg-icons";
-import { faTasks } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React from "react";
 

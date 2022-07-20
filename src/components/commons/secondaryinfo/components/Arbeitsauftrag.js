@@ -1,18 +1,15 @@
-import { getVCard } from "../../../../core/helper/featureHelper";
-import {
-  getFeatureForProtokoll,
-  getFeaturesForProtokollArray,
-} from "../../../../core/store/slices/featureCollectionSubslices/protocols";
-import getLayout4Protokoll from "./Protokoll";
-import SecondaryInfoPanelSection from "../SecondaryInfoPanelSection";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faExternalLinkAlt } from "@fortawesome/free-solid-svg-icons";
-import { Button } from "antd";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+
+import { getVCard } from "../../../../core/helper/featureHelper";
 import {
   MODES,
   setMode,
   setSelectedFeatureForMode,
 } from "../../../../core/store/slices/featureCollection";
+import { getFeaturesForProtokollArray } from "../../../../core/store/slices/featureCollectionSubslices/protocols";
+import SecondaryInfoPanelSection from "../SecondaryInfoPanelSection";
+import getLayout4Protokoll from "./Protokoll";
 
 const getLayout4Arbeitsauftrag = ({
   feature,

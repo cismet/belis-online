@@ -14,6 +14,7 @@ import React from "react";
 import { Button } from "react-bootstrap";
 import ProgressBar from "react-bootstrap/ProgressBar";
 import { useSelector } from "react-redux";
+
 import { getTeam } from "../../../core/store/slices/team";
 
 const getIconForLoadingState = (ls) => {

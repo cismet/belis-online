@@ -1,51 +1,41 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { MappingConstants, RoutedMap } from "react-cismap";
-import { useDispatch, useSelector } from "react-redux";
-import { useHistory, useLocation } from "react-router-dom";
-import BelisFeatureCollection from "../components/app/FeatureCollection";
-import FocusRectangle from "../components/app/FocusRectangle";
-import { backgrounds } from "../constants/belis";
-import { modifyQueryPart } from "../core/commons/routingHelper";
-import { CONNECTIONMODE, getConnectionMode } from "../core/store/slices/app";
-import { getBackground } from "../core/store/slices/background";
-import {
-  getFeatureCollection,
-  loadObjects,
-  isInFocusMode,
-  isSecondaryInfoVisible,
-  getSelectedFeature,
-  setSelectedFeature,
-  getOverlayFeature,
-  getGazetteerHit,
-  getFeatureCollectionMode,
-  MODES,
-} from "../core/store/slices/featureCollection";
-import { isPaleModeActive } from "../core/store/slices/paleMode";
-import { getZoom, setZoom } from "../core/store/slices/zoom";
-import InfoBox from "../components/commons/InfoBox";
-import InfoPanel from "../components/commons/secondaryinfo/SecondaryInfo";
-import ProjSingleGeoJson from "react-cismap/ProjSingleGeoJson";
-import GazetteerHitDisplay from "react-cismap/GazetteerHitDisplay";
-import {
-  getLineIndex,
-  getLoadingState,
-  getPointIndex,
-  initIndex,
-} from "../core/store/slices/spatialIndex";
-import L from "leaflet";
-import LightBoxContextProvider, {
-  LightBoxDispatchContext,
-} from "react-cismap/contexts/LightBoxContextProvider";
-import { useContext } from "react";
-import { convertBounds2BBox } from "../core/helper/gisHelper";
-import { setBounds } from "../core/store/slices/mapInfo";
 import {
   TopicMapStylingContext,
   TopicMapStylingDispatchContext,
 } from "react-cismap/contexts/TopicMapStylingContextProvider";
-import { setMapRef } from "../core/store/slices/map";
-import Empty from "../components/leaflet/PaleOverlay";
+import GazetteerHitDisplay from "react-cismap/GazetteerHitDisplay";
+import ProjSingleGeoJson from "react-cismap/ProjSingleGeoJson";
+import { useDispatch, useSelector } from "react-redux";
+import { useHistory, useLocation } from "react-router-dom";
+
+import BelisFeatureCollection from "../components/app/FeatureCollection";
+import FocusRectangle from "../components/app/FocusRectangle";
+import InfoBox from "../components/commons/InfoBox";
+import InfoPanel from "../components/commons/secondaryinfo/SecondaryInfo";
 import PaleOverlay from "../components/leaflet/PaleOverlay";
+import { backgrounds } from "../constants/belis";
+import { modifyQueryPart } from "../core/commons/routingHelper";
+import { convertBounds2BBox } from "../core/helper/gisHelper";
+import { CONNECTIONMODE, getConnectionMode } from "../core/store/slices/app";
+import { getBackground } from "../core/store/slices/background";
+import {
+  getFeatureCollection,
+  getFeatureCollectionMode,
+  getGazetteerHit,
+  getOverlayFeature,
+  getSelectedFeature,
+  isInFocusMode,
+  isSecondaryInfoVisible,
+  loadObjects,
+  MODES,
+  setSelectedFeature,
+} from "../core/store/slices/featureCollection";
+import { setMapRef } from "../core/store/slices/map";
+import { setBounds } from "../core/store/slices/mapInfo";
+import { isPaleModeActive } from "../core/store/slices/paleMode";
+import { getLoadingState, initIndex } from "../core/store/slices/spatialIndex";
+import { getZoom, setZoom } from "../core/store/slices/zoom";
 
 //---
 

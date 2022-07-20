@@ -1,4 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
+
 const initialState = { bounds: undefined };
 
 const slice = createSlice({

@@ -1,13 +1,8 @@
-import { LoadingOutlined, PlusOutlined } from "@ant-design/icons";
 import { UploadOutlined } from "@ant-design/icons";
 import { Button, Form, Input, Modal, Typography, Upload } from "antd";
 import { useState } from "react";
-import { useSelector } from "react-redux";
-import uuidv4 from "uuid/v4";
 
 import extensions from "../../../core/helper/extensions";
-import { getJWT } from "../../../core/store/slices/auth";
-import { getDB } from "../../../core/store/slices/offlineActionDb";
 
 const { Text, Link } = Typography;
 const getBase64 = (img, callback) => {

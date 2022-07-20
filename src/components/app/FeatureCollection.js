@@ -1,11 +1,13 @@
+import L from "leaflet";
 import React from "react";
 import { FeatureCollectionDisplay } from "react-cismap";
 import { useDispatch, useSelector } from "react-redux";
-import { getSelectedFeature, setSelectedFeature } from "../../core/store/slices/featureCollection";
-import "@fortawesome/fontawesome-free/js/all.js";
-import L from "leaflet";
-import "leaflet-extra-markers/dist/css/leaflet.extra-markers.min.css";
+
 import { getBackground } from "../../core/store/slices/background";
+import { getSelectedFeature, setSelectedFeature } from "../../core/store/slices/featureCollection";
+
+import "@fortawesome/fontawesome-free/js/all.js";
+import "leaflet-extra-markers/dist/css/leaflet.extra-markers.min.css";
 
 const DEBUGGING = false;
 const BelisFeatureCollection = ({ featureCollection, fgColor = "#000000" }) => {

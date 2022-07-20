@@ -1,14 +1,8 @@
 import { Button, Table, Typography } from "antd";
 import { useEffect, useState } from "react";
-// import Button from "react-bootstrap/Button";
 import { useDispatch, useSelector } from "react-redux";
-import { getLogin } from "../../../core/store/slices/auth";
-import {
-  downloadTasks,
-  getDB,
-  getRawTasks,
-  getTasks,
-} from "../../../core/store/slices/offlineActionDb";
+
+import { downloadTasks, getTasks } from "../../../core/store/slices/offlineActionDb";
 
 const Tasks = () => {
   const dispatch = useDispatch();

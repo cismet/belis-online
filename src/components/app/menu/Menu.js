@@ -1,22 +1,18 @@
 import { useContext } from "react";
-import {
-  FeatureCollectionContext,
-  FeatureCollectionDispatchContext,
-} from "react-cismap/contexts/FeatureCollectionContextProvider";
 import { UIDispatchContext } from "react-cismap/contexts/UIContextProvider";
 import { getSimpleHelpForTM } from "react-cismap/tools/uiHelper";
-import { Link } from "react-scroll";
+import ConfigurableDocBlocks from "react-cismap/topicmaps/ConfigurableDocBlocks";
+import DefaultSettingsPanel from "react-cismap/topicmaps/menu/DefaultSettingsPanel";
 import ModalApplicationMenu from "react-cismap/topicmaps/menu/ModalApplicationMenu";
 import Section from "react-cismap/topicmaps/menu/Section";
-import FilterPanel from "react-cismap/topicmaps/menu/FilterPanel";
-import DefaultSettingsPanel from "react-cismap/topicmaps/menu/DefaultSettingsPanel";
-import ConfigurableDocBlocks from "react-cismap/topicmaps/ConfigurableDocBlocks";
-import MenuFooter from "./MenuFooter";
-import CacheSettings from "./CacheSettings";
-import { getFilter, initialFilter, setFilter } from "../../../core/store/slices/featureCollection";
 import { useDispatch, useSelector } from "react-redux";
-import Teams from "./Teams";
+import { Link } from "react-scroll";
+
+import { getFilter } from "../../../core/store/slices/featureCollection";
+import CacheSettings from "./CacheSettings";
+import MenuFooter from "./MenuFooter";
 import Tasks from "./Tasks";
+import Teams from "./Teams";
 
 const MyMenu = () => {
   const { setAppMenuActiveMenuSection } = useContext(UIDispatchContext);

@@ -1,11 +1,13 @@
 import { createSlice } from "@reduxjs/toolkit";
+import slugify from "slugify";
+import uuidv4 from "uuid/v4";
+
 import * as offlineDatabase from "../../commons/offlineActionDbHelper";
+import { getTaskForAction } from "../../commons/taskHelper";
+import actions from "./actionSubslices";
 import { getJWT, getLoginFromJWT } from "./auth";
 import { integrateIntermediateResultsIntofeatureCollection, setDone } from "./featureCollection";
-import uuidv4 from "uuid/v4";
-import { getTaskForAction } from "../../commons/taskHelper";
-import slugify from "slugify";
-import actions from "./actionSubslices";
+
 const initialState = { tasks: [], rawTasks: [], intermediateResults: {} };
 
 const slice = createSlice({

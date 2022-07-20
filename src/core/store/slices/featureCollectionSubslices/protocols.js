@@ -1,38 +1,21 @@
-import {
-  getFeatureCollection,
-  getFilter,
-  getOrigins,
-  getSelectedFeature,
-  MODES,
-  setDone,
-  setDoneForMode,
-  setFeatureCollection,
-  setFeatureCollectionForMode,
-  setFeatureCollectionInfo,
-  setFeatureCollectionInfoForMode,
-  setMode,
-  setOriginForMode,
-  setRequestBasis,
-  setSelectedFeature,
-  setSelectedFeatureForMode,
-  updateFeatureForMode,
-} from "../featureCollection";
-import { storeJWT } from "../auth";
 import { fetchGraphQL } from "../../../commons/graphql";
-import dexieworker from "workerize-loader!../../../workers/dexie"; // eslint-disable-line import/no-webpack-loader-syntax
-import queries from "../../../queries/online";
-import * as turfHelpers from "@turf/helpers";
-import convex from "@turf/convex";
-import buffer from "@turf/buffer";
-import reproject from "reproject";
-import { projectionData } from "react-cismap/constants/gis";
 import {
   getDocs,
   getFachobjektOfProtocol,
-  getIntermediateResultsToBeRemoved,
   integrateIntermediateResults,
 } from "../../../helper/featureHelper";
+import queries from "../../../queries/online";
 import { CONNECTIONMODE, getConnectionMode } from "../app";
+import {
+  getOrigins,
+  MODES,
+  setDoneForMode,
+  setFeatureCollectionForMode,
+  setFeatureCollectionInfoForMode,
+  setOriginForMode,
+  setSelectedFeatureForMode,
+  updateFeatureForMode,
+} from "../featureCollection";
 import { createArbeitsauftragFeaturesForResults } from "./tasklists";
 
 //this function doesnt check if the app is in online or offline mode
