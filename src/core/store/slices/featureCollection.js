@@ -132,6 +132,8 @@ const featureCollectionSlice = createSlice({
         state.selectedFeature[mode] = fc[state.featuresMap[mode][selectedFeature.id]];
       } else if (selectedFeatureIndex) {
         state.selectedFeature[mode] = fc[selectedFeatureIndex];
+      } else {
+        state.selectedFeature[mode] = null;
       }
       if (state.selectedFeature[mode]) {
         state.selectedFeature[mode].selected = true;
@@ -204,6 +206,8 @@ export const setSelectedFeature = (selectedFeature) => {
       dispatch(setSelectedFeatureForMode({ selectedFeature, mode }));
       zoomToFeature({ feature: selectedFeature, mapRef });
     } else {
+      console.log("setSelectedFeature else", mode, selectedFeature);
+
       dispatch(setSelectedFeatureForMode({ selectedFeature, mode }));
     }
   };
