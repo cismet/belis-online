@@ -6,9 +6,7 @@ import { convertBBox2Bounds } from "react-cismap/tools/gisHelper";
 import { bufferBBox } from "./gisHelper";
 
 export const zoomToFeature = ({ feature, mapRef }) => {
-  console.log("xxx zoomToFeature", feature, mapRef);
-
-  const bufferAroundObject = 50;
+  const bufferAroundObject = 10;
   let refDef;
   if (feature?.crs) {
     const code = feature?.crs?.properties?.name?.split("EPSG::")[1];
@@ -30,8 +28,7 @@ export const zoomToFeature = ({ feature, mapRef }) => {
     } else {
       const bbox = envelope(feature.geometry).bbox;
       //create buffer around bbox
-      const bufferedBBox = bufferBBox(bbox, bufferAroundObject);
-      // console.log("xxx buffered_bbox", bufferedBBox);
+      const bufferedBBox = bufferBBox(bbox, 2);
       mapRef.fitBounds(convertBBox2Bounds(bufferedBBox, refDef));
     }
   }
