@@ -1,30 +1,40 @@
+import { blue, gold, green, grey, red } from "@ant-design/colors";
 import { faCheckCircle, faHdd, faQuestionCircle } from "@fortawesome/free-regular-svg-icons";
 import {
   faCamera,
-  faServer,
   faExclamation,
   faExclamationTriangle,
+  faServer,
   faSpinner,
   faUserSlash,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { type2Caption } from "../helper/featureHelper";
-import { gold, red, blue, green, grey } from "@ant-design/colors";
+
 import { ADD_INCIDENT_MODES } from "../../components/app/dialogs/AddIncident";
-import { protocolActionIcons } from "../helper/actionIcons";
+import { protocolActionInfos } from "../helper/actionInfos";
+import { type2Caption } from "../helper/featureHelper";
+
+const convertActionameToActionKey = (actionname) => {
+  for (const key of Object.keys(protocolActionInfos)) {
+    if (protocolActionInfos[key].actionname === actionname) {
+      return key;
+    }
+  }
+};
 
 const getTitleForAction = (action) => {
-  console.log("getTitleForAction", action);
-
   switch (action) {
     case "uploadDocument":
       return <FontAwesomeIcon icon={faCamera} title='Foto hinzufügen' />;
     case "addIncident":
       return <FontAwesomeIcon icon={faExclamationTriangle} title='Störung melden' />;
-    case "protokollStatusAenderung":
-      return protocolActionIcons[action];
     default:
-      return action;
+      const actionKey = convertActionameToActionKey(action);
+      if (actionKey) {
+        return protocolActionInfos[actionKey]?.icon || action;
+      } else {
+        return action;
+      }
   }
 };
 
@@ -112,11 +122,18 @@ export const createDescriptionForTask = (type, parameters) => {
           return "Störung ohne Aktion (Fehler)";
       }
     }
-    case "protokollStatusAenderung": {
-      return parameters.protocolDescription || "Statusänderung";
+    default: {
+      if (parameters.protocolDescription) {
+        return parameters.protocolDescription;
+      } else {
+        const actionKey = convertActionameToActionKey(type);
+        if (actionKey) {
+          return protocolActionInfos[actionKey]?.title;
+        } else {
+          return "tbd";
+        }
+      }
     }
-    default:
-      return "tbd";
   }
 };
 
@@ -156,7 +173,7 @@ export const getTaskForAction = (resultObject) => {
 
     // if (parameters.objekt_typ===undefined && action===)
 
-    console.log("parameters.objekt_typ", parameters.objekt_typ);
+    // console.log("parameters.objekt_typ", parameters.objekt_typ);
 
     const task = {
       id: id,

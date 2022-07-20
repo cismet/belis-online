@@ -1,6 +1,7 @@
-import { getJWT, getLoginFromJWT } from "../auth";
-import { getDB, addIntermediateResult } from "../offlineActionDb";
 import uuidv4 from "uuid/v4";
+
+import { getJWT, getLoginFromJWT } from "../auth";
+import { addIntermediateResult, getDB } from "../offlineActionDb";
 
 const addImageToObjectAction = (addImageParameter) => {
   return async (dispatch, getState) => {

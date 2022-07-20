@@ -1,24 +1,23 @@
-import { faCheck, faDownload, faSync, faTrash } from "@fortawesome/free-solid-svg-icons";
+import { faCheck, faDownload, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon as Icon } from "@fortawesome/react-fontawesome";
 import { useWindowSize } from "@react-hook/window-size";
 import React, { useContext, useEffect } from "react";
 import Button from "react-bootstrap/Button";
 import { UIDispatchContext } from "react-cismap/contexts/UIContextProvider";
 import { useDispatch, useSelector } from "react-redux";
+
 import { getJWT, getLoginFromJWT } from "../../../core/store/slices/auth";
 import {
+  config,
   deleteCacheDB,
   fillCacheInfo,
   getCacheSettings,
   isCacheFullUsable,
-  renewAllSecondaryInfoCache,
   renewCache,
   setCacheUser,
-  config,
 } from "../../../core/store/slices/cacheControl";
 import { forceRefresh } from "../../../core/store/slices/featureCollection";
 import { getTeam } from "../../../core/store/slices/team";
-import AggregatedCacheItem from "../../app/cache/AggregatedCacheItem";
 import CacheItem from "../../app/cache/CacheItem";
 
 const CacheSettings = () => {

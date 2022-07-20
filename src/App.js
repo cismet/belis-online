@@ -1,26 +1,23 @@
-import React from "react";
-import logo from "./logo.svg";
-import "./App.css";
-import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
-import MobileApp from "./containers/MobileApp";
-import Test from "./containers/Test";
-import { Provider, useSelector } from "react-redux";
-import store from "./core/store";
-import "antd/dist/antd.css";
-import { PersistGate } from "redux-persist/integration/react";
-import { backgroundConfigurations, backgroundModes, offlineConfig } from "./constants/belis";
-
-import { persistStore } from "redux-persist";
-import TopicMapContextProvider, {
-  TopicMapContext,
-} from "react-cismap/contexts/TopicMapContextProvider";
-import { defaultLayerConf } from "react-cismap/tools/layerFactory";
-import { appKey, storagePostfix } from "./Keys";
-import { getArtificialError } from "./core/store/slices/app";
-import { ErrorBoundary } from "react-error-boundary";
-import AppErrorFallback from "./components/AppErrorFallback";
 import { ConfigProvider } from "antd";
 import deDE from "antd/lib/locale/de_DE";
+import React from "react";
+import TopicMapContextProvider from "react-cismap/contexts/TopicMapContextProvider";
+import { defaultLayerConf } from "react-cismap/tools/layerFactory";
+import { ErrorBoundary } from "react-error-boundary";
+import { Provider } from "react-redux";
+import { Route, BrowserRouter as Router, Switch } from "react-router-dom";
+import { persistStore } from "redux-persist";
+import { PersistGate } from "redux-persist/integration/react";
+
+import AppErrorFallback from "./components/AppErrorFallback";
+import { backgroundConfigurations, backgroundModes, offlineConfig } from "./constants/belis";
+import MobileApp from "./containers/MobileApp";
+import Test from "./containers/Test";
+import store from "./core/store";
+import { appKey, storagePostfix } from "./Keys";
+
+import "./App.css";
+import "antd/dist/antd.css";
 
 let persistor = persistStore(store);
 

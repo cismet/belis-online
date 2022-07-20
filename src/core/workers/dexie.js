@@ -1,6 +1,6 @@
 import { getDocs } from "../helper/featureHelper";
-import { db, initialize } from "../indexeddb/dexiedb";
-// import getPropertiesForFeature from "../store/slices/featureCollection";
+import { db } from "../indexeddb/dexiedb";
+
 export async function putArray(inputArray, objectstorename) {
   try {
     let i,

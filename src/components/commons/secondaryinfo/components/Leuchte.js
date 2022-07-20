@@ -1,19 +1,12 @@
-import { faCamera, faInfoCircle } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { Button, Col, Descriptions, Row } from "antd";
-import React, { useContext } from "react";
-import IconLink from "react-cismap/commons/IconLink";
-// import { version as reactCismapVersion } from "react-cismap/meta";
-// import SecondaryInfoPanelSection from "react-cismap/topicmaps/SecondaryInfoPanelSection";
-import SecondaryInfoPanelSection from "../SecondaryInfoPanelSection";
+import { Col, Descriptions, Row } from "antd";
+import React from "react";
 
 import { getWebDavUrl } from "../../../../constants/belis";
 import { getVCard } from "../../../../core/helper/featureHelper";
-import { showDialog } from "../../../../core/store/slices/app";
-import { addImageToObjectAction } from "../../../../core/store/slices/offlineActionDb";
-// import { setIndex, setVisible } from "../../../../core/store/slices/photoLightbox";
 
-import AddImageDialog from "../../../app/dialogs/AddImage";
+import { ivAsterisk } from "../../../../core/helper/secondaryInfoHelper";
+
+import SecondaryInfoPanelSection from "../SecondaryInfoPanelSection";
 import {
   addDotThumbnail,
   clearOptionalDescriptionItems,
@@ -26,12 +19,20 @@ import { getEventsForStandort, getStandortDetails } from "./Standort";
 
 export const getEvents4Leuchte = (item) => {
   const events = [
-    ["Einbau RS", item?.einbaudatum, "L"],
-    ["Sonderturnus", item?.wartungszyklus, "L"],
-    ["Nächster Wechsel", item?.naechster_wechsel, "L"],
-    ["Wechsel Vorschaltgerät", item?.wechselvorschaltgeraet, "L"],
-    ["Leuchtmittelwechsel", item?.wechseldatum, "L"],
-    ["Inbetriebnahme", item?.inbetriebnahme_leuchte, "L"],
+    ["Einbau RS" + ivAsterisk(item?.einbaudatum_iv), item?.einbaudatum, "L"],
+    ["Sonderturnus" + ivAsterisk(item?.wartungszyklus_iv), item?.wartungszyklus, "L"],
+    ["Nächster Wechsel" + ivAsterisk(item?.naechster_wechsel_iv), item?.naechster_wechsel, "L"],
+    [
+      "Wechsel Vorschaltgerät" + ivAsterisk(item?.wechselvorschaltgeraet_iv),
+      item?.wechselvorschaltgeraet,
+      "L",
+    ],
+    ["Leuchtmittelwechsel" + ivAsterisk(item?.wechseldatum_iv), item?.wechseldatum, "L"],
+    [
+      "Inbetriebnahme" + ivAsterisk(item?.inbetriebnahme_leuchte_iv),
+      item?.inbetriebnahme_leuchte,
+      "L",
+    ],
     ...getEventsForStandort(item?.fk_standort),
   ];
   return events;
@@ -52,6 +53,7 @@ const getLayout4Leuchte = ({
   const title = vcard.infobox.header;
 
   const events = getEvents4Leuchte(item);
+  console.log("events", events);
 
   let mainDoc;
   let docs = [];
@@ -106,11 +108,11 @@ const getLayout4Leuchte = ({
 
   if (item?.lebensdauer) {
     if (item?.lebensdauer === 1) {
-      wechselgrund = "Störung";
+      wechselgrund = "Störung" + ivAsterisk(item?.lebensdauer_iv);
     } else if (item?.lebensdauer === 2) {
-      wechselgrund = "Wartungsturnus";
+      wechselgrund = "Wartungsturnus" + ivAsterisk(item?.lebensdauer_iv);
     } else {
-      wechselgrund = "sonstiges (" + item?.lebensdauer + ")";
+      wechselgrund = "sonstiges (" + item?.lebensdauer + ")" + ivAsterisk(item?.lebensdauer_iv);
     }
   }
 
@@ -158,7 +160,7 @@ const getLayout4Leuchte = ({
     </SecondaryInfoPanelSection>
   );
   if (rsItems.length > 1) {
-    subSections.push(getRSDetailsSection(item?.rundsteuerempfaenger));
+    subSections.push(getRSDetailsSection(item));
   }
 
   subSections.push(
@@ -196,9 +198,9 @@ const getLayout4Leuchte = ({
 
     subSections.push(
       <SecondaryInfoPanelSection
-        key={"Leuchtentyp" + item.id}
+        key={"Leuchtmittel" + item.id}
         bsStyle='info'
-        header={"Leuchtmittel"}
+        header={"Leuchtmittel" + ivAsterisk(item?.leuchtmittel_iv)}
       >
         <Descriptions column={{ xs: 1, sm: 1, md: 2, lg: 2, xxl: 3 }} layout='horizontal' bordered>
           {clearOptionalDescriptionItems(leuchtMittelItems)}
@@ -236,7 +238,9 @@ const getLayout4Leuchte = ({
     <SecondaryInfoPanelSection
       key={"Leuchtentyp" + item.id}
       bsStyle='info'
-      header={"Leuchtentyp (" + leuchtTypItem?.typenbezeichnung + ")"}
+      header={
+        "Leuchtentyp (" + leuchtTypItem?.typenbezeichnung + ")" + ivAsterisk(item.fk_leuchttyp_iv)
+      }
     >
       <Descriptions column={{ xs: 1, sm: 1, md: 3, lg: 3, xxl: 3 }} layout='horizontal' bordered>
         {clearOptionalDescriptionItems(leuchtTypItems)}
@@ -276,13 +280,14 @@ export const getRSDetailItems = (rsItem) => {
   }
 };
 
-export const getRSDetailsSection = (rsItem) => {
+export const getRSDetailsSection = (item) => {
+  const rsItem = item?.rundsteuerempfaenger;
   if (rsItem) {
     return (
       <SecondaryInfoPanelSection
         key={"rs" + rsItem.id}
         bsStyle='warning'
-        header={"Rundsteuerempfänger"}
+        header={"Rundsteuerempfänger" + ivAsterisk(item.rundsteuerempfaenger_iv)}
       >
         <Descriptions column={{ xs: 1, sm: 1, md: 2, lg: 2, xxl: 3 }} layout='horizontal' bordered>
           {clearOptionalDescriptionItems(getRSDetailItems(rsItem))}

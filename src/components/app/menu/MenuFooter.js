@@ -1,11 +1,8 @@
-import { useContext } from "react";
-import { UIDispatchContext } from "react-cismap/contexts/UIContextProvider";
 import { version as reactCismapVersion } from "react-cismap/meta";
-import { scroller } from "react-scroll";
+
 import { getBelisVersion } from "../../../constants/versions";
 
 const Footer = () => {
-  const { setAppMenuActiveMenuSection } = useContext(UIDispatchContext);
   /*eslint jsx-a11y/anchor-is-valid: "off"*/
   return (
     <div style={{ fontSize: "11px" }}>

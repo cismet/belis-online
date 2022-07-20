@@ -1,15 +1,11 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { projectionData } from "react-cismap/constants/gis";
-import { dispatch } from "rxjs/internal/observable/pairs";
-import envelope from "@turf/envelope";
-import { featureCollection } from "@turf/helpers";
+
 import { integrateIntermediateResults } from "../../helper/featureHelper";
 import { convertBounds2BBox } from "../../helper/gisHelper";
+import { zoomToFeature } from "../../helper/mapHelper";
 import { loadObjectsIntoFeatureCollection } from "./featureCollectionSubslices/objects";
-import {
-  loadTaskListsIntoFeatureCollection,
-  tasklistPostSelection,
-} from "./featureCollectionSubslices/tasklists";
+import { loadTaskListsIntoFeatureCollection } from "./featureCollectionSubslices/tasklists";
+import { getMapRef } from "./map";
 import { getIntermediateResults } from "./offlineActionDb";
 import {
   isSearchModeActive,
@@ -17,10 +13,7 @@ import {
   setActive as setSearchModeActive,
   setWished as setSearchModeWished,
 } from "./search";
-
 import { getZoom } from "./zoom";
-import { getMapRef } from "./map";
-import { zoomToFeature } from "../../helper/mapHelper";
 
 const focusedSearchMinimumZoomThreshhold = 16.5;
 const searchMinimumZoomThreshhold = 17.5;

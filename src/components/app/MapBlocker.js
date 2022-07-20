@@ -1,9 +1,9 @@
+import { Button } from "antd";
 import React, { useEffect, useState } from "react";
-import { faSpinner } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon as Icon } from "@fortawesome/react-fontawesome";
-import { Alert, Button, Space } from "antd";
 import { useDispatch } from "react-redux";
+
 import { setDone } from "../../core/store/slices/featureCollection";
+
 const size = 150;
 const MapBlocker = ({ blocking, visible, width, height }) => {
   const [slowRequest, setSlowRequest] = useState(false);

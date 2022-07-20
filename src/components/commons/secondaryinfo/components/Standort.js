@@ -1,27 +1,35 @@
-import { Descriptions, Row, Col, Timeline } from "antd";
+import { Col, Descriptions, Row } from "antd";
+
 import { getWebDavUrl } from "../../../../constants/belis";
 import { getVCard } from "../../../../core/helper/featureHelper";
-import { mastOhneLeuchte } from "../devData";
+import { ivAsterisk } from "../../../../core/helper/secondaryInfoHelper";
+import SecondaryInfoPanelSection from "../SecondaryInfoPanelSection";
 import {
   addDotThumbnail,
   clearOptionalDescriptionItems,
-  getAddImageButton,
   getSquaredThumbnails,
   getStrasse,
   getTimelineForEvents,
 } from "./helper";
-import SecondaryInfoPanelSection from "../SecondaryInfoPanelSection";
 
 export const getEventsForStandort = (item) => {
   const events = [
-    ["elektrische Prüfung", item?.elek_pruefung, "M"],
-    ["Inbetriebnahme", item?.inbetriebnahme_mast, "M"],
-    ["letzte Änderung", item?.letzte_aenderung, "M"],
-    ["Mastanstrich", item?.mastanstrich, "M"],
-    ["Mastschutz", item?.mastschutz, "M"],
-    ["Nächste Prüfung", item?.naechstes_pruefdatum, "M"],
-    ["Revision", item?.revision, "M"],
-    ["Standsicherheitsprüfung", item?.standsicherheitspruefung, "M"],
+    ["elektrische Prüfung" + ivAsterisk(item?.elek_pruefung_iv), item?.elek_pruefung, "M"],
+    ["Inbetriebnahme" + ivAsterisk(item?.inbetriebnahme_mast_iv), item?.inbetriebnahme_mast, "M"],
+    ["letzte Änderung" + ivAsterisk(item?.letzte_aenderung_iv), item?.letzte_aenderung, "M"],
+    ["Mastanstrich" + ivAsterisk(item?.mastanstrich_iv), item?.mastanstrich, "M"],
+    ["Mastschutz" + ivAsterisk(item?.mastschutz_iv), item?.mastschutz, "M"],
+    [
+      "Nächste Prüfung" + ivAsterisk(item?.naechstes_pruefdatum_iv),
+      item?.naechstes_pruefdatum,
+      "M",
+    ],
+    ["Revision" + ivAsterisk(item?.revision_iv), item?.revision, "M"],
+    [
+      "Standsicherheitsprüfung" + ivAsterisk(item?.standsicherheitspruefung_iv),
+      item?.standsicherheitspruefung,
+      "M",
+    ],
   ];
 
   return events;
@@ -135,6 +143,8 @@ export const getStandortDetails = ({
   setVisible,
   columns = { xs: 1, sm: 1, md: 2, lg: 2, xxl: 3 },
 }) => {
+  console.log("erdung", standortItem.erdung);
+
   const standortItems = [
     <Descriptions.Item optionalPredicate={() => true} label='Mastart'>
       {standortItem?.fk_mastart ? standortItem?.fk_mastart.mastart : "Mast ohne Mastart"}

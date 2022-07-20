@@ -311,13 +311,15 @@ export const getDocs = (feature) => {
       return docs;
     case "arbeitsauftrag":
       return docs;
+    case "geom":
+      return docs;
     default:
-      console.log("unknown featuretype. this should not happen");
+      console.log("unknown featuretype. this should not happen", type);
       return docs;
   }
 };
 
-export const addPropertiesToFeature = async (feature) => {
+export const cloneFeature = async (feature) => {
   //otherwise the setting of the index cannot be done
   return JSON.parse(JSON.stringify(feature));
 };
@@ -366,71 +368,37 @@ const getIntermediateResultsImages = (item, intermediateResults, itemtype) => {
   return [];
 };
 
-export const getIntermediateResultsToBeRemoved = (feature) => {
-  const item = feature.properties;
-  const intermediateResultsToBeRemoved = [{ object_type: feature.featuretype, object_id: item.id }];
+const integrateIntermediateResultsIntoObjects = (intermediateResults, item, type, id) => {
+  console.log("integrateIntermediateResultsIntoObjects " + type, id);
 
-  switch (feature.featuretype) {
-    case "tdta_leuchten":
-      intermediateResultsToBeRemoved.push({
-        object_type: "tdta_standort_mast",
-        object_id: item?.fk_standort?.id,
-      });
-      intermediateResultsToBeRemoved.push({
-        object_type: "tkey_leuchtentyp",
-        object_id: item?.fk_leuchttyp?.id,
-      });
-      intermediateResultsToBeRemoved.push({
-        object_type: "tkey_masttyp",
-        object_id: item?.fk_standort?.fk_masttyp?.id,
-      });
-
-      break;
-    case "Leitung":
-    case "leitung":
-      // nothing to do
-      break;
-    case "mauerlasche":
-      // nothing to do
-      break;
-    case "schaltstelle":
-      if (item?.rundsteuerempfaenger) {
-        intermediateResultsToBeRemoved.push({
-          object_type: "rundsteuerempfaenger",
-          object_id: item?.rundsteuerempfaenger?.id,
-        });
+  if (intermediateResults && intermediateResults[type]) {
+    const irs = intermediateResults[type][id];
+    if (irs?.object) {
+      for (const ir of irs.object) {
+        for (const key of Object.keys(ir)) {
+          item[key] = ir[key];
+          //will ad a property with _iv postfix to the item, so that the ui can recognize it
+          item[key + "_iv"] = true;
+        }
       }
-
-      break;
-    case "abzweigdose":
-      // nothing to do
-      break;
-    case "tdta_standort_mast":
-      intermediateResultsToBeRemoved.push({
-        object_type: "tkey_masttyp",
-        object_id: item?.fk_masttyp?.id,
-      });
-      break;
-    default:
+    }
   }
-  return intermediateResultsToBeRemoved;
 };
 
 export const integrateIntermediateResults = (feature, intermediateResults) => {
-  console.log("xxx integrateIntermediateResults", feature, intermediateResults);
-
   const item = feature.properties;
   let docs = [];
   //remove intermediate results in item.docs
   if (item.docs) {
     item.docs = item.docs.filter((doc) => !doc.intermediate);
   }
+  console.log("xxx integrateIntermediateResults");
 
   docs = getIntermediateResultsImages(item, intermediateResults, feature.featuretype.toLowerCase());
+
   switch (feature.featuretype) {
     case "tdta_leuchten":
       //docs
-
       docs = [
         ...docs,
         ...getIntermediateResultsImages(
@@ -455,11 +423,22 @@ export const integrateIntermediateResults = (feature, intermediateResults) => {
           "tkey_masttyp"
         ),
       ];
+      integrateIntermediateResultsIntoObjects(intermediateResults, item, "tdta_leuchten", item.id);
+      integrateIntermediateResultsIntoObjects(
+        intermediateResults,
+        item.fk_standort,
+        "tdta_standort_mast",
+        item.fk_standort.id
+      );
+
       break;
     case "Leitung":
     case "leitung":
+      integrateIntermediateResultsIntoObjects(intermediateResults, item, "leitung", item.id);
       break;
     case "mauerlasche":
+      integrateIntermediateResultsIntoObjects(intermediateResults, item, "mauerlasche", item.id);
+
       break;
     case "schaltstelle":
       docs.concat(
@@ -469,23 +448,193 @@ export const integrateIntermediateResults = (feature, intermediateResults) => {
           "Rundsteuerempfänger"
         )
       );
+      integrateIntermediateResultsIntoObjects(intermediateResults, item, "schaltstelle", item.id);
 
       break;
     case "abzweigdose":
       item.docs.concat(docs);
+      integrateIntermediateResultsIntoObjects(intermediateResults, item, "abzweigdose", item.id);
+
       break;
     case "tdta_standort_mast":
       docs.concat(
         getIntermediateResultsImages(item?.tkey_masttyp, intermediateResults, "tkey_masttyp")
       );
+      integrateIntermediateResultsIntoObjects(
+        intermediateResults,
+        item,
+        "tdta_standort_mast",
+        item.id
+      );
 
+      break;
+    case "arbeitsprotokoll":
+      if (intermediateResults.arbeitsprotokoll) {
+        const irs = intermediateResults[feature.featuretype][item.id];
+        console.log("xxxx irs", feature.featuretype, item.id);
+
+        if (irs?.object) {
+          for (const ir of irs.object) {
+            console.log("xxx intermediate results integration. ir", ir);
+
+            console.log("xxx intermediate results integration. item before", item);
+
+            switch (ir.actionname) {
+              case "protokollStatusAenderung":
+                setStatusAndAktionsArrayStuff(ir, item);
+                break;
+              case "protokollLeuchteLeuchtenerneuerung":
+                setStatusAndAktionsArrayStuff(ir, item);
+                //zuerst muss das angehängte fachobjekt aktualisiert werden
+                // ir.inbetriebnahmedatum
+                // ir.leuchtentyp
+                //alerdings muss in der action selbst noch ein intermediate result für die leuchte selbst angelegt werden.
+                //etl. kann dieses intermediate result auch hier für die aktualisierung des angehängten fachobjektes genutzt werden
+                integrateIntermediateResultsIntoObjects(
+                  intermediateResults,
+                  item.tdta_leuchten,
+                  "tdta_leuchten",
+                  item.tdta_leuchten.id
+                );
+
+                break;
+              case "protokollLeuchteLeuchtmittelwechselElekpruefung":
+                setStatusAndAktionsArrayStuff(ir, item);
+                integrateIntermediateResultsIntoObjects(
+                  intermediateResults,
+                  item.tdta_leuchten,
+                  "tdta_leuchten",
+                  item.tdta_leuchten.id
+                );
+                integrateIntermediateResultsIntoObjects(
+                  intermediateResults,
+                  item.tdta_leuchten.fk_standort,
+                  "tdta_standort_mast",
+                  item.tdta_leuchten.fk_standort.id
+                );
+
+                break;
+              case "protokollLeuchteLeuchtmittelwechsel":
+              case "protokollLeuchteRundsteuerempfaengerwechsel":
+              case "protokollLeuchteSonderturnus":
+              case "protokollLeuchteVorschaltgeraetwechsel":
+                setStatusAndAktionsArrayStuff(ir, item);
+                integrateIntermediateResultsIntoObjects(
+                  intermediateResults,
+                  item.tdta_leuchten,
+                  "tdta_leuchten",
+                  item.tdta_leuchten.id
+                );
+                break;
+              case "protokollStandortAnstricharbeiten":
+              case "protokollStandortElektrischePruefung":
+              case "protokollStandortMasterneuerung":
+              case "protokollStandortRevision":
+              case "protokollStandortStandsicherheitspruefung":
+                setStatusAndAktionsArrayStuff(ir, item);
+
+                if (item.tdta_standort_mast) {
+                  integrateIntermediateResultsIntoObjects(
+                    intermediateResults,
+                    item.tdta_standort_mast,
+                    "tdta_standort_mast",
+                    item.tdta_standort_mast.id
+                  );
+                } else if (item.tdta_leuchten.fk_standort) {
+                  integrateIntermediateResultsIntoObjects(
+                    intermediateResults,
+                    item.tdta_leuchten.fk_standort,
+                    "tdta_standort_mast",
+                    item.tdta_leuchten.fk_standort.id
+                  );
+                }
+                break;
+
+              case "protokollMauerlaschePruefung":
+                setStatusAndAktionsArrayStuff(ir, item);
+                integrateIntermediateResultsIntoObjects(
+                  intermediateResults,
+                  item.mauerlasche,
+                  "mauerlasche",
+                  item.mauerlasche.id
+                );
+                break;
+              case "protokollSchaltstelleRevision":
+                setStatusAndAktionsArrayStuff(ir, item);
+                integrateIntermediateResultsIntoObjects(
+                  intermediateResults,
+                  item.schaltstelle,
+                  "schaltstelle",
+                  item.schaltstelle.id
+                );
+                break;
+              case "protokollFortfuehrungsantrag":
+                setStatusAndAktionsArrayStuff(ir, item);
+                break;
+
+              default:
+            }
+          }
+          console.log("intermediate results integration. item after", item);
+        }
+      }
       break;
     default:
   }
+
   if (item.docs) {
     item.docs = [...item.docs, ...docs];
   } else {
     item.docs = docs;
+  }
+};
+
+const setStatusAndAktionsArrayStuff = (ir, item) => {
+  if (ir.bemerkung && ir.bemerkung !== item?.bemerkung) {
+    item.bemerkung = ir.bemerkung + "*";
+  }
+  if (ir.status && ir.status !== item?.arbeitsprotokollstatus?.id) {
+    item.arbeitsprotokollstatus = getProtokollStatusForId(ir.status);
+    item.arbeitsprotokollstatusIntermediate = true;
+  }
+  if (ir.material && ir.material !== item?.material) {
+    item.material = ir.material + "*";
+  }
+  if (ir.monteur && ir.monteur !== item?.monteur) {
+    item.monteur = ir.monteur + "*";
+  }
+
+  if (ir.datum && ir.datum !== item?.datum) {
+    item.datum = ir.datum;
+    item.datum_iv = true;
+  }
+
+  //Todo check if the change is already in so that we not need to disp,ay the intermediate change
+
+  // probably check whether the ts from the inetrmediate action is newer than the retrieved ts
+
+  item.arbeitsprotokollaktionArray = JSON.parse(
+    JSON.stringify(item.arbeitsprotokollaktionArray || [])
+  );
+  for (const protAktion of ir.protokollAktionArray || []) {
+    // console.log("xxxx setStatusAndAktionsArrayStuff", protAktion);
+    // console.log("xxxx before", item.arbeitsprotokollaktionArray);
+
+    //check if the action is already in the array
+    //params to check: aenderung, alt, neu, ccnonce
+
+    const found = item.arbeitsprotokollaktionArray.find(
+      (a) =>
+        (a.aenderung + "*" === protAktion.aenderung || a.aenderung === protAktion.aenderung) &&
+        a.alt === protAktion.alt &&
+        a.neu === protAktion.neu &&
+        a.ccnonce === protAktion.ccnonce
+    );
+
+    if (!found) {
+      item.arbeitsprotokollaktionArray.push(protAktion);
+    }
+    // console.log("xxxx after", item.arbeitsprotokollaktionArray);
   }
 };
 
@@ -496,6 +645,31 @@ const compareValue = (a, b) => {
     return -1;
   } else {
     return 1;
+  }
+};
+
+const getProtokollStatusForId = (id) => {
+  switch (id) {
+    case 1:
+      return {
+        id: 1,
+        bezeichnung: "in Bearbeitung",
+        schluessel: "0",
+      };
+    case 2:
+      return {
+        id: 2,
+        bezeichnung: "erledigt",
+        schluessel: "1",
+      };
+    case 3:
+      return {
+        id: 3,
+        bezeichnung: "Fehlmeldung",
+        schluessel: "2",
+      };
+    default:
+      return undefined;
   }
 };
 

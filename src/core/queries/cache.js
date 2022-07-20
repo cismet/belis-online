@@ -2,8 +2,10 @@ import {
   abzweigdose_fields,
   leitung_fields,
   leuchte_fields,
+  leuchtentyp_fields,
   mast_fields,
   mauerlasche_fields,
+  rundsteuerempfaenger_fields,
   schaltstelle_fields,
   veranlassung_fields,
 } from "./parts";
@@ -104,6 +106,7 @@ queries.arbeitsauftrag = `query q($teamId: Int!) {
         alt
         id
         neu
+        ccnonce
       }
       geometrie {
         bezeichnung
@@ -125,9 +128,21 @@ queries.arbeitsauftrag = `query q($teamId: Int!) {
 
 queries.tkey_leuchtentyp = `{
   tkey_leuchtentyp {
-    id
-    leuchtentyp
-    fabrikat
+    ${leuchtentyp_fields}
   }
 }`;
+
+queries.leuchtmittel = `{
+  leuchtmittel(where: {hersteller: {_is_null:false}}) {
+  id
+  hersteller
+  lichtfarbe
+  }
+}`;
+queries.rundsteuerempfaenger = `{
+  rundsteuerempfaenger {
+    ${rundsteuerempfaenger_fields}
+  }  
+}`;
+
 export default queries;

@@ -1,14 +1,8 @@
-import { faMixcloud } from "@fortawesome/free-brands-svg-icons";
-import {
-  faCheck,
-  faDatabase,
-  faExchangeAlt,
-  faShare,
-  faUser,
-  faWifi,
-} from "@fortawesome/free-solid-svg-icons";
+import { blue, green, red } from "@ant-design/colors";
+import { faCheck, faDatabase, faShare, faUser } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon as Icon } from "@fortawesome/react-fontawesome";
-import React from "react";
+import { useWindowSize } from "@react-hook/window-size";
+import React, { useEffect, useState } from "react";
 import Button from "react-bootstrap/Button";
 import ButtonGroup from "react-bootstrap/ButtonGroup";
 import Form from "react-bootstrap/Form";
@@ -17,9 +11,10 @@ import Navbar from "react-bootstrap/Navbar";
 import ProgressBar from "react-bootstrap/ProgressBar";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
+
 import Switch from "../components/commons/Switch";
 import { CONNECTIONMODE, getConnectionMode, setConnectionMode } from "../core/store/slices/app";
-import { getLogin, getLoginFromJWT } from "../core/store/slices/auth";
+import { getLoginFromJWT } from "../core/store/slices/auth";
 import { getBackground, setBackground } from "../core/store/slices/background";
 import {
   getCacheDate,
@@ -34,11 +29,8 @@ import {
   loadObjects,
   setFocusModeActive,
 } from "../core/store/slices/featureCollection";
-import { isPaleModeActive, setPaleModeActive } from "../core/store/slices/paleMode";
-import { useWindowSize } from "@react-hook/window-size";
 import { getTasks } from "../core/store/slices/offlineActionDb";
-import { useEffect, useState } from "react";
-import { gold, red, blue, green } from "@ant-design/colors";
+import { isPaleModeActive, setPaleModeActive } from "../core/store/slices/paleMode";
 
 //---------
 

@@ -1,33 +1,21 @@
+import { fetchGraphQL } from "../../../commons/graphql";
 import {
-  getFeatureCollection,
-  getFilter,
+  getDocs,
+  getFachobjektOfProtocol,
+  integrateIntermediateResults,
+} from "../../../helper/featureHelper";
+import queries from "../../../queries/online";
+import { CONNECTIONMODE, getConnectionMode } from "../app";
+import {
   getOrigins,
-  getSelectedFeature,
   MODES,
-  setDone,
   setDoneForMode,
-  setFeatureCollection,
   setFeatureCollectionForMode,
-  setFeatureCollectionInfo,
   setFeatureCollectionInfoForMode,
-  setMode,
   setOriginForMode,
-  setRequestBasis,
-  setSelectedFeature,
   setSelectedFeatureForMode,
   updateFeatureForMode,
 } from "../featureCollection";
-import { storeJWT } from "../auth";
-import { fetchGraphQL } from "../../../commons/graphql";
-import dexieworker from "workerize-loader!../../../workers/dexie"; // eslint-disable-line import/no-webpack-loader-syntax
-import queries from "../../../queries/online";
-import * as turfHelpers from "@turf/helpers";
-import convex from "@turf/convex";
-import buffer from "@turf/buffer";
-import reproject from "reproject";
-import { projectionData } from "react-cismap/constants/gis";
-import { getDocs, getFachobjektOfProtocol } from "../../../helper/featureHelper";
-import { CONNECTIONMODE, getConnectionMode } from "../app";
 import { createArbeitsauftragFeaturesForResults } from "./tasklists";
 
 //this function doesnt check if the app is in online or offline mode
@@ -45,7 +33,7 @@ export const loadProtocollsIntoFeatureCollection = ({
     const origin = getOrigins(state)[MODES.PROTOCOLS];
 
     const connectionMode = getConnectionMode(state);
-    if (origin?.id !== tasklistFeature.id || connectionMode === CONNECTIONMODE.FROMCACHE) {
+    if (true || origin?.id !== tasklistFeature.id || connectionMode === CONNECTIONMODE.FROMCACHE) {
       dispatch(setDoneForMode({ mode: MODES.PROTOCOLS, done: false }));
 
       console.log("Protokolle für Arbeitsauftrag " + tasklistFeature.properties.id + " laden");
@@ -58,6 +46,10 @@ export const loadProtocollsIntoFeatureCollection = ({
         try {
           let features = [];
           if (tasklistFeature.enriched !== true) {
+            //not enriched (thats the case when loading the first time online)
+
+            console.log("xxx Protokolle werden vom Service geladen");
+
             console.time("query returned");
             const response = await fetchGraphQL(gqlQuery, queryParameter, jwt);
             console.timeEnd("query returned");
@@ -72,8 +64,24 @@ export const loadProtocollsIntoFeatureCollection = ({
             const result = response.data.arbeitsauftrag[0];
             features = getFeaturesForProtokollArray(result.ar_protokolleArray);
           } else {
+            //not enriched (thats the case when loading offline or after the second time online)
+
             features = getFeaturesForProtokollArray(tasklistFeature.properties.ar_protokolleArray);
+
+            console.log(
+              "xxx Protokolle waren schon im Arbeitsprotokoll vorhanden (entweder offline mode oder durch vorherigen Requeust)",
+              features
+            );
           }
+
+          const featureClones = [];
+
+          for (const feature of features) {
+            const f = JSON.parse(JSON.stringify(feature));
+            featureClones.push(f);
+            integrateIntermediateResults(f, state.offlineActionDb.intermediateResults);
+          }
+          features = featureClones;
           dispatch(setFeatureCollectionForMode({ mode: MODES.PROTOCOLS, features }));
           dispatch(setOriginForMode({ mode: MODES.PROTOCOLS, origin: tasklistFeature }));
           dispatch(

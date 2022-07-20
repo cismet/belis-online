@@ -1,10 +1,12 @@
-import { createRef, React, useEffect, useRef, useState } from "react";
-import Nav from "react-bootstrap/Nav";
+import { faSpinner } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Tabs } from "antd";
-
-import { useDispatch, useSelector } from "react-redux";
-import SideBarListElement from "../components/commons/SideBarListElement";
+import { createRef, React, useEffect, useRef, useState } from "react";
 import ListGroup from "react-bootstrap/ListGroup";
+import Nav from "react-bootstrap/Nav";
+import { useDispatch, useSelector } from "react-redux";
+
+import SideBarListElement from "../components/commons/SideBarListElement";
 import {
   getDones,
   getFeatureCollection,
@@ -16,8 +18,7 @@ import {
   setMode,
 } from "../core/store/slices/featureCollection";
 import { fitBoundsForCollection } from "../core/store/slices/map";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faSpinner } from "@fortawesome/free-solid-svg-icons";
+
 //---------
 const { TabPane } = Tabs;
 

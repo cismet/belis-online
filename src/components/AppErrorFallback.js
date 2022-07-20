@@ -1,13 +1,15 @@
 import localforage from "localforage";
-import React, { Component, useEffect } from "react";
-import { Col, Row, Container } from "react-bootstrap";
+import React, { useEffect } from "react";
+import { Col, Container, Row } from "react-bootstrap";
 import { useDispatch } from "react-redux";
 import StackTrace from "stacktrace-js";
+
 import { getBelisVersion } from "../constants/versions";
 import store from "../core/store";
 import { CONNECTIONMODE, setConnectionMode } from "../core/store/slices/app";
 import { deleteCacheDB } from "../core/store/slices/cacheControl";
 import { downloadTasks, truncateActionTables } from "../core/store/slices/offlineActionDb";
+
 const FallbackComponent = ({ error, resetErrorBoundary }) => {
   const br = "\n";
   const [errorStack, setErrorStack] = React.useState({});

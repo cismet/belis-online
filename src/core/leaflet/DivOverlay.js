@@ -1,5 +1,3 @@
-import { Gridlayer } from "react-leaflet";
-
 export class DivLayer_ extends GridLayer {
   createLeafletElement(props) {
     return L.DivLayer();

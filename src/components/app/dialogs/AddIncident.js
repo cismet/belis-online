@@ -10,7 +10,7 @@ import { renewCache } from "../../../core/store/slices/cacheControl";
 import { getWorker } from "../../../core/store/slices/dexie";
 import { getTeam } from "../../../core/store/slices/team";
 
-const { Text, Link } = Typography;
+const { Text } = Typography;
 const { Option } = Select;
 export const ADD_INCIDENT_MODES = {
   VERANLASSUNG: "VERANLASSUNG",

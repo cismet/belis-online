@@ -1,7 +1,5 @@
-import React, { useState } from "react";
-// import Switch from "react-ios-switch";
 import { Switch } from "antd";
-import { CloseOutlined, CheckOutlined } from "@ant-design/icons";
+import React, { useState } from "react";
 
 const Comp = (props) => {
   const [switched, setSwitched] = useState(props.switched || false);

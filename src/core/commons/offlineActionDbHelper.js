@@ -1,12 +1,13 @@
-import RxDBReplicationGraphQL from "rxdb/plugins/replication-graphql";
-import { SubscriptionClient } from "subscriptions-transport-ws";
-import RxDB from "rxdb";
-import { actionSchema } from "./schema";
-import RxDBSchemaCheckModule from "rxdb/plugins/schema-check";
-import RxDBErrorMessagesModule from "rxdb/plugins/error-messages";
-import RxDBValidateModule from "rxdb/plugins/validate";
 import { isArray } from "lodash";
+import RxDB from "rxdb";
+import RxDBErrorMessagesModule from "rxdb/plugins/error-messages";
+import RxDBReplicationGraphQL from "rxdb/plugins/replication-graphql";
+import RxDBSchemaCheckModule from "rxdb/plugins/schema-check";
+import RxDBValidateModule from "rxdb/plugins/validate";
+import { SubscriptionClient } from "subscriptions-transport-ws";
+
 import { OFFLINE_ACTIONS_ENDPOINT_URL, OFFLINE_ACTIONS_SYNC_URL } from "../../constants/belis";
+import { actionSchema } from "./schema";
 
 RxDB.plugin(RxDBSchemaCheckModule);
 RxDB.plugin(RxDBErrorMessagesModule);

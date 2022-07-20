@@ -2,7 +2,8 @@ import { createSlice } from "@reduxjs/toolkit";
 import bbox from "@turf/bbox";
 import Flatbush from "flatbush";
 import kdbush from "kdbush";
-// import { db as dexiedb } from "../../indexeddb/dexiedb";
+
+// import { getDexieDB } from "../../indexeddb/dexiedb";
 import { getDexieDB } from "./dexie";
 
 // const idb = idbworker();

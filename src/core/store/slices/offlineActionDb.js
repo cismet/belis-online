@@ -1,12 +1,14 @@
 import { createSlice } from "@reduxjs/toolkit";
+import slugify from "slugify";
+import uuidv4 from "uuid/v4";
+
 import * as offlineDatabase from "../../commons/offlineActionDbHelper";
+import { getTaskForAction } from "../../commons/taskHelper";
+import actions from "./actionSubslices";
 import { getJWT, getLoginFromJWT } from "./auth";
 import { integrateIntermediateResultsIntofeatureCollection, setDone } from "./featureCollection";
-import uuidv4 from "uuid/v4";
-import { getTaskForAction } from "../../commons/taskHelper";
-import slugify from "slugify";
-import actions from "./actionSubslices";
-const initialState = { tasks: [], rawTasks: [] };
+
+const initialState = { tasks: [], rawTasks: [], intermediateResults: {} };
 
 const slice = createSlice({
   name: "offlineActionDb",
@@ -145,6 +147,9 @@ export const resyncDb = () => {
 
 export const clearIntermediateResults = (object_type) => {
   return async (dispatch, getState) => {
+    if (object_type === "arbeitsauftrag") {
+      dispatch(clearIntermediateResults("arbeitsprotokoll"));
+    }
     const stateIntermediateResults = getIntermediateResults(getState()) || {};
     let intermediateResultsCopy;
     if (stateIntermediateResults[object_type]) {
@@ -159,29 +164,6 @@ export const clearIntermediateResults = (object_type) => {
   };
 };
 
-export const removeIntermediateResults = (intermediateResultsToRemove) => {
-  return async (dispatch, getState) => {
-    console.log("removeIntermediateResults");
-
-    const stateIntermediateResults = getIntermediateResults(getState()) || {};
-    let intermediateResultsCopy;
-    for (const intermediateResult of intermediateResultsToRemove) {
-      const { object_type, object_id } = intermediateResult;
-      if (
-        stateIntermediateResults[object_type] &&
-        stateIntermediateResults[object_type][object_id]
-      ) {
-        if (!intermediateResultsCopy) {
-          intermediateResultsCopy = JSON.parse(JSON.stringify(stateIntermediateResults));
-        }
-        delete intermediateResultsCopy[object_type][object_id];
-      }
-    }
-    if (intermediateResultsCopy) {
-      dispatch(storeIntermediateResults(intermediateResultsCopy));
-    }
-  };
-};
 export const addIntermediateResult = (intermediateResult) => {
   return async (dispatch, getState) => {
     // intermediate result has the following attributes
@@ -242,7 +224,7 @@ export const downloadTasks = () => {
   return async (dispatch, getState) => {
     const state = getState();
     const rawTasks = getRawTasks(state);
-    console.log("will export", rawTasks);
+    console.log("will export" + rawTasks?.length + " tasks");
 
     downloadObjectAsJson(rawTasks, "tasks" + slugify(new Date().toLocaleString()));
   };

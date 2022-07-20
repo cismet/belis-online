@@ -1,5 +1,6 @@
-import React from "react";
 import { Collapse } from "antd";
+import React from "react";
+
 const { Panel } = Collapse;
 // Since this component is simple and static, there's no parent container for it.
 

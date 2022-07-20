@@ -1,16 +1,17 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import "./index.css";
+
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 import * as serviceWorkerRegistration from "./serviceWorkerRegistration";
 
-import "react-bootstrap-typeahead/css/Typeahead.css";
+import "./index.css";
+import "antd/dist/antd.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "leaflet/dist/leaflet.css";
+import "react-bootstrap-typeahead/css/Typeahead.css";
 import "react-cismap/topicMaps.css";
 import "whatwg-fetch";
-import "antd/dist/antd.css";
 
 ReactDOM.render(
   <React.StrictMode>

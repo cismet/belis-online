@@ -1,3 +1,4 @@
+import { faComment, faListAlt } from "@fortawesome/free-regular-svg-icons";
 import {
   faArrowCircleLeft,
   faArrowCircleRight,
@@ -5,14 +6,19 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Button, Descriptions } from "antd";
-import { useContext } from "react";
-import { LightBoxContext } from "react-cismap/contexts/LightBoxContextProvider";
+
 import {
   selectNextFeature,
   selectPreviousFeature,
 } from "../../../../core/helper/featureCollectionHelper";
 import { getVCard } from "../../../../core/helper/featureHelper";
-import { geomFactories } from "../../../../core/queries/online";
+import { ivAsterisk } from "../../../../core/helper/secondaryInfoHelper";
+import store from "../../../../core/store";
+import {
+  MODES,
+  setMode,
+  setSelectedFeature,
+} from "../../../../core/store/slices/featureCollection";
 import { createFeatureFromData } from "../../../../core/store/slices/featureCollectionSubslices/objects";
 import SecondaryInfoPanelSection from "../SecondaryInfoPanelSection";
 import getLayout4Abzweigdose from "./Abzweigdose4Prot";
@@ -28,13 +34,7 @@ import getLayout4Leuchte from "./Leuchte";
 import getLayout4Mauerlasche from "./Mauerlasche";
 import getLayout4Schaltstelle from "./Schaltstelle";
 import getLayout4Standort from "./Standort";
-import {
-  MODES,
-  setMode,
-  setSelectedFeature,
-} from "../../../../core/store/slices/featureCollection";
-import store from "../../../../core/store";
-import { faComment, faListAlt } from "@fortawesome/free-regular-svg-icons";
+
 const getLayout4Protokoll = ({
   feature,
   jwt,
@@ -53,7 +53,9 @@ const getLayout4Protokoll = ({
 
   const statusItems = [
     <Descriptions.Item label='Monteur'>{item?.monteur}</Descriptions.Item>,
-    <Descriptions.Item label='Datum'>{getDate(item?.datum)}</Descriptions.Item>,
+    <Descriptions.Item label={"Datum"}>
+      {getDate(item?.datum) + ivAsterisk(item?.datum_iv)}
+    </Descriptions.Item>,
     <Descriptions.Item label='Bemerkung' span={3}>
       {item?.bemerkung}
     </Descriptions.Item>,
@@ -126,7 +128,7 @@ const getLayout4Protokoll = ({
           <span style={{ color: "grey" }}>
             {item?.arbeitsprotokollstatus?.bezeichnung || "kein Status"}
           </span>{" "}
-          {vcard.list.upperright}
+          {vcard.list.upperright} {item?.arbeitsprotokollstatusIntermediate === true ? "*" : ""}
         </h3>
       </div>
       <Descriptions column={{ xs: 1, sm: 1, md: 2, lg: 2, xxl: 2 }} layout='horizontal' bordered>
@@ -162,7 +164,6 @@ const getLayout4Protokoll = ({
     <Descriptions.Item label='angelegt am'>{getDate(item?.veranlassung?.datum)}</Descriptions.Item>,
     <Descriptions.Item label='Bemerkungen'>{item?.veranlassung?.bemerkungen}</Descriptions.Item>,
   ];
-  console.log("xxx item", item);
 
   subSections.push(
     <SecondaryInfoPanelSection

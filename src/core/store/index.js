@@ -1,28 +1,27 @@
 //kjdfh
 
 import { configureStore, getDefaultMiddleware } from "@reduxjs/toolkit";
-
-import spatialIndexSlice from "./slices/spatialIndex";
-import featureCollectionSlice from "./slices/featureCollection";
-import searchSlice from "./slices/search";
-import zoomSlice from "./slices/zoom";
-import backgroundSlice from "./slices/background";
-import paleModeSlice from "./slices/paleMode";
-import cacheControlSlice from "./slices/cacheControl";
-import appStateSlice from "./slices/app";
-import authSlice from "./slices/auth";
-import dexieSlice from "./slices/dexie";
-import gazetteerDataSlice from "./slices/gazetteerData";
-import mapInfoSlice from "./slices/mapInfo";
-import mapSlice from "./slices/map";
-import teamSlice from "./slices/team";
-import offlineActionDb from "./slices/offlineActionDb";
-
-import photoLightboxSlice from "./slices/photoLightbox";
+import localForage from "localforage";
 import { createLogger } from "redux-logger";
 import { persistReducer } from "redux-persist";
-import localForage from "localforage";
+
 import { appKey, storagePostfix } from "../../Keys";
+import appStateSlice from "./slices/app";
+import authSlice from "./slices/auth";
+import backgroundSlice from "./slices/background";
+import cacheControlSlice from "./slices/cacheControl";
+import dexieSlice from "./slices/dexie";
+import featureCollectionSlice from "./slices/featureCollection";
+import gazetteerDataSlice from "./slices/gazetteerData";
+import keytablesSlice from "./slices/keytables";
+import mapSlice from "./slices/map";
+import mapInfoSlice from "./slices/mapInfo";
+import offlineActionDb from "./slices/offlineActionDb";
+import paleModeSlice from "./slices/paleMode";
+import searchSlice from "./slices/search";
+import spatialIndexSlice from "./slices/spatialIndex";
+import teamSlice from "./slices/team";
+import zoomSlice from "./slices/zoom";
 
 console.log("store initializing ....");
 const devToolsEnabled =
@@ -117,6 +116,11 @@ const teamConfig = {
   whitelist: ["selectedTeam"],
 };
 
+const keyTablesConfig = {
+  key: "@" + appKey + "." + storagePostfix + ".keytables",
+  storage: localForage,
+  whitelist: ["teams", "leuchtmittel", "rundsteuerempfaenger", "tkey_leuchtentyp"],
+};
 const store = configureStore({
   reducer: {
     app: persistReducer(appStateConfig, appStateSlice.reducer),
@@ -136,6 +140,7 @@ const store = configureStore({
     dexie: dexieSlice.reducer,
     mapInfo: mapInfoSlice.reducer,
     map: mapSlice.reducer,
+    keytables: keytablesSlice.reducer,
   },
   devTools: devToolsEnabled === true && inProduction === false,
   middleware,

@@ -1,8 +1,8 @@
+import { useWindowSize } from "@react-hook/window-size";
 import React, { useState } from "react";
-import CollapsibleWell from "./CollapsibleWell";
 import Control from "react-leaflet-control";
-import { useWindowSize } from '@react-hook/window-size';
 
+import CollapsibleWell from "./CollapsibleWell";
 
 /* eslint-disable jsx-a11y/anchor-is-valid */
 
@@ -22,10 +22,10 @@ const InfoBox = ({
   collapsibleStyle,
   fixedRow,
 }) => {
-	const [ width ] = useWindowSize();
+  const [width] = useWindowSize();
   //todo brauche ich das?
   const gap = 0;
-  const responsiveState = 'normal';
+  const responsiveState = "normal";
 
   let infoBoxBottomMargin;
   if (handleResponsiveDesign === true) {
@@ -43,8 +43,8 @@ const InfoBox = ({
   };
 
   const [localMinified, setLocalMinify] = useState(false);
-  const minified = collapsedInfoBox  || localMinified; //|| collapsedInfoBoxFromContext
-  const minify = setCollapsedInfoBox || setLocalMinify;//|| setCollapsedInfoBoxFromContext
+  const minified = collapsedInfoBox || localMinified; //|| collapsedInfoBoxFromContext
+  const minify = setCollapsedInfoBox || setLocalMinify; //|| setCollapsedInfoBoxFromContext
 
   let collapseButtonAreaStyle;
   if (fixedRow === false) {

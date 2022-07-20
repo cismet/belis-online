@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
-
-// import dexieworker from "workerize-loader!../../../core/workers/dexie"; // eslint-disable-line import/no-webpack-loader-syntax
 import Button from "react-bootstrap/Button";
 import { useDispatch, useSelector } from "react-redux";
+
 import { CONNECTIONMODE, getConnectionMode } from "../../../core/store/slices/app";
 import { getJWT } from "../../../core/store/slices/auth";
 import { config, getCacheSettings, renewCache } from "../../../core/store/slices/cacheControl";

@@ -1,10 +1,20 @@
 import { useWindowSize } from "@react-hook/window-size";
 import useComponentSize from "@rehooks/component-size";
 import useOnlineStatus from "@rehooks/online-status";
-import React, { useRef, useState, useEffect, useContext } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
+import { UIDispatchContext } from "react-cismap/contexts/UIContextProvider";
+import PhotoLightBox from "react-cismap/topicmaps/PhotoLightbox";
 import { useDispatch, useSelector } from "react-redux";
+import { useHistory, useLocation } from "react-router-dom/cjs/react-router-dom.min";
+
+import LoginForm from "../components/app/LoginForm";
 import MapBlocker from "../components/app/MapBlocker";
-import { CONNECTIONMODE, getConnectionMode } from "../core/store/slices/app";
+import Menu from "../components/app/menu/Menu";
+import { CONNECTIONMODE, getConnectionMode, getDialog } from "../core/store/slices/app";
+import { getJWT } from "../core/store/slices/auth";
+import { storeJWT } from "../core/store/slices/auth";
+import { renewCache } from "../core/store/slices/cacheControl";
+import { getWorker } from "../core/store/slices/dexie";
 import {
   getFeatureCollectionMode,
   getSelectedFeature,
@@ -13,34 +23,20 @@ import {
   MODES,
   setDone,
 } from "../core/store/slices/featureCollection";
+import { tasklistPostSelection } from "../core/store/slices/featureCollectionSubslices/tasklists";
+import {
+  fillLeuchtentypenFromDexie,
+  fillLeuchtmittelFromDexie,
+  fillRundsteuerempfaengerFromDexie,
+  fillTeamsFromDexie,
+} from "../core/store/slices/keytables";
+import { initialize, resyncDb } from "../core/store/slices/offlineActionDb";
+import { getTeam } from "../core/store/slices/team";
 import BelisMap from "./BelisMap";
 import BottomNavbar from "./BottomNavbar";
-import TopNavbar from "./TopNavbar";
 import SideBar from "./SideBar";
-import LoginForm from "../components/app/LoginForm";
-import { getJWT } from "../core/store/slices/auth";
-import { getDialog } from "../core/store/slices/app";
-import { useHistory, useLocation } from "react-router-dom/cjs/react-router-dom.min";
-import { modifyQueryPart } from "../core/commons/routingHelper";
-import Menu from "../components/app/menu/Menu";
-import { UIDispatchContext } from "react-cismap/contexts/UIContextProvider";
-import ResponsiveTopicMapContextProvider from "react-cismap/contexts/ResponsiveTopicMapContextProvider";
-// import {
-//   getCaptions,
-//   getIndex,
-//   getPhotoUrls,
-//   getTitle,
-//   isVisible,
-//   setIndex,
-//   setVisible,
-// } from "../core/store/slices/photoLightbox";
-import PhotoLightBox from "react-cismap/topicmaps/PhotoLightbox";
-import { initialize, resyncDb } from "../core/store/slices/offlineActionDb";
-import TopicMapContextProvider from "react-cismap/contexts/TopicMapContextProvider";
-import { defaultLayerConf } from "react-cismap/tools/layerFactory";
-import { storeJWT } from "../core/store/slices/auth";
-import { tasklistPostSelection } from "../core/store/slices/featureCollectionSubslices/tasklists";
-import { getTeam } from "../core/store/slices/team";
+import TopNavbar from "./TopNavbar";
+
 //---
 
 const View = () => {
@@ -48,6 +44,8 @@ const View = () => {
   const history = useHistory();
   const [windowWidth, windowHeight] = useWindowSize();
   const onlineStatus = useOnlineStatus();
+  const dexieW = useSelector(getWorker);
+  const jwt = useSelector(getJWT);
 
   let refRoutedMap = useRef(null);
   let refApp = useRef(null);
@@ -99,6 +97,63 @@ const View = () => {
     }
   }, [refApp]);
 
+  useEffect(() => {
+    //async block
+    (async () => {
+      if (jwt && dexieW) {
+        try {
+          //Teams
+          const teams = await dexieW.getAll("team");
+          if (!teams || teams.length === 0) {
+            dispatch(
+              renewCache("team", jwt, undefined, () => {
+                dispatch(fillTeamsFromDexie());
+              })
+            );
+          } else {
+            dispatch(fillTeamsFromDexie());
+          }
+
+          //tkey_leuchtentyp
+          const tkey_leuchtentyp = await dexieW.getAll("tkey_leuchtentyp");
+          if (!tkey_leuchtentyp || tkey_leuchtentyp.length === 0) {
+            dispatch(
+              renewCache("tkey_leuchtentyp", jwt, undefined, () => {
+                dispatch(fillLeuchtentypenFromDexie());
+              })
+            );
+          } else {
+            dispatch(fillLeuchtentypenFromDexie());
+          }
+          //rundsteuerempfaenger
+          const rundsteuerempfaenger = await dexieW.getAll("rundsteuerempfaenger");
+          if (!rundsteuerempfaenger || rundsteuerempfaenger.length === 0) {
+            dispatch(
+              renewCache("rundsteuerempfaenger", jwt, undefined, () => {
+                dispatch(fillRundsteuerempfaengerFromDexie());
+              })
+            );
+          } else {
+            dispatch(fillRundsteuerempfaengerFromDexie());
+          }
+
+          //leuchtmittel
+          const leuchtmittel = await dexieW.getAll("leuchtmittel");
+          if (!leuchtmittel || leuchtmittel.length === 0) {
+            dispatch(
+              renewCache("leuchtmittel", jwt, undefined, () => {
+                dispatch(fillLeuchtmittelFromDexie());
+              })
+            );
+          } else {
+            dispatch(fillLeuchtmittelFromDexie());
+          }
+        } catch (e) {
+          console.log("Error in fetching needed data from dexie", e);
+        }
+      }
+    })();
+  }, [jwt, dexieW, dispatch]);
   //Selection management
   const featureCollectionMode = useSelector(getFeatureCollectionMode);
   const selectedFeature = useSelector(getSelectedFeature);

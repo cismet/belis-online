@@ -7,6 +7,7 @@ import {
 import { FontAwesomeIcon as Icon } from "@fortawesome/react-fontawesome";
 import React, { useState } from "react";
 import ProgressBar from "react-bootstrap/ProgressBar";
+
 import CacheItem, { getUpdateString } from "./CacheItem";
 
 const AggregatedCacheItem = ({ controls, renew }) => {

@@ -1,12 +1,11 @@
 import { createSlice } from "@reduxjs/toolkit";
-import cacheQueries from "../../queries/cache";
 import dexieworker from "workerize-loader!../../workers/dexie"; // eslint-disable-line import/no-webpack-loader-syntax
+
 import { fetchGraphQL } from "../../commons/graphql";
-import { initIndex } from "./spatialIndex";
+import cacheQueries from "../../queries/cache";
 import { getLoginFromJWT } from "./auth";
 import { clearIntermediateResults } from "./offlineActionDb";
-import { useSelector } from "react-redux";
-import { getWorker } from "./dexie";
+import { initIndex } from "./spatialIndex";
 
 const dexieW = dexieworker();
 
@@ -27,6 +26,18 @@ keys.push({
   primary: true,
   name: "Leuchtentypen",
   queryKey: "tkey_leuchtentyp",
+  parameterFactory: () => ({}),
+});
+keys.push({
+  primary: true,
+  name: "Leuchtmitteltypen",
+  queryKey: "leuchtmittel",
+  parameterFactory: () => ({}),
+});
+keys.push({
+  primary: true,
+  name: "Rundsteuerempfänger",
+  queryKey: "rundsteuerempfaenger",
   parameterFactory: () => ({}),
 });
 keys.push({
@@ -368,6 +379,8 @@ export const renewCache = (
       jwt
     )
       .then((result) => {
+        console.log("result", result);
+
         console.log(itemKey + " returned with " + result.data[dataKey].length + " results");
         // console.log(itemKey + " returned with ", result.data[dataKey]);
         dispatch(setLoadingState({ key, loadingState: "caching" }));

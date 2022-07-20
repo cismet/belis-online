@@ -1,30 +1,23 @@
+import buffer from "@turf/buffer";
+import convex from "@turf/convex";
+import * as turfHelpers from "@turf/helpers";
+import { projectionData } from "react-cismap/constants/gis";
+import reproject from "reproject";
+import dexieworker from "workerize-loader!../../../workers/dexie"; // eslint-disable-line import/no-webpack-loader-syntax
+
+import { fetchGraphQL } from "../../../commons/graphql";
+import queries from "../../../queries/online";
+import { CONNECTIONMODE, getConnectionMode } from "../app";
+import { getJWT } from "../auth";
 import {
-  getFeatureCollection,
-  getFilter,
-  getSelectedFeature,
   MODES,
-  setDone,
   setDoneForMode,
-  setFeatureCollection,
   setFeatureCollectionForMode,
-  setFeatureCollectionInfo,
   setFeatureCollectionInfoForMode,
-  setMode,
-  setRequestBasis,
-  setSelectedFeature,
   setSelectedFeatureForMode,
 } from "../featureCollection";
-import { getJWT, storeJWT } from "../auth";
-import { fetchGraphQL } from "../../../commons/graphql";
-import dexieworker from "workerize-loader!../../../workers/dexie"; // eslint-disable-line import/no-webpack-loader-syntax
-import queries from "../../../queries/online";
-import * as turfHelpers from "@turf/helpers";
-import convex from "@turf/convex";
-import buffer from "@turf/buffer";
-import reproject from "reproject";
-import { projectionData } from "react-cismap/constants/gis";
 import { loadProtocollsIntoFeatureCollection } from "./protocols";
-import { CONNECTIONMODE, getConnectionMode } from "../app";
+
 const dexieW = dexieworker();
 
 export const loadTaskListsIntoFeatureCollection = ({
@@ -46,19 +39,20 @@ export const loadTaskListsIntoFeatureCollection = ({
       try {
         let features = [];
         if (onlineDataForcing || connectionMode === CONNECTIONMODE.ONLINE) {
+          console.log("xxx will get tasklist from server");
+
           const gqlQuery = `query q($teamId: Int) {${queries.arbeitsauftraege_by_team_only_protocolgeoms}}`;
 
           const queryParameter = { teamId: team.id };
-          console.time("xxx query returned");
+          console.time("tasklist query returned");
           const response = await fetchGraphQL(gqlQuery, queryParameter, jwt);
-
-          console.timeEnd("xxx query returned");
-          console.log("xxx response", response.data);
+          console.timeEnd("tasklist query returned");
           const results = response.data.arbeitsauftrag;
 
           features = createArbeitsauftragFeaturesForResults(results);
         } else {
           //offlineUse
+          console.log("xxx will get tasklist from local cache");
           const results = await dexieW.getAll("arbeitsauftrag");
           features = createArbeitsauftragFeaturesForResults(results, true);
         }

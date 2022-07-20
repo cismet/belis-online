@@ -1,8 +1,9 @@
 import React from "react";
-import { getVCard } from "../../core/helper/featureHelper";
 import ListGroup from "react-bootstrap/ListGroup";
-import { setSelectedFeature, getSelectedFeature } from "../../core/store/slices/featureCollection";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
+
+import { getVCard } from "../../core/helper/featureHelper";
+import { setSelectedFeature } from "../../core/store/slices/featureCollection";
 
 //---------
 

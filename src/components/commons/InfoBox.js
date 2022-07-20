@@ -246,16 +246,70 @@ const InfoBox = ({ refRoutedMap }) => {
                 <td style={{ textAlign: "right", paddingRight: 7 }}>
                   {actionLinkInfos.map((li, index) => {
                     if (li.subs) {
+                      const items = li.subs.map((sub, index) => {
+                        return {
+                          key: index,
+                          label: (
+                            <h4 onClick={sub.onClick}>
+                              <span
+                                style={{
+                                  marginRight: 10,
+                                  opacity: 0.5,
+                                }}
+                              >
+                                {sub.iconname && <Icon name={sub.iconname} />}
+                                {sub.iconspan && sub.iconspan}
+                              </span>
+                              <span style={{ margin: 3 }}>{sub.title}</span>
+                            </h4>
+                          ),
+                        };
+                      });
+
+                      const menu = <Menu style={{ opacity: 0.8 }} items={items} />;
+                      console.log("xxx li", li);
+                      return (
+                        <Dropdown overlay={menu} placement='topRight' trigger={["click"]}>
+                          <span style={{ paddingLeft: index > 0 ? 3 : 0 }}>
+                            <IconLink
+                              key={`iconlink` + index}
+                              tooltip={li.tooltip}
+                              onClick={li.onClick}
+                              iconname={li.iconname || li.iconspan}
+                              href='#'
+                            />
+                          </span>
+                        </Dropdown>
+                      );
                     } else {
+                      console.log("xxx li else", li);
+
                       return (
                         <span style={{ paddingLeft: index > 0 ? 3 : 0 }}>
-                          <IconLink
-                            key={`iconlink` + index}
-                            tooltip={li.tooltip}
-                            onClick={li.onClick}
-                            iconname={li.iconname}
-                            href='#'
-                          />
+                          {li.iconname && (
+                            <IconLink
+                              key={`iconlink` + index}
+                              tooltip={li.tooltip}
+                              onClick={li.onClick}
+                              iconname={li.iconname || li.iconspan}
+                              href='#'
+                            />
+                          )}
+                          {li.iconspan && (
+                            <a
+                              style={{
+                                fontSize: "1.5rem",
+                                paddingRight: "2px",
+                                paddingTop: "3px",
+                                color: "grey",
+                                width: "26px",
+                                textAlign: "center",
+                              }}
+                              onClick={li.onClick}
+                            >
+                              {li.iconspan}
+                            </a>
+                          )}
                         </span>
                       );
                     }
@@ -370,7 +424,12 @@ const InfoBox = ({ refRoutedMap }) => {
                   const menu = <Menu style={{ opacity: 0.8 }} items={items} />;
 
                   return (
-                    <Dropdown overlay={menu} placement='topRight' trigger={["click"]}>
+                    <Dropdown
+                      key={"dropdown." + index}
+                      overlay={menu}
+                      placement='topRight'
+                      trigger={["click"]}
+                    >
                       <Button
                         style={{
                           opacity: 0.7,

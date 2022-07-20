@@ -14,6 +14,7 @@ import React from "react";
 import { Button } from "react-bootstrap";
 import ProgressBar from "react-bootstrap/ProgressBar";
 import { useSelector } from "react-redux";
+
 import { getTeam } from "../../../core/store/slices/team";
 
 const getIconForLoadingState = (ls) => {
@@ -166,10 +167,26 @@ const CacheItem = ({ info, config, renew, refresh = () => {} }) => {
 
 export const getUpdateString = (lastUpdate) => {
   if (lastUpdate > 0) {
+    const today = new Date();
     const d = new Date(lastUpdate);
     const hh = (d.getHours() + "").padStart(2, "0");
     const mm = (d.getMinutes() + "").padStart(2, "0");
-    return hh + ":" + mm;
+    const dd = (d.getDate() + "").padStart(2, "0");
+    const mm2 = (d.getMonth() + 1 + "").padStart(2, "0");
+    const time = hh + ":" + mm;
+
+    let result;
+    if (
+      false &&
+      today.getFullYear() === d.getFullYear() &&
+      today.getMonth() === d.getMonth() &&
+      today.getDate() === d.getDate()
+    ) {
+      result = time;
+    } else {
+      result = dd + "." + mm2 + ". " + time;
+    }
+    return result;
   } else {
     return "?";
   }

@@ -1,19 +1,23 @@
-import { Descriptions, Badge, Timeline } from "antd";
-import { getWebDavUrl } from "../../../../constants/belis";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBullseye, faGlassMartini, faGripLinesVertical } from "@fortawesome/free-solid-svg-icons";
-import { getVCard } from "../../../../core/helper/featureHelper";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { Timeline } from "antd";
 import IconLink from "react-cismap/commons/IconLink";
+
+import { getWebDavUrl } from "../../../../constants/belis";
+import { getVCard } from "../../../../core/helper/featureHelper";
 import { showDialog } from "../../../../core/store/slices/app";
-import AddImageDialog from "../../../app/dialogs/AddImage";
 import { addImageToObjectAction } from "../../../../core/store/slices/offlineActionDb";
+import AddImageDialog from "../../../app/dialogs/AddImage";
 
 export const getDate = (d) => {
   if (d) {
-    if (typeof d !== "string") {
+    if (typeof d === "string") {
+      return new Date(Date.parse(d)).toLocaleDateString();
+    } else if (typeof d === "number") {
+      return new Date(d).toLocaleDateString();
+    } else {
       console.log("d", d, typeof d);
     }
-    return new Date(Date.parse(d)).toLocaleDateString();
   } else {
     return undefined;
   }
@@ -30,7 +34,7 @@ export const getStrasse = (streetObject, hausnummer) => {
 };
 
 export const sortAndFilterEvents = (events) => {
-  console.log("events vor sort", events);
+  // console.log("events vor sort", events);
   const result = events.filter((x) => x[1] !== undefined && x[1] !== null);
   result.sort((a, b) => {
     try {
@@ -46,10 +50,10 @@ export const sortAndFilterEvents = (events) => {
     }
   });
 
-  console.log("events nach sort & filter");
-  for (const r of result) {
-    console.log(r[0], r[1], new Date(r[1]).getTime(), new Date(r[1]));
-  }
+  // console.log("events nach sort & filter");
+  // for (const r of result) {
+  // console.log(r[0], r[1], new Date(r[1]).getTime(), new Date(r[1]));
+  // }
   return result;
 };
 
@@ -118,6 +122,8 @@ export const getSquaredThumbnails = ({ docs, type, jwt, setIndex, setVisible }) 
 export const collectEvents = (item, eventPath) => {};
 
 export const getTimelineForActions = ({ actions }) => {
+  console.log("actions", actions);
+
   if (actions.length > 0) {
     const sorted = actions.sort((a, b) => (a.id < b.id ? -1 : 1));
 
@@ -150,7 +156,7 @@ export const getTimelineForActions = ({ actions }) => {
                 }}
               >
                 <div>
-                  <b>{action.neu}</b>
+                  <b>{action.neu || "-"}</b>
                 </div>
                 <div style={{ color: "grey" }}>
                   <i>{action.alt}</i>

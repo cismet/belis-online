@@ -1,22 +1,20 @@
-import { Descriptions } from "antd";
 import { getWebDavUrl } from "../../../../constants/belis";
 import { getVCard } from "../../../../core/helper/featureHelper";
+import { ivAsterisk } from "../../../../core/helper/secondaryInfoHelper";
 import {
   addDotThumbnail,
-  clearOptionalDescriptionItems,
   getAddImageButton,
   getSquaredThumbnails,
   getStrasse,
   getTimelineForEvents,
 } from "./helper";
-import { getRSDetailItems, getRSDetailsSection } from "./Leuchte";
-import SecondaryInfoPanelSection from "react-cismap/topicmaps/SecondaryInfoPanelSection";
+import { getRSDetailsSection } from "./Leuchte";
 
 export const getEventsForSchaltstelle = (item) => {
   const events = [
     ["Erstellung", item?.erstellungsjahr, "M"],
-    ["Prüfdatum", item?.pruefdatum, "M"],
-    ["Einbau Rundsteuerempfänger", item?.einbaudatum_rs, "M"],
+    ["Prüfdatum" + ivAsterisk(item?.pruefdatum_iv), item?.pruefdatum, "M"],
+    ["Einbau Rundsteuerempfänger" + ivAsterisk(item?.einbaudatum_rs_iv), item?.einbaudatum_rs, "M"],
   ];
 
   return events;
@@ -110,7 +108,7 @@ const getLayout4Schaltstelle = ({
     </div>
   );
 
-  subSections.push(getRSDetailsSection(item?.rundsteuerempfaenger));
+  subSections.push(getRSDetailsSection(item));
 
   return { title, mainSection, subSections };
 };

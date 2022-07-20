@@ -1,34 +1,31 @@
 import bboxPolygon from "@turf/bbox-polygon";
+import booleanIntersects from "@turf/boolean-intersects";
+
+import dexieworker from "workerize-loader!../../../workers/dexie"; // eslint-disable-line import/no-webpack-loader-syntax
+
+import { fetchGraphQL } from "../../../commons/graphql";
+import {
+  cloneFeature,
+  compareFeature,
+  getDocs,
+  integrateIntermediateResults,
+} from "../../../helper/featureHelper";
 import { convertBoundingBox, createQueryGeomFromBB } from "../../../helper/gisHelper";
+import onlineQueryParts, { geomFactories } from "../../../queries/online";
 import { CONNECTIONMODE, getConnectionMode } from "../app";
+import { storeJWT } from "../auth";
 import {
   getFeatureCollection,
   getFilter,
   getSelectedFeature,
   MODES,
-  setDone,
   setDoneForMode,
-  setFeatureCollection,
   setFeatureCollectionForMode,
-  setFeatureCollectionInfo,
   setFeatureCollectionInfoForMode,
   setRequestBasis,
   setSelectedFeature,
 } from "../featureCollection";
-import booleanIntersects from "@turf/boolean-intersects";
-import onlineQueryParts, { geomFactories, fragments } from "../../../queries/online";
 
-import { removeIntermediateResults } from "../offlineActionDb";
-import {
-  addPropertiesToFeature,
-  compareFeature,
-  getDocs,
-  getIntermediateResultsToBeRemoved,
-  integrateIntermediateResults,
-} from "../../../helper/featureHelper";
-import { storeJWT } from "../auth";
-import { fetchGraphQL } from "../../../commons/graphql";
-import dexieworker from "workerize-loader!../../../workers/dexie"; // eslint-disable-line import/no-webpack-loader-syntax
 const dexieW = dexieworker();
 
 export const loadObjectsIntoFeatureCollection = ({
@@ -223,8 +220,8 @@ export const createFeatureFromData = (data, type) => {
 const enrichAndSetFeatures = (
   dispatch,
   state,
-  featureCollectionIn,
-  removeFromIntermediateResults
+  featureCollectionIn
+  // removeFromIntermediateResults
 ) => {
   console.time("features enirched");
 
@@ -250,10 +247,10 @@ const enrichAndSetFeatures = (
   //dispatch(setFeatureCollection(featureCollection));
 
   for (const f of featureCollection) {
-    tasks.push(addPropertiesToFeature(f));
+    tasks.push(cloneFeature(f));
   }
   const selectedFeature = getSelectedFeature(state);
-  let intermediateResultsToBeRemoved = [];
+  // let intermediateResultsToBeRemoved = [];
 
   Promise.all(tasks).then(
     (enrichedFeatureCollection) => {
@@ -266,13 +263,7 @@ const enrichAndSetFeatures = (
 
       for (const feature of enrichedFeatureCollection) {
         feature.intermediateResultsIntegrated = new Date().getTime();
-        //  console.log("feature", feature.intermediateResultsIntegrated, feature);
-        if (removeFromIntermediateResults === true) {
-          const throwAway = getIntermediateResultsToBeRemoved(feature);
-          intermediateResultsToBeRemoved = [...intermediateResultsToBeRemoved, ...throwAway];
-        } else {
-          integrateIntermediateResults(feature, state.offlineActionDb.intermediateResults);
-        }
+        integrateIntermediateResults(feature, state.offlineActionDb.intermediateResults);
 
         if (typeCount[feature.featuretype] === undefined) {
           typeCount[feature.featuretype] = 1;
@@ -304,7 +295,6 @@ const enrichAndSetFeatures = (
         f.index = index++;
       }
 
-      dispatch(removeIntermediateResults(intermediateResultsToBeRemoved));
       dispatch(setFeatureCollectionInfoForMode({ mode: MODES.OBJECTS, info: { typeCount } }));
       console.log("will setFeatureCollection");
       // console.log("sortedElements", sortedElements);

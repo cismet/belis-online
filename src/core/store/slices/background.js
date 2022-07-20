@@ -1,4 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
+
 const initialState = { layer: "stadtplan" };
 
 const slice = createSlice({
