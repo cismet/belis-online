@@ -29,6 +29,7 @@ import {
   renewAllSecondaryInfoCache,
 } from "../core/store/slices/cacheControl";
 import {
+  forceRefresh,
   isInFocusMode,
   loadObjects,
   setFocusModeActive,
@@ -170,7 +171,12 @@ const BottomNavbar = ({
                 style={{ fontSize }}
                 variant={connectionMode === CONNECTIONMODE.ONLINE ? "primary" : "outline-primary"}
                 onClick={() => {
-                  dispatch(setConnectionMode(CONNECTIONMODE.ONLINE));
+                  if (connectionMode !== CONNECTIONMODE.ONLINE) {
+                    dispatch(setConnectionMode(CONNECTIONMODE.ONLINE));
+                    setTimeout(() => {
+                      dispatch(forceRefresh());
+                    }, 100);
+                  }
                 }}
               >
                 Live-Daten
@@ -182,7 +188,12 @@ const BottomNavbar = ({
                   connectionMode === CONNECTIONMODE.FROMCACHE ? "primary" : "outline-primary"
                 }
                 onClick={() => {
-                  dispatch(setConnectionMode(CONNECTIONMODE.FROMCACHE));
+                  if (connectionMode !== CONNECTIONMODE.FROMCACHE) {
+                    dispatch(setConnectionMode(CONNECTIONMODE.FROMCACHE));
+                    setTimeout(() => {
+                      dispatch(forceRefresh());
+                    }, 100);
+                  }
                 }}
               >
                 <span>

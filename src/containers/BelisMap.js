@@ -156,10 +156,6 @@ const BelisMap = ({ refRoutedMap, width, height, jwt }) => {
 
   const { mapSize, mapBounds } = mapBoundsAndSize || {};
 
-  console.log("xxx backgroundConfigurations", backgroundConfigurations);
-  console.log("xxx selectedBackground", selectedBackground);
-  console.log("xxx background", background);
-
   //                 __              _ _
   //   __ _  ___    / _| ___  _ __  (_) |_
   //  / _` |/ _ \  | |_ / _ \| '__| | | __|
@@ -187,14 +183,7 @@ const BelisMap = ({ refRoutedMap, width, height, jwt }) => {
           dispatch(setZoom(z));
         }
         if (featureCollectionMode === MODES.OBJECTS) {
-          dispatch(loadObjects({ boundingBox, inFocusMode, zoom: z, jwt: jwt, force: false }));
-          // console.log("xxx loadObjects", {
-          //   mapBounds,
-          //   mapSize,
-          //   blockLoading,
-          //   indexInitialized,
-          //   connectionMode,
-          // });
+          dispatch(loadObjects({ boundingBox, inFocusMode, zoom: z, jwt: jwt, force: true })); //here force=true because of problem when initially loading after switching to cache mode
         } else {
           // console.log("xxx no map for you (mapBounds && mapSize)", mapBounds, mapSize);
         }

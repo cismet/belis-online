@@ -236,7 +236,9 @@ export const forceRefresh = () => {
   return async (dispatch, getState) => {
     const state = getState();
     console.log("xxx forceRefresh in", state.featureCollection.boundingBox, state.mapInfo?.bounds);
-    dispatch(setFeatureCollection([]));
+    dispatch(setFeatureCollectionForMode({ mode: MODES.OBJECTS, features: [] }));
+    dispatch(setFeatureCollectionForMode({ mode: MODES.TASKLISTS, features: [] }));
+    dispatch(setFeatureCollectionForMode({ mode: MODES.PROTOCOLS, features: [] }));
     dispatch(setSelectedFeature(null));
     const onlineDataForcing = false;
     dispatch(
@@ -248,6 +250,14 @@ export const forceRefresh = () => {
         onlineDataForcing,
       })
     );
+    if (state.team.selectedTeam) {
+      dispatch(
+        loadTaskLists({
+          team: state.team.selectedTeam,
+          jwt: state.auth.jwt,
+        })
+      );
+    }
   };
 };
 
