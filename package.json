@@ -1,6 +1,6 @@
 {
   "name": "belis-online",
-  "version": "3.0.0-SNAPSHOT.89",
+  "version": "3.0.0-SNAPSHOT.90",
   "config": {
     "dockerRegistryPath": "cismet",
     "alphaFolder": "~/2501-belis-online-alpha",
