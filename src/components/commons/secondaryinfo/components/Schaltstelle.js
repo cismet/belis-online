@@ -111,7 +111,7 @@ const getLayout4Schaltstelle = ({
     </div>
   );
 
-  subSections.push(getRSDetailsSection(item?.rundsteuerempfaenger));
+  subSections.push(getRSDetailsSection(item));
 
   return { title, mainSection, subSections };
 };

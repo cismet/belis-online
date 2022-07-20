@@ -126,7 +126,7 @@ const getLayout4Mauerlasche = ({
     </div>
   );
 
-  subSections.push(getRSDetailsSection(item?.rundsteuerempfaenger));
+  subSections.push(getRSDetailsSection(item));
 
   return { title, mainSection, subSections };
 };

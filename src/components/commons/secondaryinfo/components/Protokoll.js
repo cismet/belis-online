@@ -35,6 +35,7 @@ import {
 } from "../../../../core/store/slices/featureCollection";
 import store from "../../../../core/store";
 import { faComment, faListAlt } from "@fortawesome/free-regular-svg-icons";
+import { ivAsterisk } from "../../../../core/helper/secondaryInfoHelper";
 const getLayout4Protokoll = ({
   feature,
   jwt,
@@ -53,7 +54,9 @@ const getLayout4Protokoll = ({
 
   const statusItems = [
     <Descriptions.Item label='Monteur'>{item?.monteur}</Descriptions.Item>,
-    <Descriptions.Item label='Datum'>{getDate(item?.datum)}</Descriptions.Item>,
+    <Descriptions.Item label={"Datum"}>
+      {getDate(item?.datum) + ivAsterisk(item?.datum_iv)}
+    </Descriptions.Item>,
     <Descriptions.Item label='Bemerkung' span={3}>
       {item?.bemerkung}
     </Descriptions.Item>,

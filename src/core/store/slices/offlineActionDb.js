@@ -6,7 +6,7 @@ import uuidv4 from "uuid/v4";
 import { getTaskForAction } from "../../commons/taskHelper";
 import slugify from "slugify";
 import actions from "./actionSubslices";
-const initialState = { tasks: [], rawTasks: [] };
+const initialState = { tasks: [], rawTasks: [], intermediateResults: {} };
 
 const slice = createSlice({
   name: "offlineActionDb",

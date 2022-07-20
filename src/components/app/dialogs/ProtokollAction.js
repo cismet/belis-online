@@ -124,7 +124,7 @@ const SetStatusDialog = ({
             const einbaudatumD = (values.einbaudatum || moment()).valueOf();
             const sonderturnusdatumD = (values.sonderturnusdatum || moment()).valueOf();
             const mastanstrichD = (values.mastanstrich || moment()).valueOf();
-            const revisionD = (values.revision || moment()).valueOf();
+            const revisionD = (values.revisionsdatum || moment()).valueOf();
             const naechstes_pruefdatumD = (values.naechstes_pruefdatum || moment()).valueOf();
 
             const parameter = {
@@ -135,6 +135,7 @@ const SetStatusDialog = ({
               //leuchtmittelwechselEP
               pruefdatum: pruefdatumD,
               erdung_in_ordnung: values.erdung === true ? "ja" : "nein",
+              erdung: values.erdung,
               //leuchtmittelwechselEP && leuchtmittelwechsel
               leuchtmittel: values.leuchtmittel,
               wechseldatum: wechseldatumD,

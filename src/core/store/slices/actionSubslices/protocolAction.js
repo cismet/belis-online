@@ -108,15 +108,16 @@ const protocolAction = (params, item) => {
           neu: leuchtmittelBezeichung,
           ccnonce,
         });
+
         intermediateResult4Prot.data.protokollAktionArray.push({
           aenderung: "Elektrische Prüfung*",
-          alt: item.fk_standort.elek_pruefung,
+          alt: item.tdta_leuchten.fk_standort.elek_pruefung,
           neu: getDate(paramsWithCCNonce.pruefdatum),
           ccnonce,
         });
         intermediateResult4Prot.data.protokollAktionArray.push({
           aenderung: "Erdung in Ordnung*",
-          alt: item.fk_standort.erdung,
+          alt: item.tdta_leuchten.fk_standort.erdung,
           neu: paramsWithCCNonce.erdung_in_ordnung,
           ccnonce,
         });
@@ -126,10 +127,6 @@ const protocolAction = (params, item) => {
             "tdta_leuchten",
             item.tdta_leuchten.id,
             {
-              fk_standort: {
-                elek_pruefung: new Date(paramsWithCCNonce.pruefdatum).toISOString(),
-                erdung: paramsWithCCNonce.erdung_in_ordnung,
-              },
               leuchtmittel: getLeuchtmittel(paramsWithCCNonce.leuchtmittel),
               wechseldatum: new Date(paramsWithCCNonce.wechseldatum).toISOString(),
               lebensdauer: paramsWithCCNonce.lebensdauer,
@@ -137,23 +134,28 @@ const protocolAction = (params, item) => {
             paramsWithCCNonce
           )
         );
-        dispatch(
-          addMoreIntermediateResults(
-            "tdta_standort_mast",
-            item.fk_standort.id,
-            {
-              elek_pruefung: new Date(paramsWithCCNonce.pruefdatum).toISOString(),
-              erdung: paramsWithCCNonce.erdung_in_ordnung,
-            },
-            paramsWithCCNonce
-          )
-        );
+
+        if (item.tdta_leuchten.fk_standort) {
+          dispatch(
+            addMoreIntermediateResults(
+              "tdta_standort_mast",
+              item.tdta_leuchten.fk_standort.id,
+              {
+                elek_pruefung: new Date(paramsWithCCNonce.pruefdatum).toISOString(),
+                erdung: paramsWithCCNonce.erdung,
+              },
+              paramsWithCCNonce
+            )
+          );
+        }
         break;
       case "protokollLeuchteLeuchtmittelwechsel":
+        const leuchtmittel2 = getLeuchtmittel(paramsWithCCNonce.leuchtmittel);
+        const leuchtmittelBezeichung2 = leuchtmittel2.hersteller + " " + leuchtmittel2.lichtfarbe;
         intermediateResult4Prot.data.protokollAktionArray.push({
           aenderung: "Wechseldatum*",
           alt: item.wechseldatum,
-          neu: paramsWithCCNonce.wechseldatum,
+          neu: getDate(paramsWithCCNonce.wechseldatum),
           ccnonce,
         });
         intermediateResult4Prot.data.protokollAktionArray.push({
@@ -165,9 +167,10 @@ const protocolAction = (params, item) => {
         intermediateResult4Prot.data.protokollAktionArray.push({
           aenderung: "Leuchtmittel*",
           alt: item.leuchtmittel,
-          neu: getLeuchtmittel(paramsWithCCNonce.leuchtmittel).name,
+          neu: leuchtmittelBezeichung2,
           ccnonce,
         });
+
         dispatch(
           addMoreIntermediateResults(
             "tdta_leuchten",
@@ -183,16 +186,23 @@ const protocolAction = (params, item) => {
         );
         break;
       case "protokollLeuchteRundsteuerempfaengerwechsel":
+        const rs = getRundsteuerempfaenger(paramsWithCCNonce.rundsteuerempfaenger);
+        const rundsteuerempfaengerBezeichungAlt =
+          (item.rundsteuerempfaenger?.herrsteller_rs || "ohne Hersteller") +
+          " - " +
+          item.rundsteuerempfaenger?.rs_typ;
+        const rundsteuerempfaengerBezeichung =
+          (rs.herrsteller_rs || "ohne Hersteller") + " - " + rs.rs_typ;
         intermediateResult4Prot.data.protokollAktionArray.push({
           aenderung: "Einbaudatum*",
           alt: item.einbaudatum,
-          neu: paramsWithCCNonce.einbaudatum,
+          neu: getDate(paramsWithCCNonce.einbaudatum),
           ccnonce,
         });
         intermediateResult4Prot.data.protokollAktionArray.push({
           aenderung: "Rundsteuerempfänger*",
-          alt: item.rundsteuerempfaenger,
-          neu: getRundsteuerempfaenger(paramsWithCCNonce.rundsteuerempfaenger).name,
+          alt: item.rundsteuerempfaenger ? rundsteuerempfaengerBezeichungAlt : undefined,
+          neu: rundsteuerempfaengerBezeichung,
           ccnonce,
         });
         //params.einbaudatum
@@ -202,8 +212,8 @@ const protocolAction = (params, item) => {
             "tdta_leuchten",
             item.tdta_leuchten.id,
             {
-              einbaudatum: new Date(paramsWithCCNonce.einbaudatum).toISOString,
-              rundsteuerempfaenger: getRundsteuerempfaenger(paramsWithCCNonce.rundsteuerempfaenger),
+              einbaudatum: new Date(paramsWithCCNonce.einbaudatum).toISOString(),
+              rundsteuerempfaenger: rs,
             },
             paramsWithCCNonce
           )
@@ -213,7 +223,7 @@ const protocolAction = (params, item) => {
         intermediateResult4Prot.data.protokollAktionArray.push({
           aenderung: "Sonderturnus*",
           alt: item.wartungszyklus,
-          neu: paramsWithCCNonce.sonderturnusdatum,
+          neu: getDate(paramsWithCCNonce.sonderturnusdatum),
           ccnonce,
         });
 
@@ -233,7 +243,7 @@ const protocolAction = (params, item) => {
         intermediateResult4Prot.data.protokollAktionArray.push({
           aenderung: "Erneuerung Vorschaltgerät*",
           alt: item.wechselvorschaltgeraet,
-          neu: paramsWithCCNonce.wechseldatum,
+          neu: getDate(paramsWithCCNonce.wechseldatum),
           ccnonce,
         });
 
@@ -260,7 +270,7 @@ const protocolAction = (params, item) => {
         intermediateResult4Prot.data.protokollAktionArray.push({
           aenderung: "Mastanstrich*",
           alt: item.mastanstrich,
-          neu: paramsWithCCNonce.anstrichdatum,
+          neu: getDate(paramsWithCCNonce.anstrichdatum),
           ccnonce,
         });
 
@@ -274,7 +284,7 @@ const protocolAction = (params, item) => {
         dispatch(
           addMoreIntermediateResults(
             "tdta_standort_mast",
-            item.id,
+            item.tdta_leuchten?.fk_standort?.id || item.tdta_standort_mast?.id,
             {
               mastanstrich: new Date(paramsWithCCNonce.anstrichdatum).toISOString(),
               anstrichfarbe: paramsWithCCNonce.anstrichfarbe,
@@ -287,7 +297,7 @@ const protocolAction = (params, item) => {
         intermediateResult4Prot.data.protokollAktionArray.push({
           aenderung: "Elektrische Prüfung*",
           alt: item.elek_pruefung,
-          neu: paramsWithCCNonce.pruefdatum,
+          neu: getDate(paramsWithCCNonce.pruefdatum),
           ccnonce,
         });
 
@@ -307,7 +317,7 @@ const protocolAction = (params, item) => {
 
             {
               elek_pruefung: new Date(paramsWithCCNonce.pruefdatum).toISOString(),
-              erdung: paramsWithCCNonce.erdung_in_ordnung,
+              erdung: paramsWithCCNonce.erdung,
             },
             paramsWithCCNonce
           )
@@ -317,7 +327,7 @@ const protocolAction = (params, item) => {
         intermediateResult4Prot.data.protokollAktionArray.push({
           aenderung: "Inbetriebnahme*",
           alt: item.inbetriebnahme_mast,
-          neu: paramsWithCCNonce.inbetriebnahmedatum,
+          neu: getDate(paramsWithCCNonce.inbetriebnahmedatum),
           ccnonce,
         });
 
@@ -368,7 +378,7 @@ const protocolAction = (params, item) => {
         intermediateResult4Prot.data.protokollAktionArray.push({
           aenderung: "Revision*",
           alt: item.revision,
-          neu: paramsWithCCNonce.revisionsdatum,
+          neu: getDate(paramsWithCCNonce.revisionsdatum),
           ccnonce,
         });
 
@@ -388,7 +398,7 @@ const protocolAction = (params, item) => {
         intermediateResult4Prot.data.protokollAktionArray.push({
           aenderung: "Standsicherheitsprüfung*",
           alt: item.standsicherheitspruefung,
-          neu: paramsWithCCNonce.pruefdatum,
+          neu: getDate(paramsWithCCNonce.pruefdatum),
           ccnonce,
         });
         intermediateResult4Prot.data.protokollAktionArray.push({
@@ -400,7 +410,7 @@ const protocolAction = (params, item) => {
         intermediateResult4Prot.data.protokollAktionArray.push({
           aenderung: "Nächstes Prüfdatum*",
           alt: item.naechstes_pruefdatum,
-          neu: paramsWithCCNonce.naechstes_pruefdatum,
+          neu: getDate(paramsWithCCNonce.naechstes_pruefdatum),
           ccnonce,
         });
 
@@ -422,7 +432,7 @@ const protocolAction = (params, item) => {
         intermediateResult4Prot.data.protokollAktionArray.push({
           aenderung: "Prüfdatum*",
           alt: item.pruefdatum,
-          neu: paramsWithCCNonce.pruefdatum,
+          neu: getDate(paramsWithCCNonce.pruefdatum),
           ccnonce,
         });
 
@@ -442,7 +452,7 @@ const protocolAction = (params, item) => {
         intermediateResult4Prot.data.protokollAktionArray.push({
           aenderung: "Prüfdatum*",
           alt: item.pruefdatum,
-          neu: paramsWithCCNonce.pruefdatum,
+          neu: getDate(paramsWithCCNonce.pruefdatum),
           ccnonce,
         });
 

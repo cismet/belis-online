@@ -61,6 +61,7 @@ const getLayout4Leuchte = ({
   const title = vcard.infobox.header;
 
   const events = getEvents4Leuchte(item);
+  console.log("events", events);
 
   let mainDoc;
   let docs = [];
@@ -115,11 +116,11 @@ const getLayout4Leuchte = ({
 
   if (item?.lebensdauer) {
     if (item?.lebensdauer === 1) {
-      wechselgrund = "Störung";
+      wechselgrund = "Störung" + ivAsterisk(item?.lebensdauer_iv);
     } else if (item?.lebensdauer === 2) {
-      wechselgrund = "Wartungsturnus";
+      wechselgrund = "Wartungsturnus" + ivAsterisk(item?.lebensdauer_iv);
     } else {
-      wechselgrund = "sonstiges (" + item?.lebensdauer + ")";
+      wechselgrund = "sonstiges (" + item?.lebensdauer + ")" + ivAsterisk(item?.lebensdauer_iv);
     }
   }
 
@@ -167,7 +168,7 @@ const getLayout4Leuchte = ({
     </SecondaryInfoPanelSection>
   );
   if (rsItems.length > 1) {
-    subSections.push(getRSDetailsSection(item?.rundsteuerempfaenger));
+    subSections.push(getRSDetailsSection(item));
   }
 
   subSections.push(
@@ -207,7 +208,7 @@ const getLayout4Leuchte = ({
       <SecondaryInfoPanelSection
         key={"Leuchtmittel" + item.id}
         bsStyle='info'
-        header={"Leuchtmittel"}
+        header={"Leuchtmittel" + ivAsterisk(item?.leuchtmittel_iv)}
       >
         <Descriptions column={{ xs: 1, sm: 1, md: 2, lg: 2, xxl: 3 }} layout='horizontal' bordered>
           {clearOptionalDescriptionItems(leuchtMittelItems)}
@@ -287,13 +288,14 @@ export const getRSDetailItems = (rsItem) => {
   }
 };
 
-export const getRSDetailsSection = (rsItem) => {
+export const getRSDetailsSection = (item) => {
+  const rsItem = item?.rundsteuerempfaenger;
   if (rsItem) {
     return (
       <SecondaryInfoPanelSection
         key={"rs" + rsItem.id}
         bsStyle='warning'
-        header={"Rundsteuerempfänger"}
+        header={"Rundsteuerempfänger" + ivAsterisk(item.rundsteuerempfaenger_iv)}
       >
         <Descriptions column={{ xs: 1, sm: 1, md: 2, lg: 2, xxl: 3 }} layout='horizontal' bordered>
           {clearOptionalDescriptionItems(getRSDetailItems(rsItem))}
