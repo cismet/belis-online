@@ -11,8 +11,6 @@ class PaleOverlay extends GridLayer {
         //tile.style.outline = "1px solid red";
         tile.style.background = "#ffffffcc";
 
-        console.log("tile", tile);
-
         return tile;
       },
     });
