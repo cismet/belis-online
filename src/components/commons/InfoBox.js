@@ -43,6 +43,7 @@ const InfoBox = ({ refRoutedMap }) => {
   const { setAll: setPhotoLightBoxData, setVisible, setCaptions } = useContext(
     LightBoxDispatchContext
   );
+
   const selectedArbeitsauftrag = useSelector(
     (state) => state.featureCollection.selectedFeature[FEATURECOLLECTION_MODES.TASKLISTS]
   );
