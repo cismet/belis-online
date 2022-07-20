@@ -146,15 +146,19 @@ const BelisMap = ({ refRoutedMap, width, height, jwt }) => {
 
   const _backgroundLayers = backgroundsFromMode || "rvrGrau@40";
 
-  useEffect(() => {
-    // const key = (inPaleMode === true ? "pale_" : "") + background;
-    const key = background;
-    if (selectedBackground !== backgrounds[key]) {
-      setSelectedBackground(backgrounds[key]);
-    }
-  }, [inPaleMode, background, selectedBackground, setSelectedBackground, dispatch]);
+  //we have 2 backgrounds, one redux background state (important for persistence)
+  // useEffect(() => {
+  //   const key = background;
+  //   if (selectedBackground !== backgrounds[key]) {
+  //     setSelectedBackground(backgrounds[key]);
+  //   }
+  // }, [inPaleMode, background, selectedBackground, setSelectedBackground, dispatch]);
 
   const { mapSize, mapBounds } = mapBoundsAndSize || {};
+
+  console.log("xxx backgroundConfigurations", backgroundConfigurations);
+  console.log("xxx selectedBackground", selectedBackground);
+  console.log("xxx background", background);
 
   //                 __              _ _
   //   __ _  ___    / _| ___  _ __  (_) |_

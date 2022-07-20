@@ -2,13 +2,17 @@ import { blue, green, red } from "@ant-design/colors";
 import { faCheck, faDatabase, faShare, faUser } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon as Icon } from "@fortawesome/react-fontawesome";
 import { useWindowSize } from "@react-hook/window-size";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import Button from "react-bootstrap/Button";
 import ButtonGroup from "react-bootstrap/ButtonGroup";
 import Form from "react-bootstrap/Form";
 import Nav from "react-bootstrap/Nav";
 import Navbar from "react-bootstrap/Navbar";
 import ProgressBar from "react-bootstrap/ProgressBar";
+import {
+  TopicMapStylingContext,
+  TopicMapStylingDispatchContext,
+} from "react-cismap/contexts/TopicMapStylingContextProvider";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
 
@@ -65,7 +69,8 @@ const BottomNavbar = ({
   const [numberOfErrorTasks, setNumberOfErrorTasks] = useState(0);
   const [newest200Status, setNewest200Status] = useState(undefined);
   const [showingGreenCheck, setShowingGreenCheck] = useState(false);
-
+  const { setSelectedBackground } = useContext(TopicMapStylingDispatchContext);
+  const { selectedBackground } = useContext(TopicMapStylingContext);
   useEffect(() => {
     let numberOfPendingTasks = 0;
     let numberOfErrorTasks = 0;
@@ -261,30 +266,33 @@ const BottomNavbar = ({
           <ButtonGroup className='mr-2' aria-label='First group'>
             <Button
               style={{ fontSize }}
-              variant={background === "stadtplan" ? "primary" : "outline-primary"}
+              variant={selectedBackground === "vectorCityMap" ? "primary" : "outline-primary"}
               onClick={() => {
-                dispatch(setBackground("stadtplan"));
+                // dispatch(setBackground("stadtplan"));
+                setSelectedBackground("vectorCityMap");
               }}
             >
-              Stadtplan
+              Standard
             </Button>
             <Button
               style={{ fontSize }}
-              variant={background === "nightplan" ? "primary" : "outline-primary"}
+              variant={selectedBackground === "lbk" ? "primary" : "outline-primary"}
               onClick={() => {
-                dispatch(setBackground("nightplan"));
+                // dispatch(setBackground("lbk"));
+                setSelectedBackground("lbk");
               }}
             >
-              Stadtplan dunkel
+              Hybrid
             </Button>
             <Button
               style={{ fontSize }}
-              variant={background === "lbk" ? "primary" : "outline-primary"}
+              variant={selectedBackground === "ortho" ? "primary" : "outline-primary"}
               onClick={() => {
-                dispatch(setBackground("lbk"));
+                // dispatch(setBackground("ortho"));
+                setSelectedBackground("ortho");
               }}
             >
-              Luftbildkarte
+              Satellit
             </Button>
           </ButtonGroup>
         </Form>
