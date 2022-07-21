@@ -10,11 +10,12 @@ import { Link } from "react-scroll";
 
 import { getFilter } from "../../../core/store/slices/featureCollection";
 import CacheSettings from "./CacheSettings";
+import Filter from "./Filter";
 import MenuFooter from "./MenuFooter";
 import Tasks from "./Tasks";
 import Teams from "./Teams";
 
-const MyMenu = () => {
+const MyMenu = ({ refRoutedMap }) => {
   const { setAppMenuActiveMenuSection } = useContext(UIDispatchContext);
   const filterState = useSelector(getFilter);
   const dispatch = useDispatch();
@@ -102,40 +103,7 @@ const MyMenu = () => {
           sectionKey='filter'
           sectionTitle={"Filter"}
           sectionBsStyle='info'
-          sectionContent={
-            <div>
-              {/* {" "}
-              {Object.keys(filterState).map((key) => {
-                const item = filterState[key];
-                return (
-                  <div key={key + "NavDropdown.Item-key"} style={{ width: 300 }}>
-                    <Switch
-                      id={item.key + "toggle-id"}
-                      key={item.key + "toggle"}
-                      preLabel={item.title}
-                      switched={item.enabled}
-                      toggleStyle={{ float: "right" }}
-                      stateChanged={(switched) => {
-                        const _fs = JSON.parse(JSON.stringify(filterState));
-                        _fs[key].enabled = switched;
-                        dispatch(setFilter(_fs));
-
-                        // setTimeout(() => {
-                        //   dispatch(
-                        //     loadObjects({
-                        //       boundingBox: refRoutedMap.current.getBoundingBox(),
-                        //       overridingFilterState: _fs,
-                        //       jwt: jwt,
-                        //     })
-                        //   );
-                        // }, 50);
-                      }}
-                    /> */}
-              {/* </div>
-                );
-              })} */}
-            </div>
-          }
+          sectionContent={<Filter refRoutedMap={refRoutedMap} />}
         />,
         <DefaultSettingsPanel
           key='settings'

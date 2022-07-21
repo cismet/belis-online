@@ -1,6 +1,14 @@
-import { faBars, faBookOpen, faPowerOff, faRedo, faVial } from "@fortawesome/free-solid-svg-icons";
+import {
+  faBars,
+  faBookOpen,
+  faFilter,
+  faPowerOff,
+  faRedo,
+  faVial,
+} from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon as Icon } from "@fortawesome/react-fontawesome";
 import { useWindowSize } from "@react-hook/window-size";
+import { Modal, Switch, Tag } from "antd";
 import React, { useEffect } from "react";
 import Button from "react-bootstrap/Button";
 import Nav from "react-bootstrap/Nav";
@@ -10,9 +18,10 @@ import { MappingConstants } from "react-cismap";
 import GazetteerSearchComponent from "react-cismap/GazetteerSearchComponent";
 import { useDispatch, useSelector } from "react-redux";
 import { useLongPress } from "use-long-press";
+import Filter from "../components/app/dialogs/Filter";
 
-import Switch from "../components/commons/Switch";
-import { getArtificialError } from "../core/store/slices/app";
+import MySwitch from "../components/commons/Switch";
+import { getArtificialError, showDialog } from "../core/store/slices/app";
 import { storeJWT, storeLogin } from "../core/store/slices/auth";
 import { getBackground } from "../core/store/slices/background";
 import {
@@ -108,30 +117,8 @@ const TopNavbar = ({ innerRef, refRoutedMap, setCacheSettingsVisible, jwt }) => 
         key={"navbar." + fcIsDone}
       >
         <Nav className='mr-auto'>
-          {/* <Nav.Link>
-            <div
-              // onClick={() => {
-              // 	window.location.reload();
-              // }}
-              style={{
-                width: 20,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                backgroundColor_: "red",
-                height: "100%",
-              }}
-              key={"navbar.div." + fcIsDone}
-            >
-              {fcIsDone === false && searchModeActive === true && (
-                <Icon className='text-primary' spin icon={faSpinner} />
-                // <span>-.-</span>
-              )}
-              {fcIsDone === true && <div style={{ fontSize: 9 }}>{featureCollection.length}</div>}
-            </div>
-          </Nav.Link> */}
           <Nav.Link>
-            <Switch
+            <MySwitch
               disabled={searchForbidden}
               id='search-mode-toggle'
               key={"search-mode-toggle" + searchModeActive}
@@ -154,43 +141,27 @@ const TopNavbar = ({ innerRef, refRoutedMap, setCacheSettingsVisible, jwt }) => 
               }}
             />
           </Nav.Link>
-          <NavDropdown
-            style={{ zIndex: 10000 }}
-            className='text-primary'
-            title='nach'
-            id='basic-nav-dropdown'
-            rootCloseEvent='jj'
-          >
-            {Object.keys(filterState).map((key) => {
-              const item = filterState[key];
-              return (
-                <NavDropdown.Item key={key + "NavDropdown.Item-key"} style={{ width: 300 }}>
-                  <Switch
-                    id={item.key + "toggle-id"}
-                    key={item.key + "toggle"}
-                    preLabel={item.title}
-                    switched={item.enabled}
-                    toggleStyle={{ float: "right" }}
-                    stateChanged={(switched) => {
-                      const _fs = JSON.parse(JSON.stringify(filterState));
-                      _fs[key].enabled = switched;
-                      dispatch(setFilter(_fs));
 
-                      setTimeout(() => {
-                        dispatch(
-                          loadObjects({
-                            boundingBox: refRoutedMap.current.getBoundingBox(),
-                            overridingFilterState: _fs,
-                            jwt: jwt,
-                          })
-                        );
-                      }, 50);
-                    }}
-                  />
-                </NavDropdown.Item>
+          <Nav.Link
+            onClick={(e) => {
+              const filterDialog = (
+                <Filter refRoutedMap={refRoutedMap} filterStateFromRedux={filterState} />
               );
-            })}
-          </NavDropdown>
+              dispatch(showDialog(filterDialog));
+            }}
+            style={{ marginRight: 20, marginLeft: 20 }}
+          >
+            <Icon className='text-primary' icon={faFilter} /> Filter (
+            {Object.entries(filterState).reduce((prev, curr) => {
+              if (curr[1]?.enabled) {
+                return prev + 1;
+              } else {
+                return prev;
+              }
+            }, 0)}
+            /{Object.entries(filterState).length})
+          </Nav.Link>
+
           <Nav.Link
             onClick={(e) => {
               if (e.ctrlKey || e.altKey || e.shiftKey || isInStandaloneMode()) {

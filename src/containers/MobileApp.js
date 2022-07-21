@@ -250,6 +250,7 @@ const View = () => {
           setAppMenuVisible(false);
         }}
         jwt={storedJWT}
+        refRoutedMap={refRoutedMap}
       />
       {appDialog}
 
