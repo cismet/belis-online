@@ -121,6 +121,7 @@ const BelisMap = ({ refRoutedMap, width, height, jwt }) => {
   };
   const featureCollection = useSelector(getFeatureCollection);
   const inFocusMode = useSelector(isInFocusMode);
+  const fcMode = useSelector(getFeatureCollectionMode);
   const secondaryInfoVisible = useSelector(isSecondaryInfoVisible);
   const selectedFeature = useSelector(getSelectedFeature);
   const featureCollectionMode = useSelector(getFeatureCollectionMode);
@@ -296,7 +297,7 @@ const BelisMap = ({ refRoutedMap, width, height, jwt }) => {
       {/* <DebugFeature feature={focusBoundingBox} /> */}
 
       <FocusRectangle
-        inFocusMode={inFocusMode}
+        inFocusMode={inFocusMode && fcMode === MODES.OBJECTS}
         mapWidth={mapStyle.width}
         mapHeight={mapStyle.height}
       />
