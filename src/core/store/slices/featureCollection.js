@@ -15,8 +15,8 @@ import {
 } from "./search";
 import { getZoom } from "./zoom";
 
-const focusedSearchMinimumZoomThreshhold = 16.5;
-const searchMinimumZoomThreshhold = 17.5;
+const focusedSearchMinimumZoomThreshhold = 18;
+const searchMinimumZoomThreshhold = 19;
 export const MODES = { OBJECTS: "OBJECTS", TASKLISTS: "TASKLISTS", PROTOCOLS: "PROTOCOLS" };
 
 export const initialFilter = {
