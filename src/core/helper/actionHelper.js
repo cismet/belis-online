@@ -74,7 +74,7 @@ export const getObjectActionInfos = ({
       dispatch,
     });
     actionLinkInfos.push({
-      tooltip: "Störung meldenn",
+      tooltip: "Störung melden",
       subs,
       iconname: "exclamation-triangle",
     });

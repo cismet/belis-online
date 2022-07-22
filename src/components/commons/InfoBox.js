@@ -441,7 +441,7 @@ const InfoBox = ({ refRoutedMap }) => {
                         key={"actionbutton." + index}
                         size='lg'
                         variant='light'
-                        tooltip={li.tooltip}
+                        title={li.tooltip}
                       >
                         <h2>
                           {li.iconname && <Icon name={li.iconname} />}
@@ -463,7 +463,7 @@ const InfoBox = ({ refRoutedMap }) => {
                       size='lg'
                       variant='light'
                       onClick={li.onClick}
-                      tooltip={li.tooltip}
+                      title={li.tooltip}
                     >
                       <h2>
                         {li.iconname && <Icon name={li.iconname} />}
