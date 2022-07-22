@@ -4,6 +4,7 @@ import {
   faFilter,
   faPowerOff,
   faRedo,
+  faSearch,
   faVial,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon as Icon } from "@fortawesome/react-fontawesome";
@@ -117,18 +118,32 @@ const TopNavbar = ({ innerRef, refRoutedMap, setCacheSettingsVisible, jwt }) => 
         key={"navbar." + fcIsDone}
       >
         <Nav className='mr-auto'>
+          <Nav.Link
+            disabled={searchForbidden}
+            onClick={(e) => {
+              dispatch(
+                loadObjects({
+                  boundingBox: refRoutedMap.current.getBoundingBox(),
+                  jwt: jwt,
+                  force: true,
+                  manualRequest: true,
+                })
+              );
+            }}
+            // style={{ cursor: "not-allowed!important" }} works not (should be conditionally done when search forbidden). don't know why
+          >
+            <Icon className={searchForbidden ? "text" : "text-primary"} icon={faSearch} />
+          </Nav.Link>
           <Nav.Link>
-            <MySwitch
+            <Switch
               disabled={searchForbidden}
-              id='search-mode-toggle'
-              key={"search-mode-toggle" + searchModeActive}
-              preLabel='Suche'
-              switched={searchModeActive}
-              stateChanged={(switched) => {
+              checked={searchModeActive}
+              checkedChildren='automatische Suche'
+              unCheckedChildren='automatische Suche'
+              onChange={(switched) => {
                 dispatch(setSearchModeActive(switched));
                 if (switched === true) {
                   dispatch(setSearchModeWish(true));
-
                   dispatch(
                     loadObjects({
                       boundingBox: refRoutedMap.current.getBoundingBox(),
@@ -240,6 +255,7 @@ const TopNavbar = ({ innerRef, refRoutedMap, setCacheSettingsVisible, jwt }) => 
             referenceSystem={MappingConstants.crs3857}
             referenceSystemDefinition={MappingConstants.proj4crs3857def}
             autoFocus={false}
+            tooltipPlacement='top'
           />
         </span>
 

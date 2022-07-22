@@ -2,6 +2,7 @@ import { blue, green, red } from "@ant-design/colors";
 import { faCheck, faDatabase, faShare, faUser } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon as Icon } from "@fortawesome/react-fontawesome";
 import { useWindowSize } from "@react-hook/window-size";
+import { Switch } from "antd";
 import React, { useContext, useEffect, useState } from "react";
 import Button from "react-bootstrap/Button";
 import ButtonGroup from "react-bootstrap/ButtonGroup";
@@ -16,7 +17,7 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
 
-import Switch from "../components/commons/Switch";
+import MySwitch from "../components/commons/Switch";
 import { CONNECTIONMODE, getConnectionMode, setConnectionMode } from "../core/store/slices/app";
 import { getLoginFromJWT } from "../core/store/slices/auth";
 import { getBackground, setBackground } from "../core/store/slices/background";
@@ -245,11 +246,12 @@ const BottomNavbar = ({
         </Nav>
 
         <Nav className='mr-auto'>
-          <Switch
+          <MySwitch
             id='focus-toggle'
             preLabel='Fokus'
             switched={inFocusMode}
             size={toggleSize}
+            style={{ paddingTop: 5 }}
             stateChanged={(switched) => {
               dispatch(setFocusModeActive(switched));
               setTimeout(() => {
@@ -263,13 +265,15 @@ const BottomNavbar = ({
               }, 300);
             }}
           />
+
           <div style={{ width: 10 }} />
-          <Switch
+          <MySwitch
             id='pale-toggle'
             preLabel='Blass'
             switched={inPaleMode}
             stateChanged={(switched) => dispatch(setPaleModeActive(switched))}
             size={toggleSize}
+            style={{ paddingTop: 5 }}
           />
         </Nav>
 
