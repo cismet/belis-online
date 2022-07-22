@@ -51,8 +51,6 @@ export const fillTeamsFromDexie = () => {
   return async (dispatch, getState) => {
     const dexieW = getState().dexie.worker;
     const teams = await dexieW.getAll("team");
-    console.log("qqqq", teams);
-
     dispatch(setTeams(teams));
   };
 };
