@@ -141,9 +141,13 @@ const geometryFactory = (arbeitsauftrag) => {
     }
   }
   const turfCollection = turfHelpers.featureCollection(geoms);
-
-  const convexFeature = convex(turfCollection);
-  return convexFeature.geometry;
+  try {
+    const convexFeature = convex(turfCollection);
+    return convexFeature.geometry;
+  } catch (e) {
+    console.error("xxx error in " + arbeitsauftrag.id, e);
+    return undefined;
+  }
 };
 
 const createGeomOnlyFeature = (geom) => {
