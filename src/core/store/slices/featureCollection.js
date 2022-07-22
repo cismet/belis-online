@@ -269,6 +269,7 @@ export const loadObjects = ({
   jwt,
   force = false,
   onlineDataForcing,
+  manualRequest = false,
 }) => {
   return async (dispatch, getState) => {
     if (!jwt || !boundingBox) {
@@ -299,7 +300,7 @@ export const loadObjects = ({
     } else if (_searchForbidden === false && searchModeActive === true) {
       dispatch(setSearchModeWished(true));
     }
-    if (searchModeActive === true) {
+    if (searchModeActive === true || manualRequest === true) {
       const _filterstate = overridingFilterState || _filterState;
       const reqBasis =
         JSON.stringify(boundingBox) + "." + JSON.stringify(_filterstate) + "." + inFocusMode;
