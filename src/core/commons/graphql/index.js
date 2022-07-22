@@ -1,17 +1,26 @@
 import { DOMAIN, REST_SERVICE } from "../../../constants/belis";
 
 export async function fetchGraphQL(operationsDoc, variables, jwt) {
+  //check if there is a query param with the name logGQL
+
+  const logGQLFromSearch = new URLSearchParams(window.location.search).get("logGQL");
+  const logGQLEnabled = logGQLFromSearch !== null && logGQLFromSearch !== "false";
+  const nonce = Math.floor(Math.random() * 1000);
+
   //	const result = await fetch('http:// localhost:8890/actions/WUNDA_BLAU.graphQl/tasks?resultingInstanceType=result', {
   let myHeaders = new Headers();
   myHeaders.append("Authorization", "Bearer " + jwt);
   myHeaders.append("Content-Type", "application/json");
-  // myHeaders.append("Content-Encoding", "gzip");
 
-  const body = JSON.stringify({
+  // myHeaders.append("Content-Encoding", "gzip");
+  const queryObject = {
     query: operationsDoc,
     variables: variables,
-  });
-
+  };
+  const body = JSON.stringify(queryObject);
+  if (logGQLEnabled) {
+    console.log(`logGQL:: GraphQL query (${nonce}):`, queryObject);
+  }
   try {
     const result = await fetch(REST_SERVICE + "/graphql/" + DOMAIN + "/execute", {
       method: "POST",
@@ -20,7 +29,11 @@ export async function fetchGraphQL(operationsDoc, variables, jwt) {
     });
     // console.log("xxx result", result);
 
-    return await result.json();
+    const resultjson = await result.json();
+    if (logGQLEnabled) {
+      console.log(`logGQL:: Result (${nonce}):`, resultjson);
+    }
+    return resultjson;
   } catch (e) {
     console.log("error in fetch", e);
     throw new Error(e);
