@@ -365,13 +365,13 @@ export const renewCache = (
       }
     };
     dexieW.addEventListener("message", progressListener);
-    console.log("cacheQueries[" + itemKey + "]", { gql: cacheQueries[itemKey] });
-    if (itemKey === "arbeitsauftrag") {
-      console.log(
-        "cacheControl.config[itemKey]",
-        config[itemKey].parameterFactory(stateForParameterFactory)
-      );
-    }
+    // console.log("cacheQueries[" + itemKey + "]", { gql: cacheQueries[itemKey] });
+    // if (itemKey === "arbeitsauftrag") {
+    //   console.log(
+    //     "cacheControl.config[itemKey]",
+    //     config[itemKey].parameterFactory(stateForParameterFactory)
+    //   );
+    // }
 
     fetchGraphQL(
       cacheQueries[itemKey],
@@ -379,7 +379,7 @@ export const renewCache = (
       jwt
     )
       .then((result) => {
-        console.log("result", result);
+        // console.log("result", result);
 
         console.log(itemKey + " returned with " + result.data[dataKey].length + " results");
         // console.log(itemKey + " returned with ", result.data[dataKey]);

@@ -76,7 +76,7 @@ export const offlineConfig = {
     "https://omt.map-hosting.de/styles/gewaesser/style.json",
   ],
   realServerFallback: true, //should be true in production
-  consoleDebug: process.env.NODE_ENV !== "production",
+  consoleDebug: false && process.env.NODE_ENV !== "production",
   optional: true,
   initialActive: false, //todo set to true in production
 };

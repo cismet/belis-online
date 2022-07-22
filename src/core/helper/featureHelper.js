@@ -369,7 +369,7 @@ const getIntermediateResultsImages = (item, intermediateResults, itemtype) => {
 };
 
 const integrateIntermediateResultsIntoObjects = (intermediateResults, item, type, id) => {
-  console.log("integrateIntermediateResultsIntoObjects " + type, id);
+  // console.log("integrateIntermediateResultsIntoObjects " + type, id);
 
   if (intermediateResults && intermediateResults[type]) {
     const irs = intermediateResults[type][id];
@@ -392,7 +392,6 @@ export const integrateIntermediateResults = (feature, intermediateResults) => {
   if (item.docs) {
     item.docs = item.docs.filter((doc) => !doc.intermediate);
   }
-  console.log("xxx integrateIntermediateResults");
 
   docs = getIntermediateResultsImages(item, intermediateResults, feature.featuretype.toLowerCase());
 
