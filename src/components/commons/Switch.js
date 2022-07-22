@@ -10,8 +10,9 @@ const Comp = (props) => {
     }
   };
   const size = props.size;
+  const style = props.style || {};
   return (
-    <div>
+    <div style={style}>
       <span>
         <span
           onClick={(e) => {
