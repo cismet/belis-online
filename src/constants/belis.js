@@ -109,6 +109,11 @@ export const backgroundConfigurations = {
     src: "/images/rain-hazard-map-bg/citymap.png",
     title: "Stadtplan",
   },
+  stadtplan: {
+    layerkey: "osmBrightOffline",
+    src: "/images/rain-hazard-map-bg/citymap.png",
+    title: "Stadtplan",
+  },
   darkMatter: {
     layerkey: "dark_matter",
     src: "/images/rain-hazard-map-bg/citymap.png",
@@ -146,7 +151,7 @@ export const backgroundModes = [
   {
     title: "Stadtplan (bunt)",
     mode: "default",
-    layerKey: "vectorCityMap",
+    layerKey: "stadtplan",
     offlineDataStoreKey: "wuppBasemap",
   },
 
