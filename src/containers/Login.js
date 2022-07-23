@@ -52,7 +52,6 @@ const Login = () => {
             // setPw(cheats.cheatingPassword);
             values.password = cheats.cheatingPassword;
           }
-          console.log("form.setFieldsValue", { username: values.user, password: values.password });
 
           form.setFieldsValue({ username: values.user, password: values.password });
         }
