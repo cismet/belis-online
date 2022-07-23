@@ -245,6 +245,7 @@ const FallbackComponent = ({ error, resetErrorBoundary }) => {
                 console.log("deleting cache");
                 dispatch(setConnectionMode(CONNECTIONMODE.LIVE));
                 dispatch(deleteCacheDB());
+                window.location.reload();
               }
             }}
           >
