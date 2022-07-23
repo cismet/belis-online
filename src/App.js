@@ -18,6 +18,7 @@ import { appKey, storagePostfix } from "./Keys";
 
 import "./App.css";
 import "antd/dist/antd.css";
+import Login from "./containers/Login";
 
 let persistor = persistStore(store);
 
@@ -95,14 +96,6 @@ function App() {
               <div className='App'>
                 <Switch>
                   <Route path='/app'>
-                    <MobileApp />
-                  </Route>
-
-                  <Route path='/test'>
-                    <Test />
-                  </Route>
-
-                  <Route path='/'>
                     <TopicMapContextProvider
                       appKey={appKey + "." + storagePostfix}
                       backgroundModes={backgroundModes}
@@ -124,6 +117,9 @@ function App() {
                     >
                       <MobileApp />
                     </TopicMapContextProvider>
+                  </Route>
+                  <Route path='/'>
+                    <Login />
                   </Route>
                 </Switch>
               </div>
