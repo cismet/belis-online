@@ -188,8 +188,10 @@ const SideBar = ({ innerRef, height }) => {
                 <div>
                   {dones[MODES.PROTOCOLS] === false ? (
                     <FontAwesomeIcon className='text-primary' spin icon={faSpinner} />
-                  ) : (
+                  ) : featureCollections[MODES.PROTOCOLS].length > 0 ? (
                     featureCollections[MODES.PROTOCOLS].length
+                  ) : (
+                    "-"
                   )}
                   <br></br>
                   {featureCollections[MODES.PROTOCOLS].length === 1 ? "Protokoll" : "Protokolle"}
