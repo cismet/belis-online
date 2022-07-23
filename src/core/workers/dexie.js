@@ -33,10 +33,10 @@ export async function putArray(inputArray, objectstorename) {
 
 export async function deleteDB() {
   try {
-    db.tables.forEach(function (table) {
-      db[table.name].clear();
-    });
-
+    // db.tables.forEach(function (table) {
+    //   db[table.name].clear();
+    // });
+    db.delete();
     // initialize(db);
   } catch (err) {
     console.log("worker error in deleteDB", err);
