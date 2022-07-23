@@ -145,7 +145,7 @@ export const getTimelineForActions = ({ actions }) => {
               style={{ paddingBottom: 0 }}
               color={color}
               dot={dot}
-              label={action.aenderung}
+              label={action.aenderung + (action.ir === true ? "*" : "")}
             >
               <div
                 style={{
