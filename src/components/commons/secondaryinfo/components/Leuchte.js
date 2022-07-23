@@ -53,7 +53,6 @@ const getLayout4Leuchte = ({
   const title = vcard.infobox.header;
 
   const events = getEvents4Leuchte(item);
-  console.log("events", events);
 
   let mainDoc;
   let docs = [];
