@@ -122,8 +122,6 @@ export const getSquaredThumbnails = ({ docs, type, jwt, setIndex, setVisible }) 
 export const collectEvents = (item, eventPath) => {};
 
 export const getTimelineForActions = ({ actions }) => {
-  console.log("actions", actions);
-
   if (actions.length > 0) {
     const sorted = actions.sort((a, b) => (a.id < b.id ? -1 : 1));
 
