@@ -281,10 +281,10 @@ const BottomNavbar = ({
           <ButtonGroup className='mr-2' aria-label='First group'>
             <Button
               style={{ fontSize }}
-              variant={selectedBackground === "vectorCityMap" ? "primary" : "outline-primary"}
+              variant={selectedBackground === "stadtplan" ? "primary" : "outline-primary"}
               onClick={() => {
                 // dispatch(setBackground("stadtplan"));
-                setSelectedBackground("vectorCityMap");
+                setSelectedBackground("stadtplan");
               }}
             >
               Standard
