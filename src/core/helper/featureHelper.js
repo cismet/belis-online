@@ -470,7 +470,6 @@ export const integrateIntermediateResults = (feature, intermediateResults) => {
     case "arbeitsprotokoll":
       if (intermediateResults.arbeitsprotokoll) {
         const irs = intermediateResults[feature.featuretype][item.id];
-        console.log("xxxx irs", feature.featuretype, item.id);
 
         if (irs?.object) {
           for (const ir of irs.object) {
