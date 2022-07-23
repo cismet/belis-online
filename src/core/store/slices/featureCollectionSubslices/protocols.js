@@ -58,7 +58,6 @@ export const loadProtocollsIntoFeatureCollection = ({
               response.data.arbeitsauftrag,
               true
             );
-            console.log("aaFeature always 1", aaFeatures);
             const newAAReplacement = aaFeatures[0];
             dispatch(updateFeatureForMode({ mode: MODES.TASKLISTS, feature: newAAReplacement }));
             const result = response.data.arbeitsauftrag[0];
