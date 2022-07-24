@@ -212,7 +212,8 @@ export const isCacheFullUsable = (state) => {
   for (const key of getAllInfoKeys(state)) {
     if (
       key &&
-      (state.cacheControl.types[key].lastUpdate === undefined ||
+      (state.cacheControl.types[key].objectCount === 0 ||
+        state.cacheControl.types[key].lastUpdate === undefined ||
         state.cacheControl.types[key].lastUpdate === -1 ||
         state.cacheControl.types[key].loadingState === "loading" ||
         state.cacheControl.types[key].loadingState === "caching")
@@ -288,12 +289,14 @@ export const deleteCacheDB = () => {
   return async (dispatch, getState) => {
     dexieW.deleteDB();
     dispatch(fillCacheInfo());
-    const settings = getCacheSettings(getState());
-    Object.keys(settings).forEach((key) => {
-      console.log("key", key);
-      dispatch(setLoadingState({ key, loadingState: undefined }));
-      dispatch(setLastUpdate({ key, lastUpdate: undefined }));
-    });
+
+    // const settings = getCacheSettings(getState());
+    // Object.keys(settings).forEach((key) => {
+    //   console.log("key", key);
+    //   dispatch(setLoadingState({ key, loadingState: undefined }));
+    //   dispatch(setLastUpdate({ key, lastUpdate: undefined }));
+    //   dispatch(setLastUpdate({ key, objectCount: -1 }));
+    // });
   };
 };
 export const renewAllSecondaryInfoCache = (jwt) => {
@@ -380,47 +383,49 @@ export const renewCache = (
     )
       .then((result) => {
         // console.log("result", result);
+        if (result.ok) {
+          console.log(itemKey + " returned with " + result.data[dataKey].length + " results");
+          // console.log(itemKey + " returned with ", result.data[dataKey]);
+          dispatch(setLoadingState({ key, loadingState: "caching" }));
+          dispatch(setObjectCount({ key, objectCount: result.data[dataKey].length }));
+          dispatch(setUpdateCount({ key, updateCount: result.data[dataKey].length }));
+          //async block
+          (async () => {
+            //put the data in the indexedDB
+            console.log(itemKey + " in async block");
 
-        console.log(itemKey + " returned with " + result.data[dataKey].length + " results");
-        // console.log(itemKey + " returned with ", result.data[dataKey]);
-        dispatch(setLoadingState({ key, loadingState: "caching" }));
-        dispatch(setObjectCount({ key, objectCount: result.data[dataKey].length }));
-        dispatch(setUpdateCount({ key, updateCount: result.data[dataKey].length }));
-        //async block
-        (async () => {
-          //put the data in the indexedDB
-          console.log(itemKey + " in async block");
+            await dexieW.clear(itemKey);
+            console.log(itemKey + " clear executed");
 
-          await dexieW.clear(itemKey);
-          console.log(itemKey + " clear executed");
+            await dexieW.putArray(result.data[dataKey], itemKey);
+            console.log(itemKey + " putArray executed");
 
-          await dexieW.putArray(result.data[dataKey], itemKey);
-          console.log(itemKey + " putArray executed");
+            //reset loadingState in 1 minute
+            const resetTimer = setTimeout(() => {
+              dispatch(setLoadingState({ key, resetTimer, loadingState: undefined }));
+            }, 30000);
 
-          //reset loadingState in 1 minute
-          const resetTimer = setTimeout(() => {
-            dispatch(setLoadingState({ key, resetTimer, loadingState: undefined }));
-          }, 30000);
+            //set loading state done
+            dispatch(setLoadingState({ key, resetTimer, loadingState: "cached" }));
+            dispatch(setLastUpdate({ key, lastUpdate: new Date().getTime() }));
+            console.log(itemKey + " setLoadingState: cached");
 
-          //set loading state done
-          dispatch(setLoadingState({ key, resetTimer, loadingState: "cached" }));
-          dispatch(setLastUpdate({ key, lastUpdate: new Date().getTime() }));
-          console.log(itemKey + " setLoadingState: cached");
+            //remove the intermediate results of this datatype
+            dispatch(clearIntermediateResults(key));
 
-          //remove the intermediate results of this datatype
-          dispatch(clearIntermediateResults(key));
+            //removeEVent Listener to free memory
+            dexieW.removeEventListener("message", progressListener);
 
-          //removeEVent Listener to free memory
-          dexieW.removeEventListener("message", progressListener);
-
-          if (itemKey === "raw_point_index") {
-            //todo: the initIndex function should be called, after the cache was completely refreshed
-            //to use the new data for the geometry search
-            dispatch(initIndex(() => {}));
-          }
-          successHook();
-        })();
-        // }
+            if (itemKey === "raw_point_index") {
+              //todo: the initIndex function should be called, after the cache was completely refreshed
+              //to use the new data for the geometry search
+              dispatch(initIndex(() => {}));
+            }
+            successHook();
+          })();
+        } else {
+          throw new Error("Error in fetchGraphQL (" + result.status + ")");
+        }
       })
       .catch(function (error) {
         console.log("xxx error in fetch ", error);
