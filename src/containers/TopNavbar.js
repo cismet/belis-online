@@ -59,7 +59,13 @@ import { getTeam } from "../core/store/slices/team";
 
 //---------
 
-const TopNavbar = ({ innerRef, refRoutedMap, setCacheSettingsVisible, jwt }) => {
+const TopNavbar = ({
+  innerRef,
+  refRoutedMap,
+  setAppMenuVisible,
+  setAppMenuActiveMenuSection,
+  jwt,
+}) => {
   const dispatch = useDispatch();
   const history = useHistory();
 
@@ -195,7 +201,21 @@ const TopNavbar = ({ innerRef, refRoutedMap, setCacheSettingsVisible, jwt }) => 
           </Nav.Link>
         </Nav>
 
-        <Nav className='mr-auto text-primary'>
+        <Nav
+          style={{ cursor: "pointer" }}
+          onClick={() => {
+            console.log("selectedTeam", selectedTeam);
+            if (selectedTeam.name === "-") {
+              // open the menu with activated team selection
+              setAppMenuActiveMenuSection("teams");
+              setAppMenuVisible(true);
+            } else {
+              //switch to tasklist mode
+              dispatch(setMode(MODES.TASKLISTS));
+            }
+          }}
+          className='mr-auto text-primary'
+        >
           {selectedArbeitsauftrag
             ? selectedArbeitsauftrag.properties.nummer
             : "Kein Arbeitsauftrag ausgewählt"}{" "}
@@ -281,7 +301,7 @@ const TopNavbar = ({ innerRef, refRoutedMap, setCacheSettingsVisible, jwt }) => 
         <Button
           size={narrow ? "sm" : ""}
           onClick={() => {
-            setCacheSettingsVisible(true);
+            setAppMenuVisible(true);
           }}
           variant='outline-primary'
         >

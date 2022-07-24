@@ -282,7 +282,9 @@ const View = () => {
       <TopNavbar
         innerRef={refUpperToolbar}
         refRoutedMap={refRoutedMap}
-        setCacheSettingsVisible={setAppMenuVisible}
+        setAppMenuVisible={setAppMenuVisible}
+        setAppMenuActiveMenuSection={setAppMenuActiveMenuSection}
+        setCacheSettingsVisible
         jwt={storedJWT}
       />
       <SideBar
