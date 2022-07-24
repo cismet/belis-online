@@ -9,7 +9,8 @@ export async function fetchGraphQL(operationsDoc, variables, jwt) {
 
   //	const result = await fetch('http:// localhost:8890/actions/WUNDA_BLAU.graphQl/tasks?resultingInstanceType=result', {
   let myHeaders = new Headers();
-  myHeaders.append("Authorization", "Bearer " + jwt);
+
+  myHeaders.append("Authorization", "Bearer " + (jwt || "unset.jwt.token"));
   myHeaders.append("Content-Type", "application/json");
 
   // myHeaders.append("Content-Encoding", "gzip");
@@ -22,37 +23,27 @@ export async function fetchGraphQL(operationsDoc, variables, jwt) {
     console.log(`logGQL:: GraphQL query (${nonce}):`, queryObject);
   }
   try {
-    const result = await fetch(REST_SERVICE + "/graphql/" + DOMAIN + "/execute", {
+    const response = await fetch(REST_SERVICE + "/graphql/" + DOMAIN + "/execute", {
       method: "POST",
       headers: myHeaders,
       body,
     });
-    // console.log("xxx result", result);
-
-    const resultjson = await result.json();
-    if (logGQLEnabled) {
-      console.log(`logGQL:: Result (${nonce}):`, resultjson);
+    if (response.status >= 200 && response.status < 300) {
+      const resultjson = await response.json();
+      if (logGQLEnabled) {
+        console.log(`logGQL:: Result (${nonce}):`, resultjson);
+      }
+      return { ok: true, status: response.status, ...resultjson };
+    } else {
+      return {
+        ok: false,
+        status: response.status,
+      };
     }
-    return resultjson;
   } catch (e) {
-    console.log("error in fetch", e);
+    if (logGQLEnabled) {
+      console.log("error in fetch", e);
+    }
     throw new Error(e);
   }
 }
-
-// export async function fetchGraphQL(operationsDoc, variables) {
-// 	const result = await fetch('htt ps://belis-alpha-graphql-api.cismet.de/v1/graphql', {
-// 		method: 'POST',
-// 		body: JSON.stringify({
-// 			query: operationsDoc,
-// 			variables: variables
-// 		}),
-// 		header: myHeaders
-// 	});
-
-// 	return await result.json();
-// }
-// let myHeaders = new Headers();
-// myHeaders.append('pragma', 'no-cache');
-// myHeaders.append('cache-control', 'no-cache');
-// myHeaders.append('x-hasura-admin-secret', 'Xooquixac5Hae');
