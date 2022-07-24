@@ -150,11 +150,11 @@ const protocolAction = (params, item) => {
           )
         );
 
-        if (item.tdta_leuchten.fk_standort) {
+        if (item.tdta_leuchten?.fk_standort) {
           dispatch(
             addMoreIntermediateResults(
               "tdta_standort_mast",
-              item.tdta_leuchten.fk_standort.id,
+              item.tdta_leuchten?.fk_standort.id,
               {
                 elek_pruefung: new Date(paramsWithCCNonce.pruefdatum).toISOString(),
                 erdung: paramsWithCCNonce.erdung,
@@ -299,7 +299,7 @@ const protocolAction = (params, item) => {
         intermediateResult4Prot.data.protokollAktionArray.push({
           aenderung: "Mastanstrich",
           alt:
-            item.tdta_standort_mast?.mastanstrich || item.tdta_leuchten.fk_standort?.mastanstrich,
+            item.tdta_standort_mast?.mastanstrich || item.tdta_leuchten?.fk_standort?.mastanstrich,
           neu: getDate(paramsWithCCNonce.anstrichdatum),
           ccnonce,
           ir: true,
@@ -308,7 +308,8 @@ const protocolAction = (params, item) => {
         intermediateResult4Prot.data.protokollAktionArray.push({
           aenderung: "Anstrichfarbe",
           alt:
-            item.tdta_standort_mast?.anstrichfarbe || item.tdta_leuchten.fk_standort?.anstrichfarbe,
+            item.tdta_standort_mast?.anstrichfarbe ||
+            item.tdta_leuchten?.fk_standort?.anstrichfarbe,
           neu: paramsWithCCNonce.anstrichfarbe,
           ccnonce,
           ir: true,
@@ -330,7 +331,8 @@ const protocolAction = (params, item) => {
         intermediateResult4Prot.data.protokollAktionArray.push({
           aenderung: "Elektrische Prüfung",
           alt:
-            item.tdta_standort_mast?.elek_pruefung || item.tdta_leuchten.fk_standort?.elek_pruefung,
+            item.tdta_standort_mast?.elek_pruefung ||
+            item.tdta_leuchten?.fk_standort?.elek_pruefung,
           neu: getDate(paramsWithCCNonce.pruefdatum),
           ccnonce,
           ir: true,
@@ -338,7 +340,7 @@ const protocolAction = (params, item) => {
 
         intermediateResult4Prot.data.protokollAktionArray.push({
           aenderung: "Erdung in Ordnung",
-          alt: item.tdta_standort_mast?.erdung || item.tdta_leuchten.fk_standort?.erdung,
+          alt: item.tdta_standort_mast?.erdung || item.tdta_leuchten?.fk_standort?.erdung,
           neu: paramsWithCCNonce.erdung_in_ordnung,
           ccnonce,
           ir: true,
@@ -364,7 +366,7 @@ const protocolAction = (params, item) => {
           aenderung: "Inbetriebnahme",
           alt:
             item.tdta_standort_mast?.inbetriebnahme_mast ||
-            item.tdta_leuchten.fk_standort?.inbetriebnahme_mast,
+            item.tdta_leuchten?.fk_standort?.inbetriebnahme_mast,
           neu: getDate(paramsWithCCNonce.inbetriebnahmedatum),
           ccnonce,
           ir: true,
@@ -373,7 +375,7 @@ const protocolAction = (params, item) => {
         intermediateResult4Prot.data.protokollAktionArray.push({
           aenderung: "Montagefirma",
           alt:
-            item.tdta_standort_mast?.montagefirma || item.tdta_leuchten.fk_standort?.montagefirma,
+            item.tdta_standort_mast?.montagefirma || item.tdta_leuchten?.fk_standort?.montagefirma,
           neu: paramsWithCCNonce.montagefirma,
           ccnonce,
           ir: true,
@@ -382,7 +384,7 @@ const protocolAction = (params, item) => {
           aenderung: "Standsicherheitsprüfung",
           alt:
             item.tdta_standort_mast?.standsicherheitspruefung ||
-            item.tdta_leuchten.fk_standort?.standsicherheitspruefung,
+            item.tdta_leuchten?.fk_standort?.standsicherheitspruefung,
           neu: null,
           ccnonce,
           ir: true,
@@ -390,7 +392,7 @@ const protocolAction = (params, item) => {
 
         intermediateResult4Prot.data.protokollAktionArray.push({
           aenderung: "Verfahren",
-          alt: item.tdta_standort_mast?.verfahren || item.tdta_leuchten.fk_standort?.verfahren,
+          alt: item.tdta_standort_mast?.verfahren || item.tdta_leuchten?.fk_standort?.verfahren,
           neu: null,
           ccnonce,
           ir: true,
@@ -399,7 +401,7 @@ const protocolAction = (params, item) => {
           aenderung: "Nächstes Prüfdatum",
           alt:
             item.tdta_standort_mast?.naechstes_pruefdatum ||
-            item.tdta_leuchten.fk_standort?.naechstes_pruefdatum,
+            item.tdta_leuchten?.fk_standort?.naechstes_pruefdatum,
           neu: null,
           ccnonce,
           ir: true,
@@ -425,7 +427,7 @@ const protocolAction = (params, item) => {
       case "protokollStandortRevision":
         intermediateResult4Prot.data.protokollAktionArray.push({
           aenderung: "Revision",
-          alt: item.tdta_standort_mast?.revision || item.tdta_leuchten.fk_standort?.revision,
+          alt: item.tdta_standort_mast?.revision || item.tdta_leuchten?.fk_standort?.revision,
           neu: getDate(paramsWithCCNonce.revisionsdatum),
           ccnonce,
           ir: true,
@@ -448,14 +450,14 @@ const protocolAction = (params, item) => {
           aenderung: "Standsicherheitsprüfung",
           alt:
             item.tdta_standort_mast?.standsicherheitspruefung ||
-            item.tdta_leuchten.fk_standort?.standsicherheitspruefung,
+            item.tdta_leuchten?.fk_standort?.standsicherheitspruefung,
           neu: getDate(paramsWithCCNonce.pruefdatum),
           ccnonce,
           ir: true,
         });
         intermediateResult4Prot.data.protokollAktionArray.push({
           aenderung: "Verfahren",
-          alt: item.tdta_standort_mast?.verfahren || item.tdta_leuchten.fk_standort?.verfahren,
+          alt: item.tdta_standort_mast?.verfahren || item.tdta_leuchten?.fk_standort?.verfahren,
           neu: paramsWithCCNonce.verfahren,
           ccnonce,
           ir: true,
@@ -464,7 +466,7 @@ const protocolAction = (params, item) => {
           aenderung: "Nächstes Prüfdatum",
           alt:
             item.tdta_standort_mast?.naechstes_pruefdatum ||
-            item.tdta_leuchten.fk_standort?.naechstes_pruefdatum,
+            item.tdta_leuchten?.fk_standort?.naechstes_pruefdatum,
           neu: getDate(paramsWithCCNonce.naechstes_pruefdatum),
           ccnonce,
           ir: true,
