@@ -1,18 +1,14 @@
 import { blue, green, red } from "@ant-design/colors";
 import {
-  faAsterisk,
   faCheck,
-  faCloud,
   faCloudShowersHeavy,
   faDatabase,
-  faFileInvoice,
   faShare,
   faUser,
   faUserAltSlash,
 } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon, FontAwesomeIcon as Icon } from "@fortawesome/react-fontawesome";
+import { FontAwesomeIcon as Icon } from "@fortawesome/react-fontawesome";
 import { useWindowSize } from "@react-hook/window-size";
-import { Switch } from "antd";
 import React, { useContext, useEffect, useState } from "react";
 import Button from "react-bootstrap/Button";
 import ButtonGroup from "react-bootstrap/ButtonGroup";
@@ -30,14 +26,12 @@ import { useLocation } from "react-router-dom";
 import MySwitch from "../components/commons/Switch";
 import { CONNECTIONMODE, getConnectionMode, setConnectionMode } from "../core/store/slices/app";
 import { getLoginFromJWT, setLoginRequested } from "../core/store/slices/auth";
-import { getBackground, setBackground } from "../core/store/slices/background";
+import { getBackground } from "../core/store/slices/background";
 import {
   getCacheDate,
   getCacheUpdatingProgress,
   getCacheUser,
   isCacheFullUsable,
-  renewAllPrimaryInfoCache,
-  renewAllSecondaryInfoCache,
 } from "../core/store/slices/cacheControl";
 import {
   forceRefresh,
