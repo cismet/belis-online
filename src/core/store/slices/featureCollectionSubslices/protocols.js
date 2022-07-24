@@ -54,14 +54,18 @@ export const loadProtocollsIntoFeatureCollection = ({
             const response = await fetchGraphQL(gqlQuery, queryParameter, jwt);
             console.timeEnd("query returned");
 
-            const aaFeatures = createArbeitsauftragFeaturesForResults(
-              response.data.arbeitsauftrag,
-              true
-            );
-            const newAAReplacement = aaFeatures[0];
-            dispatch(updateFeatureForMode({ mode: MODES.TASKLISTS, feature: newAAReplacement }));
-            const result = response.data.arbeitsauftrag[0];
-            features = getFeaturesForProtokollArray(result.ar_protokolleArray);
+            if (response?.ok) {
+              const aaFeatures = createArbeitsauftragFeaturesForResults(
+                response.data.arbeitsauftrag,
+                true
+              );
+              const newAAReplacement = aaFeatures[0];
+              dispatch(updateFeatureForMode({ mode: MODES.TASKLISTS, feature: newAAReplacement }));
+              const result = response.data.arbeitsauftrag[0];
+              features = getFeaturesForProtokollArray(result.ar_protokolleArray);
+            } else {
+              throw new Error("Error in fetchGraphQL (" + response.status + ")");
+            }
           } else {
             //not enriched (thats the case when loading offline or after the second time online)
 

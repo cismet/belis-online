@@ -47,9 +47,13 @@ export const loadTaskListsIntoFeatureCollection = ({
           console.time("tasklist query returned");
           const response = await fetchGraphQL(gqlQuery, queryParameter, jwt);
           console.timeEnd("tasklist query returned");
-          const results = response.data.arbeitsauftrag;
+          if (response?.ok) {
+            const results = response.data.arbeitsauftrag;
 
-          features = createArbeitsauftragFeaturesForResults(results);
+            features = createArbeitsauftragFeaturesForResults(results);
+          } else {
+            throw new Error("Error in fetchGraphQL (" + response.status + ")");
+          }
         } else {
           //offlineUse
           console.log("xxx will get tasklist from local cache");
