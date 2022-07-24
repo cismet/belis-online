@@ -1,6 +1,7 @@
 import {
   faBars,
   faBookOpen,
+  faCloud,
   faFilter,
   faPowerOff,
   faRedo,
@@ -18,6 +19,7 @@ import NavDropdown from "react-bootstrap/NavDropdown";
 import { MappingConstants } from "react-cismap";
 import GazetteerSearchComponent from "react-cismap/GazetteerSearchComponent";
 import { useDispatch, useSelector } from "react-redux";
+import { useHistory, useLocation } from "react-router-dom/cjs/react-router-dom.min";
 import { useLongPress } from "use-long-press";
 import Filter from "../components/app/dialogs/Filter";
 
@@ -59,6 +61,8 @@ import { getTeam } from "../core/store/slices/team";
 
 const TopNavbar = ({ innerRef, refRoutedMap, setCacheSettingsVisible, jwt }) => {
   const dispatch = useDispatch();
+  const history = useHistory();
+
   const searchModeActive = useSelector(isSearchModeActive);
   const selectedTeam = useSelector(getTeam);
   const gazetteerHit = useSelector(getGazetteerHit);
@@ -73,6 +77,7 @@ const TopNavbar = ({ innerRef, refRoutedMap, setCacheSettingsVisible, jwt }) => 
   const selectedArbeitsauftrag = useSelector(
     (state) => state.featureCollection.selectedFeature[MODES.TASKLISTS]
   );
+  const browserlocation = useLocation();
 
   const gazData = useSelector(getGazData);
   useEffect(() => {
@@ -265,8 +270,9 @@ const TopNavbar = ({ innerRef, refRoutedMap, setCacheSettingsVisible, jwt }) => 
           id='navitem_logout'
           eventKey={3}
           onClick={() => {
-            dispatch(storeLogin(undefined));
-            dispatch(storeJWT(undefined));
+            // dispatch(storeLogin(undefined));
+            // dispatch(storeJWT(undefined));
+            history.push("/" + browserlocation.search);
           }}
         >
           <Icon icon={faPowerOff} />
