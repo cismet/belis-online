@@ -504,7 +504,7 @@ const SetStatusDialog = ({
         )}
 
         {/* For every ProtocolAction the same */}
-        <div class='ant-col ant-form-item-label'>
+        <div className='ant-col ant-form-item-label'>
           <label for='form_in_modal_date'>Status</label>
         </div>
         <Form.Item name='status' noStyle={true} label='Status'>
