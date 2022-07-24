@@ -7,16 +7,21 @@ import { useDispatch, useSelector } from "react-redux";
 import { useHistory, useLocation } from "react-router-dom/cjs/react-router-dom.min";
 import useOnlineStatus from "@rehooks/online-status";
 import { getWorker } from "../core/store/slices/dexie";
-import { getJWT, storeJWT, storeLogin } from "../core/store/slices/auth";
+import { getJWT, setLoginRequested, storeJWT, storeLogin } from "../core/store/slices/auth";
 import { DOMAIN, REST_SERVICE } from "../constants/belis";
 import { forceRefresh } from "../core/store/slices/featureCollection";
 import VersionFooter from "../components/commons/secondaryinfo/VersionFooter";
 import localforage from "localforage";
 import { CONNECTIONMODE, setConnectionMode } from "../core/store/slices/app";
-import { deleteCacheDB } from "../core/store/slices/cacheControl";
+import { deleteCacheDB, isCacheFullUsable } from "../core/store/slices/cacheControl";
 import { downloadTasks, truncateActionTables } from "../core/store/slices/offlineActionDb";
 import { resetApplicationState } from "../core/store";
-import { doHealthCheck, HEALTHSTATUS, setHealthState } from "../core/store/slices/health";
+import {
+  doHealthCheck,
+  getHealthState,
+  HEALTHSTATUS,
+  setHealthState,
+} from "../core/store/slices/health";
 
 const background = "belis_background_iStock-139701369_blurred.jpg";
 
@@ -24,12 +29,12 @@ const Login = () => {
   const [windowHeight] = useWindowSize();
   const [form] = Form.useForm();
   const browserlocation = useLocation();
-
+  const isCacheFullyUsable = useSelector(isCacheFullUsable);
+  const healthStateObject = useSelector(getHealthState);
+  const [loginInfo, setLoginInfo] = React.useState();
+  const lastSuccesfulUser = healthStateObject?.lastSuccesfulUser;
   const dispatch = useDispatch();
   const history = useHistory();
-  const [loginInfo, setLoginInfo] = React.useState();
-  const [user, setUser] = React.useState();
-  const [pw, setPw] = React.useState();
 
   const jwt = useSelector(getJWT);
 
@@ -67,6 +72,8 @@ const Login = () => {
           }
 
           form.setFieldsValue({ username: values.user, password: values.password });
+        } else {
+          form.setFieldsValue({ username: lastSuccesfulUser });
         }
       } catch (e) {
         console.log("no devSecrets.json found");
@@ -186,6 +193,19 @@ const Login = () => {
           </Form.Item>
           <div style={{ width: "100%" }}>
             <Form.Item style={{ float: "right" }}>
+              {isCacheFullyUsable === true && (
+                <Button
+                  style={{ marginRight: 15 }}
+                  type='secondary'
+                  onClick={() => {
+                    dispatch(setConnectionMode(CONNECTIONMODE.FROMCACHE));
+                    dispatch(setLoginRequested(false));
+                    history.push("/app" + browserlocation.search);
+                  }}
+                >
+                  Offline arbeiten
+                </Button>
+              )}
               <Button type='primary' htmlType='submit'>
                 Login
               </Button>
