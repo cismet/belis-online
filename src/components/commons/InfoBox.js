@@ -270,7 +270,6 @@ const InfoBox = ({ refRoutedMap }) => {
                       });
 
                       const menu = <Menu style={{ opacity: 0.8 }} items={items} />;
-                      console.log("xxx li", li);
                       return (
                         <Dropdown overlay={menu} placement='topRight' trigger={["click"]}>
                           <span style={{ paddingLeft: index > 0 ? 3 : 0 }}>
