@@ -60,7 +60,11 @@ const protocolAction = (params, item) => {
         break;
       case "protokollLeuchteLeuchtenerneuerung":
         const leuchtenTyp = getLeuchtenTyp(paramsWithCCNonce.leuchtentyp);
+        const leuchtenTypAlt = getLeuchtenTyp(item.tdta_leuchten.fk_leuchttyp.id);
         const leuchtenTypBezeichnung = leuchtenTyp.leuchtentyp + " - " + leuchtenTyp.fabrikat;
+        const leuchtenTypBezeichnungAlt =
+          leuchtenTypAlt.leuchtentyp + " - " + leuchtenTypAlt.fabrikat;
+
         intermediateResult4Prot.data.protokollAktionArray.push({
           aenderung: "Inbetriebnahme",
           alt: item.tdta_leuchten.inbetriebnahme_leuchte,
@@ -70,7 +74,7 @@ const protocolAction = (params, item) => {
         });
         intermediateResult4Prot.data.protokollAktionArray.push({
           aenderung: "Leuchtentyp",
-          alt: item.tdta_leuchten.fk_leuchttyp,
+          alt: leuchtenTypBezeichnungAlt,
           neu: leuchtenTypBezeichnung,
           ccnonce,
           ir: true,
