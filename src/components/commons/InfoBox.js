@@ -480,7 +480,7 @@ const InfoBox = ({ refRoutedMap }) => {
           selectedFeature?.properties?.docs &&
           selectedFeature.properties.docs.length > 0 &&
           selectedFeature.properties.docs[0] &&
-          healthStatusObject.healtState === HEALTHSTATUS.OK ? (
+          healthStatusObject.healthState === HEALTHSTATUS.OK ? (
             <div style={{ position: "relative" }}>
               {selectedFeature.properties.docs[0].doc?.endsWith(".pdf") && (
                 <FontAwesomeIcon
