@@ -11,10 +11,11 @@ const FocusRectangle = ({ inFocusMode, mapWidth, mapHeight }) => {
           zIndex: 500,
           width: mapWidth / 2,
           height: mapHeight / 2,
-          opacity: 0.1,
-          background: "#000000",
+
+          background: "#00000011",
           mrgin: 10,
           pointerEvents: "none",
+          border: "2px solid #ffffffbb",
         }}
       />
     );
