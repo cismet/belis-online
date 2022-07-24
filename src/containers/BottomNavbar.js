@@ -1,6 +1,16 @@
 import { blue, green, red } from "@ant-design/colors";
-import { faCheck, faDatabase, faShare, faUser } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon as Icon } from "@fortawesome/react-fontawesome";
+import {
+  faAsterisk,
+  faCheck,
+  faCloud,
+  faCloudShowersHeavy,
+  faDatabase,
+  faFileInvoice,
+  faShare,
+  faUser,
+  faUserAltSlash,
+} from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon, FontAwesomeIcon as Icon } from "@fortawesome/react-fontawesome";
 import { useWindowSize } from "@react-hook/window-size";
 import { Switch } from "antd";
 import React, { useContext, useEffect, useState } from "react";
@@ -19,7 +29,7 @@ import { useLocation } from "react-router-dom";
 
 import MySwitch from "../components/commons/Switch";
 import { CONNECTIONMODE, getConnectionMode, setConnectionMode } from "../core/store/slices/app";
-import { getLoginFromJWT } from "../core/store/slices/auth";
+import { getLoginFromJWT, setLoginRequested } from "../core/store/slices/auth";
 import { getBackground, setBackground } from "../core/store/slices/background";
 import {
   getCacheDate,
@@ -35,6 +45,7 @@ import {
   loadObjects,
   setFocusModeActive,
 } from "../core/store/slices/featureCollection";
+import { getHealthState, HEALTHSTATUS } from "../core/store/slices/health";
 import { getTasks } from "../core/store/slices/offlineActionDb";
 import { isPaleModeActive, setPaleModeActive } from "../core/store/slices/paleMode";
 
@@ -60,6 +71,8 @@ const BottomNavbar = ({
   const connectionMode = useSelector(getConnectionMode);
   const cachingProgress = useSelector(getCacheUpdatingProgress);
   const isCacheReady = useSelector(isCacheFullUsable);
+
+  const healthStatus = useSelector(getHealthState);
   const uiThreadProgressbar =
     new URLSearchParams(browserlocation.search).get("uiThreadProgressbar") === "true";
   let user;
@@ -142,6 +155,7 @@ const BottomNavbar = ({
                   fontSize: fontSizeIconPixel,
                   width: iconWidth,
                   cursor: "pointer",
+                  paddingTop: 2,
                 }}
                 className='text-primary'
                 icon={faUser}
@@ -156,6 +170,7 @@ const BottomNavbar = ({
                   fontSize: fontSizeIconPixel,
                   width: iconWidth,
                   cursor: "pointer",
+                  paddingTop: 2,
                 }}
                 className='text-primary'
                 icon={faDatabase}
@@ -215,6 +230,8 @@ const BottomNavbar = ({
               </Button>
             </ButtonGroup>
           </div>
+          {/*           
+          
           {cachingProgress >= 1 && (
             <Button
               variant={"outline-primary"}
@@ -241,6 +258,35 @@ const BottomNavbar = ({
               animated
               now={cachingProgress * 100 + 10}
               max={110}
+            />
+          )} */}
+
+          {healthStatus?.healthState === HEALTHSTATUS.UNAUTHORIZED && (
+            <Icon
+              style={{
+                fontSize: fontSizeIconPixel,
+                width: iconWidth,
+                cursor: "pointer",
+                paddingTop: 2,
+                marginLeft: 10,
+              }}
+              onClick={() => {
+                dispatch(setLoginRequested(true));
+              }}
+              className='text-primary'
+              icon={faUserAltSlash}
+            />
+          )}
+          {healthStatus?.healthState === HEALTHSTATUS.ERROR && (
+            <Icon
+              style={{
+                fontSize: fontSizeIconPixel,
+                width: iconWidth,
+                paddingTop: 2,
+                marginLeft: 10,
+              }}
+              className='text-primary'
+              icon={faCloudShowersHeavy}
             />
           )}
         </Nav>

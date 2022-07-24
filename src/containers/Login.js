@@ -16,11 +16,12 @@ import { CONNECTIONMODE, setConnectionMode } from "../core/store/slices/app";
 import { deleteCacheDB } from "../core/store/slices/cacheControl";
 import { downloadTasks, truncateActionTables } from "../core/store/slices/offlineActionDb";
 import { resetApplicationState } from "../core/store";
+import { doHealthCheck, HEALTHSTATUS, setHealthState } from "../core/store/slices/health";
 
 const background = "belis_background_iStock-139701369_blurred.jpg";
 
 const Login = () => {
-  const [windowWidth, windowHeight] = useWindowSize();
+  const [windowHeight] = useWindowSize();
   const [form] = Form.useForm();
   const browserlocation = useLocation();
 
@@ -29,12 +30,24 @@ const Login = () => {
   const [loginInfo, setLoginInfo] = React.useState();
   const [user, setUser] = React.useState();
   const [pw, setPw] = React.useState();
-  const onlineStatus = useOnlineStatus();
-  const dexieW = useSelector(getWorker);
+
   const jwt = useSelector(getJWT);
 
   const productionMode = process.env.NODE_ENV === "production";
 
+  useEffect(() => {
+    //enable a timer that checks the conection health every 1 seconds and stops it if the page unloads
+    const timer = setInterval(() => {
+      //   console.log("will check (from Login Page)");
+      // anonymous asynchronous block
+      (async () => {
+        dispatch(doHealthCheck(jwt));
+      })();
+    }, 5000);
+    return () => {
+      clearInterval(timer);
+    };
+  }, [jwt, dispatch]);
   useEffect(() => {
     (async () => {
       try {
@@ -64,7 +77,6 @@ const Login = () => {
   const loginPanelWidth = 400;
   const loginPanelHeight = 300;
   const onFinish = (values) => {
-    console.log("Success:", values);
     login(values.username, values.password);
   };
   /*eslint no-useless-concat: "off"*/
@@ -88,8 +100,7 @@ const Login = () => {
               history.push("/app" + browserlocation.search);
               dispatch(storeJWT(jwt));
               dispatch(storeLogin(user));
-              //   setJWT(jwt);
-              //   setLoggedOut(false);
+              dispatch(setHealthState({ jwt, healthState: HEALTHSTATUS.OK }));
               setLoginInfo();
               dispatch(forceRefresh());
             }, 500);
@@ -220,7 +231,10 @@ const Login = () => {
                     console.log("deleting cache");
                     dispatch(setConnectionMode(CONNECTIONMODE.LIVE));
                     dispatch(deleteCacheDB());
-                    window.location.reload();
+
+                    setTimeout(() => {
+                      window.location.reload();
+                    }, 750);
                   }
                 }}
               >
