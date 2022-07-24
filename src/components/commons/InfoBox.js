@@ -26,6 +26,7 @@ import {
   isSecondaryInfoVisible,
   setSelectedFeature,
 } from "../../core/store/slices/featureCollection";
+import { getHealthState, HEALTHSTATUS } from "../../core/store/slices/health";
 import { addDotThumbnail } from "./secondaryinfo/components/helper";
 
 //---
@@ -37,6 +38,7 @@ const InfoBox = ({ refRoutedMap }) => {
   const jwt = useSelector(getJWT);
   const selectedFeature = useSelector(getSelectedFeature);
   const secondaryInfoVisible = useSelector(isSecondaryInfoVisible);
+  const healthStatusObject = useSelector(getHealthState);
   const { setCollapsedInfoBox } = useContext(UIDispatchContext);
   const { collapsedInfoBox } = useContext(UIContext);
   const mode = useSelector(getFeatureCollectionMode);
@@ -283,8 +285,6 @@ const InfoBox = ({ refRoutedMap }) => {
                         </Dropdown>
                       );
                     } else {
-                      console.log("xxx li else", li);
-
                       return (
                         <span style={{ paddingLeft: index > 0 ? 3 : 0 }}>
                           {li.iconname && (
@@ -479,7 +479,8 @@ const InfoBox = ({ refRoutedMap }) => {
           ),
           selectedFeature?.properties?.docs &&
           selectedFeature.properties.docs.length > 0 &&
-          selectedFeature.properties.docs[0] ? (
+          selectedFeature.properties.docs[0] &&
+          healthStatusObject.healtState === HEALTHSTATUS.OK ? (
             <div style={{ position: "relative" }}>
               {selectedFeature.properties.docs[0].doc?.endsWith(".pdf") && (
                 <FontAwesomeIcon
