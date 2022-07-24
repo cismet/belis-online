@@ -1,7 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { CACHE_JWT } from "react-cismap/tools/fetching";
 
-const initialState = {};
+const initialState = { jwt: undefined, login: undefined, loginRequested: false };
 
 const slice = createSlice({
   name: "auth",
@@ -15,12 +15,16 @@ const slice = createSlice({
       state.login = action.payload;
       return state;
     },
+    setLoginRequested(state, action) {
+      state.loginRequested = action.payload;
+      return state;
+    },
   },
 });
 
 export default slice;
 
-export const { storeJWT, storeLogin } = slice.actions;
+export const { storeJWT, storeLogin, setLoginRequested } = slice.actions;
 
 export const getJWT = (state) => {
   return state.auth.jwt;
@@ -29,6 +33,9 @@ export const getLogin = (state) => {
   return state.auth.login;
 };
 
+export const isLoginRequested = (state) => {
+  return state.auth.loginRequested;
+};
 export const getLoginFromJWT = (jwt) => {
   if (jwt) {
     if (jwt !== CACHE_JWT) {
