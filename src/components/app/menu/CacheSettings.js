@@ -17,6 +17,7 @@ import {
   setCacheUser,
 } from "../../../core/store/slices/cacheControl";
 import { forceRefresh } from "../../../core/store/slices/featureCollection";
+import { getHealthState, HEALTHSTATUS } from "../../../core/store/slices/health";
 import { getTeam } from "../../../core/store/slices/team";
 import CacheItem from "../../app/cache/CacheItem";
 
@@ -24,6 +25,7 @@ const CacheSettings = () => {
   const dispatch = useDispatch();
   const cacheSettings = useSelector(getCacheSettings);
   const selectedTeam = useSelector(getTeam);
+  const healthStateObject = useSelector(getHealthState);
   const cacheReady = useSelector(isCacheFullUsable);
   const cacheReadyRef = React.useRef();
   const { setAppMenuActiveMenuSection } = useContext(UIDispatchContext);
@@ -67,7 +69,11 @@ const CacheSettings = () => {
           style={{ margin: 3 }}
           variant='outline-primary'
           size='sm'
-          disabled={selectedTeam?.id >= 0 ? false : true}
+          disabled={
+            selectedTeam?.id >= 0 && healthStateObject.healthState === HEALTHSTATUS.OK
+              ? false
+              : true
+          }
           onClick={() => {
             let index = 0;
             for (const setting of [...primarySettings]) {
@@ -154,6 +160,7 @@ const CacheSettings = () => {
           {Object.keys(config).map((key, index) => {
             return (
               <CacheItem
+                refreshAllowed={healthStateObject.healthState === HEALTHSTATUS.OK}
                 key={"CacheItem." + index}
                 config={config[key]}
                 info={cacheSettings[key] || {}}
