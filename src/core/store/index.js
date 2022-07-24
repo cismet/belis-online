@@ -22,6 +22,7 @@ import searchSlice from "./slices/search";
 import spatialIndexSlice from "./slices/spatialIndex";
 import teamSlice from "./slices/team";
 import zoomSlice from "./slices/zoom";
+import healthSlice from "./slices/health";
 
 console.log("store initializing ....");
 const devToolsEnabled =
@@ -141,6 +142,7 @@ const store = configureStore({
     mapInfo: mapInfoSlice.reducer,
     map: mapSlice.reducer,
     keytables: keytablesSlice.reducer,
+    health: healthSlice.reducer,
   },
   devTools: devToolsEnabled === true && inProduction === false,
   middleware,
