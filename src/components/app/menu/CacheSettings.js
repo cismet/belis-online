@@ -5,6 +5,7 @@ import React, { useContext, useEffect } from "react";
 import Button from "react-bootstrap/Button";
 import { UIDispatchContext } from "react-cismap/contexts/UIContextProvider";
 import { useDispatch, useSelector } from "react-redux";
+import { CONNECTIONMODE, setConnectionMode } from "../../../core/store/slices/app";
 
 import { getJWT, getLoginFromJWT } from "../../../core/store/slices/auth";
 import {
@@ -116,7 +117,12 @@ const CacheSettings = () => {
 
         <Button
           onClick={() => {
+            dispatch(setConnectionMode(CONNECTIONMODE.LIVE));
             dispatch(deleteCacheDB());
+
+            setTimeout(() => {
+              window.location.reload();
+            }, 750);
           }}
           style={{ margin: 3 }}
           variant='outline-danger'
