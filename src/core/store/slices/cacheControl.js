@@ -209,10 +209,19 @@ export const getCacheInfo = (key) => {
 };
 
 export const isCacheFullUsable = (state) => {
+  // console.log("getAllInfoKeys(state)", getAllInfoKeys(state));
+
   for (const key of getAllInfoKeys(state)) {
+    // console.log(key, {
+    //   objectCount: state.cacheControl.types[key].objectCount,
+    //   lastUpdate: state.cacheControl.types[key].lastUpdate,
+    //   loadingState: state.cacheControl.types[key].loadingState,
+    // });
+
     if (
       key &&
-      (state.cacheControl.types[key].objectCount === 0 ||
+      (state.cacheControl.types[key].objectCount === undefined ||
+        (state.cacheControl.types[key].objectCount === 0 && key !== "arbeitsauftrag") ||
         state.cacheControl.types[key].lastUpdate === undefined ||
         state.cacheControl.types[key].lastUpdate === -1 ||
         state.cacheControl.types[key].loadingState === "loading" ||
