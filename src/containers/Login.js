@@ -26,7 +26,7 @@ import {
 const background = "belis_background_iStock-139701369_blurred.jpg";
 
 const Login = () => {
-  const [windowHeight] = useWindowSize();
+  const windowSize = useWindowSize();
   const [form] = Form.useForm();
   const browserlocation = useLocation();
   const isCacheFullyUsable = useSelector(isCacheFullUsable);
@@ -39,7 +39,7 @@ const Login = () => {
   const jwt = useSelector(getJWT);
 
   const productionMode = process.env.NODE_ENV === "production";
-
+  const windowHeight = windowSize[1];
   useEffect(() => {
     //enable a timer that checks the conection health every 1 seconds and stops it if the page unloads
     const timer = setInterval(() => {
@@ -133,11 +133,12 @@ const Login = () => {
   const onFinishFailed = (errorInfo) => {
     console.log("Failed:", errorInfo);
   };
+  console.log("windowSize", windowSize);
 
   return (
     <div
       style={{
-        backgroundColor: "red",
+        // background: "#dddddd",
         height: windowHeight,
         width: "100%",
         background: "url('/images/" + background + "')",
