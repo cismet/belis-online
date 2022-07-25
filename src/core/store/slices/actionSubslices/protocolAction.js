@@ -13,10 +13,9 @@ const protocolAction = (params, item) => {
     const login = getLoginFromJWT(jwt);
     const ccnonce = Math.random() * 10000000000;
     const paramsWithCCNonce = { ...params, ccnonce };
-    const keytablesState = state.keytables;
-    const leuchtmittelKT = getLeuchtmittelKT(keytablesState);
-    const leuchtenTypKT = getLeuchtentypenKT(keytablesState);
-    const rundsteuerempfaengerKT = getRundsteuerempfaengerKT(keytablesState);
+    const leuchtmittelKT = getLeuchtmittelKT(state);
+    const leuchtenTypKT = getLeuchtentypenKT(state);
+    const rundsteuerempfaengerKT = getRundsteuerempfaengerKT(state);
     const getLeuchtmittel = (id) => {
       return leuchtmittelKT.find((item) => item.id === id);
     };
