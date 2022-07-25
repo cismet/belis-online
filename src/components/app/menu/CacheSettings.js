@@ -124,7 +124,7 @@ const CacheSettings = () => {
           variant='outline-danger'
           size='sm'
         >
-          <Icon icon={faTrash} /> Offline DB löschen
+          <Icon icon={faTrash} /> Cache DB löschen
         </Button>
       </div>
       <table
