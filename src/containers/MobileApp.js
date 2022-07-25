@@ -79,7 +79,7 @@ const View = () => {
   const fcIsDoneRef = useRef(fcIsDone);
 
   const appDialog = useSelector(getDialog);
-  const healthStateObject = useSelector(getHealthState);
+  const healthState = useSelector(getHealthState);
   const connectionMode = useSelector(getConnectionMode);
   const browserlocation = useLocation();
   useEffect(() => {
@@ -199,11 +199,11 @@ const View = () => {
   // const showLogin = storedJWT === "" || storedJWT === undefined || storedJWT === null;
   const showLogin =
     (connectionMode === CONNECTIONMODE.ONLINE &&
-      healthStateObject?.healthState !== HEALTHSTATUS.OK &&
-      healthStateObject?.healthState !== HEALTHSTATUS.UNKNOWN) ||
+      healthState !== HEALTHSTATUS.OK &&
+      healthState !== HEALTHSTATUS.UNKNOWN) ||
     (connectionMode === CONNECTIONMODE.FROMCACHE &&
-      healthStateObject?.healthState !== HEALTHSTATUS.OK &&
-      healthStateObject?.healthState !== HEALTHSTATUS.UNKNOWN &&
+      healthState !== HEALTHSTATUS.OK &&
+      healthState !== HEALTHSTATUS.UNKNOWN &&
       isLoginFormRequested);
   if (showLogin) {
     loginForm = (

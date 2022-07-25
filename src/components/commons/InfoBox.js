@@ -38,7 +38,7 @@ const InfoBox = ({ refRoutedMap }) => {
   const jwt = useSelector(getJWT);
   const selectedFeature = useSelector(getSelectedFeature);
   const secondaryInfoVisible = useSelector(isSecondaryInfoVisible);
-  const healthStatusObject = useSelector(getHealthState);
+  const healthState = useSelector(getHealthState);
   const { setCollapsedInfoBox } = useContext(UIDispatchContext);
   const { collapsedInfoBox } = useContext(UIContext);
   const mode = useSelector(getFeatureCollectionMode);
@@ -479,7 +479,7 @@ const InfoBox = ({ refRoutedMap }) => {
           selectedFeature?.properties?.docs &&
           selectedFeature.properties.docs.length > 0 &&
           selectedFeature.properties.docs[0] &&
-          healthStatusObject.healthState === HEALTHSTATUS.OK ? (
+          healthState === HEALTHSTATUS.OK ? (
             <div style={{ position: "relative" }}>
               {selectedFeature.properties.docs[0].doc?.endsWith(".pdf") && (
                 <FontAwesomeIcon

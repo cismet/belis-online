@@ -53,9 +53,11 @@ export const { setHealthState } = slice.actions;
 export default slice;
 
 export const getHealthState = (state) => {
+  return state.health.healthState;
+};
+export const getHealthStateObject = (state) => {
   return state.health;
 };
-
 export const doHealthCheck = (jwt) => {
   return async (dispatch, getState) => {
     if (!navigator.onLine) {

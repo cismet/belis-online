@@ -30,9 +30,9 @@ const Login = () => {
   const [form] = Form.useForm();
   const browserlocation = useLocation();
   const isCacheFullyUsable = useSelector(isCacheFullUsable);
-  const healthStateObject = useSelector(getHealthState);
+  const healthState = useSelector(getHealthState);
   const [loginInfo, setLoginInfo] = React.useState();
-  const lastSuccesfulUser = healthStateObject?.lastSuccesfulUser;
+  const lastSuccesfulUser = healthState?.lastSuccesfulUser;
   const dispatch = useDispatch();
   const history = useHistory();
 
