@@ -66,7 +66,7 @@ const BottomNavbar = ({
   const cachingProgress = useSelector(getCacheUpdatingProgress);
   const isCacheReady = useSelector(isCacheFullUsable);
 
-  const healthStatus = useSelector(getHealthState);
+  const healthState = useSelector(getHealthState);
   const uiThreadProgressbar =
     new URLSearchParams(browserlocation.search).get("uiThreadProgressbar") === "true";
   let user;
@@ -255,7 +255,7 @@ const BottomNavbar = ({
             />
           )} */}
 
-          {healthStatus?.healthState === HEALTHSTATUS.UNAUTHORIZED && (
+          {healthState?.healthState === HEALTHSTATUS.UNAUTHORIZED && (
             <Icon
               style={{
                 fontSize: fontSizeIconPixel,
@@ -271,7 +271,7 @@ const BottomNavbar = ({
               icon={faUserAltSlash}
             />
           )}
-          {healthStatus?.healthState === HEALTHSTATUS.ERROR && (
+          {healthState?.healthState === HEALTHSTATUS.ERROR && (
             <Icon
               style={{
                 fontSize: fontSizeIconPixel,
