@@ -3,7 +3,6 @@ import localforage from "localforage";
 import { useEffect, useRef, useState } from "react";
 import { Button, Form, Modal } from "react-bootstrap";
 import IconComp from "react-cismap/commons/Icon";
-import { CACHE_JWT } from "react-cismap/tools/fetching";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory, useLocation } from "react-router-dom/cjs/react-router-dom.min";
 

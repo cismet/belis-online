@@ -1,5 +1,4 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { CACHE_JWT } from "react-cismap/tools/fetching";
 import { fetchGraphQL } from "../../commons/graphql";
 import { getLoginFromJWT } from "./auth";
 
