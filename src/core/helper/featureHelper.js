@@ -40,10 +40,21 @@ export const calcLength = (geom) => {
   return len * 1000;
 };
 
-export const getVCard = (feature) => {
+export const getVCard = (feature, intermediateResults) => {
   const vcard = { list: {}, infobox: {} };
+  let item;
+  if (intermediateResults) {
+    item = JSON.parse(JSON.stringify(feature.properties));
+    integrateIntermediateResultsIntoObjects(
+      intermediateResults,
+      item,
+      feature.featuretype,
+      item.id
+    );
+  } else {
+    item = feature.properties;
+  }
 
-  const item = feature.properties;
   switch (feature.featuretype) {
     case "tdta_leuchten":
       const typPart =
@@ -215,6 +226,7 @@ export const getVCard = (feature) => {
       break;
     }
     case "arbeitsprotokoll": {
+      item.fachobjekt = getFachobjektOfProtocol(item);
       // Infobox
       vcard.infobox.header = "Arbeitsprotokoll";
       vcard.infobox.title = "# " + item.protokollnummer + " - " + item.fachobjekt.shortname;
@@ -466,6 +478,9 @@ export const integrateIntermediateResults = (feature, intermediateResults) => {
         item.id
       );
 
+      break;
+    case "arbeitsauftrag":
+      //Todo integrate arbeitsauftrag inetermediate object
       break;
     case "arbeitsprotokoll":
       if (intermediateResults.arbeitsprotokoll) {
