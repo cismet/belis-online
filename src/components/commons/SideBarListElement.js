@@ -1,18 +1,16 @@
 import React from "react";
 import ListGroup from "react-bootstrap/ListGroup";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 
 import { getVCard } from "../../core/helper/featureHelper";
 import { setSelectedFeature } from "../../core/store/slices/featureCollection";
-import { getIntermediateResults } from "../../core/store/slices/offlineActionDb";
 
 //---------
 
 const SideBarListElement = ({ feature, selected }) => {
   const dispatch = useDispatch();
   // const selectedFeature = useSelector(getSelectedFeature);
-  const intermediateResults = useSelector(getIntermediateResults);
-  let vcard = getVCard(feature, intermediateResults);
+  let vcard = getVCard(feature);
   const style = selected ? { background: "lightgray" } : {};
   const debugColors = false;
   const oneRowEllipse = (

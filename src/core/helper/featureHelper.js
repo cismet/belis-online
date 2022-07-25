@@ -40,20 +40,9 @@ export const calcLength = (geom) => {
   return len * 1000;
 };
 
-export const getVCard = (feature, intermediateResults) => {
+export const getVCard = (feature) => {
   const vcard = { list: {}, infobox: {} };
-  let item;
-  if (intermediateResults) {
-    item = JSON.parse(JSON.stringify(feature.properties));
-    integrateIntermediateResultsIntoObjects(
-      intermediateResults,
-      item,
-      feature.featuretype,
-      item.id
-    );
-  } else {
-    item = feature.properties;
-  }
+  const item = JSON.parse(JSON.stringify(feature.properties)); //this is needed because of the fachobject is recreated in the arbeitsprotokoll (opt pot)
 
   switch (feature.featuretype) {
     case "tdta_leuchten":
@@ -252,6 +241,11 @@ export const getVCard = (feature, intermediateResults) => {
     default:
   }
 
+  if (feature.properties.iv_included) {
+    vcard.list.main = vcard.list.main + "*";
+    vcard.infobox.title = vcard.infobox.title + "*";
+  }
+
   return vcard;
 };
 
@@ -388,6 +382,9 @@ const integrateIntermediateResultsIntoObjects = (intermediateResults, item, type
     if (irs?.object) {
       for (const ir of irs.object) {
         for (const key of Object.keys(ir)) {
+          // console.log("iv in ", { item, key });
+
+          item.iv_included = true;
           item[key] = ir[key];
           //will ad a property with _iv postfix to the item, so that the ui can recognize it
           item[key + "_iv"] = true;
@@ -589,6 +586,8 @@ export const integrateIntermediateResults = (feature, intermediateResults) => {
             }
           }
           console.log("intermediate results integration. item after", item);
+          //mark item as processed
+          item.iv_included = true;
         }
       }
       break;
