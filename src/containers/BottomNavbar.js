@@ -255,7 +255,7 @@ const BottomNavbar = ({
             />
           )} */}
 
-          {healthState?.healthState === HEALTHSTATUS.UNAUTHORIZED && (
+          {healthState === HEALTHSTATUS.UNAUTHORIZED && (
             <Icon
               style={{
                 fontSize: fontSizeIconPixel,
@@ -271,7 +271,7 @@ const BottomNavbar = ({
               icon={faUserAltSlash}
             />
           )}
-          {healthState?.healthState === HEALTHSTATUS.ERROR && (
+          {healthState === HEALTHSTATUS.ERROR && (
             <Icon
               style={{
                 fontSize: fontSizeIconPixel,
