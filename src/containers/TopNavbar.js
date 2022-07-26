@@ -254,9 +254,13 @@ const TopNavbar = ({
           </Nav.Link>
         )}
         <Nav.Link
+          title={
+            connectionMode === CONNECTIONMODE.FROMCACHE
+              ? "Arbeitsaufträge neu in den Cache laden"
+              : "Arbeitsaufträge neu laden"
+          }
           onClick={() => {
             const success = () => {
-              console.log("xxx success");
               dispatch(
                 loadTaskLists({
                   done: () => {
