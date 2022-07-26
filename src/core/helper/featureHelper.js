@@ -791,9 +791,9 @@ export const integrateIntermediateResults = (feature, intermediateResults) => {
 const setStatusAndAktionsArrayStuff = (ir, item) => {
   let iv_included = false;
   if (ir.bemerkung && ir.bemerkung !== item?.bemerkung) {
+    console.log("xxx iv_included bemerkung:", ir.bemerkung, item?.bemerkung);
     item.bemerkung = ir.bemerkung + "*";
     iv_included = true;
-    console.log("xxx iv_included bemerkung");
   }
   if (ir.status && ir.status !== item?.arbeitsprotokollstatus?.id) {
     console.log(
