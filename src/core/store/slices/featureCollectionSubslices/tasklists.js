@@ -83,15 +83,7 @@ export const loadTaskListsIntoFeatureCollection = ({
           //try to find the feature in the already loaded feature collection
           const found = features.find((a) => {
             return a.properties.ccnonce === f.properties.ccnonce;
-
-            // return (
-            //   a.properties.angelegt_am === f.properties.angelegt_am &&
-            //   a.properties.angelegt_von === f.properties.angelegt_von &&
-            //   a.properties.zugewiesen_am === f.properties.zugewiesen_am &&
-            //   a.properties.ar_protokolleArray.length === f.properties.ar_protokolleArray.length
-            // );
           });
-          console.log("xxx found", found);
 
           if (!found) {
             featureClones.push(f);
