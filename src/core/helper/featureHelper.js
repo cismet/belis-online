@@ -254,6 +254,16 @@ export const getVCard = (feature) => {
   return vcard;
 };
 
+export const getNonce = () => {
+  const today = new Date();
+  const dd = String(today.getDate()).padStart(2, "0");
+  const mm = String(today.getMonth() + 1).padStart(2, "0");
+  const yyyy = today.getFullYear();
+  const todayString = yyyy + mm + dd;
+  const todayInt = parseInt(todayString);
+  return todayInt + Math.random();
+};
+
 const addDmsUrl = (docs, dmsUrl, caption) => {
   if (dmsUrl?.url?.object_name) {
     try {
@@ -394,7 +404,6 @@ const integrateIntermediateResultsIntoObjects = (intermediateResults, item, type
         for (const key of Object.keys(ir)) {
           // console.log("iv in ", { item, key });
 
-          item.iv_included = true;
           item[key] = ir[key];
           //will ad a property with _iv postfix to the item, so that the ui can recognize it
           item[key + "_iv"] = true;
@@ -765,7 +774,7 @@ export const integrateIntermediateResults = (feature, intermediateResults) => {
           }
           console.log("intermediate results integration. item after", item);
           //mark item as processed
-          item.iv_included = true;
+          // item.iv_included = true;
         }
       }
       break;
@@ -780,23 +789,41 @@ export const integrateIntermediateResults = (feature, intermediateResults) => {
 };
 
 const setStatusAndAktionsArrayStuff = (ir, item) => {
+  let iv_included = false;
   if (ir.bemerkung && ir.bemerkung !== item?.bemerkung) {
     item.bemerkung = ir.bemerkung + "*";
+    iv_included = true;
+    console.log("xxx iv_included bemerkung");
   }
   if (ir.status && ir.status !== item?.arbeitsprotokollstatus?.id) {
+    console.log(
+      "xxx iv_included status",
+      ir.status,
+      item?.arbeitsprotokollstatus?.id,
+      typeof ir.status,
+      typeof item?.arbeitsprotokollstatus?.id,
+      ir.status !== item?.arbeitsprotokollstatus?.id
+    );
     item.arbeitsprotokollstatus = getProtokollStatusForId(ir.status);
     item.arbeitsprotokollstatusIntermediate = true;
+    iv_included = true;
   }
   if (ir.material && ir.material !== item?.material) {
     item.material = ir.material + "*";
+    iv_included = true;
+    console.log("xxx iv_included material");
   }
   if (ir.monteur && ir.monteur !== item?.monteur) {
     item.monteur = ir.monteur + "*";
+    iv_included = true;
+    console.log("xxx iv_included monteur");
   }
 
-  if (ir.datum && ir.datum !== item?.datum) {
+  if ((ir.datum && !item?.datum) || (ir.datum && Date(ir.datum) !== Date(item?.datum))) {
     item.datum = ir.datum;
     item.datum_iv = true;
+    iv_included = true;
+    console.log("xxx iv_included datum");
   }
 
   //Todo check if the change is already in so that we not need to disp,ay the intermediate change
@@ -823,8 +850,14 @@ const setStatusAndAktionsArrayStuff = (ir, item) => {
 
     if (!found) {
       item.arbeitsprotokollaktionArray.push(protAktion);
+      iv_included = true;
+      console.log("xxx iv_included arbeitsprotokollaktionArray");
     }
+
     // console.log("xxxx after", item.arbeitsprotokollaktionArray);
+  }
+  if (iv_included) {
+    item.iv_included = true;
   }
 };
 
