@@ -82,6 +82,7 @@ arbeitsauftrag(where:
     angelegt_am
     angelegt_von
     id
+    ccnonce
     is_deleted
     nummer
     zugewiesen_an
@@ -92,6 +93,7 @@ arbeitsauftrag(where:
      ar_protokolleArray {
       arbeitsprotokoll {
         id
+        ccnonce
         veranlassungsnummer
         protokollnummer
         is_deleted
@@ -157,6 +159,7 @@ arbeitsauftrag(where: {id: {_eq: $aaId}}) {
   angelegt_am
   angelegt_von
   id
+  ccnonce
   is_deleted
   nummer
   zugewiesen_an
@@ -167,6 +170,7 @@ arbeitsauftrag(where: {id: {_eq: $aaId}}) {
   ar_protokolleArray {
     arbeitsprotokoll {
       id
+      ccnonce
       veranlassungsnummer
       veranlassung {
         ${veranlassung_fields}

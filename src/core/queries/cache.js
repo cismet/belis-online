@@ -81,6 +81,7 @@ queries.arbeitsauftrag = `query q($teamId: Int!) {
   angelegt_am
   angelegt_von
   id
+  ccnonce
   is_deleted
   nummer
   zugewiesen_an
@@ -91,6 +92,7 @@ queries.arbeitsauftrag = `query q($teamId: Int!) {
   ar_protokolleArray {
     arbeitsprotokoll {
       id
+      ccnonce
       veranlassungsnummer
       veranlassung {
         ${veranlassung_fields}
