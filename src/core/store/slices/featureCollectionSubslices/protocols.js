@@ -82,6 +82,7 @@ export const loadProtocollsIntoFeatureCollection = ({
           for (const feature of features) {
             const f = JSON.parse(JSON.stringify(feature));
             featureClones.push(f);
+
             integrateIntermediateResults(f, state.offlineActionDb.intermediateResults);
           }
           features = featureClones;

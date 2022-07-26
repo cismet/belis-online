@@ -95,39 +95,41 @@ export const getObjectActionInfos = ({
       },
       iconname: "info",
     });
-    actionLinkInfos.push({
-      tooltip: "Status ändern",
-      onClick: () => {
-        const dialog = (
-          <SetStatusDialog
-            close={() => {
-              dispatch(showDialog());
-            }}
-            input={{ feature: selectedFeature, vcard }}
-            onClose={(params) => {
-              dispatch(protocolAction(params, selectedFeature.properties));
-              console.log("setStatus", params);
-            }}
-          />
-        );
+    if (selectedFeature.properties.intermediate !== true) {
+      actionLinkInfos.push({
+        tooltip: "Status ändern",
+        onClick: () => {
+          const dialog = (
+            <SetStatusDialog
+              close={() => {
+                dispatch(showDialog());
+              }}
+              input={{ feature: selectedFeature, vcard }}
+              onClose={(params) => {
+                dispatch(protocolAction(params, selectedFeature.properties));
+                console.log("setStatus", params);
+              }}
+            />
+          );
 
-        dispatch(showDialog(dialog));
-      },
-      iconname: "tasks",
-    });
-    const actionSubs = getSubActionInfoForProtocolAction({ selectedFeature, dispatch });
-    if (actionSubs?.length === 1) {
-      actionLinkInfos.push({
-        tooltip: actionSubs[0].tooltip || actionSubs[0].title,
-        iconspan: actionSubs[0].iconspan,
-        onClick: actionSubs[0].onClick,
+          dispatch(showDialog(dialog));
+        },
+        iconname: "tasks",
       });
-    } else {
-      actionLinkInfos.push({
-        tooltip: "Aktionen",
-        iconname: "list-alt",
-        subs: actionSubs,
-      });
+      const actionSubs = getSubActionInfoForProtocolAction({ selectedFeature, dispatch });
+      if (actionSubs?.length === 1) {
+        actionLinkInfos.push({
+          tooltip: actionSubs[0].tooltip || actionSubs[0].title,
+          iconspan: actionSubs[0].iconspan,
+          onClick: actionSubs[0].onClick,
+        });
+      } else {
+        actionLinkInfos.push({
+          tooltip: "Aktionen",
+          iconname: "list-alt",
+          subs: actionSubs,
+        });
+      }
     }
   }
 
@@ -179,7 +181,7 @@ const getSubActionInfoForAddIncident = ({ selectedFeature, selectedArbeitsauftra
     },
   ];
 
-  if (selectedArbeitsauftrag) {
+  if (selectedArbeitsauftrag && selectedArbeitsauftrag.properties.intermediate !== true) {
     subs.push({
       tooltip: "Arbeitsauftrag ergänzen",
       title: selectedArbeitsauftrag.properties.nummer + " ergänzen",

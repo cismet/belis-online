@@ -346,7 +346,7 @@ export const loadTaskLists = ({ onlineDataForcing, team, done = () => {} }) => {
     dispatch(
       loadTaskListsIntoFeatureCollection({
         onlineDataForcing,
-        team,
+        team: team || state.team.selectedTeam,
         jwt,
         done,
       })
