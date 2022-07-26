@@ -2,6 +2,7 @@ import uuidv4 from "uuid/v4";
 
 import { ADD_INCIDENT_MODES } from "../../../../components/app/dialogs/AddIncident";
 import { getJWT, getLoginFromJWT } from "../auth";
+import { loadTaskLists, MODES, setFeatureCollectionForMode, setMode } from "../featureCollection";
 import { addIntermediateResult, getDB } from "../offlineActionDb";
 
 const addIncidentAction = (params) => {
@@ -55,6 +56,18 @@ const addIncidentAction = (params) => {
     // //add parameterInfo to intermediateResults
     if (intermediateResult) {
       dispatch(addIntermediateResult(intermediateResult));
+
+      //this will refresh the tasklist featurecollection and activates the sidebar with the newly created tasklist
+      dispatch(
+        loadTaskLists({
+          done: () => {
+            setTimeout(() => {
+              dispatch(setMode(MODES.TASKLISTS));
+              dispatch(setFeatureCollectionForMode(MODES.PROTOCOLS));
+            }, 400);
+          },
+        })
+      );
     }
   };
 };

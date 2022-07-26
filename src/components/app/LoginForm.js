@@ -3,14 +3,15 @@ import localforage from "localforage";
 import { useEffect, useRef, useState } from "react";
 import { Button, Form, Modal } from "react-bootstrap";
 import IconComp from "react-cismap/commons/Icon";
-import { CACHE_JWT } from "react-cismap/tools/fetching";
 import { useDispatch, useSelector } from "react-redux";
+import { useHistory, useLocation } from "react-router-dom/cjs/react-router-dom.min";
 
 import { DOMAIN, REST_SERVICE } from "../../constants/belis";
 import { CONNECTIONMODE, setConnectionMode } from "../../core/store/slices/app";
-import { getLogin, storeJWT, storeLogin } from "../../core/store/slices/auth";
+import { getLogin, setLoginRequested, storeJWT, storeLogin } from "../../core/store/slices/auth";
 import { isCacheFullUsable } from "../../core/store/slices/cacheControl";
 import { forceRefresh } from "../../core/store/slices/featureCollection";
+import { HEALTHSTATUS, setHealthState } from "../../core/store/slices/health";
 
 const LoginForm = ({
   setJWT = (jwt) => {
@@ -21,6 +22,8 @@ const LoginForm = ({
   setLoggedOut,
 }) => {
   const dispatch = useDispatch();
+  const history = useHistory();
+  const browserlocation = useLocation();
 
   const [windowWidth, windowHeight] = useWindowSize();
   const pwFieldRef = useRef();
@@ -87,6 +90,8 @@ const LoginForm = ({
             setTimeout(() => {
               dispatch(storeJWT(jwt));
               dispatch(storeLogin(user));
+              dispatch(setLoginRequested(false));
+              dispatch(setHealthState({ jwt, healthState: HEALTHSTATUS.OK }));
               setJWT(jwt);
               setLoggedOut(false);
               setLoginInfo();
@@ -134,7 +139,7 @@ const LoginForm = ({
       <Modal.Body style={modalBodyStyle} id='potenzialflaechen-online' key='login'>
         <Form>
           <Form.Group controlId='potenzialflaechen-online-login'>
-            <Form.Label>WuNDa Benutzername</Form.Label>
+            <Form.Label>BelIS Benutzername</Form.Label>
             <Form.Control
               value={user}
               ref={userFieldRef}
@@ -194,22 +199,36 @@ const LoginForm = ({
                   onClick={(e) => {
                     setLoginInfo({
                       color: "#79BD9A",
-                      text: "Alte Daten werden aus dem Cache übernommen.",
+                      text:
+                        "Alte Daten werden aus dem Cache übernommen. Es werden keine Bilder angezeigt.",
                     }); //set tmp. login info in the login dialogue
                     setTimeout(() => {
-                      console.log("will setJWT to ", CACHE_JWT);
-
-                      setJWT(CACHE_JWT);
-                      setLoggedOut(false);
                       dispatch(setConnectionMode(CONNECTIONMODE.FROMCACHE));
+                      dispatch(setLoginRequested(false));
                       setLoginInfo(); //clear login info
-                      dispatch(forceRefresh());
-                    }, 500);
+                    }, 1000);
                   }}
                   style={{ margin: 5, marginTop: 30 }}
                   variant='secondary'
                 >
                   Offline arbeiten
+                </Button>
+              )}
+              {isCacheFullyUsable === false && (
+                <Button
+                  onClick={(e) => {
+                    setLoginInfo({
+                      color: "#79BD9A",
+                      text: "Sie werden zur Anmeldeseite weitergeleitet.",
+                    }); //set tmp. login info in the login dialogue
+                    setTimeout(() => {
+                      history.push("/" + browserlocation.search);
+                    }, 500);
+                  }}
+                  style={{ margin: 5, marginTop: 30 }}
+                  variant='secondary'
+                >
+                  abmelden
                 </Button>
               )}
               <Button

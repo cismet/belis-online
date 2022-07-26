@@ -76,7 +76,7 @@ export const offlineConfig = {
     "https://omt.map-hosting.de/styles/gewaesser/style.json",
   ],
   realServerFallback: true, //should be true in production
-  consoleDebug: process.env.NODE_ENV !== "production",
+  consoleDebug: false && process.env.NODE_ENV !== "production",
   optional: true,
   initialActive: false, //todo set to true in production
 };
@@ -95,23 +95,22 @@ export const getWebDavUrl = (jwt, doc) => {
 
 export const backgroundConfigurations = {
   lbk: {
-    layerkey: "rvrGrundriss@100|trueOrtho2020@75|rvrSchriftNT@100",
+    layerkey: "rvrGrundriss@100|trueOrtho2022@75|rvrSchriftNT@100",
     src: "/images/rain-hazard-map-bg/ortho.png",
     title: "Luftbildkarte",
   },
-  lbkPale: {
-    layerkey: "rvrGrundriss@20|trueOrtho2020@50|rvrSchriftNT@80",
+  ortho: {
+    layerkey: "trueOrtho2022@95",
     src: "/images/rain-hazard-map-bg/ortho.png",
-    title: "Luftbildkarte",
+    title: "Luftbild",
   },
-
   vectorCityMap: {
     layerkey: "osmBrightOffline",
     src: "/images/rain-hazard-map-bg/citymap.png",
     title: "Stadtplan",
   },
-  vectorCityMapPale: {
-    layerkey: "osmBrightOffline_pale",
+  stadtplan: {
+    layerkey: "osmBrightOffline",
     src: "/images/rain-hazard-map-bg/citymap.png",
     title: "Stadtplan",
   },
@@ -152,30 +151,10 @@ export const backgroundModes = [
   {
     title: "Stadtplan (bunt)",
     mode: "default",
-    layerKey: "vectorCityMap",
-    offlineDataStoreKey: "wuppBasemap",
-  },
-  {
-    title: "Stadtplan (dunkel)",
-    mode: "default",
-    layerKey: "darkMatter",
+    layerKey: "stadtplan",
     offlineDataStoreKey: "wuppBasemap",
   },
 
   { title: "Luftbildkarte", mode: "default", layerKey: "lbk" },
-  {
-    title: "Blass: Stadtplan (bunt)",
-    mode: "default",
-    layerKey: "vectorCityMapPale",
-    offlineDataStoreKey: "wuppBasemap",
-  },
-  {
-    title: "Blass: Stadtplan (dunkel)",
-    mode: "default",
-    layerKey: "darkMatterPale",
-    offlineDataStoreKey: "wuppBasemap",
-  },
-
-  { title: "Blass: Luftbildkarte", mode: "default", layerKey: "lbkPale" },
-  { title: "-", mode: "default", layerKey: "nix" },
+  { title: "Luftbild", mode: "default", layerKey: "ortho" },
 ];

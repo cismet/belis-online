@@ -26,6 +26,7 @@ import {
   isSecondaryInfoVisible,
   setSelectedFeature,
 } from "../../core/store/slices/featureCollection";
+import { getHealthState, HEALTHSTATUS } from "../../core/store/slices/health";
 import { addDotThumbnail } from "./secondaryinfo/components/helper";
 
 //---
@@ -37,12 +38,14 @@ const InfoBox = ({ refRoutedMap }) => {
   const jwt = useSelector(getJWT);
   const selectedFeature = useSelector(getSelectedFeature);
   const secondaryInfoVisible = useSelector(isSecondaryInfoVisible);
+  const healthState = useSelector(getHealthState);
   const { setCollapsedInfoBox } = useContext(UIDispatchContext);
   const { collapsedInfoBox } = useContext(UIContext);
   const mode = useSelector(getFeatureCollectionMode);
   const { setAll: setPhotoLightBoxData, setVisible, setCaptions } = useContext(
     LightBoxDispatchContext
   );
+
   const selectedArbeitsauftrag = useSelector(
     (state) => state.featureCollection.selectedFeature[FEATURECOLLECTION_MODES.TASKLISTS]
   );
@@ -70,45 +73,47 @@ const InfoBox = ({ refRoutedMap }) => {
 
     // collect all photo urls from selected feature
     for (const doc of selectedFeature.properties.docs || []) {
-      let openPDFLink;
-      if (doc.intermediate) {
-        photourls.push(doc.url);
-      } else {
-        let url = getWebDavUrl(jwt, doc);
-
-        if (url.endsWith(".jpg")) {
-          url += ".thumbnail.jpg";
-        } else if (url.endsWith(".png")) {
-          url += ".thumbnail.png";
-        } else if (url.endsWith(".pdf")) {
-          url += ".thumbnail.jpg";
+      if (doc) {
+        let openPDFLink;
+        if (doc.intermediate) {
+          photourls.push(doc.url);
         } else {
-        }
-        photourls.push(url);
+          let url = getWebDavUrl(jwt, doc);
 
-        if (doc?.doc && doc?.doc.endsWith(".pdf")) {
-          openPDFLink = (
-            <span style={{ marginLeft: 30 }}>
-              <a href={getWebDavUrl(jwt, doc)} target='_pdf'>
-                PDF extern öffnen
-              </a>
-            </span>
-          );
+          if (url.endsWith(".jpg")) {
+            url += ".thumbnail.jpg";
+          } else if (url.endsWith(".png")) {
+            url += ".thumbnail.png";
+          } else if (url.endsWith(".pdf")) {
+            url += ".thumbnail.jpg";
+          } else {
+          }
+          photourls.push(url);
+
+          if (doc?.doc && doc?.doc.endsWith(".pdf")) {
+            openPDFLink = (
+              <span style={{ marginLeft: 30 }}>
+                <a href={getWebDavUrl(jwt, doc)} target='_pdf'>
+                  PDF extern öffnen
+                </a>
+              </span>
+            );
+          }
         }
+        captions.push(
+          doc.description ? (
+            <div>
+              {doc.description}
+              {doc.intermediate === true && "*"} ({doc.caption}) {openPDFLink}
+            </div>
+          ) : (
+            <div>
+              {doc.caption}
+              {doc.intermediate === true && "*"} {openPDFLink}
+            </div>
+          )
+        );
       }
-      captions.push(
-        doc.description ? (
-          <div>
-            {doc.description}
-            {doc.intermediate === true && "*"} ({doc.caption}) {openPDFLink}
-          </div>
-        ) : (
-          <div>
-            {doc.caption}
-            {doc.intermediate === true && "*"} {openPDFLink}
-          </div>
-        )
-      );
     }
 
     setPhotoLightBoxData({
@@ -267,7 +272,6 @@ const InfoBox = ({ refRoutedMap }) => {
                       });
 
                       const menu = <Menu style={{ opacity: 0.8 }} items={items} />;
-                      console.log("xxx li", li);
                       return (
                         <Dropdown overlay={menu} placement='topRight' trigger={["click"]}>
                           <span style={{ paddingLeft: index > 0 ? 3 : 0 }}>
@@ -282,8 +286,6 @@ const InfoBox = ({ refRoutedMap }) => {
                         </Dropdown>
                       );
                     } else {
-                      console.log("xxx li else", li);
-
                       return (
                         <span style={{ paddingLeft: index > 0 ? 3 : 0 }}>
                           {li.iconname && (
@@ -440,7 +442,7 @@ const InfoBox = ({ refRoutedMap }) => {
                         key={"actionbutton." + index}
                         size='lg'
                         variant='light'
-                        tooltip={li.tooltip}
+                        title={li.tooltip}
                       >
                         <h2>
                           {li.iconname && <Icon name={li.iconname} />}
@@ -462,7 +464,7 @@ const InfoBox = ({ refRoutedMap }) => {
                       size='lg'
                       variant='light'
                       onClick={li.onClick}
-                      tooltip={li.tooltip}
+                      title={li.tooltip}
                     >
                       <h2>
                         {li.iconname && <Icon name={li.iconname} />}
@@ -478,7 +480,8 @@ const InfoBox = ({ refRoutedMap }) => {
           ),
           selectedFeature?.properties?.docs &&
           selectedFeature.properties.docs.length > 0 &&
-          selectedFeature.properties.docs[0] ? (
+          selectedFeature.properties.docs[0] &&
+          healthState === HEALTHSTATUS.OK ? (
             <div style={{ position: "relative" }}>
               {selectedFeature.properties.docs[0].doc?.endsWith(".pdf") && (
                 <FontAwesomeIcon

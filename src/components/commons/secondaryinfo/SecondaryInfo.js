@@ -17,6 +17,7 @@ import getLayout4Schaltstelle from "./components/Schaltstelle";
 import getLayout4Standort from "./components/Standort";
 import SecondaryInfo from "./Secondary";
 import SecondaryInfoPanelSection from "./SecondaryInfoPanelSection";
+import VersionFooter from "./VersionFooter";
 
 const InfoPanel = () => {
   const dispatch = useDispatch();
@@ -39,29 +40,7 @@ export const InfoPanelComponent = ({ selectedFeature, dispatch }) => {
           }
         }}
       >
-        <b>
-          {document.title} v{getBelisVersion()}
-        </b>
-        :{" "}
-        <a href='https://cismet.de/' target='_cismet'>
-          cismet GmbH
-        </a>{" "}
-        auf Basis von{" "}
-        <a href='http://leafletjs.com/' target='_more'>
-          Leaflet
-        </a>{" "}
-        und{" "}
-        <a href='https://cismet.de/#refs' target='_cismet'>
-          cids | react-cismap v{reactCismapVersion}
-        </a>{" "}
-        |{" "}
-        <a
-          target='_blank'
-          rel='noopener noreferrer'
-          href='https://cismet.de/datenschutzerklaerung.html'
-        >
-          Datenschutzerklärung (Privacy Policy)
-        </a>
+        <VersionFooter />
       </div>
     </div>
   );

@@ -52,14 +52,17 @@ const getLayout4Protokoll = ({
   const subSections = [];
 
   const statusItems = [
-    <Descriptions.Item label='Monteur'>{item?.monteur}</Descriptions.Item>,
-    <Descriptions.Item label={"Datum"}>
-      {getDate(item?.datum) + ivAsterisk(item?.datum_iv)}
+    <Descriptions.Item key='desc_monteuer' label='Monteur'>
+      {item?.monteur}
     </Descriptions.Item>,
-    <Descriptions.Item label='Bemerkung' span={3}>
+
+    <Descriptions.Item key='desc_datum' label={"Datum"}>
+      {item?.datum ? getDate(item?.datum) + ivAsterisk(item?.datum_iv) : undefined}
+    </Descriptions.Item>,
+    <Descriptions.Item key='desc_bem' label='Bemerkung' span={3}>
       {item?.bemerkung}
     </Descriptions.Item>,
-    <Descriptions.Item label='Material' span={3}>
+    <Descriptions.Item key='desc_mat' label='Material' span={3}>
       {item?.material}
     </Descriptions.Item>,
   ];

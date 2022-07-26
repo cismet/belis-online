@@ -216,4 +216,62 @@ export const addIncidentActionIcons = {
       <FontAwesomeIcon icon={faPlus} transform='shrink-9 right-10 up-5' />
     </span>
   ),
+  veranlassung_leuchte: (
+    <span className='fa-layers fa-fw'>
+      <FontAwesomeIcon icon={faInbox}></FontAwesomeIcon>
+      <FontAwesomeIcon
+        icon={faFilter}
+        transform='rotate-180 down-5 shrink-6 right-13'
+      ></FontAwesomeIcon>
+    </span>
+  ),
+  einzelauftrag_leuchte: (
+    <span className='fa-layers fa-fw'>
+      <FontAwesomeIcon icon={faFileInvoice}></FontAwesomeIcon>
+      <FontAwesomeIcon icon={faAsterisk} transform='shrink-9 right-11 up-5' />
+      <FontAwesomeIcon
+        icon={faFilter}
+        transform='rotate-180 down-5 shrink-6 right-13'
+      ></FontAwesomeIcon>
+    </span>
+  ),
+  add2arbeitsauftrag_leuchte: (
+    <span className='fa-layers fa-fw'>
+      <FontAwesomeIcon icon={faFileInvoice}></FontAwesomeIcon>
+      <FontAwesomeIcon icon={faPlus} transform='shrink-9 right-10 up-5' />
+      <FontAwesomeIcon
+        icon={faFilter}
+        transform='rotate-180 down-5 shrink-6 right-13'
+      ></FontAwesomeIcon>
+    </span>
+  ),
+  veranlassung_mast: (
+    <span className='fa-layers fa-fw'>
+      <FontAwesomeIcon
+        icon={faBatteryEmpty}
+        transform='rotate-90 down-5 shrink-7 right-13'
+      ></FontAwesomeIcon>
+      <FontAwesomeIcon icon={faInbox}></FontAwesomeIcon>
+    </span>
+  ),
+  einzelauftrag_mast: (
+    <span className='fa-layers fa-fw'>
+      <FontAwesomeIcon icon={faFileInvoice}></FontAwesomeIcon>
+      <FontAwesomeIcon icon={faAsterisk} transform='shrink-9 right-11 up-5' />
+      <FontAwesomeIcon
+        icon={faBatteryEmpty}
+        transform='rotate-90 down-5 shrink-7 right-13'
+      ></FontAwesomeIcon>
+    </span>
+  ),
+  add2arbeitsauftrag_mast: (
+    <span className='fa-layers fa-fw'>
+      <FontAwesomeIcon icon={faFileInvoice}></FontAwesomeIcon>
+      <FontAwesomeIcon icon={faPlus} transform='shrink-9 right-10 up-5' />
+      <FontAwesomeIcon
+        icon={faBatteryEmpty}
+        transform='rotate-90 down-5 shrink-7 right-13'
+      ></FontAwesomeIcon>
+    </span>
+  ),
 };

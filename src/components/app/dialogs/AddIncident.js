@@ -5,9 +5,11 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import extensions from "../../../core/helper/extensions";
-import { getJWT } from "../../../core/store/slices/auth";
+import { getNonce } from "../../../core/helper/featureHelper";
+import { getJWT, getLoginFromJWT } from "../../../core/store/slices/auth";
 import { renewCache } from "../../../core/store/slices/cacheControl";
 import { getWorker } from "../../../core/store/slices/dexie";
+import { getTeamsKT } from "../../../core/store/slices/keytables";
 import { getTeam } from "../../../core/store/slices/team";
 
 const { Text } = Typography;
@@ -38,28 +40,15 @@ const AddIncidentDialog = ({
 }) => {
   const dispatch = useDispatch();
   const jwt = useSelector(getJWT);
+  const login = getLoginFromJWT(jwt);
 
-  const dexieW = useSelector(getWorker);
-  const [teams, setTeams] = useState([]);
   const [preferredIncidentTeam, setPreferredIncidentTeam] = useState();
   const myTeam = useSelector(getTeam);
   const [selectedTeamId, setSelectedTeamId] = useState(myTeam.id);
-  useEffect(() => {
-    //async block
-    (async () => {
-      try {
-        const teams = await dexieW.getAll("team");
-        if (teams && teams.length > 0) {
-          setTeams(teams);
-        } else {
-          dispatch(renewCache("team", jwt));
-        }
-      } catch (e) {
-        console.log("Error in fetching teams");
-      }
-    })();
-  }, []);
+  const teams = useSelector(getTeamsKT) || [];
+
   const [imageData, setImageData] = useState({});
+  console.log("teams", teams);
 
   const handleUploadChange = (info) => {
     if (info.file.status === "uploading") {
@@ -113,6 +102,7 @@ const AddIncidentDialog = ({
             if (imageData) {
             }
             const feature = input.feature;
+            const ccnonce = getNonce();
 
             const images = Object.keys(imageData).map((key) => {
               mimeType = imageData[key].imageUrl.match("data:(.*);")[1];
@@ -129,12 +119,19 @@ const AddIncidentDialog = ({
               IMAGES: images,
               objekt_id: feature.properties.id,
               objekt_typ: feature.featuretype,
+              objektFeature: feature,
+
               bezeichnung: values.title,
               beschreibung: values.description,
               bemerkung: values.remarks,
               arbeitsauftrag: input.arbeitsauftrag?.properties?.id,
               arbeitsauftragNummer: input.arbeitsauftrag?.properties?.nummer,
+              arbeitsauftragObjekt: input.arbeitsauftrag,
+
               aktion: input.mode,
+              user: login,
+              teamObject: teams.find((team) => team.id === selectedTeamId),
+              ccnonce,
             };
             if (input.mode === ADD_INCIDENT_MODES.EINZELAUFTRAG) {
               parameter.ARBEITSAUFTRAG_ZUGEWIESEN_AN = selectedTeamId;

@@ -10,8 +10,9 @@ import { useHistory, useLocation } from "react-router-dom/cjs/react-router-dom.m
 import LoginForm from "../components/app/LoginForm";
 import MapBlocker from "../components/app/MapBlocker";
 import Menu from "../components/app/menu/Menu";
+import { REST_SERVICE } from "../constants/belis";
 import { CONNECTIONMODE, getConnectionMode, getDialog } from "../core/store/slices/app";
-import { getJWT } from "../core/store/slices/auth";
+import { getJWT, isLoginRequested } from "../core/store/slices/auth";
 import { storeJWT } from "../core/store/slices/auth";
 import { renewCache } from "../core/store/slices/cacheControl";
 import { getWorker } from "../core/store/slices/dexie";
@@ -24,6 +25,7 @@ import {
   setDone,
 } from "../core/store/slices/featureCollection";
 import { tasklistPostSelection } from "../core/store/slices/featureCollectionSubslices/tasklists";
+import { doHealthCheck, getHealthState, HEALTHSTATUS } from "../core/store/slices/health";
 import {
   fillLeuchtentypenFromDexie,
   fillLeuchtmittelFromDexie,
@@ -46,6 +48,7 @@ const View = () => {
   const onlineStatus = useOnlineStatus();
   const dexieW = useSelector(getWorker);
   const jwt = useSelector(getJWT);
+  const isLoginFormRequested = useSelector(isLoginRequested);
 
   let refRoutedMap = useRef(null);
   let refApp = useRef(null);
@@ -76,7 +79,7 @@ const View = () => {
   const fcIsDoneRef = useRef(fcIsDone);
 
   const appDialog = useSelector(getDialog);
-
+  const healthState = useSelector(getHealthState);
   const connectionMode = useSelector(getConnectionMode);
   const browserlocation = useLocation();
   useEffect(() => {
@@ -96,6 +99,19 @@ const View = () => {
       };
     }
   }, [refApp]);
+
+  useEffect(() => {
+    //enable a timer that checks the conection health every 1 seconds and stops it if the page unloads
+    const timer = setInterval(() => {
+      // anonymous asynchronous block
+      (async () => {
+        dispatch(doHealthCheck(jwt));
+      })();
+    }, 5000);
+    return () => {
+      clearInterval(timer);
+    };
+  }, [jwt, dispatch]);
 
   useEffect(() => {
     //async block
@@ -180,7 +196,15 @@ const View = () => {
 
   let loginForm = null;
 
-  const showLogin = storedJWT === "" || storedJWT === undefined || storedJWT === null;
+  // const showLogin = storedJWT === "" || storedJWT === undefined || storedJWT === null;
+  const showLogin =
+    (connectionMode === CONNECTIONMODE.ONLINE &&
+      healthState !== HEALTHSTATUS.OK &&
+      healthState !== HEALTHSTATUS.UNKNOWN) ||
+    (connectionMode === CONNECTIONMODE.FROMCACHE &&
+      healthState !== HEALTHSTATUS.OK &&
+      healthState !== HEALTHSTATUS.UNKNOWN &&
+      isLoginFormRequested);
   if (showLogin) {
     loginForm = (
       <LoginForm
@@ -250,6 +274,7 @@ const View = () => {
           setAppMenuVisible(false);
         }}
         jwt={storedJWT}
+        refRoutedMap={refRoutedMap}
       />
       {appDialog}
 
@@ -257,7 +282,9 @@ const View = () => {
       <TopNavbar
         innerRef={refUpperToolbar}
         refRoutedMap={refRoutedMap}
-        setCacheSettingsVisible={setAppMenuVisible}
+        setAppMenuVisible={setAppMenuVisible}
+        setAppMenuActiveMenuSection={setAppMenuActiveMenuSection}
+        setCacheSettingsVisible
         jwt={storedJWT}
       />
       <SideBar

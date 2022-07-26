@@ -7,7 +7,7 @@ const initialState = {
   tkey_leuchtentyp: [],
 };
 const slice = createSlice({
-  name: "uiMessage",
+  name: "keytables",
   initialState: initialState,
   reducers: {
     set: (state, action) => action.payload,
@@ -42,17 +42,15 @@ export const {
 } = slice.actions;
 
 //selectors
-export const getTeamsKT = (state) => state.teams;
-export const getLeuchtmittelKT = (state) => state.leuchtmittel;
-export const getRundsteuerempfaengerKT = (state) => state.rundsteuerempfaenger;
-export const getLeuchtentypenKT = (state) => state.tkey_leuchtentyp;
+export const getTeamsKT = (state) => state.keytables.teams;
+export const getLeuchtmittelKT = (state) => state.keytables.leuchtmittel;
+export const getRundsteuerempfaengerKT = (state) => state.keytables.rundsteuerempfaenger;
+export const getLeuchtentypenKT = (state) => state.keytables.tkey_leuchtentyp;
 
 export const fillTeamsFromDexie = () => {
   return async (dispatch, getState) => {
     const dexieW = getState().dexie.worker;
     const teams = await dexieW.getAll("team");
-    console.log("qqqq", teams);
-
     dispatch(setTeams(teams));
   };
 };

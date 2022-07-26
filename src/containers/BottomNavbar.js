@@ -1,34 +1,45 @@
 import { blue, green, red } from "@ant-design/colors";
-import { faCheck, faDatabase, faShare, faUser } from "@fortawesome/free-solid-svg-icons";
+import {
+  faCheck,
+  faCloudShowersHeavy,
+  faDatabase,
+  faShare,
+  faUser,
+  faUserAltSlash,
+} from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon as Icon } from "@fortawesome/react-fontawesome";
 import { useWindowSize } from "@react-hook/window-size";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import Button from "react-bootstrap/Button";
 import ButtonGroup from "react-bootstrap/ButtonGroup";
 import Form from "react-bootstrap/Form";
 import Nav from "react-bootstrap/Nav";
 import Navbar from "react-bootstrap/Navbar";
 import ProgressBar from "react-bootstrap/ProgressBar";
+import {
+  TopicMapStylingContext,
+  TopicMapStylingDispatchContext,
+} from "react-cismap/contexts/TopicMapStylingContextProvider";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
 
-import Switch from "../components/commons/Switch";
+import MySwitch from "../components/commons/Switch";
 import { CONNECTIONMODE, getConnectionMode, setConnectionMode } from "../core/store/slices/app";
-import { getLoginFromJWT } from "../core/store/slices/auth";
-import { getBackground, setBackground } from "../core/store/slices/background";
+import { getLoginFromJWT, setLoginRequested } from "../core/store/slices/auth";
+import { getBackground } from "../core/store/slices/background";
 import {
   getCacheDate,
   getCacheUpdatingProgress,
   getCacheUser,
   isCacheFullUsable,
-  renewAllPrimaryInfoCache,
-  renewAllSecondaryInfoCache,
 } from "../core/store/slices/cacheControl";
 import {
+  forceRefresh,
   isInFocusMode,
   loadObjects,
   setFocusModeActive,
 } from "../core/store/slices/featureCollection";
+import { getHealthState, HEALTHSTATUS } from "../core/store/slices/health";
 import { getTasks } from "../core/store/slices/offlineActionDb";
 import { isPaleModeActive, setPaleModeActive } from "../core/store/slices/paleMode";
 
@@ -54,6 +65,8 @@ const BottomNavbar = ({
   const connectionMode = useSelector(getConnectionMode);
   const cachingProgress = useSelector(getCacheUpdatingProgress);
   const isCacheReady = useSelector(isCacheFullUsable);
+
+  const healthState = useSelector(getHealthState);
   const uiThreadProgressbar =
     new URLSearchParams(browserlocation.search).get("uiThreadProgressbar") === "true";
   let user;
@@ -65,7 +78,8 @@ const BottomNavbar = ({
   const [numberOfErrorTasks, setNumberOfErrorTasks] = useState(0);
   const [newest200Status, setNewest200Status] = useState(undefined);
   const [showingGreenCheck, setShowingGreenCheck] = useState(false);
-
+  const { setSelectedBackground } = useContext(TopicMapStylingDispatchContext);
+  const { selectedBackground } = useContext(TopicMapStylingContext);
   useEffect(() => {
     let numberOfPendingTasks = 0;
     let numberOfErrorTasks = 0;
@@ -135,6 +149,7 @@ const BottomNavbar = ({
                   fontSize: fontSizeIconPixel,
                   width: iconWidth,
                   cursor: "pointer",
+                  paddingTop: 2,
                 }}
                 className='text-primary'
                 icon={faUser}
@@ -149,6 +164,7 @@ const BottomNavbar = ({
                   fontSize: fontSizeIconPixel,
                   width: iconWidth,
                   cursor: "pointer",
+                  paddingTop: 2,
                 }}
                 className='text-primary'
                 icon={faDatabase}
@@ -165,7 +181,12 @@ const BottomNavbar = ({
                 style={{ fontSize }}
                 variant={connectionMode === CONNECTIONMODE.ONLINE ? "primary" : "outline-primary"}
                 onClick={() => {
-                  dispatch(setConnectionMode(CONNECTIONMODE.ONLINE));
+                  if (connectionMode !== CONNECTIONMODE.ONLINE) {
+                    dispatch(setConnectionMode(CONNECTIONMODE.ONLINE));
+                    setTimeout(() => {
+                      dispatch(forceRefresh());
+                    }, 100);
+                  }
                 }}
               >
                 Live-Daten
@@ -177,7 +198,12 @@ const BottomNavbar = ({
                   connectionMode === CONNECTIONMODE.FROMCACHE ? "primary" : "outline-primary"
                 }
                 onClick={() => {
-                  dispatch(setConnectionMode(CONNECTIONMODE.FROMCACHE));
+                  if (connectionMode !== CONNECTIONMODE.FROMCACHE) {
+                    dispatch(setConnectionMode(CONNECTIONMODE.FROMCACHE));
+                    setTimeout(() => {
+                      dispatch(forceRefresh());
+                    }, 100);
+                  }
                 }}
               >
                 <span>
@@ -198,6 +224,8 @@ const BottomNavbar = ({
               </Button>
             </ButtonGroup>
           </div>
+          {/*           
+          
           {cachingProgress >= 1 && (
             <Button
               variant={"outline-primary"}
@@ -225,15 +253,45 @@ const BottomNavbar = ({
               now={cachingProgress * 100 + 10}
               max={110}
             />
+          )} */}
+
+          {healthState === HEALTHSTATUS.UNAUTHORIZED && (
+            <Icon
+              style={{
+                fontSize: fontSizeIconPixel,
+                width: iconWidth,
+                cursor: "pointer",
+                paddingTop: 2,
+                marginLeft: 10,
+              }}
+              onClick={() => {
+                dispatch(setLoginRequested(true));
+              }}
+              className='text-primary'
+              icon={faUserAltSlash}
+            />
+          )}
+          {healthState === HEALTHSTATUS.ERROR && (
+            <Icon
+              style={{
+                fontSize: fontSizeIconPixel,
+                width: iconWidth,
+                paddingTop: 2,
+                marginLeft: 10,
+              }}
+              className='text-primary'
+              icon={faCloudShowersHeavy}
+            />
           )}
         </Nav>
 
         <Nav className='mr-auto'>
-          <Switch
+          <MySwitch
             id='focus-toggle'
             preLabel='Fokus'
             switched={inFocusMode}
             size={toggleSize}
+            style={{ paddingTop: 5 }}
             stateChanged={(switched) => {
               dispatch(setFocusModeActive(switched));
               setTimeout(() => {
@@ -247,13 +305,15 @@ const BottomNavbar = ({
               }, 300);
             }}
           />
+
           <div style={{ width: 10 }} />
-          <Switch
+          <MySwitch
             id='pale-toggle'
             preLabel='Blass'
             switched={inPaleMode}
             stateChanged={(switched) => dispatch(setPaleModeActive(switched))}
             size={toggleSize}
+            style={{ paddingTop: 5 }}
           />
         </Nav>
 
@@ -261,30 +321,33 @@ const BottomNavbar = ({
           <ButtonGroup className='mr-2' aria-label='First group'>
             <Button
               style={{ fontSize }}
-              variant={background === "stadtplan" ? "primary" : "outline-primary"}
+              variant={selectedBackground === "stadtplan" ? "primary" : "outline-primary"}
               onClick={() => {
-                dispatch(setBackground("stadtplan"));
+                // dispatch(setBackground("stadtplan"));
+                setSelectedBackground("stadtplan");
               }}
             >
-              Stadtplan
+              Standard
             </Button>
             <Button
               style={{ fontSize }}
-              variant={background === "nightplan" ? "primary" : "outline-primary"}
+              variant={selectedBackground === "lbk" ? "primary" : "outline-primary"}
               onClick={() => {
-                dispatch(setBackground("nightplan"));
+                // dispatch(setBackground("lbk"));
+                setSelectedBackground("lbk");
               }}
             >
-              Stadtplan dunkel
+              Hybrid
             </Button>
             <Button
               style={{ fontSize }}
-              variant={background === "lbk" ? "primary" : "outline-primary"}
+              variant={selectedBackground === "ortho" ? "primary" : "outline-primary"}
               onClick={() => {
-                dispatch(setBackground("lbk"));
+                // dispatch(setBackground("ortho"));
+                setSelectedBackground("ortho");
               }}
             >
-              Luftbildkarte
+              Satellit
             </Button>
           </ButtonGroup>
         </Form>

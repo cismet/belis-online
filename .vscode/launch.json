@@ -13,6 +13,14 @@
     },
     {
       "type": "chrome",
+      "request": "attach",
+      "port": 9222,
+      "name": "App (attach)",
+      "url": "http://localhost:3000/*",
+      "webRoot": "${workspaceFolder}"
+    },
+    {
+      "type": "chrome",
       "request": "launch",
       "name": "App Färberstrasse 1 Leuchte",
       "url": "http://localhost:3000/?lat=51.27626092471301&lng=7.211879259302806&stateLoggingEnabled=true&zoom=22",

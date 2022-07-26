@@ -121,6 +121,7 @@ const BelisMap = ({ refRoutedMap, width, height, jwt }) => {
   };
   const featureCollection = useSelector(getFeatureCollection);
   const inFocusMode = useSelector(isInFocusMode);
+  const fcMode = useSelector(getFeatureCollectionMode);
   const secondaryInfoVisible = useSelector(isSecondaryInfoVisible);
   const selectedFeature = useSelector(getSelectedFeature);
   const featureCollectionMode = useSelector(getFeatureCollectionMode);
@@ -146,13 +147,13 @@ const BelisMap = ({ refRoutedMap, width, height, jwt }) => {
 
   const _backgroundLayers = backgroundsFromMode || "rvrGrau@40";
 
-  useEffect(() => {
-    // const key = (inPaleMode === true ? "pale_" : "") + background;
-    const key = background;
-    if (selectedBackground !== backgrounds[key]) {
-      setSelectedBackground(backgrounds[key]);
-    }
-  }, [inPaleMode, background, selectedBackground, setSelectedBackground, dispatch]);
+  //we have 2 backgrounds, one redux background state (important for persistence)
+  // useEffect(() => {
+  //   const key = background;
+  //   if (selectedBackground !== backgrounds[key]) {
+  //     setSelectedBackground(backgrounds[key]);
+  //   }
+  // }, [inPaleMode, background, selectedBackground, setSelectedBackground, dispatch]);
 
   const { mapSize, mapBounds } = mapBoundsAndSize || {};
 
@@ -183,14 +184,7 @@ const BelisMap = ({ refRoutedMap, width, height, jwt }) => {
           dispatch(setZoom(z));
         }
         if (featureCollectionMode === MODES.OBJECTS) {
-          dispatch(loadObjects({ boundingBox, inFocusMode, zoom: z, jwt: jwt, force: false }));
-          // console.log("xxx loadObjects", {
-          //   mapBounds,
-          //   mapSize,
-          //   blockLoading,
-          //   indexInitialized,
-          //   connectionMode,
-          // });
+          dispatch(loadObjects({ boundingBox, inFocusMode, zoom: z, jwt: jwt, force: true })); //here force=true because of problem when initially loading after switching to cache mode
         } else {
           // console.log("xxx no map for you (mapBounds && mapSize)", mapBounds, mapSize);
         }
@@ -303,7 +297,7 @@ const BelisMap = ({ refRoutedMap, width, height, jwt }) => {
       {/* <DebugFeature feature={focusBoundingBox} /> */}
 
       <FocusRectangle
-        inFocusMode={inFocusMode}
+        inFocusMode={inFocusMode && fcMode === MODES.OBJECTS}
         mapWidth={mapStyle.width}
         mapHeight={mapStyle.height}
       />

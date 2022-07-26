@@ -74,7 +74,7 @@ export const getObjectActionInfos = ({
       dispatch,
     });
     actionLinkInfos.push({
-      tooltip: "Störung meldenn",
+      tooltip: "Störung melden",
       subs,
       iconname: "exclamation-triangle",
     });
@@ -95,39 +95,41 @@ export const getObjectActionInfos = ({
       },
       iconname: "info",
     });
-    actionLinkInfos.push({
-      tooltip: "Status ändern",
-      onClick: () => {
-        const dialog = (
-          <SetStatusDialog
-            close={() => {
-              dispatch(showDialog());
-            }}
-            input={{ feature: selectedFeature, vcard }}
-            onClose={(params) => {
-              dispatch(protocolAction(params, selectedFeature.properties));
-              console.log("setStatus", params);
-            }}
-          />
-        );
+    if (selectedFeature.properties.intermediate !== true) {
+      actionLinkInfos.push({
+        tooltip: "Status ändern",
+        onClick: () => {
+          const dialog = (
+            <SetStatusDialog
+              close={() => {
+                dispatch(showDialog());
+              }}
+              input={{ feature: selectedFeature, vcard }}
+              onClose={(params) => {
+                dispatch(protocolAction(params, selectedFeature.properties));
+                console.log("setStatus", params);
+              }}
+            />
+          );
 
-        dispatch(showDialog(dialog));
-      },
-      iconname: "tasks",
-    });
-    const actionSubs = getSubActionInfoForProtocolAction({ selectedFeature, dispatch });
-    if (actionSubs?.length === 1) {
-      actionLinkInfos.push({
-        tooltip: actionSubs[0].tooltip || actionSubs[0].title,
-        iconspan: actionSubs[0].iconspan,
-        onClick: actionSubs[0].onClick,
+          dispatch(showDialog(dialog));
+        },
+        iconname: "tasks",
       });
-    } else {
-      actionLinkInfos.push({
-        tooltip: "Aktionen",
-        iconname: "list-alt",
-        subs: actionSubs,
-      });
+      const actionSubs = getSubActionInfoForProtocolAction({ selectedFeature, dispatch });
+      if (actionSubs?.length === 1) {
+        actionLinkInfos.push({
+          tooltip: actionSubs[0].tooltip || actionSubs[0].title,
+          iconspan: actionSubs[0].iconspan,
+          onClick: actionSubs[0].onClick,
+        });
+      } else {
+        actionLinkInfos.push({
+          tooltip: "Aktionen",
+          iconname: "list-alt",
+          subs: actionSubs,
+        });
+      }
     }
   }
 
@@ -136,11 +138,98 @@ export const getObjectActionInfos = ({
 
 const getSubActionInfoForAddIncident = ({ selectedFeature, selectedArbeitsauftrag, dispatch }) => {
   const vcard = getVCard(selectedFeature);
-  let subs = [
-    {
-      tooltip: "Nur Veranlassung",
-      title: "Nur Veranlassung",
-      iconspan: addIncidentActionIcons.veranlassung,
+  let subs = [];
+  //check if selected feature is a tdta_leuchte
+  console.log("xxx selectedFeature", selectedFeature);
+
+  if (selectedFeature.featuretype === "tdta_leuchten") {
+    if (selectedFeature.properties.fk_standort) {
+      const pseudoStandortFeature = {
+        featuretype: "tdta_standort_mast",
+        properties: selectedFeature.properties.fk_standort,
+      };
+
+      subs.push({
+        tooltip: "Mast: Nur Veranlassung",
+        title: "Mast: Nur Veranlassung",
+        iconspan: addIncidentActionIcons.veranlassung_mast,
+        onClick: () => {
+          const dialog = (
+            <AddIncidentDialog
+              close={() => {
+                dispatch(showDialog());
+              }}
+              input={{
+                feature: pseudoStandortFeature,
+                vcard: getVCard(pseudoStandortFeature),
+                mode: ADD_INCIDENT_MODES.VERANLASSUNG,
+              }}
+              onClose={(params) => {
+                dispatch(addIncidentAction(params));
+              }}
+            />
+          );
+
+          dispatch(showDialog(dialog));
+        },
+      });
+      subs.push({
+        tooltip: "Mast: Einzelauftrag",
+        title: "Mast: Einzelauftrag",
+        iconspan: addIncidentActionIcons.einzelauftrag_mast,
+        onClick: () => {
+          const dialog = (
+            <AddIncidentDialog
+              close={() => {
+                dispatch(showDialog());
+              }}
+              input={{
+                feature: pseudoStandortFeature,
+                vcard: getVCard(pseudoStandortFeature),
+                mode: ADD_INCIDENT_MODES.EINZELAUFTRAG,
+              }}
+              onClose={(params) => {
+                dispatch(addIncidentAction(params));
+              }}
+            />
+          );
+
+          dispatch(showDialog(dialog));
+        },
+      });
+
+      if (selectedArbeitsauftrag && selectedArbeitsauftrag.properties.intermediate !== true) {
+        subs.push({
+          tooltip: "Mast: Arbeitsauftrag ergänzen",
+          title: "Mast: " + selectedArbeitsauftrag.properties.nummer + " ergänzen",
+          // iconname: "exclamation-triangle",
+          iconspan: addIncidentActionIcons.add2arbeitsauftrag_mast,
+          onClick: () => {
+            const dialog = (
+              <AddIncidentDialog
+                close={() => {
+                  dispatch(showDialog());
+                }}
+                input={{
+                  feature: pseudoStandortFeature,
+                  vcard: getVCard(pseudoStandortFeature),
+                  mode: ADD_INCIDENT_MODES.ADD2ARBEITSAUFTRAG,
+                  arbeitsauftrag: selectedArbeitsauftrag,
+                }}
+                onClose={(params) => {
+                  dispatch(addIncidentAction(params));
+                }}
+              />
+            );
+            dispatch(showDialog(dialog));
+          },
+        });
+      }
+    }
+    subs.push({
+      tooltip: "Leuchte: Nur Veranlassung",
+      title: "Leuchte: Nur Veranlassung",
+      iconspan: addIncidentActionIcons.veranlassung_leuchte,
       onClick: () => {
         const dialog = (
           <AddIncidentDialog
@@ -156,11 +245,11 @@ const getSubActionInfoForAddIncident = ({ selectedFeature, selectedArbeitsauftra
 
         dispatch(showDialog(dialog));
       },
-    },
-    {
-      tooltip: "Einzelauftrag",
-      title: "Einzelauftrag",
-      iconspan: addIncidentActionIcons.einzelauftrag,
+    });
+    subs.push({
+      tooltip: "Leuchte: Einzelauftrag",
+      title: "Leuchte: Einzelauftrag",
+      iconspan: addIncidentActionIcons.einzelauftrag_leuchte,
       onClick: () => {
         const dialog = (
           <AddIncidentDialog
@@ -176,35 +265,177 @@ const getSubActionInfoForAddIncident = ({ selectedFeature, selectedArbeitsauftra
 
         dispatch(showDialog(dialog));
       },
-    },
-  ];
-
-  if (selectedArbeitsauftrag) {
-    subs.push({
-      tooltip: "Arbeitsauftrag ergänzen",
-      title: selectedArbeitsauftrag.properties.nummer + " ergänzen",
-      // iconname: "exclamation-triangle",
-      iconspan: addIncidentActionIcons.add2arbeitsauftrag,
-      onClick: () => {
-        const dialog = (
-          <AddIncidentDialog
-            close={() => {
-              dispatch(showDialog());
-            }}
-            input={{
-              feature: selectedFeature,
-              vcard,
-              mode: ADD_INCIDENT_MODES.ADD2ARBEITSAUFTRAG,
-              arbeitsauftrag: selectedArbeitsauftrag,
-            }}
-            onClose={(params) => {
-              dispatch(addIncidentAction(params));
-            }}
-          />
-        );
-        dispatch(showDialog(dialog));
-      },
     });
+
+    if (selectedArbeitsauftrag && selectedArbeitsauftrag.properties.intermediate !== true) {
+      subs.push({
+        tooltip: "Leuchte: Arbeitsauftrag ergänzen",
+        title: "Leuchte: " + selectedArbeitsauftrag.properties.nummer + " ergänzen",
+        // iconname: "exclamation-triangle",
+        iconspan: addIncidentActionIcons.add2arbeitsauftrag_leuchte,
+        onClick: () => {
+          const dialog = (
+            <AddIncidentDialog
+              close={() => {
+                dispatch(showDialog());
+              }}
+              input={{
+                feature: selectedFeature,
+                vcard,
+                mode: ADD_INCIDENT_MODES.ADD2ARBEITSAUFTRAG,
+                arbeitsauftrag: selectedArbeitsauftrag,
+              }}
+              onClose={(params) => {
+                dispatch(addIncidentAction(params));
+              }}
+            />
+          );
+          dispatch(showDialog(dialog));
+        },
+      });
+    }
+  } else if (selectedFeature.featuretype === "tdta_standort_mast") {
+    subs = [
+      {
+        tooltip: "Nur Veranlassung",
+        title: "Nur Veranlassung",
+        iconspan: addIncidentActionIcons.veranlassung_mast,
+        onClick: () => {
+          const dialog = (
+            <AddIncidentDialog
+              close={() => {
+                dispatch(showDialog());
+              }}
+              input={{ feature: selectedFeature, vcard, mode: ADD_INCIDENT_MODES.VERANLASSUNG }}
+              onClose={(params) => {
+                dispatch(addIncidentAction(params));
+              }}
+            />
+          );
+
+          dispatch(showDialog(dialog));
+        },
+      },
+      {
+        tooltip: "Einzelauftrag",
+        title: "Einzelauftrag",
+        iconspan: addIncidentActionIcons.einzelauftrag_mast,
+        onClick: () => {
+          const dialog = (
+            <AddIncidentDialog
+              close={() => {
+                dispatch(showDialog());
+              }}
+              input={{ feature: selectedFeature, vcard, mode: ADD_INCIDENT_MODES.EINZELAUFTRAG }}
+              onClose={(params) => {
+                dispatch(addIncidentAction(params));
+              }}
+            />
+          );
+
+          dispatch(showDialog(dialog));
+        },
+      },
+    ];
+
+    if (selectedArbeitsauftrag && selectedArbeitsauftrag.properties.intermediate !== true) {
+      subs.push({
+        tooltip: "Arbeitsauftrag ergänzen",
+        title: selectedArbeitsauftrag.properties.nummer + " ergänzen",
+        // iconname: "exclamation-triangle",
+        iconspan: addIncidentActionIcons.add2arbeitsauftrag_mast,
+        onClick: () => {
+          const dialog = (
+            <AddIncidentDialog
+              close={() => {
+                dispatch(showDialog());
+              }}
+              input={{
+                feature: selectedFeature,
+                vcard,
+                mode: ADD_INCIDENT_MODES.ADD2ARBEITSAUFTRAG,
+                arbeitsauftrag: selectedArbeitsauftrag,
+              }}
+              onClose={(params) => {
+                dispatch(addIncidentAction(params));
+              }}
+            />
+          );
+          dispatch(showDialog(dialog));
+        },
+      });
+    }
+  } else {
+    subs = [
+      {
+        tooltip: "Nur Veranlassung",
+        title: "Nur Veranlassung",
+        iconspan: addIncidentActionIcons.veranlassung,
+        onClick: () => {
+          const dialog = (
+            <AddIncidentDialog
+              close={() => {
+                dispatch(showDialog());
+              }}
+              input={{ feature: selectedFeature, vcard, mode: ADD_INCIDENT_MODES.VERANLASSUNG }}
+              onClose={(params) => {
+                dispatch(addIncidentAction(params));
+              }}
+            />
+          );
+
+          dispatch(showDialog(dialog));
+        },
+      },
+      {
+        tooltip: "Einzelauftrag",
+        title: "Einzelauftrag",
+        iconspan: addIncidentActionIcons.einzelauftrag,
+        onClick: () => {
+          const dialog = (
+            <AddIncidentDialog
+              close={() => {
+                dispatch(showDialog());
+              }}
+              input={{ feature: selectedFeature, vcard, mode: ADD_INCIDENT_MODES.EINZELAUFTRAG }}
+              onClose={(params) => {
+                dispatch(addIncidentAction(params));
+              }}
+            />
+          );
+
+          dispatch(showDialog(dialog));
+        },
+      },
+    ];
+
+    if (selectedArbeitsauftrag && selectedArbeitsauftrag.properties.intermediate !== true) {
+      subs.push({
+        tooltip: "Arbeitsauftrag ergänzen",
+        title: selectedArbeitsauftrag.properties.nummer + " ergänzen",
+        // iconname: "exclamation-triangle",
+        iconspan: addIncidentActionIcons.add2arbeitsauftrag,
+        onClick: () => {
+          const dialog = (
+            <AddIncidentDialog
+              close={() => {
+                dispatch(showDialog());
+              }}
+              input={{
+                feature: selectedFeature,
+                vcard,
+                mode: ADD_INCIDENT_MODES.ADD2ARBEITSAUFTRAG,
+                arbeitsauftrag: selectedArbeitsauftrag,
+              }}
+              onClose={(params) => {
+                dispatch(addIncidentAction(params));
+              }}
+            />
+          );
+          dispatch(showDialog(dialog));
+        },
+      });
+    }
   }
   return subs;
 };

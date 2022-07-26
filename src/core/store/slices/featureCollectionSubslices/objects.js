@@ -25,6 +25,7 @@ import {
   setRequestBasis,
   setSelectedFeature,
 } from "../featureCollection";
+import { HEALTHSTATUS, setHealthState } from "../health";
 
 const dexieW = dexieworker();
 
@@ -138,7 +139,7 @@ export const loadObjectsIntoFeatureCollection = ({
             const response = await fetchGraphQL(gqlQuery, queryParameter, jwt);
             console.timeEnd("query returned");
 
-            if (response) {
+            if (response?.ok) {
               const featureCollection = [];
               for (const key of Object.keys(response.data || {})) {
                 const objects = response.data[key];
@@ -156,16 +157,14 @@ export const loadObjectsIntoFeatureCollection = ({
               console.log("updateSingleCacheItems done");
               console.log("loadObjectsIntoFeatureCollection done");
             } else {
-              console.log("response was undefined");
-              // dispatch(setRequestBasis(undefined));
-              dispatch(storeJWT(undefined));
+              throw new Error("Error in fetchGraphQL (" + response.status + ")");
             }
           } catch (e) {
             console.log("error was thrown", e);
             console.log("errorneous query", { gqlQuery, queryParameter, jwt });
             // dispatch(setRequestBasis(undefined));
             dispatch(setRequestBasis(undefined));
-            dispatch(storeJWT(undefined));
+            dispatch(setHealthState({ jwt, healthState: HEALTHSTATUS.ERROR }));
           }
         }
       }

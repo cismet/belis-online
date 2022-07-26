@@ -42,8 +42,8 @@ export const calcLength = (geom) => {
 
 export const getVCard = (feature) => {
   const vcard = { list: {}, infobox: {} };
+  const item = JSON.parse(JSON.stringify(feature.properties)); //this is needed because of the fachobject is recreated in the arbeitsprotokoll (opt pot)
 
-  const item = feature.properties;
   switch (feature.featuretype) {
     case "tdta_leuchten":
       const typPart =
@@ -215,13 +215,19 @@ export const getVCard = (feature) => {
       break;
     }
     case "arbeitsprotokoll": {
+      item.fachobjekt = getFachobjektOfProtocol(item);
       // Infobox
       vcard.infobox.header = "Arbeitsprotokoll";
       vcard.infobox.title = "# " + item.protokollnummer + " - " + item.fachobjekt.shortname;
       vcard.infobox.subtitle = "Veranlassung " + item.veranlassungsnummer;
       vcard.infobox.more = undefined;
       // List
-      vcard.list.main = "#" + item.protokollnummer + " - " + item.fachobjekt.shortname;
+      vcard.list.main =
+        "#" +
+        item.protokollnummer +
+        " - " +
+        item.fachobjekt.shortname +
+        (item.intermediate === true ? " ***" : "");
       if (item.arbeitsprotokollstatus) {
         if (item.arbeitsprotokollstatus.schluessel === "0") {
           vcard.list.upperright = "🕒";
@@ -240,7 +246,22 @@ export const getVCard = (feature) => {
     default:
   }
 
+  if (feature.properties.iv_included) {
+    vcard.list.main = vcard.list.main + "*";
+    vcard.infobox.title = vcard.infobox.title + "*";
+  }
+
   return vcard;
+};
+
+export const getNonce = () => {
+  const today = new Date();
+  const dd = String(today.getDate()).padStart(2, "0");
+  const mm = String(today.getMonth() + 1).padStart(2, "0");
+  const yyyy = today.getFullYear();
+  const todayString = yyyy + mm + dd;
+  const todayInt = parseInt(todayString);
+  return todayInt + Math.random();
 };
 
 const addDmsUrl = (docs, dmsUrl, caption) => {
@@ -271,6 +292,11 @@ export const getDocs = (feature) => {
       feature?.properties?.veranlassung?.ar_dokumenteArray,
       "Veranlassung"
     );
+
+    //add intermediate docs of veranlassung
+    for (const doc of feature?.properties?.veranlassung?.docs || []) {
+      docs.push(doc);
+    }
 
     type = feature.fachobjekttype;
     item = feature.properties.fachobjekt;
@@ -341,8 +367,8 @@ export const type2Caption = (type) => {
       return "Standort";
     case "arbeitsprotokoll":
       return "Protokoll";
-
     default:
+      return type;
   }
 };
 
@@ -369,13 +395,15 @@ const getIntermediateResultsImages = (item, intermediateResults, itemtype) => {
 };
 
 const integrateIntermediateResultsIntoObjects = (intermediateResults, item, type, id) => {
-  console.log("integrateIntermediateResultsIntoObjects " + type, id);
+  // console.log("integrateIntermediateResultsIntoObjects " + type, id);
 
   if (intermediateResults && intermediateResults[type]) {
     const irs = intermediateResults[type][id];
     if (irs?.object) {
       for (const ir of irs.object) {
         for (const key of Object.keys(ir)) {
+          // console.log("iv in ", { item, key });
+
           item[key] = ir[key];
           //will ad a property with _iv postfix to the item, so that the ui can recognize it
           item[key + "_iv"] = true;
@@ -383,6 +411,103 @@ const integrateIntermediateResultsIntoObjects = (intermediateResults, item, type
       }
     }
   }
+};
+const addObject2ProtokollObject = (type, protokollObject, object) => {
+  switch (type) {
+    case "tdta_leuchten":
+    case "leitung":
+    case "mauerlasche":
+    case "schaltstelle":
+    case "abzweigdose":
+    case "tdta_standort_mast":
+    case "geometrie":
+      protokollObject[type] = object;
+      break;
+    default:
+      console.log("xxx unknown objekt_typ this should not happen", type);
+  }
+};
+
+export const getNewIntermediateResults = (intermediateResults, type) => {
+  const newResults = [];
+  switch (type) {
+    case "arbeitsauftrag":
+      if (intermediateResults?.arbeitsauftrag) {
+        const newTasklistsFromIR = intermediateResults?.arbeitsauftrag["*"]?.object || [];
+        // format todays date in the format yyyy-mm-dd
+        const today = new Date();
+        const dd = String(today.getDate()).padStart(2, "0");
+        const mm = String(today.getMonth() + 1).padStart(2, "0");
+        const yyyy = today.getFullYear();
+        const todayString = yyyy + "-" + mm + "-" + dd;
+        for (const newTasklistIR of newTasklistsFromIR) {
+          const newTasklist = {
+            intermediate: true,
+            id: "intermediate." + newTasklistIR.ccnonce,
+            angelegt_am: todayString,
+            angelegt_von: newTasklistIR.user,
+            ccnonce: newTasklistIR.ccnonce,
+            nummer: "********",
+            zugewiesen_an: newTasklistIR.ARBEITSAUFTRAG_ZUGEWIESEN_AN,
+            team: newTasklistIR.teamObject,
+            ar_protokolleArray: [
+              {
+                arbeitsprotokoll: {
+                  intermediate: true,
+                  veranlassungsnummer: "********",
+                  veranlassung: {
+                    nummer: "********",
+                    bezeichnung: newTasklistIR.bezeichnung,
+                    veranlassungsart: {
+                      bezeichnung: "Störung",
+                      schluessel: "S",
+                    },
+                    beschreibung: newTasklistIR.beschreibung,
+                    username: newTasklistIR.user,
+                    datum: todayString,
+                    bemerkungen: newTasklistIR.bemerkung,
+                    // {
+                    //   "intermediate": true,
+                    //   "url": "data:image/png;base64,iVBORw0K...",
+                    //   "caption": "Leuchte",
+                    //   "description": "9"
+                    // }
+                    docs: (newTasklistIR.IMAGES || []).map((image) => {
+                      return {
+                        intermediate: true,
+                        url: image.ImageData,
+                        caption: "Veranlassung",
+                        description: image.description,
+                      };
+                    }),
+                  },
+                  protokollnummer: 1,
+                  is_deleted: null,
+                  material: null,
+                  monteur: null,
+                  bemerkung: null,
+                  defekt: null,
+                  datum: null,
+                  arbeitsprotokollstatus: null,
+                  arbeitsprotokollaktionArray: [],
+                },
+              },
+            ],
+          };
+
+          addObject2ProtokollObject(
+            newTasklistIR.objekt_typ,
+            newTasklist.ar_protokolleArray[0].arbeitsprotokoll,
+            newTasklistIR.objektFeature.properties
+          );
+
+          newResults.push(newTasklist);
+        }
+      }
+    default:
+      console.log("no new intermediate results for type " + type);
+  }
+  return newResults;
 };
 
 export const integrateIntermediateResults = (feature, intermediateResults) => {
@@ -392,7 +517,8 @@ export const integrateIntermediateResults = (feature, intermediateResults) => {
   if (item.docs) {
     item.docs = item.docs.filter((doc) => !doc.intermediate);
   }
-  console.log("xxx integrateIntermediateResults");
+
+  let newTasklists = [];
 
   docs = getIntermediateResultsImages(item, intermediateResults, feature.featuretype.toLowerCase());
 
@@ -441,7 +567,7 @@ export const integrateIntermediateResults = (feature, intermediateResults) => {
 
       break;
     case "schaltstelle":
-      docs.concat(
+      docs = docs.concat(
         getIntermediateResultsImages(
           item?.rundsteuerempfaenger,
           intermediateResults,
@@ -452,12 +578,12 @@ export const integrateIntermediateResults = (feature, intermediateResults) => {
 
       break;
     case "abzweigdose":
-      item.docs.concat(docs);
+      docs = item.docs.concat(docs);
       integrateIntermediateResultsIntoObjects(intermediateResults, item, "abzweigdose", item.id);
 
       break;
     case "tdta_standort_mast":
-      docs.concat(
+      docs = docs.concat(
         getIntermediateResultsImages(item?.tkey_masttyp, intermediateResults, "tkey_masttyp")
       );
       integrateIntermediateResultsIntoObjects(
@@ -468,17 +594,95 @@ export const integrateIntermediateResults = (feature, intermediateResults) => {
       );
 
       break;
+    case "arbeitsauftrag":
+      //Todo integrate arbeitsauftrag inetermediate object
+      console.log("xxx will integrate ir into tasklist");
+      if (intermediateResults?.arbeitsauftrag) {
+        //add2Arbeitsauftrag
+        if (intermediateResults && intermediateResults["arbeitsauftrag"]) {
+          const irs = intermediateResults["arbeitsauftrag"][item.id];
+          if (irs?.object) {
+            const today = new Date();
+            const dd = String(today.getDate()).padStart(2, "0");
+            const mm = String(today.getMonth() + 1).padStart(2, "0");
+            const yyyy = today.getFullYear();
+            const todayString = yyyy + "-" + mm + "-" + dd;
+            for (const protIR of irs?.object) {
+              console.log("xxx found a candidate to incorportae intermediate changes", protIR);
+              //check if arbeitsprotokoll already exists (ccnonce check)
+              const found = item.ar_protokolleArray.find((p) => {
+                return p.ccnonce === protIR.ccnonce;
+              });
+              if (!found) {
+                const newArbeitsprotokoll = {
+                  arbeitsprotokoll: {
+                    intermediate: true,
+                    ccnonce: protIR.ccnonce,
+                    veranlassungsnummer: "********",
+                    veranlassung: {
+                      nummer: "********",
+                      bezeichnung: protIR.bezeichnung,
+                      veranlassungsart: {
+                        bezeichnung: "Störung",
+                        schluessel: "S",
+                      },
+                      beschreibung: protIR.beschreibung,
+                      username: protIR.user,
+                      datum: todayString,
+                      bemerkungen: protIR.bemerkung,
+                      // {
+                      //   "intermediate": true,
+                      //   "url": "data:image/png;base64,iVBORw0K...",
+                      //   "caption": "Leuchte",
+                      //   "description": "9"
+                      // }
+                      docs: (protIR.IMAGES || []).map((image) => {
+                        return {
+                          intermediate: true,
+                          url: image.ImageData,
+                          caption: "Veranlassung",
+                          description: image.description,
+                        };
+                      }),
+                    },
+                    protokollnummer: item.ar_protokolleArray.length + 1,
+                    is_deleted: null,
+                    material: null,
+                    monteur: null,
+                    bemerkung: null,
+                    defekt: null,
+                    datum: null,
+                    arbeitsprotokollstatus: null,
+                    arbeitsprotokollaktionArray: [],
+                  },
+                };
+
+                addObject2ProtokollObject(
+                  protIR.objekt_typ,
+                  newArbeitsprotokoll.arbeitsprotokoll,
+                  protIR.objektFeature.properties
+                );
+
+                console.log("xxx newArbeitsprotokoll", newArbeitsprotokoll);
+
+                item.ar_protokolleArray.push(newArbeitsprotokoll);
+              }
+
+              item.iv_included = true;
+            }
+          }
+        }
+      }
+      break;
     case "arbeitsprotokoll":
+      if (item?.veranlassung?.docs) {
+        docs = docs.concat(item?.veranlassung?.docs);
+      }
       if (intermediateResults.arbeitsprotokoll) {
         const irs = intermediateResults[feature.featuretype][item.id];
-        console.log("xxxx irs", feature.featuretype, item.id);
 
         if (irs?.object) {
           for (const ir of irs.object) {
-            console.log("xxx intermediate results integration. ir", ir);
-
-            console.log("xxx intermediate results integration. item before", item);
-
             switch (ir.actionname) {
               case "protokollStatusAenderung":
                 setStatusAndAktionsArrayStuff(ir, item);
@@ -576,6 +780,8 @@ export const integrateIntermediateResults = (feature, intermediateResults) => {
             }
           }
           console.log("intermediate results integration. item after", item);
+          //mark item as processed
+          // item.iv_included = true;
         }
       }
       break;
@@ -583,30 +789,48 @@ export const integrateIntermediateResults = (feature, intermediateResults) => {
   }
 
   if (item.docs) {
-    item.docs = [...item.docs, ...docs];
+    item.docs = [...docs, ...item.docs];
   } else {
     item.docs = docs;
   }
 };
 
 const setStatusAndAktionsArrayStuff = (ir, item) => {
+  let iv_included = false;
   if (ir.bemerkung && ir.bemerkung !== item?.bemerkung) {
+    console.log("xxx iv_included bemerkung:", ir.bemerkung, item?.bemerkung);
     item.bemerkung = ir.bemerkung + "*";
+    iv_included = true;
   }
   if (ir.status && ir.status !== item?.arbeitsprotokollstatus?.id) {
+    console.log(
+      "xxx iv_included status",
+      ir.status,
+      item?.arbeitsprotokollstatus?.id,
+      typeof ir.status,
+      typeof item?.arbeitsprotokollstatus?.id,
+      ir.status !== item?.arbeitsprotokollstatus?.id
+    );
     item.arbeitsprotokollstatus = getProtokollStatusForId(ir.status);
     item.arbeitsprotokollstatusIntermediate = true;
+    iv_included = true;
   }
   if (ir.material && ir.material !== item?.material) {
     item.material = ir.material + "*";
+    iv_included = true;
+    console.log("xxx iv_included material");
   }
   if (ir.monteur && ir.monteur !== item?.monteur) {
     item.monteur = ir.monteur + "*";
+    iv_included = true;
+    console.log("xxx iv_included monteur");
   }
 
-  if (ir.datum && ir.datum !== item?.datum) {
+  if ((ir.datum && !item?.datum) || (ir.datum && Date(ir.datum) !== Date(item?.datum))) {
     item.datum = ir.datum;
     item.datum_iv = true;
+    iv_included = true;
+    console.log("xxx iv_included datum");
   }
 
   //Todo check if the change is already in so that we not need to disp,ay the intermediate change
@@ -625,16 +849,22 @@ const setStatusAndAktionsArrayStuff = (ir, item) => {
 
     const found = item.arbeitsprotokollaktionArray.find(
       (a) =>
-        (a.aenderung + "*" === protAktion.aenderung || a.aenderung === protAktion.aenderung) &&
-        a.alt === protAktion.alt &&
-        a.neu === protAktion.neu &&
+        a.aenderung === protAktion.aenderung &&
+        // a.alt === protAktion.alt &&
+        // a.neu === protAktion.neu &&
         a.ccnonce === protAktion.ccnonce
     );
 
     if (!found) {
       item.arbeitsprotokollaktionArray.push(protAktion);
+      iv_included = true;
+      console.log("xxx iv_included arbeitsprotokollaktionArray");
     }
+
     // console.log("xxxx after", item.arbeitsprotokollaktionArray);
+  }
+  if (iv_included) {
+    item.iv_included = true;
   }
 };
 

@@ -15,8 +15,8 @@ import {
 } from "./search";
 import { getZoom } from "./zoom";
 
-const focusedSearchMinimumZoomThreshhold = 16.5;
-const searchMinimumZoomThreshhold = 17.5;
+const focusedSearchMinimumZoomThreshhold = 18;
+const searchMinimumZoomThreshhold = 19;
 export const MODES = { OBJECTS: "OBJECTS", TASKLISTS: "TASKLISTS", PROTOCOLS: "PROTOCOLS" };
 
 export const initialFilter = {
@@ -132,6 +132,8 @@ const featureCollectionSlice = createSlice({
         state.selectedFeature[mode] = fc[state.featuresMap[mode][selectedFeature.id]];
       } else if (selectedFeatureIndex) {
         state.selectedFeature[mode] = fc[selectedFeatureIndex];
+      } else {
+        state.selectedFeature[mode] = null;
       }
       if (state.selectedFeature[mode]) {
         state.selectedFeature[mode].selected = true;
@@ -204,6 +206,8 @@ export const setSelectedFeature = (selectedFeature) => {
       dispatch(setSelectedFeatureForMode({ selectedFeature, mode }));
       zoomToFeature({ feature: selectedFeature, mapRef });
     } else {
+      console.log("setSelectedFeature else", mode, selectedFeature);
+
       dispatch(setSelectedFeatureForMode({ selectedFeature, mode }));
     }
   };
@@ -232,7 +236,9 @@ export const forceRefresh = () => {
   return async (dispatch, getState) => {
     const state = getState();
     console.log("xxx forceRefresh in", state.featureCollection.boundingBox, state.mapInfo?.bounds);
-    dispatch(setFeatureCollection([]));
+    dispatch(setFeatureCollectionForMode({ mode: MODES.OBJECTS, features: [] }));
+    dispatch(setFeatureCollectionForMode({ mode: MODES.TASKLISTS, features: [] }));
+    dispatch(setFeatureCollectionForMode({ mode: MODES.PROTOCOLS, features: [] }));
     dispatch(setSelectedFeature(null));
     const onlineDataForcing = false;
     dispatch(
@@ -244,6 +250,14 @@ export const forceRefresh = () => {
         onlineDataForcing,
       })
     );
+    if (state.team.selectedTeam) {
+      dispatch(
+        loadTaskLists({
+          team: state.team.selectedTeam,
+          jwt: state.auth.jwt,
+        })
+      );
+    }
   };
 };
 
@@ -255,6 +269,7 @@ export const loadObjects = ({
   jwt,
   force = false,
   onlineDataForcing,
+  manualRequest = false,
 }) => {
   return async (dispatch, getState) => {
     if (!jwt || !boundingBox) {
@@ -285,7 +300,7 @@ export const loadObjects = ({
     } else if (_searchForbidden === false && searchModeActive === true) {
       dispatch(setSearchModeWished(true));
     }
-    if (searchModeActive === true) {
+    if (searchModeActive === true || manualRequest === true) {
       const _filterstate = overridingFilterState || _filterState;
       const reqBasis =
         JSON.stringify(boundingBox) + "." + JSON.stringify(_filterstate) + "." + inFocusMode;
@@ -331,7 +346,7 @@ export const loadTaskLists = ({ onlineDataForcing, team, done = () => {} }) => {
     dispatch(
       loadTaskListsIntoFeatureCollection({
         onlineDataForcing,
-        team,
+        team: team || state.team.selectedTeam,
         jwt,
         done,
       })

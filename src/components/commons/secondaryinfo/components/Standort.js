@@ -143,8 +143,6 @@ export const getStandortDetails = ({
   setVisible,
   columns = { xs: 1, sm: 1, md: 2, lg: 2, xxl: 3 },
 }) => {
-  console.log("erdung", standortItem.erdung);
-
   const standortItems = [
     <Descriptions.Item optionalPredicate={() => true} label='Mastart'>
       {standortItem?.fk_mastart ? standortItem?.fk_mastart.mastart : "Mast ohne Mastart"}

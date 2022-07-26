@@ -6,6 +6,10 @@ import reproject from "reproject";
 import dexieworker from "workerize-loader!../../../workers/dexie"; // eslint-disable-line import/no-webpack-loader-syntax
 
 import { fetchGraphQL } from "../../../commons/graphql";
+import {
+  getNewIntermediateResults,
+  integrateIntermediateResults,
+} from "../../../helper/featureHelper";
 import queries from "../../../queries/online";
 import { CONNECTIONMODE, getConnectionMode } from "../app";
 import { getJWT } from "../auth";
@@ -47,15 +51,45 @@ export const loadTaskListsIntoFeatureCollection = ({
           console.time("tasklist query returned");
           const response = await fetchGraphQL(gqlQuery, queryParameter, jwt);
           console.timeEnd("tasklist query returned");
-          const results = response.data.arbeitsauftrag;
+          if (response?.ok) {
+            const results = response.data.arbeitsauftrag;
 
-          features = createArbeitsauftragFeaturesForResults(results);
+            features = createArbeitsauftragFeaturesForResults(results);
+          } else {
+            throw new Error("Error in fetchGraphQL (" + response.status + ")");
+          }
         } else {
           //offlineUse
           console.log("xxx will get tasklist from local cache");
           const results = await dexieW.getAll("arbeitsauftrag");
           features = createArbeitsauftragFeaturesForResults(results, true);
         }
+
+        const featureClones = [];
+
+        for (const feature of features) {
+          const f = JSON.parse(JSON.stringify(feature));
+          featureClones.push(f);
+          integrateIntermediateResults(f, state.offlineActionDb.intermediateResults);
+        }
+        const newResults = getNewIntermediateResults(
+          state.offlineActionDb.intermediateResults,
+          "arbeitsauftrag"
+        );
+        console.log("xxx newResults", newResults);
+
+        for (const newResult of newResults) {
+          const f = createSingleArbeitsauftragFeatureForItem(newResult, true);
+          //try to find the feature in the already loaded feature collection
+          const found = features.find((a) => {
+            return a.properties.ccnonce === f.properties.ccnonce;
+          });
+
+          if (!found) {
+            featureClones.push(f);
+          }
+        }
+        features = featureClones;
 
         dispatch(setFeatureCollectionForMode({ mode: MODES.PROTOCOLS, features: [] }));
         dispatch(setSelectedFeatureForMode({ mode: MODES.PROTOCOLS, feature: undefined }));
@@ -81,25 +115,31 @@ export const loadTaskListsIntoFeatureCollection = ({
   };
 };
 
+export const createSingleArbeitsauftragFeatureForItem = (item, enriched) => {
+  const arbeitsauftrag = item;
+  const feature = {
+    text: "-",
+    id: "arbeitsauftrag." + arbeitsauftrag.id,
+    enriched,
+    type: "Feature",
+    selected: false,
+    featuretype: "arbeitsauftrag",
+    geometry: geometryFactory(arbeitsauftrag),
+    crs: {
+      type: "name",
+      properties: {
+        name: "urn:ogc:def:crs:EPSG::25832",
+      },
+    },
+    properties: arbeitsauftrag,
+  };
+  return feature;
+};
+
 export const createArbeitsauftragFeaturesForResults = (results, enriched = false) => {
   const features = [];
   for (const arbeitsauftrag of results) {
-    const feature = {
-      text: "-",
-      id: "arbeitsauftrag." + arbeitsauftrag.id,
-      enriched,
-      type: "Feature",
-      selected: false,
-      featuretype: "arbeitsauftrag",
-      geometry: geometryFactory(arbeitsauftrag),
-      crs: {
-        type: "name",
-        properties: {
-          name: "urn:ogc:def:crs:EPSG::25832",
-        },
-      },
-      properties: arbeitsauftrag,
-    };
+    const feature = createSingleArbeitsauftragFeatureForItem(arbeitsauftrag, enriched);
     features.push(feature);
   }
 
@@ -141,9 +181,13 @@ const geometryFactory = (arbeitsauftrag) => {
     }
   }
   const turfCollection = turfHelpers.featureCollection(geoms);
-
-  const convexFeature = convex(turfCollection);
-  return convexFeature.geometry;
+  try {
+    const convexFeature = convex(turfCollection);
+    return convexFeature.geometry;
+  } catch (e) {
+    console.error("xxx error in " + arbeitsauftrag.id, e);
+    return undefined;
+  }
 };
 
 const createGeomOnlyFeature = (geom) => {

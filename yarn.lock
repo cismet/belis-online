@@ -11749,7 +11749,7 @@ leaflet-draw@^0.3.2:
   resolved "https://registry.yarnpkg.com/leaflet-draw/-/leaflet-draw-0.3.2.tgz#717ee8fed4c2a9679c12162e1f922d2da503d109"
   integrity sha1-cX7o/tTCqWecEhYuH5ItLaUD0Qk=
 
-leaflet-easybutton@^2.3.0:
+leaflet-easybutton@^2.4.0:
   version "2.4.0"
   resolved "https://registry.yarnpkg.com/leaflet-easybutton/-/leaflet-easybutton-2.4.0.tgz#3ad8ad31c9cf6d5ca7a6a1988f82eed13ff2c1af"
   integrity sha512-O+qsQq4zTF6ds8VClnytobTH/MKalctlPpiA8L+bNKHP14J3lgJpvEd/jSpq9mHTI6qOzRAvbQX6wS6qNwThvg==
@@ -12145,10 +12145,10 @@ map-visit@^1.0.0:
   dependencies:
     object-visit "^1.0.0"
 
-maplibre-gl@^1.13.0-rc.5:
-  version "1.15.3"
-  resolved "https://registry.yarnpkg.com/maplibre-gl/-/maplibre-gl-1.15.3.tgz#eebbdd6b4cba46c61a660d6fa1808fced126e24d"
-  integrity sha512-ZuOhLCNgp7Yl1L9uyKgZeuo7kKdewP0iWtmEXsZ/snp0JiVkR1Kl+m1rsfKT/wpm/O4zZ7mUGxF16cYbMIFDRA==
+maplibre-gl@1.15.2:
+  version "1.15.2"
+  resolved "https://registry.yarnpkg.com/maplibre-gl/-/maplibre-gl-1.15.2.tgz#7fb47868b62455af916c090903f2154394450f9c"
+  integrity sha512-uPeV530apb4JfX3cRFfE+awFnbcJTOnCv2QvY4mw4huiInbybElWYkNzTs324YLSADq0f4bidRoYcR81ho3aLA==
   dependencies:
     "@mapbox/geojson-rewind" "^0.5.0"
     "@mapbox/geojson-types" "^1.0.2"
@@ -12164,7 +12164,7 @@ maplibre-gl@^1.13.0-rc.5:
     geojson-vt "^3.2.1"
     gl-matrix "^3.2.1"
     grid-index "^1.1.0"
-    minimist "^1.2.6"
+    minimist "^1.2.5"
     murmurhash-js "^1.0.0"
     pbf "^3.2.1"
     potpack "^1.0.1"
@@ -12501,11 +12501,6 @@ minimist@^1.1.1, minimist@^1.2.0, minimist@^1.2.5:
   version "1.2.5"
   resolved "https://registry.yarnpkg.com/minimist/-/minimist-1.2.5.tgz#67d66014b66a6a8aaa0c083c5fd58df4e4e97602"
   integrity sha512-FM9nNUYrRBAELZQT3xeZQ7fmMOBg6nWNmJKTcgsJeaLstP/UODVpGsr5OhXhhXg6f+qtJ8uiZ+PUxkDWcgIXLw==
-
-minimist@^1.2.6:
-  version "1.2.6"
-  resolved "https://registry.yarnpkg.com/minimist/-/minimist-1.2.6.tgz#8637a5b759ea0d6e98702cfb3a9283323c93af44"
-  integrity sha512-Jsjnk4bw3YJqYzbdyBiNsPWHPfO++UGG749Cxs6peCu5Xg4nrena6OVxOYxrQTqww0Jmwt+Ref8rggumkTLz9Q==
 
 minipass-collect@^1.0.2:
   version "1.0.2"
@@ -13653,7 +13648,7 @@ polygon-clipping@^0.15.3:
   dependencies:
     splaytree "^3.1.0"
 
-polylabel@mapbox/polylabel:
+"polylabel@github:mapbox/polylabel":
   version "1.1.0"
   resolved "https://codeload.github.com/mapbox/polylabel/tar.gz/4da88d5eff01b7d98a8b2876d7847ba334144013"
   dependencies:
@@ -15564,10 +15559,10 @@ react-chartkick@^0.4.1:
   dependencies:
     chartkick "^3.2.0"
 
-react-cismap@^1.8.5:
-  version "1.8.5"
-  resolved "https://registry.yarnpkg.com/react-cismap/-/react-cismap-1.8.5.tgz#afb51192f5b2a2b9005c4fce2384f854116ec8dc"
-  integrity sha512-ayxwUxZpuhz8ClAUBTG803867a4qaZb1lQDygL/+O31qsuJh5nD0EA6ceDP8lz7mfELs+DoxIHFBonL7UhKYDg==
+react-cismap@1.9.6:
+  version "1.9.6"
+  resolved "https://registry.yarnpkg.com/react-cismap/-/react-cismap-1.9.6.tgz#fc402b3f54c3c957d2925288684bf285939c61f4"
+  integrity sha512-FymSRd5Q3Z5id6yO/Gux1GrXuwDrD2gZngIQoXDwugIsic2TGKCBwxQjXguEfdak+symD74Ez/9UdlRHhJ8ZgQ==
   dependencies:
     "@fortawesome/fontawesome-free" "^5.12.0"
     "@fortawesome/fontawesome-svg-core" "^1.2.26"
@@ -15581,6 +15576,7 @@ react-cismap@^1.8.5:
     "@turf/bbox" "^6.0.1"
     "@turf/bbox-polygon" "^6.0.1"
     "@turf/boolean-intersects" "^6.3.0"
+    "@turf/center" "^6.5.0"
     "@turf/envelope" "^6.3.0"
     "@turf/helpers" "^6.1.4"
     "@turf/inside" "^5.0.0"
@@ -15604,7 +15600,7 @@ react-cismap@^1.8.5:
     immer "^8.0.1"
     kdbush "^3.0.0"
     leaflet "^1.6.0"
-    leaflet-easybutton "^2.3.0"
+    leaflet-easybutton "^2.4.0"
     leaflet-editable "^1.2.0"
     leaflet-extra-markers "^1.2.1"
     leaflet-fullscreen-custom-container-fork "^1.0.7"
@@ -15615,7 +15611,7 @@ react-cismap@^1.8.5:
     leaflet.path.drag "^0.0.6"
     localforage "^1.9.0"
     lodash "^4.17.20"
-    maplibre-gl "^1.13.0-rc.5"
+    maplibre-gl "1.15.2"
     md5 "^2.3.0"
     object-assign "^4.1.1"
     polylabel mapbox/polylabel

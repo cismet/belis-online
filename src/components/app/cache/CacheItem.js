@@ -31,7 +31,7 @@ const getIconForLoadingState = (ls) => {
   }
 };
 
-const CacheItem = ({ info, config, renew, refresh = () => {} }) => {
+const CacheItem = ({ info, config, renew, refresh = () => {}, refreshAllowed }) => {
   const { lastUpdate, loadingState, objectCount, updateCount, cachingProgress } = info;
   const { name, key, getName } = config;
   const selectedTeam = useSelector(getTeam);
@@ -39,6 +39,7 @@ const CacheItem = ({ info, config, renew, refresh = () => {} }) => {
   const controls = (
     <td key={"td." + key} style={{ width: 120, whiteSpace: "nowrap" }}>
       <Button
+        disabled={loadingState === "loading" || !refreshAllowed}
         style={{ margin: 3 }}
         variant='outline-primary'
         size='sm'
@@ -49,7 +50,7 @@ const CacheItem = ({ info, config, renew, refresh = () => {} }) => {
         <Icon icon={faDownload} />
       </Button>
 
-      <Button
+      {/* <Button
         style={{ margin: 3 }}
         variant='outline-success'
         disabled
@@ -59,7 +60,7 @@ const CacheItem = ({ info, config, renew, refresh = () => {} }) => {
         size='sm'
       >
         <Icon icon={faSync} />
-      </Button>
+      </Button> */}
     </td>
   );
 

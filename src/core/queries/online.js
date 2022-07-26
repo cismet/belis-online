@@ -58,24 +58,31 @@ geomFactories.tdta_standort_mast = defaultGeomFactory;
 
 queries.arbeitsauftraege_by_team_only_protocolgeoms = `
 
-  arbeitsauftrag(where: 
-    {_and: [
-      
-      {team: {id: {_eq: $teamId}}} ,
-      {_or:[
-        {is_deleted:{_is_null:true}},
-        {is_deleted:{_eq:false}}
-      ]},
-     {_or:[
+arbeitsauftrag(where: 
+  {_and: [
+    {team: {id: {_eq: $teamId}}} ,
+    {_or:[
+      {is_deleted:{_is_null:true}},
+      {is_deleted:{_eq:false}}
+    ]},
+    {_or:[
       {ar_protokolleArray:{arbeitsprotokoll:{fk_status:{_is_null:true}}}},
       {ar_protokolleArray:{arbeitsprotokoll:{arbeitsprotokollstatus:{schluessel:{_eq:"0"}}}}},
-        
-        ]}
-    ]}
-      ) {
+     ]},
+     {_or:[
+       {ar_protokolleArray:{arbeitsprotokoll:{fk_geometrie:{_is_null:false}}}},
+       {ar_protokolleArray:{arbeitsprotokoll:{fk_leuchte:{_is_null:false}}}},
+       {ar_protokolleArray:{arbeitsprotokoll:{fk_standort:{_is_null:false}}}},
+       {ar_protokolleArray:{arbeitsprotokoll:{fk_mauerlasche:{_is_null:false}}}},
+       {ar_protokolleArray:{arbeitsprotokoll:{fk_leitung:{_is_null:false}}}},
+       {ar_protokolleArray:{arbeitsprotokoll:{fk_abzweigdose:{_is_null:false}}}},
+       {ar_protokolleArray:{arbeitsprotokoll:{fk_schaltstelle:{_is_null:false}}}},
+     ]}
+  ]}) {
     angelegt_am
     angelegt_von
     id
+    ccnonce
     is_deleted
     nummer
     zugewiesen_an
@@ -86,6 +93,7 @@ queries.arbeitsauftraege_by_team_only_protocolgeoms = `
      ar_protokolleArray {
       arbeitsprotokoll {
         id
+        ccnonce
         veranlassungsnummer
         protokollnummer
         is_deleted
@@ -151,6 +159,7 @@ arbeitsauftrag(where: {id: {_eq: $aaId}}) {
   angelegt_am
   angelegt_von
   id
+  ccnonce
   is_deleted
   nummer
   zugewiesen_an
@@ -161,6 +170,7 @@ arbeitsauftrag(where: {id: {_eq: $aaId}}) {
   ar_protokolleArray {
     arbeitsprotokoll {
       id
+      ccnonce
       veranlassungsnummer
       veranlassung {
         ${veranlassung_fields}

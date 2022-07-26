@@ -1,7 +1,19 @@
-import { faBars, faBookOpen, faPowerOff, faRedo, faVial } from "@fortawesome/free-solid-svg-icons";
+import {
+  faAsterisk,
+  faBars,
+  faBookOpen,
+  faCloud,
+  faFilter,
+  faPowerOff,
+  faRedo,
+  faSearch,
+  faSpinner,
+  faVial,
+} from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon as Icon } from "@fortawesome/react-fontawesome";
 import { useWindowSize } from "@react-hook/window-size";
-import React, { useEffect } from "react";
+import { Modal, Switch, Tag } from "antd";
+import React, { useEffect, useState } from "react";
 import Button from "react-bootstrap/Button";
 import Nav from "react-bootstrap/Nav";
 import Navbar from "react-bootstrap/Navbar";
@@ -9,12 +21,21 @@ import NavDropdown from "react-bootstrap/NavDropdown";
 import { MappingConstants } from "react-cismap";
 import GazetteerSearchComponent from "react-cismap/GazetteerSearchComponent";
 import { useDispatch, useSelector } from "react-redux";
+import { useHistory, useLocation } from "react-router-dom/cjs/react-router-dom.min";
 import { useLongPress } from "use-long-press";
+import Filter from "../components/app/dialogs/Filter";
 
-import Switch from "../components/commons/Switch";
-import { getArtificialError } from "../core/store/slices/app";
+import MySwitch from "../components/commons/Switch";
+import { getNonce } from "../core/helper/featureHelper";
+import {
+  CONNECTIONMODE,
+  getArtificialError,
+  getConnectionMode,
+  showDialog,
+} from "../core/store/slices/app";
 import { storeJWT, storeLogin } from "../core/store/slices/auth";
 import { getBackground } from "../core/store/slices/background";
+import { renewCache } from "../core/store/slices/cacheControl";
 import {
   isDone as featureCollectionIsDone,
   forceRefresh,
@@ -31,6 +52,7 @@ import {
   setGazetteerHit,
   setMode,
   setOverlayFeature,
+  setDoneForMode,
 } from "../core/store/slices/featureCollection";
 import { getGazData, loadGazeteerEntries } from "../core/store/slices/gazetteerData";
 import { fitBoundsForCollection } from "../core/store/slices/map";
@@ -47,8 +69,17 @@ import { getTeam } from "../core/store/slices/team";
 
 //---------
 
-const TopNavbar = ({ innerRef, refRoutedMap, setCacheSettingsVisible, jwt }) => {
+const TopNavbar = ({
+  innerRef,
+  refRoutedMap,
+  setAppMenuVisible,
+  setAppMenuActiveMenuSection,
+  jwt,
+}) => {
   const dispatch = useDispatch();
+  const history = useHistory();
+  const connectionMode = useSelector(getConnectionMode);
+
   const searchModeActive = useSelector(isSearchModeActive);
   const selectedTeam = useSelector(getTeam);
   const gazetteerHit = useSelector(getGazetteerHit);
@@ -63,13 +94,15 @@ const TopNavbar = ({ innerRef, refRoutedMap, setCacheSettingsVisible, jwt }) => 
   const selectedArbeitsauftrag = useSelector(
     (state) => state.featureCollection.selectedFeature[MODES.TASKLISTS]
   );
+  const browserlocation = useLocation();
 
   const gazData = useSelector(getGazData);
   useEffect(() => {
     dispatch(loadGazeteerEntries());
   }, []);
-  const [windowWidth, windowHeight] = useWindowSize();
 
+  const [windowWidth, windowHeight] = useWindowSize();
+  const [loadTaskListsInProgress, setLoadTaskListsInProgress] = useState(false);
   let fontSize, narrow, fontSizeIconPixel, iconWidth, toggleSize;
   const isInStandaloneMode = () =>
     window.matchMedia("(display-mode: standalone)").matches ||
@@ -108,40 +141,32 @@ const TopNavbar = ({ innerRef, refRoutedMap, setCacheSettingsVisible, jwt }) => 
         key={"navbar." + fcIsDone}
       >
         <Nav className='mr-auto'>
-          {/* <Nav.Link>
-            <div
-              // onClick={() => {
-              // 	window.location.reload();
-              // }}
-              style={{
-                width: 20,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                backgroundColor_: "red",
-                height: "100%",
-              }}
-              key={"navbar.div." + fcIsDone}
-            >
-              {fcIsDone === false && searchModeActive === true && (
-                <Icon className='text-primary' spin icon={faSpinner} />
-                // <span>-.-</span>
-              )}
-              {fcIsDone === true && <div style={{ fontSize: 9 }}>{featureCollection.length}</div>}
-            </div>
-          </Nav.Link> */}
+          <Nav.Link
+            disabled={searchForbidden}
+            onClick={(e) => {
+              dispatch(
+                loadObjects({
+                  boundingBox: refRoutedMap.current.getBoundingBox(),
+                  jwt: jwt,
+                  force: true,
+                  manualRequest: true,
+                })
+              );
+            }}
+            // style={{ cursor: "not-allowed!important" }} works not (should be conditionally done when search forbidden). don't know why
+          >
+            <Icon className={searchForbidden ? "text" : "text-primary"} icon={faSearch} />
+          </Nav.Link>
           <Nav.Link>
             <Switch
               disabled={searchForbidden}
-              id='search-mode-toggle'
-              key={"search-mode-toggle" + searchModeActive}
-              preLabel='Suche'
-              switched={searchModeActive}
-              stateChanged={(switched) => {
+              checked={searchModeActive}
+              checkedChildren='automatische Suche'
+              unCheckedChildren='automatische Suche'
+              onChange={(switched) => {
                 dispatch(setSearchModeActive(switched));
                 if (switched === true) {
                   dispatch(setSearchModeWish(true));
-
                   dispatch(
                     loadObjects({
                       boundingBox: refRoutedMap.current.getBoundingBox(),
@@ -154,43 +179,27 @@ const TopNavbar = ({ innerRef, refRoutedMap, setCacheSettingsVisible, jwt }) => 
               }}
             />
           </Nav.Link>
-          <NavDropdown
-            style={{ zIndex: 10000 }}
-            className='text-primary'
-            title='nach'
-            id='basic-nav-dropdown'
-            rootCloseEvent='jj'
-          >
-            {Object.keys(filterState).map((key) => {
-              const item = filterState[key];
-              return (
-                <NavDropdown.Item key={key + "NavDropdown.Item-key"} style={{ width: 300 }}>
-                  <Switch
-                    id={item.key + "toggle-id"}
-                    key={item.key + "toggle"}
-                    preLabel={item.title}
-                    switched={item.enabled}
-                    toggleStyle={{ float: "right" }}
-                    stateChanged={(switched) => {
-                      const _fs = JSON.parse(JSON.stringify(filterState));
-                      _fs[key].enabled = switched;
-                      dispatch(setFilter(_fs));
 
-                      setTimeout(() => {
-                        dispatch(
-                          loadObjects({
-                            boundingBox: refRoutedMap.current.getBoundingBox(),
-                            overridingFilterState: _fs,
-                            jwt: jwt,
-                          })
-                        );
-                      }, 50);
-                    }}
-                  />
-                </NavDropdown.Item>
+          <Nav.Link
+            onClick={(e) => {
+              const filterDialog = (
+                <Filter refRoutedMap={refRoutedMap} filterStateFromRedux={filterState} />
               );
-            })}
-          </NavDropdown>
+              dispatch(showDialog(filterDialog));
+            }}
+            style={{ marginRight: 20, marginLeft: 20 }}
+          >
+            <Icon className='text-primary' icon={faFilter} /> Filter (
+            {Object.entries(filterState).reduce((prev, curr) => {
+              if (curr[1]?.enabled) {
+                return prev + 1;
+              } else {
+                return prev;
+              }
+            }, 0)}
+            /{Object.entries(filterState).length})
+          </Nav.Link>
+
           <Nav.Link
             onClick={(e) => {
               if (e.ctrlKey || e.altKey || e.shiftKey || isInStandaloneMode()) {
@@ -204,7 +213,21 @@ const TopNavbar = ({ innerRef, refRoutedMap, setCacheSettingsVisible, jwt }) => 
           </Nav.Link>
         </Nav>
 
-        <Nav className='mr-auto text-primary'>
+        <Nav
+          style={{ cursor: "pointer" }}
+          onClick={() => {
+            console.log("selectedTeam", selectedTeam);
+            if (selectedTeam.name === "-") {
+              // open the menu with activated team selection
+              setAppMenuActiveMenuSection("teams");
+              setAppMenuVisible(true);
+            } else {
+              //switch to tasklist mode
+              dispatch(setMode(MODES.TASKLISTS));
+            }
+          }}
+          className='mr-auto text-primary'
+        >
           {selectedArbeitsauftrag
             ? selectedArbeitsauftrag.properties.nummer
             : "Kein Arbeitsauftrag ausgewählt"}{" "}
@@ -224,29 +247,70 @@ const TopNavbar = ({ innerRef, refRoutedMap, setCacheSettingsVisible, jwt }) => 
               // dispatch(setArtificialError(true));
 
               console.log("xxx intermediateResult ", intermediateResult);
+              console.log("xxx nonce", getNonce());
             }}
           >
             <Icon icon={faVial} />
           </Nav.Link>
         )}
         <Nav.Link
+          title={
+            connectionMode === CONNECTIONMODE.FROMCACHE
+              ? "Arbeitsaufträge neu in den Cache laden"
+              : "Arbeitsaufträge neu laden"
+          }
           onClick={() => {
-            dispatch(
-              loadTaskLists({
-                team: selectedTeam,
-                jwt,
-                done: () => {
-                  setTimeout(() => {
-                    dispatch(setMode(MODES.TASKLISTS));
-                    dispatch(fitBoundsForCollection());
-                    dispatch(setFeatureCollectionForMode(MODES.PROTOCOLS));
-                  }, 400);
-                },
-              })
-            );
+            const success = () => {
+              dispatch(
+                loadTaskLists({
+                  done: () => {
+                    setTimeout(() => {
+                      dispatch(setMode(MODES.TASKLISTS));
+                      dispatch(fitBoundsForCollection());
+                      dispatch(setFeatureCollectionForMode(MODES.PROTOCOLS));
+                      setLoadTaskListsInProgress(false);
+                    }, 400);
+                    //aleady handled by loadTaskLists
+                    // dispatch(setDoneForMode({ mode: MODES.TASKLISTS, done: true }));
+                  },
+                })
+              );
+            };
+            const error = () => {
+              setLoadTaskListsInProgress(false);
+              dispatch(setDoneForMode({ mode: MODES.TASKLISTS, done: true }));
+            };
+            console.log("xxx connectionMode", connectionMode, CONNECTIONMODE.FROMCACHE);
+            setLoadTaskListsInProgress(true);
+
+            if (connectionMode === CONNECTIONMODE.FROMCACHE) {
+              console.log("xxx renewCache");
+              dispatch(setDoneForMode({ mode: MODES.TASKLISTS, done: false }));
+
+              dispatch(renewCache("arbeitsauftrag", jwt, undefined, success, error));
+            } else {
+              dispatch(
+                loadTaskLists({
+                  done: () => {
+                    setTimeout(() => {
+                      dispatch(setMode(MODES.TASKLISTS));
+                      dispatch(fitBoundsForCollection());
+                      dispatch(setFeatureCollectionForMode(MODES.PROTOCOLS));
+                      setLoadTaskListsInProgress(false);
+                    }, 400);
+                  },
+                })
+              );
+            }
           }}
         >
-          <Icon icon={faBookOpen} />
+          {loadTaskListsInProgress && (
+            <span className='fa-layers fa-fw'>
+              <Icon style={{ color: "grey", opacity: 0.34 }} icon={faBookOpen} />
+              <Icon icon={faSpinner} spin />
+            </span>
+          )}
+          {!loadTaskListsInProgress && <Icon icon={faBookOpen} />}
         </Nav.Link>
         <span
           className={narrow ? "reducedSizeInputComponnet" : undefined}
@@ -269,6 +333,7 @@ const TopNavbar = ({ innerRef, refRoutedMap, setCacheSettingsVisible, jwt }) => 
             referenceSystem={MappingConstants.crs3857}
             referenceSystemDefinition={MappingConstants.proj4crs3857def}
             autoFocus={false}
+            tooltipPlacement='top'
           />
         </span>
 
@@ -278,8 +343,9 @@ const TopNavbar = ({ innerRef, refRoutedMap, setCacheSettingsVisible, jwt }) => 
           id='navitem_logout'
           eventKey={3}
           onClick={() => {
-            dispatch(storeLogin(undefined));
-            dispatch(storeJWT(undefined));
+            // dispatch(storeLogin(undefined));
+            // dispatch(storeJWT(undefined));
+            history.push("/" + browserlocation.search);
           }}
         >
           <Icon icon={faPowerOff} />
@@ -288,7 +354,7 @@ const TopNavbar = ({ innerRef, refRoutedMap, setCacheSettingsVisible, jwt }) => 
         <Button
           size={narrow ? "sm" : ""}
           onClick={() => {
-            setCacheSettingsVisible(true);
+            setAppMenuVisible(true);
           }}
           variant='outline-primary'
         >
