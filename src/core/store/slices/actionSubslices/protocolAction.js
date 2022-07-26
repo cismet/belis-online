@@ -11,7 +11,7 @@ const protocolAction = (params, item) => {
     const offlineActionDb = getDB(state);
     const jwt = getJWT(state);
     const login = getLoginFromJWT(jwt);
-    const ccnonce = Math.random() * 10000000000;
+    const ccnonce = Math.floor(Math.random() * 10000000000);
     const paramsWithCCNonce = { ...params, ccnonce };
     const leuchtmittelKT = getLeuchtmittelKT(state);
     const leuchtenTypKT = getLeuchtentypenKT(state);
