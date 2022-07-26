@@ -1,11 +1,12 @@
 import { DOMAIN, REST_SERVICE } from "../../../constants/belis";
+import { getNonce } from "../../helper/featureHelper";
 
 export async function fetchGraphQL(operationsDoc, variables, jwt) {
   //check if there is a query param with the name logGQL
 
   const logGQLFromSearch = new URLSearchParams(window.location.search).get("logGQL");
   const logGQLEnabled = logGQLFromSearch !== null && logGQLFromSearch !== "false";
-  const nonce = Math.floor(Math.random() * 1000);
+  const nonce = getNonce();
 
   //	const result = await fetch('http:// localhost:8890/actions/WUNDA_BLAU.graphQl/tasks?resultingInstanceType=result', {
   let myHeaders = new Headers();
