@@ -73,45 +73,47 @@ const InfoBox = ({ refRoutedMap }) => {
 
     // collect all photo urls from selected feature
     for (const doc of selectedFeature.properties.docs || []) {
-      let openPDFLink;
-      if (doc.intermediate) {
-        photourls.push(doc.url);
-      } else {
-        let url = getWebDavUrl(jwt, doc);
-
-        if (url.endsWith(".jpg")) {
-          url += ".thumbnail.jpg";
-        } else if (url.endsWith(".png")) {
-          url += ".thumbnail.png";
-        } else if (url.endsWith(".pdf")) {
-          url += ".thumbnail.jpg";
+      if (doc) {
+        let openPDFLink;
+        if (doc.intermediate) {
+          photourls.push(doc.url);
         } else {
-        }
-        photourls.push(url);
+          let url = getWebDavUrl(jwt, doc);
 
-        if (doc?.doc && doc?.doc.endsWith(".pdf")) {
-          openPDFLink = (
-            <span style={{ marginLeft: 30 }}>
-              <a href={getWebDavUrl(jwt, doc)} target='_pdf'>
-                PDF extern öffnen
-              </a>
-            </span>
-          );
+          if (url.endsWith(".jpg")) {
+            url += ".thumbnail.jpg";
+          } else if (url.endsWith(".png")) {
+            url += ".thumbnail.png";
+          } else if (url.endsWith(".pdf")) {
+            url += ".thumbnail.jpg";
+          } else {
+          }
+          photourls.push(url);
+
+          if (doc?.doc && doc?.doc.endsWith(".pdf")) {
+            openPDFLink = (
+              <span style={{ marginLeft: 30 }}>
+                <a href={getWebDavUrl(jwt, doc)} target='_pdf'>
+                  PDF extern öffnen
+                </a>
+              </span>
+            );
+          }
         }
+        captions.push(
+          doc.description ? (
+            <div>
+              {doc.description}
+              {doc.intermediate === true && "*"} ({doc.caption}) {openPDFLink}
+            </div>
+          ) : (
+            <div>
+              {doc.caption}
+              {doc.intermediate === true && "*"} {openPDFLink}
+            </div>
+          )
+        );
       }
-      captions.push(
-        doc.description ? (
-          <div>
-            {doc.description}
-            {doc.intermediate === true && "*"} ({doc.caption}) {openPDFLink}
-          </div>
-        ) : (
-          <div>
-            {doc.caption}
-            {doc.intermediate === true && "*"} {openPDFLink}
-          </div>
-        )
-      );
     }
 
     setPhotoLightBoxData({
