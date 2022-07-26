@@ -1,4 +1,5 @@
 import {
+  faAsterisk,
   faBars,
   faBookOpen,
   faCloud,
@@ -6,12 +7,13 @@ import {
   faPowerOff,
   faRedo,
   faSearch,
+  faSpinner,
   faVial,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon as Icon } from "@fortawesome/react-fontawesome";
 import { useWindowSize } from "@react-hook/window-size";
 import { Modal, Switch, Tag } from "antd";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Button from "react-bootstrap/Button";
 import Nav from "react-bootstrap/Nav";
 import Navbar from "react-bootstrap/Navbar";
@@ -24,9 +26,16 @@ import { useLongPress } from "use-long-press";
 import Filter from "../components/app/dialogs/Filter";
 
 import MySwitch from "../components/commons/Switch";
-import { getArtificialError, showDialog } from "../core/store/slices/app";
+import { getNonce } from "../core/helper/featureHelper";
+import {
+  CONNECTIONMODE,
+  getArtificialError,
+  getConnectionMode,
+  showDialog,
+} from "../core/store/slices/app";
 import { storeJWT, storeLogin } from "../core/store/slices/auth";
 import { getBackground } from "../core/store/slices/background";
+import { renewCache } from "../core/store/slices/cacheControl";
 import {
   isDone as featureCollectionIsDone,
   forceRefresh,
@@ -43,6 +52,7 @@ import {
   setGazetteerHit,
   setMode,
   setOverlayFeature,
+  setDoneForMode,
 } from "../core/store/slices/featureCollection";
 import { getGazData, loadGazeteerEntries } from "../core/store/slices/gazetteerData";
 import { fitBoundsForCollection } from "../core/store/slices/map";
@@ -68,6 +78,7 @@ const TopNavbar = ({
 }) => {
   const dispatch = useDispatch();
   const history = useHistory();
+  const connectionMode = useSelector(getConnectionMode);
 
   const searchModeActive = useSelector(isSearchModeActive);
   const selectedTeam = useSelector(getTeam);
@@ -89,8 +100,9 @@ const TopNavbar = ({
   useEffect(() => {
     dispatch(loadGazeteerEntries());
   }, []);
-  const [windowWidth, windowHeight] = useWindowSize();
 
+  const [windowWidth, windowHeight] = useWindowSize();
+  const [loadTaskListsInProgress, setLoadTaskListsInProgress] = useState(false);
   let fontSize, narrow, fontSizeIconPixel, iconWidth, toggleSize;
   const isInStandaloneMode = () =>
     window.matchMedia("(display-mode: standalone)").matches ||
@@ -235,6 +247,7 @@ const TopNavbar = ({
               // dispatch(setArtificialError(true));
 
               console.log("xxx intermediateResult ", intermediateResult);
+              console.log("xxx nonce", getNonce());
             }}
           >
             <Icon icon={faVial} />
@@ -242,22 +255,58 @@ const TopNavbar = ({
         )}
         <Nav.Link
           onClick={() => {
-            dispatch(
-              loadTaskLists({
-                team: selectedTeam,
-                jwt,
-                done: () => {
-                  setTimeout(() => {
-                    dispatch(setMode(MODES.TASKLISTS));
-                    dispatch(fitBoundsForCollection());
-                    dispatch(setFeatureCollectionForMode(MODES.PROTOCOLS));
-                  }, 400);
-                },
-              })
-            );
+            const success = () => {
+              console.log("xxx success");
+              dispatch(
+                loadTaskLists({
+                  done: () => {
+                    setTimeout(() => {
+                      dispatch(setMode(MODES.TASKLISTS));
+                      dispatch(fitBoundsForCollection());
+                      dispatch(setFeatureCollectionForMode(MODES.PROTOCOLS));
+                      setLoadTaskListsInProgress(false);
+                    }, 400);
+                    //aleady handled by loadTaskLists
+                    // dispatch(setDoneForMode({ mode: MODES.TASKLISTS, done: true }));
+                  },
+                })
+              );
+            };
+            const error = () => {
+              setLoadTaskListsInProgress(false);
+              dispatch(setDoneForMode({ mode: MODES.TASKLISTS, done: true }));
+            };
+            console.log("xxx connectionMode", connectionMode, CONNECTIONMODE.FROMCACHE);
+            setLoadTaskListsInProgress(true);
+
+            if (connectionMode === CONNECTIONMODE.FROMCACHE) {
+              console.log("xxx renewCache");
+              dispatch(setDoneForMode({ mode: MODES.TASKLISTS, done: false }));
+
+              dispatch(renewCache("arbeitsauftrag", jwt, undefined, success, error));
+            } else {
+              dispatch(
+                loadTaskLists({
+                  done: () => {
+                    setTimeout(() => {
+                      dispatch(setMode(MODES.TASKLISTS));
+                      dispatch(fitBoundsForCollection());
+                      dispatch(setFeatureCollectionForMode(MODES.PROTOCOLS));
+                      setLoadTaskListsInProgress(false);
+                    }, 400);
+                  },
+                })
+              );
+            }
           }}
         >
-          <Icon icon={faBookOpen} />
+          {loadTaskListsInProgress && (
+            <span className='fa-layers fa-fw'>
+              <Icon style={{ color: "grey", opacity: 0.34 }} icon={faBookOpen} />
+              <Icon icon={faSpinner} spin />
+            </span>
+          )}
+          {!loadTaskListsInProgress && <Icon icon={faBookOpen} />}
         </Nav.Link>
         <span
           className={narrow ? "reducedSizeInputComponnet" : undefined}
