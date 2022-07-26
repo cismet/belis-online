@@ -55,8 +55,9 @@ const getLayout4Protokoll = ({
     <Descriptions.Item key='desc_monteuer' label='Monteur'>
       {item?.monteur}
     </Descriptions.Item>,
+
     <Descriptions.Item key='desc_datum' label={"Datum"}>
-      {getDate(item?.datum) + ivAsterisk(item?.datum_iv)}
+      {item?.datum ? getDate(item?.datum) + ivAsterisk(item?.datum_iv) : undefined}
     </Descriptions.Item>,
     <Descriptions.Item key='desc_bem' label='Bemerkung' span={3}>
       {item?.bemerkung}
