@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import extensions from "../../../core/helper/extensions";
+import { getNonce } from "../../../core/helper/featureHelper";
 import { getJWT, getLoginFromJWT } from "../../../core/store/slices/auth";
 import { renewCache } from "../../../core/store/slices/cacheControl";
 import { getWorker } from "../../../core/store/slices/dexie";
@@ -101,7 +102,7 @@ const AddIncidentDialog = ({
             if (imageData) {
             }
             const feature = input.feature;
-            const ccnonce = Math.floor(Math.random() * 10000000000);
+            const ccnonce = getNonce();
 
             const images = Object.keys(imageData).map((key) => {
               mimeType = imageData[key].imageUrl.match("data:(.*);")[1];
