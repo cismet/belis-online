@@ -100,6 +100,7 @@ const AddIncidentDialog = ({
             if (imageData) {
             }
             const feature = input.feature;
+            const ccnonce = Math.floor(Math.random() * 10000000000);
 
             const images = Object.keys(imageData).map((key) => {
               mimeType = imageData[key].imageUrl.match("data:(.*);")[1];
@@ -116,12 +117,19 @@ const AddIncidentDialog = ({
               IMAGES: images,
               objekt_id: feature.properties.id,
               objekt_typ: feature.featuretype,
+              objektFeature: feature,
+
               bezeichnung: values.title,
               beschreibung: values.description,
               bemerkung: values.remarks,
               arbeitsauftrag: input.arbeitsauftrag?.properties?.id,
               arbeitsauftragNummer: input.arbeitsauftrag?.properties?.nummer,
+              arbeitsauftragObjekt: input.arbeitsauftrag,
+
               aktion: input.mode,
+              user: login,
+              teamObject: teams.find((team) => team.id === selectedTeamId),
+              ccnonce,
             };
             if (input.mode === ADD_INCIDENT_MODES.EINZELAUFTRAG) {
               parameter.ARBEITSAUFTRAG_ZUGEWIESEN_AN = selectedTeamId;
