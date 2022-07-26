@@ -609,59 +609,66 @@ export const integrateIntermediateResults = (feature, intermediateResults) => {
             const todayString = yyyy + "-" + mm + "-" + dd;
             for (const protIR of irs?.object) {
               console.log("xxx found a candidate to incorportae intermediate changes", protIR);
-
-              const newArbeitsprotokoll = {
-                arbeitsprotokoll: {
-                  intermediate: true,
-                  ccnonce: protIR.ccnonce,
-                  veranlassungsnummer: "********",
-                  veranlassung: {
-                    nummer: "********",
-                    bezeichnung: protIR.bezeichnung,
-                    veranlassungsart: {
-                      bezeichnung: "Störung",
-                      schluessel: "S",
+              //check if arbeitsprotokoll already exists (ccnonce check)
+              const found = item.ar_protokolleArray.find((p) => {
+                return p.ccnonce === protIR.ccnonce;
+              });
+              if (!found) {
+                const newArbeitsprotokoll = {
+                  arbeitsprotokoll: {
+                    intermediate: true,
+                    ccnonce: protIR.ccnonce,
+                    veranlassungsnummer: "********",
+                    veranlassung: {
+                      nummer: "********",
+                      bezeichnung: protIR.bezeichnung,
+                      veranlassungsart: {
+                        bezeichnung: "Störung",
+                        schluessel: "S",
+                      },
+                      beschreibung: protIR.beschreibung,
+                      username: protIR.user,
+                      datum: todayString,
+                      bemerkungen: protIR.bemerkung,
+                      // {
+                      //   "intermediate": true,
+                      //   "url": "data:image/png;base64,iVBORw0K...",
+                      //   "caption": "Leuchte",
+                      //   "description": "9"
+                      // }
+                      docs: (protIR.IMAGES || []).map((image) => {
+                        return {
+                          intermediate: true,
+                          url: image.ImageData,
+                          caption: "Veranlassung",
+                          description: image.description,
+                        };
+                      }),
                     },
-                    beschreibung: protIR.beschreibung,
-                    username: protIR.user,
-                    datum: todayString,
-                    bemerkungen: protIR.bemerkung,
-                    // {
-                    //   "intermediate": true,
-                    //   "url": "data:image/png;base64,iVBORw0K...",
-                    //   "caption": "Leuchte",
-                    //   "description": "9"
-                    // }
-                    docs: (protIR.IMAGES || []).map((image) => {
-                      return {
-                        intermediate: true,
-                        url: image.ImageData,
-                        caption: "Veranlassung",
-                        description: image.description,
-                      };
-                    }),
+                    protokollnummer: item.ar_protokolleArray.length + 1,
+                    is_deleted: null,
+                    material: null,
+                    monteur: null,
+                    bemerkung: null,
+                    defekt: null,
+                    datum: null,
+                    arbeitsprotokollstatus: null,
+                    arbeitsprotokollaktionArray: [],
                   },
-                  protokollnummer: 1,
-                  is_deleted: null,
-                  material: null,
-                  monteur: null,
-                  bemerkung: null,
-                  defekt: null,
-                  datum: null,
-                  arbeitsprotokollstatus: null,
-                  arbeitsprotokollaktionArray: [],
-                },
-              };
+                };
 
-              addObject2ProtokollObject(
-                protIR.objekt_typ,
-                newArbeitsprotokoll.arbeitsprotokoll,
-                protIR.objektFeature.properties
-              );
+                addObject2ProtokollObject(
+                  protIR.objekt_typ,
+                  newArbeitsprotokoll.arbeitsprotokoll,
+                  protIR.objektFeature.properties
+                );
 
-              console.log("xxx newArbeitsprotokoll", newArbeitsprotokoll);
+                console.log("xxx newArbeitsprotokoll", newArbeitsprotokoll);
 
-              item.ar_protokolleArray.push(newArbeitsprotokoll);
+                item.ar_protokolleArray.push(newArbeitsprotokoll);
+              }
+
+              item.iv_included = true;
             }
           }
         }
