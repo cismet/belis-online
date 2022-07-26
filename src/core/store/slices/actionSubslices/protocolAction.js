@@ -41,6 +41,13 @@ const protocolAction = (params, item) => {
 
     console.log("protocolAction paramsWithCCNonce", paramsWithCCNonce);
 
+    //since bemerkung is used twice in the params object we nee to rename it if it comes from protokollFortfuehrungsantrag
+
+    if (paramsWithCCNonce.actionname === "protokollFortfuehrungsantrag") {
+      paramsWithCCNonce.fortfuehrungsinfo = paramsWithCCNonce.bemerkung;
+      delete paramsWithCCNonce.bemerkung;
+    }
+
     console.log("added object to offline db to addIncident", paramsWithCCNonce, offlineAction);
     let intermediateResult4Prot = {
       object_type: "arbeitsprotokoll",
@@ -53,6 +60,9 @@ const protocolAction = (params, item) => {
       action: paramsWithCCNonce.actionname,
       resultType: "object",
     };
+
+    console.log("intermediateResult4Prot before", intermediateResult4Prot);
+
     switch (paramsWithCCNonce.actionname) {
       case "protokollStatusAenderung":
         //nothing else to do
@@ -531,7 +541,7 @@ const protocolAction = (params, item) => {
         intermediateResult4Prot.data.protokollAktionArray.push({
           aenderung: "Sonstiges",
           alt: null,
-          neu: paramsWithCCNonce.bemerkung,
+          neu: paramsWithCCNonce.fortfuehrungsinfo,
           ccnonce,
           ir: true,
         });
@@ -541,6 +551,7 @@ const protocolAction = (params, item) => {
 
       default:
     }
+
     dispatch(addIntermediateResult(intermediateResult4Prot));
   };
 };
