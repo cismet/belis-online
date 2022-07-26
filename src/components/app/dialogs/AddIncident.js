@@ -38,28 +38,15 @@ const AddIncidentDialog = ({
 }) => {
   const dispatch = useDispatch();
   const jwt = useSelector(getJWT);
+  const login = getLoginFromJWT(jwt);
 
-  const dexieW = useSelector(getWorker);
-  const [teams, setTeams] = useState([]);
   const [preferredIncidentTeam, setPreferredIncidentTeam] = useState();
   const myTeam = useSelector(getTeam);
   const [selectedTeamId, setSelectedTeamId] = useState(myTeam.id);
-  useEffect(() => {
-    //async block
-    (async () => {
-      try {
-        const teams = await dexieW.getAll("team");
-        if (teams && teams.length > 0) {
-          setTeams(teams);
-        } else {
-          dispatch(renewCache("team", jwt));
-        }
-      } catch (e) {
-        console.log("Error in fetching teams");
-      }
-    })();
-  }, []);
+  const teams = useSelector(getTeamsKT) || [];
+
   const [imageData, setImageData] = useState({});
+  console.log("teams", teams);
 
   const handleUploadChange = (info) => {
     if (info.file.status === "uploading") {
