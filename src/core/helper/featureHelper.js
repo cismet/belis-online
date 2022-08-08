@@ -1022,14 +1022,14 @@ export const getFachobjektOfProtocol = (item) => {
     return {
       ...item.leitung,
       type: "leitung",
-      shortname: item.leitung.fk_leitungstyp.bezeichnung + " - " + laengePart,
+      shortname: item.leitung.fk_leitungstyp?.bezeichnung + " - " + laengePart,
     };
   } else if (item.schaltstelle) {
     return {
       ...item.schaltstelle,
       type: "schaltstelle",
       shortname:
-        item.schaltstelle.fk_bauart.bezeichnung + " - " + item.schaltstelle.schaltstellen_nummer,
+        item.schaltstelle.fk_bauart?.bezeichnung + " - " + item.schaltstelle.schaltstellen_nummer,
     };
   } else if (item.abzweigdose) {
     return { ...item.abzweigdose, type: "abzweigdose", shortname: "AZD - " + item.abzweigdose.id };

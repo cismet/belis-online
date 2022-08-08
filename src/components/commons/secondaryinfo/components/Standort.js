@@ -160,7 +160,7 @@ export const getStandortDetails = ({
     <Descriptions.Item label='Anlagengruppe'>
       {standortItem?.anlagengruppeObject?.bezeichnung}
     </Descriptions.Item>,
-    <Descriptions.Item label='Bermerkungen' span={24}>
+    <Descriptions.Item label='Bemerkungen' span={24}>
       {standortItem?.bemerkungen}
     </Descriptions.Item>,
     <Descriptions.Item label='Anbauten'>{standortItem?.anbauten}</Descriptions.Item>,
