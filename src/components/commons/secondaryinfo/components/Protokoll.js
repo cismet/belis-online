@@ -158,7 +158,7 @@ const getLayout4Protokoll = ({
       {item?.veranlassung?.veranlassungsart?.bezeichnung}
     </Descriptions.Item>,
     <Descriptions.Item label={"Bezeichnung"} span={24}>
-      {item.veranlassung.bezeichnung}
+      {item.veranlassung?.bezeichnung}
     </Descriptions.Item>,
     <Descriptions.Item label='Beschreibung' span={3}>
       {item?.veranlassung?.beschreibung}
