@@ -1,7 +1,7 @@
 import { DOMAIN, REST_SERVICE } from "../../../constants/belis";
 import { getNonce } from "../../helper/featureHelper";
 
-export async function fetchGraphQL(operationsDoc, variables, jwt) {
+export async function fetchGraphQL(operationsDoc, variables, jwt, forceSkipLogging = false) {
   //check if there is a query param with the name logGQL
 
   const logGQLFromSearch = new URLSearchParams(window.location.search).get("logGQL");
@@ -20,7 +20,7 @@ export async function fetchGraphQL(operationsDoc, variables, jwt) {
     variables: variables,
   };
   const body = JSON.stringify(queryObject);
-  if (logGQLEnabled) {
+  if (logGQLEnabled && forceSkipLogging === false) {
     console.log(`logGQL:: GraphQL query (${nonce}):`, queryObject);
   }
   try {
@@ -31,7 +31,7 @@ export async function fetchGraphQL(operationsDoc, variables, jwt) {
     });
     if (response.status >= 200 && response.status < 300) {
       const resultjson = await response.json();
-      if (logGQLEnabled) {
+      if (logGQLEnabled && forceSkipLogging === false) {
         console.log(`logGQL:: Result (${nonce}):`, resultjson);
       }
       return { ok: true, status: response.status, ...resultjson };
@@ -42,7 +42,7 @@ export async function fetchGraphQL(operationsDoc, variables, jwt) {
       };
     }
   } catch (e) {
-    if (logGQLEnabled) {
+    if (logGQLEnabled && forceSkipLogging === false) {
       console.log("error in fetch", e);
     }
     throw new Error(e);

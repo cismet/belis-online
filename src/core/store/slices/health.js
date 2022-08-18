@@ -95,7 +95,8 @@ export const doHealthCheck = (jwt) => {
         }
       }`,
           {},
-          jwt
+          jwt,
+          true //forceSkipLogging
         );
         if (result.ok) {
           dispatch(slice.actions.setHealthState({ jwt, healthState: HEALTHSTATUS.OK }));
