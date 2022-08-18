@@ -82,12 +82,12 @@ const getLayout4Schaltstelle = ({
         <div>{item?.zusaetzliche_standortbezeichnung}</div>
       )}
       <br />
-      {item?.bemerkungen && (
+      {item?.bemerkung && (
         <>
           <div>
             <b>Bemerkung:</b>
           </div>
-          <div>{item?.bemerkungen}</div>
+          <div>{item?.bemerkung}</div>
           <br />
         </>
       )}
