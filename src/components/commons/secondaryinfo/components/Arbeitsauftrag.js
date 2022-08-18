@@ -36,7 +36,7 @@ const getLayout4Arbeitsauftrag = ({
         }}
       >
         <h3>{vcard.infobox.title}</h3>
-        <h3 style={{ textAlign: "right" }}>zugewiesen an: {item.team.name}</h3>
+        <h3 style={{ textAlign: "right" }}>zugewiesen an: {item.team?.name}</h3>
         <h3>angelegt von: {item.angelegt_von}</h3>
         <h3 style={{ textAlign: "right" }}>
           angelegt am: {new Date(item.angelegt_am).toLocaleDateString()}
