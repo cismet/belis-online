@@ -338,6 +338,7 @@ export const getDocs = (feature) => {
     case "arbeitsauftrag":
       return docs;
     case "geom":
+    case "geometrie":
       return docs;
     default:
       console.log("unknown featuretype. this should not happen", type);
