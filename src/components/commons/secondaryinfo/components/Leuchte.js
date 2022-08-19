@@ -168,7 +168,9 @@ const getLayout4Leuchte = ({
       <Descriptions column={{ xs: 1, sm: 3, md: 3, lg: 3, xxl: 3 }} layout='horizontal' bordered>
         {item?.fk_dk1 && (
           <>
-            <Descriptions.Item label='DK 1'>{item?.fk_dk1?.pk}</Descriptions.Item>
+            <Descriptions.Item label='DK 1'>
+              <span title={item?.fk_dk1?.beschreibung}>{item?.fk_dk1?.pk}</span>
+            </Descriptions.Item>
             <Descriptions.Item label='Anzahl DK 1'>{item?.anzahl_1dk}</Descriptions.Item>
             <Descriptions.Item label='Anschlussleistung DK 1'>
               {item?.anschlussleistung_1dk} W
@@ -177,7 +179,9 @@ const getLayout4Leuchte = ({
         )}
         {item?.fk_dk2 && (
           <>
-            <Descriptions.Item label='DK 2'>{item?.fk_dk2?.pk}</Descriptions.Item>
+            <Descriptions.Item label='DK 2'>
+              <span title={item?.fk_dk2?.beschreibung}>{item?.fk_dk2?.pk}</span>
+            </Descriptions.Item>
             <Descriptions.Item label='Anzahl DK 2'>{item?.anzahl_2dk}</Descriptions.Item>
             <Descriptions.Item label='Anschlussleistung DK 2'>
               {item?.anschlussleistung_2dk} W
