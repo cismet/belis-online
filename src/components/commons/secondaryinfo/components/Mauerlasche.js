@@ -27,6 +27,7 @@ const getLayout4Mauerlasche = ({
   setVisible,
   setIndex,
   showActions = true,
+  openLightBox = true,
 }) => {
   const item = feature.properties;
   const subSections = [];
@@ -49,8 +50,10 @@ const getLayout4Mauerlasche = ({
       {mainDoc && (
         <img
           onClick={() => {
-            setVisible(true);
-            setIndex(0);
+            if (openLightBox) {
+              setVisible(true);
+              setIndex(0);
+            }
           }}
           alt='Bild'
           style={{
@@ -108,7 +111,14 @@ const getLayout4Mauerlasche = ({
         </Row>
       )}
       {docs.length > 1 &&
-        getSquaredThumbnails({ docs, type: "Mauerlasche", jwt, setIndex, setVisible })}
+        getSquaredThumbnails({
+          docs,
+          type: "Mauerlasche",
+          jwt,
+          setIndex,
+          setVisible,
+          openLightBox,
+        })}
 
       <div
         style={{

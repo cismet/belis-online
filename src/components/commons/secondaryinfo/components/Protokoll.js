@@ -178,7 +178,14 @@ const getLayout4Protokoll = ({
         {/* {clearOptionalDescriptionItems(veranlassungsItems)} */}
         {veranlassungsItems}
       </Descriptions>
-      {getSquaredThumbnails({ docs: item?.docs, type: "Veranlassung", jwt, setIndex, setVisible })}
+      {getSquaredThumbnails({
+        docs: item?.docs,
+        type: "Veranlassung",
+        jwt,
+        setIndex,
+        setVisible,
+        openLightBox: false,
+      })}
     </SecondaryInfoPanelSection>
   );
 
@@ -236,6 +243,7 @@ const getLayout4Protokoll = ({
       setIndex,
       setVisible,
       showActions: false,
+      openLightBox: false,
     });
 
     fachobjektTitle = layoutResult.title;

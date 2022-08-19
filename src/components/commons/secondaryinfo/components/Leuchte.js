@@ -45,6 +45,7 @@ const getLayout4Leuchte = ({
   setIndex,
   setVisible,
   showActions = true,
+  openLightBox = true,
 }) => {
   const item = feature.properties;
   // const item = leuchteMitAllenAttributen;
@@ -68,8 +69,10 @@ const getLayout4Leuchte = ({
       {mainDoc && (
         <img
           onClick={() => {
-            setVisible(true);
-            setIndex(0);
+            if (openLightBox) {
+              setVisible(true);
+              setIndex(0);
+            }
           }}
           alt='Bild'
           style={{
@@ -152,7 +155,7 @@ const getLayout4Leuchte = ({
             {clearOptionalDescriptionItems(leuchteItems)}
           </Descriptions>
 
-          {getSquaredThumbnails({ docs, type: "Leuchte", jwt, setIndex, setVisible })}
+          {getSquaredThumbnails({ docs, type: "Leuchte", jwt, setIndex, setVisible, openLightBox })}
         </Col>
         <Col span={12}>{getTimelineForEvents({ events })}</Col>
       </Row>
@@ -249,7 +252,7 @@ const getLayout4Leuchte = ({
         {clearOptionalDescriptionItems(leuchtTypItems)}
         {/* {leuchtTypItems} */}
       </Descriptions>
-      {getSquaredThumbnails({ docs, type: "Leuchtentyp", jwt, setIndex, setVisible })}
+      {getSquaredThumbnails({ docs, type: "Leuchtentyp", jwt, setIndex, setVisible, openLightBox })}
     </SecondaryInfoPanelSection>
   );
 

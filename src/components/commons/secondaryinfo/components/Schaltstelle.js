@@ -26,6 +26,7 @@ const getLayout4Schaltstelle = ({
   setIndex,
   setVisible,
   showActions = true,
+  openLightBox = true,
 }) => {
   const item = feature.properties;
   const subSections = [];
@@ -49,8 +50,10 @@ const getLayout4Schaltstelle = ({
       {mainDoc && (
         <img
           onClick={() => {
-            setVisible(true);
-            setIndex(0);
+            if (openLightBox) {
+              setVisible(true);
+              setIndex(0);
+            }
           }}
           alt='Bild'
           style={{
@@ -94,7 +97,14 @@ const getLayout4Schaltstelle = ({
 
       <div>{getTimelineForEvents({ events })}</div>
       {docs.length > 1 &&
-        getSquaredThumbnails({ docs, type: "Schaltstelle", jwt, setIndex, setVisible })}
+        getSquaredThumbnails({
+          docs,
+          type: "Schaltstelle",
+          jwt,
+          setIndex,
+          setVisible,
+          openLightBox,
+        })}
       <div
         style={{
           paddingLeft: 10,

@@ -42,6 +42,7 @@ const getLayout4Standort = ({
   setVisible,
   setIndex,
   showActions = true,
+  openLightBox = true,
 }) => {
   const item = feature.properties;
   // const item = mastOhneLeuchte;
@@ -66,8 +67,10 @@ const getLayout4Standort = ({
       {mainDoc && (
         <img
           onClick={() => {
-            setVisible(true);
-            setIndex(0);
+            if (openLightBox) {
+              setVisible(true);
+              setIndex(0);
+            }
           }}
           alt='Bild'
           style={{
@@ -125,6 +128,7 @@ const getLayout4Standort = ({
             jwt,
             dispatch,
             columns: { xs: 1, sm: 1, md: 1, lg: 1, xxl: 1 },
+            openLightBox,
           })}
         </Col>
         <Col span={12}>{getTimelineForEvents({ events })}</Col>
@@ -142,6 +146,7 @@ export const getStandortDetails = ({
   setIndex,
   setVisible,
   columns = { xs: 1, sm: 1, md: 2, lg: 2, xxl: 3 },
+  openLightBox = true,
 }) => {
   const standortItems = [
     <Descriptions.Item optionalPredicate={() => true} label='Mastart'>
@@ -188,7 +193,7 @@ export const getStandortDetails = ({
         {/* {standortItems} */}
       </Descriptions>
       {docs.length > 1 &&
-        getSquaredThumbnails({ docs, type: "Standort", jwt, setIndex, setVisible })}
+        getSquaredThumbnails({ docs, type: "Standort", jwt, setIndex, setVisible, openLightBox })}
     </>
   );
 };

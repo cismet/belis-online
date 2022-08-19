@@ -7,6 +7,7 @@ const getLayout4Abzweigdose = ({
   setVisible,
   setIndex,
   showActions = true,
+  openLightBox = true,
 }) => {
   const docs = feature.properties?.docs;
   return {
@@ -14,7 +15,14 @@ const getLayout4Abzweigdose = ({
     mainSection: (
       <div>
         {feature.properties.docs.length > 1 &&
-          getSquaredThumbnails({ docs, type: "Abzweigdose", jwt, setIndex, setVisible })}
+          getSquaredThumbnails({
+            docs,
+            type: "Abzweigdose",
+            jwt,
+            setIndex,
+            setVisible,
+            openLightBox,
+          })}
         {showActions &&
           getAddImageButton(dispatch, feature.properties, "abzweigdose", feature.geometry)}
       </div>
