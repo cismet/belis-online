@@ -51,7 +51,7 @@ export const InfoPanelComponent = ({ selectedFeature, dispatch }) => {
   } catch (e) {}
   const showRawDataFromUrl = new URLSearchParams(window.location.href).get("showRawData");
 
-  if (hit !== undefined) {
+  if (hit) {
     const display = (desc, value, valFunc) => {
       if (value && valFunc === undefined && Array.isArray(value) === false) {
         return (
@@ -74,10 +74,10 @@ export const InfoPanelComponent = ({ selectedFeature, dispatch }) => {
       }
     };
     let rawDataDesc = "Rohdaten ";
-    const item = hit.properties;
     let subSections = [],
       mainSection = <div />,
       title = "Info";
+
     switch (hit.featuretype) {
       case "tdta_leuchten":
         ({ subSections, mainSection, title } = getLayout4Leuchte({
