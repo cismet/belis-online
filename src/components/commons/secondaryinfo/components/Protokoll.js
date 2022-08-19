@@ -42,6 +42,7 @@ const getLayout4Protokoll = ({
   setIndex,
   setVisible,
   showActions = true,
+  openLightBox = true,
 }) => {
   const vcard = getVCard(feature);
   const item = feature.properties;
@@ -184,7 +185,7 @@ const getLayout4Protokoll = ({
         jwt,
         setIndex,
         setVisible,
-        openLightBox: false,
+        openLightBox,
       })}
     </SecondaryInfoPanelSection>
   );
@@ -243,7 +244,7 @@ const getLayout4Protokoll = ({
       setIndex,
       setVisible,
       showActions: false,
-      openLightBox: false,
+      openLightBox,
     });
 
     fachobjektTitle = layoutResult.title;

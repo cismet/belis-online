@@ -60,6 +60,7 @@ const getLayout4Arbeitsauftrag = ({
       setIndex,
       setVisible,
       showActions: false,
+      openLightBox: false,
     });
 
     let style = "default";
