@@ -130,7 +130,7 @@ const featureCollectionSlice = createSlice({
       if (selectedFeature) {
         // state.selectedFeature = fc.find((f) => f.id === selectedFeature.id);
         state.selectedFeature[mode] = fc[state.featuresMap[mode][selectedFeature.id]];
-      } else if (selectedFeatureIndex) {
+      } else if (selectedFeatureIndex !== undefined) {
         state.selectedFeature[mode] = fc[selectedFeatureIndex];
       } else {
         state.selectedFeature[mode] = null;
