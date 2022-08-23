@@ -79,7 +79,6 @@ export const initIndex = (finished = () => {}) => async (dispatch, getState) => 
   for (const l of leitungen) {
     try {
       const properties = JSON.parse(JSON.stringify(l));
-      delete properties.geom;
       const feature = {
         id: "Leitung-" + properties.id,
         text: "-",
