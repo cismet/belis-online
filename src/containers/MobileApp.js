@@ -242,8 +242,10 @@ const View = () => {
     if (onlineStatus === true) {
       dispatch(resyncDb());
       dispatch(setDone(true));
+    } else {
+      dispatch(doHealthCheck(jwt));
     }
-  }, [onlineStatus]);
+  }, [onlineStatus, dispatch, jwt]);
 
   // const photoBoxTitle = useSelector(getTitle);
   // const photourls = useSelector(getPhotoUrls);
