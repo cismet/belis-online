@@ -429,7 +429,7 @@ const addObject2ProtokollObject = (type, protokollObject, object) => {
   }
 };
 
-export const getNewIntermediateResults = (intermediateResults, type) => {
+export const getNewIntermediateResults = (intermediateResults, type, teamId) => {
   const newResults = [];
   switch (type) {
     case "arbeitsauftrag":
@@ -442,67 +442,69 @@ export const getNewIntermediateResults = (intermediateResults, type) => {
         const yyyy = today.getFullYear();
         const todayString = yyyy + "-" + mm + "-" + dd;
         for (const newTasklistIR of newTasklistsFromIR) {
-          const newTasklist = {
-            intermediate: true,
-            id: "intermediate." + newTasklistIR.ccnonce,
-            angelegt_am: todayString,
-            angelegt_von: newTasklistIR.user,
-            ccnonce: newTasklistIR.ccnonce,
-            nummer: "********",
-            zugewiesen_an: newTasklistIR.ARBEITSAUFTRAG_ZUGEWIESEN_AN,
-            team: newTasklistIR.teamObject,
-            ar_protokolleArray: [
-              {
-                arbeitsprotokoll: {
-                  intermediate: true,
-                  veranlassungsnummer: "********",
-                  veranlassung: {
-                    nummer: "********",
-                    bezeichnung: newTasklistIR.bezeichnung,
-                    veranlassungsart: {
-                      bezeichnung: "Störung",
-                      schluessel: "S",
+          if (teamId === newTasklistIR.ARBEITSAUFTRAG_ZUGEWIESEN_AN) {
+            const newTasklist = {
+              intermediate: true,
+              id: "intermediate." + newTasklistIR.ccnonce,
+              angelegt_am: todayString,
+              angelegt_von: newTasklistIR.user,
+              ccnonce: newTasklistIR.ccnonce,
+              nummer: "********",
+              zugewiesen_an: newTasklistIR.ARBEITSAUFTRAG_ZUGEWIESEN_AN,
+              team: newTasklistIR.teamObject,
+              ar_protokolleArray: [
+                {
+                  arbeitsprotokoll: {
+                    intermediate: true,
+                    veranlassungsnummer: "********",
+                    veranlassung: {
+                      nummer: "********",
+                      bezeichnung: newTasklistIR.bezeichnung,
+                      veranlassungsart: {
+                        bezeichnung: "Störung",
+                        schluessel: "S",
+                      },
+                      beschreibung: newTasklistIR.beschreibung,
+                      username: newTasklistIR.user,
+                      datum: todayString,
+                      bemerkungen: newTasklistIR.bemerkung,
+                      // {
+                      //   "intermediate": true,
+                      //   "url": "data:image/png;base64,iVBORw0K...",
+                      //   "caption": "Leuchte",
+                      //   "description": "9"
+                      // }
+                      docs: (newTasklistIR.IMAGES || []).map((image) => {
+                        return {
+                          intermediate: true,
+                          url: image.ImageData,
+                          caption: "Veranlassung",
+                          description: image.description,
+                        };
+                      }),
                     },
-                    beschreibung: newTasklistIR.beschreibung,
-                    username: newTasklistIR.user,
-                    datum: todayString,
-                    bemerkungen: newTasklistIR.bemerkung,
-                    // {
-                    //   "intermediate": true,
-                    //   "url": "data:image/png;base64,iVBORw0K...",
-                    //   "caption": "Leuchte",
-                    //   "description": "9"
-                    // }
-                    docs: (newTasklistIR.IMAGES || []).map((image) => {
-                      return {
-                        intermediate: true,
-                        url: image.ImageData,
-                        caption: "Veranlassung",
-                        description: image.description,
-                      };
-                    }),
+                    protokollnummer: 1,
+                    is_deleted: null,
+                    material: null,
+                    monteur: null,
+                    bemerkung: null,
+                    defekt: null,
+                    datum: null,
+                    arbeitsprotokollstatus: null,
+                    arbeitsprotokollaktionArray: [],
                   },
-                  protokollnummer: 1,
-                  is_deleted: null,
-                  material: null,
-                  monteur: null,
-                  bemerkung: null,
-                  defekt: null,
-                  datum: null,
-                  arbeitsprotokollstatus: null,
-                  arbeitsprotokollaktionArray: [],
                 },
-              },
-            ],
-          };
+              ],
+            };
 
-          addObject2ProtokollObject(
-            newTasklistIR.objekt_typ,
-            newTasklist.ar_protokolleArray[0].arbeitsprotokoll,
-            newTasklistIR.objektFeature.properties
-          );
+            addObject2ProtokollObject(
+              newTasklistIR.objekt_typ,
+              newTasklist.ar_protokolleArray[0].arbeitsprotokoll,
+              newTasklistIR.objektFeature.properties
+            );
 
-          newResults.push(newTasklist);
+            newResults.push(newTasklist);
+          }
         }
       }
     default:
