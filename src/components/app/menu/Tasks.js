@@ -2,7 +2,7 @@ import { Button, Table, Typography } from "antd";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-import { downloadTasks, getTasks } from "../../../core/store/slices/offlineActionDb";
+import { downloadTasks, getTasks, resyncDb } from "../../../core/store/slices/offlineActionDb";
 
 const Tasks = () => {
   const dispatch = useDispatch();
@@ -64,6 +64,14 @@ const Tasks = () => {
 
   return (
     <div>
+      <Button
+        style={{ float: "right", marginLeft: 10, marginBottom: 10 }}
+        onClick={() => {
+          dispatch(resyncDb());
+        }}
+      >
+        Sync Mechanismus neu starten
+      </Button>
       {showAll && (
         <Button style={{ float: "right", marginBottom: 10 }} onClick={() => setShowAll(!showAll)}>
           Nur Fehler und letzte Aktionen anzeigen
