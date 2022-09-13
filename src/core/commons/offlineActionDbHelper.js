@@ -167,12 +167,12 @@ export class GraphQLReplicator {
        */
       liveInterval: 1000 * 60 * 10, // 10 minutes
       deletedFlag: "deleted",
-      retryTime: 60000,
+      retryTime: 6000,
     });
 
     replicationState.error$.subscribe((err) => {
       this.errorHandling(err, errorCallback);
-      replicationState.cancel();
+      // replicationState.cancel();
     });
 
     return replicationState;
