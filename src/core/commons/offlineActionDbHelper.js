@@ -6,7 +6,10 @@ import RxDBSchemaCheckModule from "rxdb/plugins/schema-check";
 import RxDBValidateModule from "rxdb/plugins/validate";
 import { SubscriptionClient } from "subscriptions-transport-ws";
 
-import { OFFLINE_ACTIONS_ENDPOINT_URL, OFFLINE_ACTIONS_SYNC_URL } from "../../constants/belis";
+import {
+  OFFLINE_ACTIONS_ENDPOINT_URL,
+  OFFLINE_ACTIONS_SYNC_URL,
+} from "../../constants/belis";
 import { actionSchema } from "./schema";
 
 RxDB.plugin(RxDBSchemaCheckModule);
@@ -105,7 +108,10 @@ export class GraphQLReplicator {
       this.subscriptionClient.close();
     }
 
-    this.replicationState = await this.setupGraphQLReplication(auth, errorCallback);
+    this.replicationState = await this.setupGraphQLReplication(
+      auth,
+      errorCallback
+    );
     this.subscriptionClient = this.setupGraphQLSubscription(
       auth,
       this.replicationState,
@@ -135,7 +141,10 @@ export class GraphQLReplicator {
 
     console.debug("error code:" + errorCode);
 
-    if (errorCode.indexOf(ERR_MSG_INVALID_JWT) !== -1 || errorCode === ERR_CODE_INVALID_JWT) {
+    if (
+      errorCode.indexOf(ERR_MSG_INVALID_JWT) !== -1 ||
+      errorCode === ERR_CODE_INVALID_JWT
+    ) {
       if (callback) {
         callback(ERR_CODE_INVALID_JWT);
       }
@@ -178,7 +187,12 @@ export class GraphQLReplicator {
     return replicationState;
   }
 
-  setupGraphQLSubscription(auth, replicationState, updateCallback, errorCallback) {
+  setupGraphQLSubscription(
+    auth,
+    replicationState,
+    updateCallback,
+    errorCallback
+  ) {
     // Change this url to point to your hasura graphql url
     const wsClient = new SubscriptionClient(OFFLINE_ACTIONS_ENDPOINT_URL, {
       reconnect: true,
@@ -229,57 +243,71 @@ export class GraphQLReplicator {
     ret.subscribe({
       next(data) {
         console.log("subscription emitted => trigger run");
-        if (!d.actions) {
+        if (!d?.actions) {
           //database schema was remove, so unsubscribe
           wsClient.unsubscribeAll();
           return;
         }
-
-        for (const action of data.data.action) {
-          if (action.deleted) {
-            d.actions.find({ id: action.id }).$.subscribe((act) => {
-              if (act && isArray(act) && act.length > 0) {
-                act[0].remove();
-              }
-            });
-          } else if (action.status === 401) {
-            //wrong jwt was set
-            d.actions.find({ id: action.id }).$.subscribe((act) => {
-              if (act && isArray(act) && act.length > 0 && act[0].status === 401) {
-                const changeFunction = (oldData) => {
-                  oldData.jwt = auth.idToken;
-                  // when a value is null, the rxdb will throw an error
-                  oldData.result = undefined;
-                  oldData.status = undefined;
-                  return oldData;
-                };
-                //set the current jwt
-                act[0].atomicUpdate(changeFunction);
-              }
-            });
-          } else if (action.result !== null && action.isCompleted === false) {
-            d.actions.find({ id: action.id }).$.subscribe((act) => {
-              if (act && isArray(act) && act.length > 0 && !act[0].isCompleted) {
-                const changeFunction = (oldData) => {
-                  oldData.isCompleted = true;
-                  // when a value is null, the rxdb will throw an error
-                  if (oldData.result === null) {
-                    oldData.result = undefined;
-                  }
-                  if (oldData.status === null) {
-                    oldData.status = undefined;
-                  }
-                  return oldData;
-                };
-                //set isCompelted to true
-                act[0].atomicUpdate(changeFunction);
-                //call the callback function
-                if (updateCallback != null && completedIds[action.id] === undefined) {
-                  completedIds[action.id] = true;
-                  updateCallback(action);
+        if (data?.data?.action && data.data.action.length > 0) {
+          for (const action of data.data.action) {
+            if (action.deleted) {
+              d.actions.find({ id: action.id }).$.subscribe((act) => {
+                if (act && isArray(act) && act.length > 0) {
+                  act[0].remove();
                 }
-              }
-            });
+              });
+            } else if (action.status === 401) {
+              //wrong jwt was set
+              d.actions.find({ id: action.id }).$.subscribe((act) => {
+                if (
+                  act &&
+                  isArray(act) &&
+                  act.length > 0 &&
+                  act[0].status === 401
+                ) {
+                  const changeFunction = (oldData) => {
+                    oldData.jwt = auth.idToken;
+                    // when a value is null, the rxdb will throw an error
+                    oldData.result = undefined;
+                    oldData.status = undefined;
+                    return oldData;
+                  };
+                  //set the current jwt
+                  act[0].atomicUpdate(changeFunction);
+                }
+              });
+            } else if (action.result !== null && action.isCompleted === false) {
+              d.actions.find({ id: action.id }).$.subscribe((act) => {
+                if (
+                  act &&
+                  isArray(act) &&
+                  act.length > 0 &&
+                  !act[0].isCompleted
+                ) {
+                  const changeFunction = (oldData) => {
+                    oldData.isCompleted = true;
+                    // when a value is null, the rxdb will throw an error
+                    if (oldData.result === null) {
+                      oldData.result = undefined;
+                    }
+                    if (oldData.status === null) {
+                      oldData.status = undefined;
+                    }
+                    return oldData;
+                  };
+                  //set isCompelted to true
+                  act[0].atomicUpdate(changeFunction);
+                  //call the callback function
+                  if (
+                    updateCallback != null &&
+                    completedIds[action.id] === undefined
+                  ) {
+                    completedIds[action.id] = true;
+                    updateCallback(action);
+                  }
+                }
+              });
+            }
           }
         }
         replicationState.run();
