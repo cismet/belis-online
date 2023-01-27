@@ -178,9 +178,25 @@ const Login = () => {
           borderRadius: 25,
         }}
       >
-        <h1 style={{ padding: 25, color: "black", opacity: 0.5 }}>
+        <h1
+          style={{
+            padding: 25,
+            color: "black",
+            opacity: 0.5,
+            paddingBottom: 4,
+          }}
+        >
           BelIS-Online
         </h1>
+        <div
+          style={{
+            minHeight: 21,
+            color: loginInfo?.color || "black",
+            marginRight: 10,
+          }}
+        >
+          {loginInfo?.text || ""}
+        </div>
         <Form
           form={form}
           name="basic"
@@ -235,12 +251,6 @@ const Login = () => {
                   Offline arbeiten
                 </Button>
               )}
-              <span
-                style={{ color: loginInfo?.color || "black", marginRight: 10 }}
-              >
-                {loginInfo?.text || ""}
-                {/* Bei der Anmeldung ist ein Fehler aufgetreten. */}
-              </span>
               <Button type="primary" htmlType="submit">
                 Login
               </Button>
