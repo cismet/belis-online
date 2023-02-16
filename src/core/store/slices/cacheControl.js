@@ -1,7 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 import dexieworker from "workerize-loader!../../workers/dexie"; // eslint-disable-line import/no-webpack-loader-syntax
 
-import { fetchGraphQL } from "../../commons/graphql";
+import { fetchGraphQL, fetchGraphQLZipped } from "../../commons/graphql";
 import cacheQueries from "../../queries/cache";
 import { CONNECTIONMODE, setConnectionMode } from "./app";
 import { getLoginFromJWT } from "./auth";
@@ -418,6 +418,14 @@ export const renewCache = (
 
     const progressListener = (message) => {
       if (
+        message.data.target !== undefined &&
+        message.data.objectstorename === itemKey
+      ) {
+        dispatch(setLoadingState({ key, loadingState: "caching" }));
+        dispatch(setObjectCount({ key, objectCount: message.data.target }));
+        dispatch(setUpdateCount({ key, updateCount: message.data.target }));
+        setCachingProgress({ key, cachingProgress: 0 });
+      } else if (
         message.data.progress !== undefined &&
         message.data.objectstorename === itemKey
       ) {
@@ -426,7 +434,9 @@ export const renewCache = (
         );
       }
     };
-    dexieW.addEventListener("message", progressListener);
+    const tmpdexieW = dexieworker();
+
+    tmpdexieW.addEventListener("message", progressListener);
     // console.log("cacheQueries[" + itemKey + "]", { gql: cacheQueries[itemKey] });
     // if (itemKey === "arbeitsauftrag") {
     //   console.log(
@@ -435,37 +445,34 @@ export const renewCache = (
     //   );
     // }
 
-    fetchGraphQL(
+    fetchGraphQLZipped(
       cacheQueries[itemKey],
       config[itemKey].parameterFactory(stateForParameterFactory),
       jwt
     )
       .then((result) => {
         // console.log("result", result);
+        //dataKey and itemKey are the same !!!
         if (result.ok) {
           console.log(
-            itemKey +
-              " returned with " +
-              result.data[dataKey].length +
-              " results"
+            itemKey + " returned with " + result.response.length + " results"
           );
           // console.log(itemKey + " returned with ", result.data[dataKey]);
-          dispatch(setLoadingState({ key, loadingState: "caching" }));
-          dispatch(
-            setObjectCount({ key, objectCount: result.data[dataKey].length })
-          );
-          dispatch(
-            setUpdateCount({ key, updateCount: result.data[dataKey].length })
-          );
+          // dispatch(
+          //   setObjectCount({ key, objectCount: result.data[dataKey].length })
+          // );
+          // dispatch(
+          //   setUpdateCount({ key, updateCount: result.data[dataKey].length })
+          // );
           //async block
           (async () => {
             //put the data in the indexedDB
             console.log(itemKey + " in async block");
-
-            await dexieW.clear(itemKey);
+            await tmpdexieW.clear(itemKey);
             console.log(itemKey + " clear executed");
-
-            await dexieW.putArray(result.data[dataKey], itemKey);
+            console.log(itemKey + " putArray execute:");
+            await tmpdexieW.putZArray(result.response, itemKey);
+            // await dexieW.putArray(result.data[dataKey], itemKey);
             console.log(itemKey + " putArray executed");
 
             //reset loadingState in 1 minute
@@ -486,13 +493,14 @@ export const renewCache = (
             dispatch(clearIntermediateResults(key));
 
             //removeEVent Listener to free memory
-            dexieW.removeEventListener("message", progressListener);
+            tmpdexieW.removeEventListener("message", progressListener);
 
             if (itemKey === "raw_point_index") {
               //todo: the initIndex function should be called, after the cache was completely refreshed
               //to use the new data for the geometry search
               dispatch(initIndex(() => {}));
             }
+            tmpdexieW.terminate();
             successHook();
           })();
         } else {
@@ -508,6 +516,7 @@ export const renewCache = (
           );
         }, 30000);
         errorHook(error);
+        tmpdexieW.terminate();
       });
   };
 };

@@ -1,11 +1,24 @@
 import { getDocs } from "../helper/featureHelper";
 import { db } from "../indexeddb/dexiedb";
+import Pako from "pako";
+
+export async function putZArray(zip, objectstorename) {
+  let zippedData = Uint8Array.from(atob(zip), (c) => c.charCodeAt(0));
+  let unpackedString = Pako.inflate(zippedData, { to: "string" });
+  zippedData = undefined;
+  // console.log(`logGQL:: Result (putZArray):`, unpackedString);
+  const result = JSON.parse(unpackedString);
+  unpackedString = undefined;
+  const inputArray = result.data[objectstorename];
+  postMessage({ target: inputArray.length, objectstorename });
+  return await putArray(inputArray, objectstorename);
+}
 
 export async function putArray(inputArray, objectstorename) {
   try {
     let i,
       j,
-      chunk = inputArray.length / 10,
+      chunk = inputArray.length / 20,
       counter = 0;
     if (chunk < 200) {
       chunk = inputArray.length;
@@ -18,9 +31,21 @@ export async function putArray(inputArray, objectstorename) {
         cleanUpObject(item);
         // console.log('after removeEmpty(item)', item);
         items.push(item);
+        inputArray[counter] = undefined;
+        delete inputArray[counter];
         counter++;
       }
-
+      // let voided = 0;
+      // let unvoided = 0;
+      // for (const tester of inputArray) {
+      //   if (tester) {
+      //     unvoided++;
+      //   } else {
+      //     voided++;
+      //   }
+      // }
+      // console.log(objectstorename + " progress", { voided, unvoided });
+      postMessage({ progress: counter - chunk / 2, objectstorename });
       await db[objectstorename].bulkPut(items);
       postMessage({ progress: counter, objectstorename });
     }
@@ -107,7 +132,11 @@ export async function get(id, objectStore) {
 
 const cleanUpObject = (obj) => {
   Object.keys(obj).forEach((key) => {
-    if (obj[key] && typeof obj[key] === "object" && Array.isArray(obj[key]) === false) {
+    if (
+      obj[key] &&
+      typeof obj[key] === "object" &&
+      Array.isArray(obj[key]) === false
+    ) {
       cleanUpObject(obj[key]); // recurse
     } else if (
       obj[key] &&
