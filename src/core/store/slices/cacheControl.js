@@ -317,7 +317,7 @@ export const resetCacheInfoIfOneIsStillInLoadingState = () => {
     const state = getState();
     for (const key of getAllInfoKeys(state)) {
       const loadingState = state.cacheControl.types[key].loadingState;
-      if (loadingState === "loading") {
+      if (loadingState === "loading" || loadingState === "caching") {
         dispatch(resetCacheInfoForAllKeys());
         dispatch(setConnectionMode(CONNECTIONMODE.ONLINE));
         break;
