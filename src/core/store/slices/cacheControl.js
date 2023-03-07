@@ -445,17 +445,101 @@ export const renewCache = (
     //   );
     // }
 
-    fetchGraphQLZipped(
+    // z Schnittstelle bedeutet: die daten kommen komprimiert in base64 string an und werden
+    // im worker dekomprimiert und in die dexiedb geschrieben
+
+    // fetchGraphQL(
+    //   cacheQueries[itemKey],
+    //   config[itemKey].parameterFactory(stateForParameterFactory),
+    //   jwt,
+    //   undefined,
+    //   "z"
+    // )
+    //   .then((result) => {
+    //     // console.log("result", result);
+    //     //dataKey and itemKey are the same !!!
+    //     if (result.ok) {
+    //       console.log(
+    //         itemKey + " returned with " + result.response.length + " results"
+    //       );
+    //       // console.log(itemKey + " returned with ", result.data[dataKey]);
+    //       // dispatch(
+    //       //   setObjectCount({ key, objectCount: result.data[dataKey].length })
+    //       // );
+    //       // dispatch(
+    //       //   setUpdateCount({ key, updateCount: result.data[dataKey].length })
+    //       // );
+    //       //async block
+    //       (async () => {
+    //         //put the data in the indexedDB
+    //         console.log(itemKey + " in async block");
+    //         await tmpdexieW.clear(itemKey);
+    //         console.log(itemKey + " clear executed");
+    //         console.log(itemKey + " putArray execute:");
+    //         await tmpdexieW.putZArray(result.response, itemKey);
+    //         // await dexieW.putArray(result.data[dataKey], itemKey);
+    //         console.log(itemKey + " putArray executed");
+
+    //         //reset loadingState in 1 minute
+    //         const resetTimer = setTimeout(() => {
+    //           dispatch(
+    //             setLoadingState({ key, resetTimer, loadingState: undefined })
+    //           );
+    //         }, 30000);
+
+    //         //set loading state done
+    //         dispatch(
+    //           setLoadingState({ key, resetTimer, loadingState: "cached" })
+    //         );
+    //         dispatch(setLastUpdate({ key, lastUpdate: new Date().getTime() }));
+    //         console.log(itemKey + " setLoadingState: cached");
+
+    //         //remove the intermediate results of this datatype
+    //         dispatch(clearIntermediateResults(key));
+
+    //         //removeEVent Listener to free memory
+    //         tmpdexieW.removeEventListener("message", progressListener);
+
+    //         if (itemKey === "raw_point_index") {
+    //           //todo: the initIndex function should be called, after the cache was completely refreshed
+    //           //to use the new data for the geometry search
+    //           dispatch(initIndex(() => {}));
+    //         }
+    //         tmpdexieW.terminate();
+    //         successHook();
+    //       })();
+    //     } else {
+    //       throw new Error("Error in fetchGraphQL (" + result.status + ")");
+    //     }
+    //   })
+    //   .catch(function (error) {
+    //     console.log("xxx error in fetch ", error);
+    //     dispatch(setLoadingState({ key, loadingState: "problem" }));
+    //     const resetTimer = setTimeout(() => {
+    //       dispatch(
+    //         setLoadingState({ key, resetTimer, loadingState: undefined })
+    //       );
+    //     }, 30000);
+    //     errorHook(error);
+    //     tmpdexieW.terminate();
+    //   });
+
+    fetchGraphQL(
       cacheQueries[itemKey],
       config[itemKey].parameterFactory(stateForParameterFactory),
-      jwt
+      jwt,
+      undefined,
+      "z2" // z2 bedeutet die daten kommen chunked
     )
       .then((result) => {
-        // console.log("result", result);
+        console.log("result", result);
         //dataKey and itemKey are the same !!!
         if (result.ok) {
           console.log(
-            itemKey + " returned with " + result.response.length + " results"
+            itemKey +
+              " result returned in " +
+              result.dataz[itemKey + "_length"] +
+              " chunks"
           );
           // console.log(itemKey + " returned with ", result.data[dataKey]);
           // dispatch(
@@ -471,7 +555,19 @@ export const renewCache = (
             await tmpdexieW.clear(itemKey);
             console.log(itemKey + " clear executed");
             console.log(itemKey + " putArray execute:");
-            await tmpdexieW.putZArray(result.response, itemKey);
+
+            /// there is only one element in the result
+            let countElements = 0;
+            for (const chunk of result.dataz[itemKey]) {
+              countElements = await tmpdexieW.putChunkedZArray(
+                result.dataz[itemKey + "_length"],
+                countElements,
+                chunk,
+                itemKey
+              );
+            }
+
+            // await tmpdexieW.putZArray(result.response, itemKey);
             // await dexieW.putArray(result.data[dataKey], itemKey);
             console.log(itemKey + " putArray executed");
 
