@@ -14,6 +14,32 @@ export async function putZArray(zip, objectstorename) {
   return await putArray(inputArray, objectstorename);
 }
 
+export async function putChunkedZArray(
+  targetLength,
+  countElements,
+  zip,
+  objectstorename
+) {
+  let zippedData = Uint8Array.from(
+    Buffer.from(zip, "base64").toString("binary"), //replacement for atob(zip)
+    (c) => c.charCodeAt(0)
+  );
+  let unpackedString = Pako.inflate(zippedData, { to: "string" });
+  zippedData = undefined;
+  const results = JSON.parse(unpackedString);
+  unpackedString = undefined;
+  for (const item of results) {
+    //removes all undefined values from the object
+    cleanUpObject(item);
+  }
+  const chunkLength = results.length;
+  postMessage({ target: targetLength, objectstorename });
+  postMessage({ progress: countElements + chunkLength / 2, objectstorename });
+  await db[objectstorename].bulkPut(results);
+  postMessage({ progress: countElements + chunkLength, objectstorename });
+  return countElements + chunkLength;
+}
+
 export async function putArray(inputArray, objectstorename) {
   try {
     let i,
@@ -27,24 +53,13 @@ export async function putArray(inputArray, objectstorename) {
       const data = inputArray.slice(i, i + chunk);
       const items = [];
       for (const item of data) {
-        // console.log('item', item);
+        //removes all undefined values from the object
         cleanUpObject(item);
-        // console.log('after removeEmpty(item)', item);
         items.push(item);
         inputArray[counter] = undefined;
         delete inputArray[counter];
         counter++;
       }
-      // let voided = 0;
-      // let unvoided = 0;
-      // for (const tester of inputArray) {
-      //   if (tester) {
-      //     unvoided++;
-      //   } else {
-      //     voided++;
-      //   }
-      // }
-      // console.log(objectstorename + " progress", { voided, unvoided });
       postMessage({ progress: counter - chunk / 2, objectstorename });
       await db[objectstorename].bulkPut(items);
       postMessage({ progress: counter, objectstorename });
@@ -118,18 +133,21 @@ export async function get(id, objectStore) {
   }
 }
 
-// async function _template(input) {
-// 	try {
-// 		return await new Promise((resolve, reject) => {
-// 			resolve({ debugLog: 'dummy answer', data: 'xxx' });
-// 		});
-// 	} catch (err) {
-// 		console.log('worker error in _template', err);
-// 	}
-// }
+// This function named `cleanUpObject` takes an object as an argument and
+// recursively removes any nested keys with a value of null or undefined, or an
+// empty array. The function does not modify the original object, but rather it
+// modifies the object passed in by reference.
 
-//tools
+// The function uses `Object.keys()` method to iterate over all the keys of the
+// object, and checks the type of each key's value. If the value is an object and
+// not an array, it is recursively passed into the same function for further
+// cleanup. If the value is an empty array, the key is deleted. If the value is
+// null or undefined, the key is also deleted.
 
+// This function is useful for cleaning up an object with potentially nested
+// keys, where some of the values may be null, undefined, or empty arrays.
+// However, it is important to use this function with caution, as it modifies
+// the original object passed in by reference.
 const cleanUpObject = (obj) => {
   Object.keys(obj).forEach((key) => {
     if (
