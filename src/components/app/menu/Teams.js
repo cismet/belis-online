@@ -1,17 +1,24 @@
 import { useEffect, useState } from "react";
 import Button from "react-bootstrap/Button";
 import { useDispatch, useSelector } from "react-redux";
+//import dexieworker from "workerize-loader!../../../core/workers/dexie"; // eslint-disable-line import/no-webpack-loader-syntax
 
-import { CONNECTIONMODE, getConnectionMode } from "../../../core/store/slices/app";
+import {
+  CONNECTIONMODE,
+  getConnectionMode,
+} from "../../../core/store/slices/app";
 import { getJWT } from "../../../core/store/slices/auth";
-import { config, getCacheSettings, renewCache } from "../../../core/store/slices/cacheControl";
+import {
+  config,
+  getCacheSettings,
+  renewCache,
+} from "../../../core/store/slices/cacheControl";
 import { getWorker } from "../../../core/store/slices/dexie";
 import { loadTaskLists } from "../../../core/store/slices/featureCollection";
 import { getTeam, setTeam } from "../../../core/store/slices/team";
 import CacheItem from "../cache/CacheItem";
 
 const Teams = () => {
-  // const dexieW = dexieworker();
   const dispatch = useDispatch();
   const selectedTeam = useSelector(getTeam);
   const cacheSettings = useSelector(getCacheSettings);
@@ -45,7 +52,7 @@ const Teams = () => {
             if (selectedTeam?.id === team.id) {
               return (
                 <span key={"buttonspan." + index} style={{ padding: 3 }}>
-                  <Button disabled variant='primary' key={team + index}>
+                  <Button disabled variant="primary" key={team + index}>
                     {team.name}
                   </Button>
                 </span>
@@ -89,7 +96,7 @@ const Teams = () => {
                         dispatch(setTeam(team));
                       }
                     }}
-                    variant='outline-primary'
+                    variant="outline-primary"
                     key={team + index}
                   >
                     {team.name}
@@ -102,9 +109,10 @@ const Teams = () => {
       {connectionMode === CONNECTIONMODE.FROMCACHE && (
         <div>
           <hr />
-          Wenn Sie ein anderes Team auswählen, wird direkt versucht die Arbeitsaufträge in den
-          lokalen Daten zu hinterlegen. Sollte das nicht funktionieren, weil Sie momentan keine
-          Verbindung zu unseren Servern herstellen können, kann das Team nicht gewechselt werden.
+          Wenn Sie ein anderes Team auswählen, wird direkt versucht die
+          Arbeitsaufträge in den lokalen Daten zu hinterlegen. Sollte das nicht
+          funktionieren, weil Sie momentan keine Verbindung zu unseren Servern
+          herstellen können, kann das Team nicht gewechselt werden.
           <hr />
           <CacheItem
             key={"CacheItem.Team.arbeitsauftrag"}
