@@ -23,12 +23,6 @@ export const ERR_CODE_INVALID_JWT = "invalid-jwt";
 export const ERR_CODE_NO_CONNECTION = "Failed to fetch";
 const ERR_MSG_INVALID_JWT = "Could not verify JWT";
 
-const removeUnusedAction = (act) => {
-  if (act && isArray(act) && act.length > 0) {
-    act[0].remove();
-  }
-};
-
 const batchSize = 5;
 const pullQueryBuilder = (userId) => {
   return (doc) => {
@@ -246,6 +240,26 @@ export class GraphQLReplicator {
     const errorHandler = this.errorHandling;
     const d = this.db;
 
+    const removeUnusedAction = (act) => {
+      if (act && isArray(act) && act.length > 0) {
+        act[0].remove();
+      }
+    };
+
+    const reactOn401 = (act) => {
+      if (act && isArray(act) && act.length > 0 && act[0].status === 401) {
+        const changeFunction = (oldData) => {
+          oldData.jwt = auth.idToken;
+          // when a value is null, the rxdb will throw an error
+          oldData.result = undefined;
+          oldData.status = undefined;
+          return oldData;
+        };
+        //set the current jwt
+        act[0].atomicUpdate(changeFunction);
+      }
+    };
+
     ret.subscribe({
       next(data) {
         console.log("subscription emitted => trigger run");
@@ -260,26 +274,9 @@ export class GraphQLReplicator {
               d.actions.find({ id: action.id }).$.subscribe(removeUnusedAction);
             } else if (action.status === 401) {
               //wrong jwt was set
-              d.actions.find({ id: action.id }).$.subscribe((act) => {
-                if (
-                  act &&
-                  isArray(act) &&
-                  act.length > 0 &&
-                  act[0].status === 401
-                ) {
-                  const changeFunction = (oldData) => {
-                    oldData.jwt = auth.idToken;
-                    // when a value is null, the rxdb will throw an error
-                    oldData.result = undefined;
-                    oldData.status = undefined;
-                    return oldData;
-                  };
-                  //set the current jwt
-                  act[0].atomicUpdate(changeFunction);
-                }
-              });
+              d.actions.find({ id: action.id }).$.subscribe(reactOn401);
             } else if (action.result !== null && action.isCompleted === false) {
-              d.actions.find({ id: action.id }).$.subscribe((act) => {
+              const reactOnCompletedAction = (act) => {
                 if (
                   act &&
                   isArray(act) &&
@@ -308,7 +305,10 @@ export class GraphQLReplicator {
                     updateCallback(action);
                   }
                 }
-              });
+              };
+              d.actions
+                .find({ id: action.id })
+                .$.subscribe(reactOnCompletedAction);
             }
           }
         }
