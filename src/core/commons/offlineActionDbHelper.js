@@ -23,6 +23,12 @@ export const ERR_CODE_INVALID_JWT = "invalid-jwt";
 export const ERR_CODE_NO_CONNECTION = "Failed to fetch";
 const ERR_MSG_INVALID_JWT = "Could not verify JWT";
 
+const removeUnusedAction = (act) => {
+  if (act && isArray(act) && act.length > 0) {
+    act[0].remove();
+  }
+};
+
 const batchSize = 5;
 const pullQueryBuilder = (userId) => {
   return (doc) => {
@@ -251,11 +257,7 @@ export class GraphQLReplicator {
         if (data?.data?.action && data.data.action.length > 0) {
           for (const action of data.data.action) {
             if (action.deleted) {
-              d.actions.find({ id: action.id }).$.subscribe((act) => {
-                if (act && isArray(act) && act.length > 0) {
-                  act[0].remove();
-                }
-              });
+              d.actions.find({ id: action.id }).$.subscribe(removeUnusedAction);
             } else if (action.status === 401) {
               //wrong jwt was set
               d.actions.find({ id: action.id }).$.subscribe((act) => {
