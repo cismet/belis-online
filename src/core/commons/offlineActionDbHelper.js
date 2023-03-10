@@ -229,12 +229,12 @@ export class GraphQLReplicator {
                 createdAt
                 updatedAt
                 action,
-                parameter,
                 result,
                 status,
                 deleted
             }       
         }`;
+    //                parameter,
 
     const ret = wsClient.request({ query });
     const errorHandler = this.errorHandling;
@@ -285,6 +285,7 @@ export class GraphQLReplicator {
                 ) {
                   const changeFunction = (oldData) => {
                     oldData.isCompleted = true;
+
                     // when a value is null, the rxdb will throw an error
                     if (oldData.result === null) {
                       oldData.result = undefined;
@@ -292,6 +293,7 @@ export class GraphQLReplicator {
                     if (oldData.status === null) {
                       oldData.status = undefined;
                     }
+                    oldData.parameter = undefined;
                     return oldData;
                   };
                   //set isCompelted to true
