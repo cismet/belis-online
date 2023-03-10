@@ -285,7 +285,6 @@ export class GraphQLReplicator {
                 ) {
                   const changeFunction = (oldData) => {
                     oldData.isCompleted = true;
-
                     // when a value is null, the rxdb will throw an error
                     if (oldData.result === null) {
                       oldData.result = undefined;
@@ -293,7 +292,10 @@ export class GraphQLReplicator {
                     if (oldData.status === null) {
                       oldData.status = undefined;
                     }
-                    oldData.parameter = undefined;
+
+                    if (oldData?.parameter?.ImageData) {
+                      oldData.parameter.ImageData = "!locallyStripped";
+                    }
                     return oldData;
                   };
                   //set isCompelted to true
