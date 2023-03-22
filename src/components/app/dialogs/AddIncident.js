@@ -36,7 +36,7 @@ export const ADD_INCIDENT_MODES = {
 const getBase64 = (img, callback) => {
   const reader = new FileReader();
   reader.addEventListener("load", () => {
-    callback(reader.result);∏
+    callback(reader.result);
   });
   reader.readAsDataURL(img);
 };
