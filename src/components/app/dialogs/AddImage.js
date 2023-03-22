@@ -1,8 +1,13 @@
 import { UploadOutlined } from "@ant-design/icons";
 import { Button, Form, Input, Modal, Typography, Upload } from "antd";
 import { useState } from "react";
+import {
+  IMAGEUPLOAD_MAXSIDE,
+  IMAGEUPLOAD_QUALITY,
+} from "../../../constants/belis";
 
 import extensions from "../../../core/helper/extensions";
+import { shrinkBase64Image } from "../../../core/helper/imageHelper";
 
 const { Text, Link } = Typography;
 const getBase64 = (img, callback) => {
@@ -34,7 +39,14 @@ const AddImageDialog = ({
       // Get this url from response in real world.
       getBase64(info.file.originFileObj, (imageUrl) => {
         //info.file.imageData=imageUrl;
-        setImageData(imageUrl);
+        shrinkBase64Image(
+          imageUrl,
+          IMAGEUPLOAD_MAXSIDE,
+          IMAGEUPLOAD_QUALITY,
+          (shrinked) => {
+            setImageData(shrinked);
+          }
+        );
       });
     }
   };
@@ -45,7 +57,8 @@ const AddImageDialog = ({
       zIndex={30000001}
       title={
         <>
-          <div>Foto hinzufügen</div> <Text type='secondary'>{input?.vcard?.infobox?.title}</Text>
+          <div>Foto hinzufügen</div>{" "}
+          <Text type="secondary">{input?.vcard?.infobox?.title}</Text>
         </>
       }
       centered
@@ -88,15 +101,15 @@ const AddImageDialog = ({
     >
       <Form
         form={form}
-        layout='vertical'
-        name='form_in_modal'
+        layout="vertical"
+        name="form_in_modal"
         initialValues={{
           modifier: "public",
         }}
       >
         <Form.Item
-          name='picture'
-          label='Bild'
+          name="picture"
+          label="Bild"
           rules={[
             {
               required: true,
@@ -106,9 +119,9 @@ const AddImageDialog = ({
         >
           <Upload
             //style={{ width: "100%" }}
-            name='upload'
-            _listType='picture-card'
-            className='avatar-uploader'
+            name="upload"
+            _listType="picture-card"
+            className="avatar-uploader"
             showUploadList={false}
             // beforeUpload={beforeUpload}
             onChange={handleChange}
@@ -123,13 +136,17 @@ const AddImageDialog = ({
         <div style={{ marginTop: 20 }}>
           {imageData && (
             <div>
-              <img src={imageData} alt='avatar' style={{ width: "100%", marginBottom: 20 }} />
+              <img
+                src={imageData}
+                alt="avatar"
+                style={{ width: "100%", marginBottom: 20 }}
+              />
             </div>
           )}
         </div>
         <Form.Item
-          name='name'
-          label='Name'
+          name="name"
+          label="Name"
           rules={[
             {
               required: true,
