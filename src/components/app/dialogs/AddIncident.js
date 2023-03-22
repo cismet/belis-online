@@ -83,7 +83,7 @@ const AddIncidentDialog = ({
                   [info.file.uid]: {
                     uid: info.file.uid,
                     title: undefined,
-                    shrinked,
+                    imageUrl: shrinked,
                   },
                 };
               });
@@ -132,6 +132,8 @@ const AddIncidentDialog = ({
             const ccnonce = getNonce();
 
             const images = Object.keys(imageData).map((key) => {
+              console.log("imageData[key]", imageData[key]);
+
               mimeType = imageData[key].imageUrl.match("data:(.*);")[1];
               ending = extensions[mimeType];
               return {
