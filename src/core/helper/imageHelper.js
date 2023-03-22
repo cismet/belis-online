@@ -3,7 +3,7 @@ export const shrinkBase64Image = async (
   maxSide,
   quality,
   done,
-  logDebug = true
+  logDebug = false
 ) => {
   const img = document.createElement("img");
   img.onload = () => {
