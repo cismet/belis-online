@@ -169,12 +169,8 @@ export class GraphQLReplicator {
         queryBuilder: pullQueryBuilder(auth.userId),
       },
       live: true,
-      /**
-       * Because the websocket is used to inform the client
-       * when something has changed,
-       * we can set the liveIntervall to a high value
-       */
-      liveInterval: 1000 * 60 * 10, // 10 minutes
+
+      liveInterval: 1000 * 10, // 10 secs
       deletedFlag: "deleted",
       retryTime: 6000,
     });
@@ -327,18 +323,19 @@ export class GraphQLReplicator {
   }
 }
 
-export const createDb = async () => {
-  if (window["dbInit"]) {
-    return window["db"];
+export const createDb = async (login) => {
+  console.log("createDb(", login);
+  //convert login to loewercase
+  const loginLowerCase = (login || "").toLowerCase();
+  if (window["db_" + loginLowerCase]) {
+    return window["db_" + loginLowerCase];
   }
-  window["dbInit"] = true;
-
   const db = await RxDB.create({
-    name: "actiondb",
+    name: "actiondb_" + loginLowerCase,
     adapter: "idb",
   });
 
-  window["db"] = db; // write to window for debugging
+  window["db_" + loginLowerCase] = db; // write to window for debugging
   let ready = true;
   let attempts = 0;
 

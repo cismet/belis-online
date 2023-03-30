@@ -67,6 +67,7 @@ const Login = () => {
       clearInterval(timer);
     };
   }, [jwt, dispatch]);
+
   useEffect(() => {
     (async () => {
       try {

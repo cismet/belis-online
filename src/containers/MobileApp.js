@@ -19,7 +19,11 @@ import {
   getConnectionMode,
   getDialog,
 } from "../core/store/slices/app";
-import { getJWT, isLoginRequested } from "../core/store/slices/auth";
+import {
+  getJWT,
+  getLoginFromJWT,
+  isLoginRequested,
+} from "../core/store/slices/auth";
 import { storeJWT } from "../core/store/slices/auth";
 import {
   renewCache,
@@ -46,7 +50,11 @@ import {
   fillRundsteuerempfaengerFromDexie,
   fillTeamsFromDexie,
 } from "../core/store/slices/keytables";
-import { initialize, resyncDb } from "../core/store/slices/offlineActionDb";
+import {
+  initialize,
+  reInitialize,
+  resyncDb,
+} from "../core/store/slices/offlineActionDb";
 import { getTeam } from "../core/store/slices/team";
 import BelisMap from "./BelisMap";
 import BottomNavbar from "./BottomNavbar";
@@ -249,9 +257,14 @@ const View = () => {
   }, [history, browserlocation]);
 
   useEffect(() => {
+    const login = getLoginFromJWT(jwt);
+    console.log("useEffectLogger for storedJWT", { jwt, login });
+
+    const loginLowerCase = (login || "").toLowerCase();
+
     if (storedJWT) {
-      if (window["dbInit"] === true) {
-        dispatch(resyncDb());
+      if (window["db_" + loginLowerCase]) {
+        dispatch(reInitialize());
       } else {
         dispatch(initialize());
       }
