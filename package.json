@@ -30,18 +30,22 @@
     "@turf/convex": "^6.5.0",
     "@turf/length": "^6.5.0",
     "antd": "^4.21.1",
+    "autoprefixer": "10.4.5",
     "bootstrap": "4.6.0",
     "dayjs": "^1.10.7",
     "dexie": "^3.0.3",
     "flatbush": "^3.3.0",
     "framer-motion": "^2.7.1",
     "graphql": "^15.5.1",
+    "graphql-client": "2.0.1",
+    "graphql-subscriptions": "2.0.0",
+    "graphql-ws": "5.12.0",
     "idb": "^5.0.7",
     "kdbush": "^3.0.0",
     "localforage": "^1.10.0",
     "md5": "^2.3.0",
+    "mingo": "6.3.2",
     "pako": "^2.1.0",
-    "pouchdb-adapter-idb": "^7.2.2",
     "proj4": "^2.7.5",
     "prop-types": "^15.7.2",
     "react": "^16.13.1",
@@ -55,11 +59,11 @@
     "react-ios-switch": "^0.1.19",
     "react-redux": "^7.2.2",
     "react-router-dom": "^5.2.0",
-    "react-scripts": "4.0.3",
+    "react-scripts": "5.0.1",
     "redux-logger": "^3.0.6",
     "redux-persist": "^6.0.0",
-    "rxdb": "^8.7.4",
-    "rxjs": "^6.1.0",
+    "rxdb": "^14.7.2",
+    "rxjs": "^7.8.0",
     "slugify": "^1.6.5",
     "stacktrace-js": "^2.0.2",
     "subscriptions-transport-ws": "^0.9.19",
@@ -81,7 +85,8 @@
     "workbox-routing": "^5.1.3",
     "workbox-strategies": "^5.1.3",
     "workbox-streams": "^5.1.3",
-    "workerize-loader": "^1.3.0"
+    "workerize-loader": "^2.0.2",
+    "ws": "8.13.0"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -124,6 +129,7 @@
     ]
   },
   "devDependencies": {
+    "@babel/preset-env": "^7.21.4",
     "@storybook/addon-actions": "^6.3.4",
     "@storybook/addon-essentials": "^6.3.4",
     "@storybook/addon-links": "^6.3.4",
@@ -132,6 +138,16 @@
     "@storybook/react": "^6.3.4"
   },
   "resolutions": {
-    "babel-loader": "8.1.0"
-  }
+    "babel-loader": "8.2.3"
+  },
+  "babel": {
+    "presets": [
+      [
+        "@babel/preset-env",
+        {
+          "modules": false
+        }
+      ]
+    ]
+  }  
 }

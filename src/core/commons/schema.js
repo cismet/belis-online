@@ -2,11 +2,13 @@ export const actionSchema = {
   title: "action schema",
   description: "action schema",
   version: 0,
+  primaryKey: 'id',
   type: "object",
   properties: {
     id: {
       type: "string",
       primary: true,
+      maxLength: 100
     },
     jwt: {
       type: "string",

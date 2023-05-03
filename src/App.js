@@ -21,7 +21,8 @@ import store from "./core/store";
 import { appKey, storagePostfix } from "./Keys";
 
 import "./App.css";
-import "antd/dist/antd.css";
+// import "antd/dist/antd.css";
+import "antd/dist/antd.min.css";
 import Login from "./containers/Login";
 import { getBelisHash, getBelisVersion } from "./constants/versions";
 

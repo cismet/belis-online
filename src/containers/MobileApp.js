@@ -13,7 +13,7 @@ import {
 import LoginForm from "../components/app/LoginForm";
 import MapBlocker from "../components/app/MapBlocker";
 import Menu from "../components/app/menu/Menu";
-import { REST_SERVICE } from "../constants/belis";
+import { REST_SERVICE, DB_VERSION } from "../constants/belis";
 import {
   CONNECTIONMODE,
   getConnectionMode,
@@ -263,7 +263,7 @@ const View = () => {
     const loginLowerCase = (login || "").toLowerCase();
 
     if (storedJWT) {
-      if (window["db_" + loginLowerCase]) {
+      if (window["db_" + DB_VERSION + "_" + loginLowerCase]) {
         dispatch(reInitialize());
       } else {
         dispatch(initialize());

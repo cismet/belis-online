@@ -1,6 +1,7 @@
 import { getDocs } from "../helper/featureHelper";
 import { db } from "../indexeddb/dexiedb";
 import Pako from "pako";
+import {Buffer} from 'buffer';
 
 export async function putZArray(zip, objectstorename) {
   let zippedData = Uint8Array.from(atob(zip), (c) => c.charCodeAt(0));
@@ -20,6 +21,9 @@ export async function putChunkedZArray(
   zip,
   objectstorename
 ) {
+  //the next line fixes the buffer is not defined error. See https://github.com/remix-run/remix/issues/2248#issuecomment-1239022303
+  // window.Buffer = window.Buffer || require("buffer").Buffer;
+  // let Buffer = require("buffer").Buffer;
   let zippedData = Uint8Array.from(
     Buffer.from(zip, "base64").toString("binary"), //replacement for atob(zip)
     (c) => c.charCodeAt(0)

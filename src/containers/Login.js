@@ -1,7 +1,7 @@
 import { Button, Checkbox, Form, Input, Popover, Select } from "antd";
 import React, { useEffect } from "react";
 
-import "antd/dist/antd.css";
+import "antd/dist/antd.min.css";
 import { useWindowSize } from "@react-hook/window-size";
 import { useDispatch, useSelector } from "react-redux";
 import {

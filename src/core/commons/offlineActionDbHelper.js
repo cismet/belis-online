@@ -1,22 +1,26 @@
 import { isArray } from "lodash";
-import RxDB from "rxdb";
-import RxDBErrorMessagesModule from "rxdb/plugins/error-messages";
-import RxDBReplicationGraphQL from "rxdb/plugins/replication-graphql";
-import RxDBSchemaCheckModule from "rxdb/plugins/schema-check";
-import RxDBValidateModule from "rxdb/plugins/validate";
-import { SubscriptionClient } from "subscriptions-transport-ws";
-
+import { addRxPlugin, createRxDatabase } from 'rxdb';
+import { getRxStorageDexie } from 'rxdb/plugins/storage-dexie';
+import {
+  pullStreamBuilderFromRxSchema,
+  pullQueryBuilderFromRxSchema,
+  pushQueryBuilderFromRxSchema,
+  replicateGraphQL
+} from 'rxdb/plugins/replication-graphql';
 import {
   OFFLINE_ACTIONS_ENDPOINT_URL,
   OFFLINE_ACTIONS_SYNC_URL,
+  DB_VERSION  
 } from "../../constants/belis";
 import { actionSchema } from "./schema";
+import { wrappedValidateAjvStorage } from 'rxdb/plugins/validate-ajv';
+import { RxDBUpdatePlugin } from 'rxdb/plugins/update';
+import { RxDBQueryBuilderPlugin } from 'rxdb/plugins/query-builder';
+import { RxDBLeaderElectionPlugin } from 'rxdb/plugins/leader-election';
 
-RxDB.plugin(RxDBSchemaCheckModule);
-RxDB.plugin(RxDBErrorMessagesModule);
-RxDB.plugin(RxDBValidateModule);
-RxDB.plugin(RxDBReplicationGraphQL);
-RxDB.plugin(require("pouchdb-adapter-idb"));
+addRxPlugin(RxDBUpdatePlugin);
+addRxPlugin(RxDBQueryBuilderPlugin);
+addRxPlugin(RxDBLeaderElectionPlugin);
 
 const completedIds = {};
 export const ERR_CODE_INVALID_JWT = "invalid-jwt";
@@ -24,45 +28,11 @@ export const ERR_CODE_NO_CONNECTION = "Failed to fetch";
 const ERR_MSG_INVALID_JWT = "Could not verify JWT";
 
 const batchSize = 5;
-const pullQueryBuilder = (userId) => {
-  return (doc) => {
-    if (!doc) {
-      doc = {
-        id: "",
-        updatedAt: new Date(0).toUTCString(),
-      };
-    }
+const batchSizePush = 5;
 
-    const query = `{
-            action(
-                where: {
-                    _and: [
-                        {updatedAt: {_gt: "${doc.updatedAt}"}},
-                        {applicationId: {_eq: "${userId}"}}
-                    ]
-                },
-                limit: ${batchSize},
-                order_by: [{updatedAt: asc}, {id: asc}]
-            ) {
-                id
-                jwt
-                isCompleted
-                applicationId
-                createdAt
-                updatedAt
-                action,
-                parameter,
-                result,
-                status,
-                deleted
-            }
-        }`;
-    return {
-      query,
-      variables: {},
-    };
-  };
-};
+const toTimeString = (dateObject) => {
+  return dateObject.getFullYear() + "-" + (dateObject.getMonth() + 1) + "-" + dateObject.getDate() + "T" + dateObject.getHours() + ":" + dateObject.getMinutes() + ":" + dateObject.getSeconds() + "." + dateObject.getMilliseconds() + "+0" + (dateObject.getTimezoneOffset() / (-60)) + ":00";
+}
 
 const pushQueryBuilder = (doc) => {
   const query = `
@@ -73,14 +43,12 @@ const pushQueryBuilder = (doc) => {
                     constraint: action_pkey,
                     update_columns: [jwt, applicationId, isCompleted, action, parameter, result, updatedAt]
                 }){
-                returning {
-                  id
-                }
+                  affected_rows
             }
         }
      `;
   const variables = {
-    action: doc,
+    action: doc[0].newDocumentState,
   };
 
   const operationName = "InsertAction";
@@ -92,30 +60,112 @@ const pushQueryBuilder = (doc) => {
   };
 };
 
+const graphQLGenerationInput = {
+  actions: {
+      schema: actionSchema,
+      checkpointFields: [
+          'id',
+          'updatedAt'
+      ],
+      deletedField: 'deleted',
+      headerFields: ['Authorization']
+  }
+};
+
+const pullStreamBuilder = pullStreamBuilderFromRxSchema(
+  'actions',
+  graphQLGenerationInput.actions
+);
+
+
+const syncUrls = {
+  http: OFFLINE_ACTIONS_SYNC_URL,
+  ws: OFFLINE_ACTIONS_ENDPOINT_URL
+};
+
+
 export class GraphQLReplicator {
   constructor(db) {
     this.db = db;
     this.replicationState = null;
     this.subscriptionClient = null;
+    this.temporarySyncTime = null;
   }
+
+  pullQueryBuilder = (userId) => {
+    return (doc, limitParam) => {
+      if (!doc) {
+        doc = {
+          id: "",
+          updatedAt: new Date(0).toUTCString(),
+        };
+      }
+      let lastUpdate = doc.updatedAt;
+  
+      if (this.temporarySyncTime) {
+        let dateObject = new Date(this.temporarySyncTime);
+  
+        lastUpdate = toTimeString(dateObject);
+  
+        this.temporarySyncTime = undefined;
+      }
+
+      if (!lastUpdate) {
+        lastUpdate = new Date(0).toUTCString();
+      }
+  
+      doc = {
+        id: "",
+        updatedAt: lastUpdate,
+      };
+
+      const query = `{
+              action(
+                  where: {
+                      _and: [
+                          {updatedAt: {_gt: "${lastUpdate}"}},
+                          {applicationId: {_eq: "${userId}"}}
+                      ]
+                  },
+                  limit: ${batchSize},
+                  order_by: [{updatedAt: asc}, {id: asc}]
+              ) {
+                  id
+                  jwt
+                  isCompleted
+                  applicationId
+                  createdAt
+                  updatedAt
+                  action,
+                  parameter,
+                  result,
+                  status,
+                  deleted
+              }
+          }`;
+      return {
+        query,
+        variables: {},
+      };
+    };
+  };
+  
+  setSyncPoint(temporarySyncTime) {
+    this.temporarySyncTime = temporarySyncTime;
+  }
+
 
   async restart(auth, errorCallback, updateCallback) {
     if (this.replicationState) {
       this.replicationState.cancel();
     }
 
-    if (this.subscriptionClient) {
-      this.subscriptionClient.close();
-    }
+    // if (this.subscriptionClient) {
+    //   this.subscriptionClient.close();
+    // }
 
     this.replicationState = await this.setupGraphQLReplication(
       auth,
-      errorCallback
-    );
-    this.subscriptionClient = this.setupGraphQLSubscription(
-      auth,
-      this.replicationState,
-      updateCallback,
       errorCallback
     );
   }
@@ -154,87 +204,11 @@ export class GraphQLReplicator {
       }
     }
   }
+  
 
   async setupGraphQLReplication(auth, errorCallback) {
-    const replicationState = this.db.actions.syncGraphQL({
-      url: OFFLINE_ACTIONS_SYNC_URL,
-      headers: {
-        Authorization: `Bearer ${auth.idToken}`,
-      },
-      push: {
-        batchSize,
-        queryBuilder: pushQueryBuilder,
-      },
-      pull: {
-        queryBuilder: pullQueryBuilder(auth.userId),
-      },
-      live: true,
-
-      liveInterval: 1000 * 10, // 10 secs
-      deletedFlag: "deleted",
-      retryTime: 6000,
-    });
-
-    replicationState.error$.subscribe((err) => {
-      this.errorHandling(err, errorCallback);
-      // replicationState.cancel();
-    });
-
-    return replicationState;
-  }
-
-  setupGraphQLSubscription(
-    auth,
-    replicationState,
-    updateCallback,
-    errorCallback
-  ) {
-    // Change this url to point to your hasura graphql url
-    const wsClient = new SubscriptionClient(OFFLINE_ACTIONS_ENDPOINT_URL, {
-      reconnect: true,
-      connectionParams: {
-        headers: {
-          Authorization: `Bearer ${auth.idToken}`,
-        },
-      },
-      timeout: 1000 * 60,
-      onConnect: (msg) => {
-        console.log("SubscriptionClient.onConnect()");
-      },
-      connectionCallback: (err) => {
-        if (err) {
-          if (err === "Could not verify JWT: JWSError JWSInvalidSignature") {
-            console.log("cannot verify jwt");
-            if (errorCallback) {
-              errorCallback(ERR_CODE_INVALID_JWT);
-            }
-          }
-        }
-      },
-      reconnectionAttempts: 1,
-      inactivityTimeout: 0,
-      lazy: false,
-    });
-
-    const query = `subscription onActionChanged {
-            action ( where: {_and: {applicationId: {_eq: "${auth.userId}"}, _or: [{deleted: {_eq: true}}, {isCompleted: {_eq: false}}] }}){
-                id
-                jwt
-                isCompleted
-                applicationId
-                createdAt
-                updatedAt
-                action,
-                parameter,
-                result,
-                status,
-                deleted
-            }       
-        }`;
-
-    const ret = wsClient.request({ query });
-    const errorHandler = this.errorHandling;
-    const d = this.db;
+    const adb = this.db;
+    // adb.waitForLeaderShip();
 
     const removeUnusedAction = (act) => {
       if (act && isArray(act) && act.length > 0) {
@@ -252,74 +226,150 @@ export class GraphQLReplicator {
           return oldData;
         };
         //set the current jwt
-        act[0].atomicUpdate(changeFunction);
+        act[0].incrementalModify(changeFunction);
       }
     };
 
-    ret.subscribe({
-      next(data) {
-        console.log("subscription emitted => trigger run");
-        if (!d?.actions) {
-          //database schema was remove, so unsubscribe
-          wsClient.unsubscribeAll();
-          return;
-        }
-        if (data?.data?.action && data.data.action.length > 0) {
-          for (const action of data.data.action) {
-            if (action.deleted) {
-              d.actions.find({ id: action.id }).$.subscribe(removeUnusedAction);
-            } else if (action.status === 401) {
-              //wrong jwt was set
-              d.actions.find({ id: action.id }).$.subscribe(reactOn401);
-            } else if (action.result !== null && action.isCompleted === false) {
-              const reactOnCompletedAction = (act) => {
-                if (
-                  act &&
-                  isArray(act) &&
-                  act.length > 0 &&
-                  !act[0].isCompleted
-                ) {
-                  const changeFunction = (oldData) => {
-                    oldData.isCompleted = true;
-                    // when a value is null, the rxdb will throw an error
-                    if (oldData.result === null) {
-                      oldData.result = undefined;
-                    }
-                    if (oldData.status === null) {
-                      oldData.status = undefined;
-                    }
+    const replicationState = replicateGraphQL({
+      collection: adb.actions,
+      url: syncUrls,
+      headers: {
+          /* optional, set an auth header */
+          Authorization: `Bearer ${auth.idToken}`
+      },
+      push: {
+          batchSizePush,
+          queryBuilder: pushQueryBuilder,
+          responseModifier: async function(data) {
+              console.log('responseModifier');
+              console.log('out' + data);
 
-                    if (oldData?.parameter?.ImageData) {
-                      oldData.parameter.ImageData = "!locallyStripped";
+              if (JSON.stringify(data).indexOf('errors') !== -1) {
+                return data;
+              }
+
+              //an empty array should be returned, if the push request was successful
+              return [];
+          }
+      },
+      pull: {
+          batchSize,
+          queryBuilder: this.pullQueryBuilder(auth.userId),
+//          streamQueryBuilder: pullStreamBuilder,
+          includeWsHeaders: true,
+          responseModifier: async function(
+              plainResponse, // the exact response that was returned from the server
+              origin, // either 'handler' if plainResponse came from the pull.handler, or 'stream' if it came from the pull.stream
+              requestCheckpoint // if origin==='handler', the requestCheckpoint contains the checkpoint that was send to the backend
+            ) {
+              const docs = plainResponse;
+
+              let lastDoc = null;
+
+              for (let action of docs) {
+                lastDoc = action;
+                console.log("subscription emitted => trigger run");
+                if (action.deleted) {
+                  adb.actions.find({ id: action.id }).$.subscribe(removeUnusedAction);
+                } else if (action.status === 401) {
+                  //wrong jwt was set
+                  adb.actions.find({ id: action.id }).$.subscribe(reactOn401);
+                } else if (action.result !== null && action.isCompleted === false) {
+                  const reactOnCompletedAction = (act) => {
+                    if (
+                      act &&
+                      isArray(act) &&
+                      act.length > 0 &&
+                      !act[0].isCompleted
+                    ) {
+                      const changeFunction = (oldData) => {
+                        oldData.isCompleted = true;
+                        // when a value is null, the rxdb will throw an error
+                        if (oldData.result === null) {
+                          oldData.result = undefined;
+                        }
+                        if (oldData.status === null) {
+                          oldData.status = undefined;
+                        }
+    
+                        if (oldData?.parameter?.ImageData) {
+                          oldData.parameter.ImageData = "!locallyStripped";
+                        }
+                        return oldData;
+                      };
+                      //set isCompelted to true
+                      act[0].incrementalModify(changeFunction);
+                      //call the callback function
+                      // if (
+                      //   updateCallback != null &&
+                      //   completedIds[action.id] === undefined
+                      // ) {
+                      //   completedIds[action.id] = true;
+                      //   updateCallback(action);
+                      // }
                     }
-                    return oldData;
                   };
-                  //set isCompelted to true
-                  act[0].atomicUpdate(changeFunction);
-                  //call the callback function
-                  if (
-                    updateCallback != null &&
-                    completedIds[action.id] === undefined
-                  ) {
-                    completedIds[action.id] = true;
-                    updateCallback(action);
-                  }
+                  adb.actions
+                    .find({ id: action.id })
+                    .$.subscribe(reactOnCompletedAction);
                 }
+              }
+
+
+              let retCheckpoint;
+              
+              if (lastDoc) {
+                retCheckpoint = {
+                  id: lastDoc.id,
+                  updatedAt: lastDoc.updatedAt
+                }
+              } else {
+                retCheckpoint = requestCheckpoint
+              }
+              
+
+              return {
+                  documents: docs,
+                  checkpoint: retCheckpoint
               };
-              d.actions
-                .find({ id: action.id })
-                .$.subscribe(reactOnCompletedAction);
+            }
+      },
+      onConnect: (msg) => {
+        console.log("SubscriptionClient.onConnect()");
+      },
+      connectionCallback: (err) => {
+        if (err) {
+          if (err === "Could not verify JWT: JWSError JWSInvalidSignature") {
+            console.log("cannot verify jwt");
+            if (errorCallback) {
+              errorCallback(ERR_CODE_INVALID_JWT);
             }
           }
         }
-        replicationState.run();
       },
-      error(error) {
-        errorHandler(error, errorCallback);
-      },
+    live: true,
+      //todo: If you want to run the pull replication on interval, you can send a RESYNC event manually in a loop.
+//      liveInterval: 1000 * 10, // 10 secs
+      deletedField: 'deleted',
+      retryTime: 6000,
     });
 
-    return wsClient;
+    replicationState.error$.subscribe((err) => {
+      this.errorHandling(err, errorCallback);
+      // replicationState.cancel();
+    });
+
+    if (this.intervalId) {
+      clearInterval(this.intervalId);
+    }
+
+    const refresh = () => {
+      replicationState.emitEvent('RESYNC');
+    }
+
+    this.intervalId = setInterval(refresh, 10000);
+
+    return replicationState;
   }
 }
 
@@ -327,15 +377,18 @@ export const createDb = async (login) => {
   console.log("createDb(", login);
   //convert login to loewercase
   const loginLowerCase = (login || "").toLowerCase();
-  if (window["db_" + loginLowerCase]) {
-    return window["db_" + loginLowerCase];
+  if (window["db_" + DB_VERSION + "_" + loginLowerCase]) {
+    return window["db_" + DB_VERSION + "_" + loginLowerCase];
   }
-  const db = await RxDB.create({
-    name: "actiondb_" + loginLowerCase,
-    adapter: "idb",
-  });
+  const db = await createRxDatabase({
+    name: "actiondb_" + DB_VERSION + "_" + loginLowerCase,
+    storage: wrappedValidateAjvStorage({
+      storage: getRxStorageDexie()
+    }),
+    multiInstance: true
+  });  
 
-  window["db_" + loginLowerCase] = db; // write to window for debugging
+  window["db_" + DB_VERSION + "_" + loginLowerCase] = db; // write to window for debugging
   let ready = true;
   let attempts = 0;
 
@@ -344,9 +397,8 @@ export const createDb = async (login) => {
       ready = true;
       // sometimes, the method invocation db.collection(...) fails, because the db connection is closed,
       // but a retry solves this problem
-      await db.collection({
-        name: "actions",
-        schema: actionSchema,
+      await db.addCollections({
+        actions: { schema: actionSchema }
       });
       attempts += 1;
     } catch (exception) {

@@ -10,6 +10,10 @@ import {
   integrateIntermediateResultsIntofeatureCollection,
   setDone,
 } from "./featureCollection";
+import {
+  DB_VERSION  
+} from "../../../constants/belis";
+
 
 const initialState = { tasks: [], rawTasks: [], intermediateResults: {} };
 
@@ -123,7 +127,7 @@ export const reInitialize = () => {
     const jwt = getJWT(state);
     const login = getLoginFromJWT(jwt);
     const loginLowerCase = (login || "").toLowerCase();
-    const d = window["db_" + loginLowerCase];
+    const d = window["db_" + DB_VERSION + "_" + loginLowerCase];
     let rep = new offlineDatabase.GraphQLReplicator(d);
 
     const errorCallback = (error) => {
@@ -201,6 +205,22 @@ export const resyncDb = () => {
     }
   };
 };
+
+
+export const setSyncPoint = (time) => {
+  const timeObj = time;
+
+  return async (dispatch, getState) => {
+    const state = getState();
+    const rep = getRep(state);
+    const db = getDB(state);
+
+    if (rep) {
+      rep.setSyncPoint(timeObj);
+    }
+  };
+};
+
 
 export const clearIntermediateResults = (object_type) => {
   return async (dispatch, getState) => {

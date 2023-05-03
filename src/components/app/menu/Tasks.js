@@ -1,8 +1,11 @@
 import { Button, Table, Typography } from "antd";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-
-import { downloadTasks, getTasks, resyncDb } from "../../../core/store/slices/offlineActionDb";
+import { FontAwesomeIcon as Icon } from "@fortawesome/react-fontawesome";
+import {
+  faRedo,
+} from "@fortawesome/free-solid-svg-icons";
+import { downloadTasks, getTasks, resyncDb, setSyncPoint } from "../../../core/store/slices/offlineActionDb";
 
 const Tasks = () => {
   const dispatch = useDispatch();
@@ -49,7 +52,7 @@ const Tasks = () => {
       title: "Datum",
       dataIndex: "datum",
       key: "datum",
-      render: (date) => new Date(date).toLocaleString(),
+      render: (date) => <div onClick={(e) => {dispatch(setSyncPoint(new Date(new Date(date).getTime() - 100)));}}>{new Date(date).toLocaleString()} </div>,
     },
     { title: "Fachobjekt", dataIndex: "fachobjekt", key: "fachobjekt" },
     { title: "Beschreibung", dataIndex: "beschreibung", key: "beschreibung" },
