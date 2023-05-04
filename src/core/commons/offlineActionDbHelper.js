@@ -211,13 +211,13 @@ export class GraphQLReplicator {
     // adb.waitForLeaderShip();
 
     const removeUnusedAction = (act) => {
-      if (act && isArray(act) && act.length > 0) {
-        act[0].remove();
+      if (act) {
+        act.remove();
       }
     };
 
     const reactOn401 = (act) => {
-      if (act && isArray(act) && act.length > 0 && act[0].status === 401) {
+      if (act && act.status === 401) {
         const changeFunction = (oldData) => {
           oldData.jwt = auth.idToken;
           // when a value is null, the rxdb will throw an error
@@ -226,7 +226,7 @@ export class GraphQLReplicator {
           return oldData;
         };
         //set the current jwt
-        act[0].incrementalModify(changeFunction);
+        act.incrementalModify(changeFunction);
       }
     };
 
@@ -270,17 +270,15 @@ export class GraphQLReplicator {
                 lastDoc = action;
                 console.log("subscription emitted => trigger run");
                 if (action.deleted) {
-                  adb.actions.find({ id: action.id }).$.subscribe(removeUnusedAction);
+                  adb.actions.findOne({selector: { id: action.id }}).exec().then(removeUnusedAction);
                 } else if (action.status === 401) {
                   //wrong jwt was set
-                  adb.actions.find({ id: action.id }).$.subscribe(reactOn401);
+                  adb.actions.findOne({selector: { id: action.id }}).exec().then(reactOn401);
                 } else if (action.result !== null && action.isCompleted === false) {
                   const reactOnCompletedAction = (act) => {
                     if (
                       act &&
-                      isArray(act) &&
-                      act.length > 0 &&
-                      !act[0].isCompleted
+                      !act.isCompleted
                     ) {
                       const changeFunction = (oldData) => {
                         oldData.isCompleted = true;
@@ -298,7 +296,7 @@ export class GraphQLReplicator {
                         return oldData;
                       };
                       //set isCompelted to true
-                      act[0].incrementalModify(changeFunction);
+                      act.incrementalModify(changeFunction);
                       //call the callback function
                       // if (
                       //   updateCallback != null &&
@@ -310,8 +308,8 @@ export class GraphQLReplicator {
                     }
                   };
                   adb.actions
-                    .find({ id: action.id })
-                    .$.subscribe(reactOnCompletedAction);
+                    .findOne({selector: { id: action.id }})
+                    .exec().then(reactOnCompletedAction);
                 }
               }
 
