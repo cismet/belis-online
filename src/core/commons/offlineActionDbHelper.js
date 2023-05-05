@@ -42,8 +42,16 @@ const pushQueryBuilder = (doc) => {
             }
         }
      `;
+  
+  let acts = [];
+  let i = 0;
+
+  for (let action of doc) {
+    acts[i] = action.newDocumentState
+    ++i;
+  }   
   const variables = {
-    action: doc[0].newDocumentState,
+    action: acts,
   };
 
   const operationName = "InsertAction";
