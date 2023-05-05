@@ -110,7 +110,8 @@ export class GraphQLReplicator {
                   where: {
                       _and: [
                           {updatedAt: {_gt: "${lastUpdate}"}},
-                          {applicationId: {_eq: "${userId}"}}
+                          {applicationId: {_eq: "${userId}"}},
+                          {deleted: {_eq: false}}
                       ]
                   },
                   limit: ${batchSize},
@@ -253,6 +254,11 @@ export class GraphQLReplicator {
 
             for (let action of docs) {
               lastDoc = action;
+
+              //null values are not allowed, so they must be replaced by undefined
+              if (lastDoc.result === null) {
+                lastDoc.result = undefined;
+              }
             }
 
             let retCheckpoint;
