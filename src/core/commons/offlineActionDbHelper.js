@@ -1,10 +1,6 @@
-import { isArray } from "lodash";
 import { addRxPlugin, createRxDatabase } from 'rxdb';
 import { getRxStorageDexie } from 'rxdb/plugins/storage-dexie';
 import {
-  pullStreamBuilderFromRxSchema,
-  pullQueryBuilderFromRxSchema,
-  pushQueryBuilderFromRxSchema,
   replicateGraphQL
 } from 'rxdb/plugins/replication-graphql';
 import {
@@ -22,13 +18,12 @@ addRxPlugin(RxDBUpdatePlugin);
 addRxPlugin(RxDBQueryBuilderPlugin);
 addRxPlugin(RxDBLeaderElectionPlugin);
 
-const completedIds = {};
 export const ERR_CODE_INVALID_JWT = "invalid-jwt";
 export const ERR_CODE_NO_CONNECTION = "Failed to fetch";
 const ERR_MSG_INVALID_JWT = "Could not verify JWT";
 
 const batchSize = 5;
-const batchSizePush = 5;
+const batchSizePush = 1;
 
 const toTimeString = (dateObject) => {
   return dateObject.getFullYear() + "-" + (dateObject.getMonth() + 1) + "-" + dateObject.getDate() + "T" + dateObject.getHours() + ":" + dateObject.getMinutes() + ":" + dateObject.getSeconds() + "." + dateObject.getMilliseconds() + "+0" + (dateObject.getTimezoneOffset() / (-60)) + ":00";
@@ -59,23 +54,6 @@ const pushQueryBuilder = (doc) => {
     operationName,
   };
 };
-
-const graphQLGenerationInput = {
-  actions: {
-      schema: actionSchema,
-      checkpointFields: [
-          'id',
-          'updatedAt'
-      ],
-      deletedField: 'deleted',
-      headerFields: ['Authorization']
-  }
-};
-
-const pullStreamBuilder = pullStreamBuilderFromRxSchema(
-  'actions',
-  graphQLGenerationInput.actions
-);
 
 
 const syncUrls = {
@@ -166,7 +144,8 @@ export class GraphQLReplicator {
 
     this.replicationState = await this.setupGraphQLReplication(
       auth,
-      errorCallback
+      errorCallback,
+      updateCallback
     );
   }
 
@@ -206,7 +185,7 @@ export class GraphQLReplicator {
   }
   
 
-  async setupGraphQLReplication(auth, errorCallback) {
+  async setupGraphQLReplication(auth, errorCallback, updateCallback) {
     const adb = this.db;
     // adb.waitForLeaderShip();
 
@@ -255,82 +234,35 @@ export class GraphQLReplicator {
       pull: {
           batchSize,
           queryBuilder: this.pullQueryBuilder(auth.userId),
-//          streamQueryBuilder: pullStreamBuilder,
           includeWsHeaders: true,
           responseModifier: async function(
-              plainResponse, // the exact response that was returned from the server
-              origin, // either 'handler' if plainResponse came from the pull.handler, or 'stream' if it came from the pull.stream
-              requestCheckpoint // if origin==='handler', the requestCheckpoint contains the checkpoint that was send to the backend
-            ) {
-              const docs = plainResponse;
+            plainResponse, 
+            origin, 
+            requestCheckpoint
+          ) {
+            const docs = plainResponse;
+            let lastDoc = null;
 
-              let lastDoc = null;
-
-              for (let action of docs) {
-                lastDoc = action;
-                console.log("subscription emitted => trigger run");
-                if (action.deleted) {
-                  adb.actions.findOne({selector: { id: action.id }}).exec().then(removeUnusedAction);
-                } else if (action.status === 401) {
-                  //wrong jwt was set
-                  adb.actions.findOne({selector: { id: action.id }}).exec().then(reactOn401);
-                } else if (action.result !== null && action.isCompleted === false) {
-                  const reactOnCompletedAction = (act) => {
-                    if (
-                      act &&
-                      !act.isCompleted
-                    ) {
-                      const changeFunction = (oldData) => {
-                        oldData.isCompleted = true;
-                        // when a value is null, the rxdb will throw an error
-                        if (oldData.result === null) {
-                          oldData.result = undefined;
-                        }
-                        if (oldData.status === null) {
-                          oldData.status = undefined;
-                        }
-    
-                        if (oldData?.parameter?.ImageData) {
-                          oldData.parameter.ImageData = "!locallyStripped";
-                        }
-                        return oldData;
-                      };
-                      //set isCompelted to true
-                      act.incrementalModify(changeFunction);
-                      //call the callback function
-                      // if (
-                      //   updateCallback != null &&
-                      //   completedIds[action.id] === undefined
-                      // ) {
-                      //   completedIds[action.id] = true;
-                      //   updateCallback(action);
-                      // }
-                    }
-                  };
-                  adb.actions
-                    .findOne({selector: { id: action.id }})
-                    .exec().then(reactOnCompletedAction);
-                }
-              }
-
-
-              let retCheckpoint;
-              
-              if (lastDoc) {
-                retCheckpoint = {
-                  id: lastDoc.id,
-                  updatedAt: lastDoc.updatedAt
-                }
-              } else {
-                retCheckpoint = requestCheckpoint
-              }
-              
-
-              return {
-                  documents: docs,
-                  checkpoint: retCheckpoint
-              };
+            for (let action of docs) {
+              lastDoc = action;
             }
+
+            let retCheckpoint;
+            
+            if (lastDoc) {
+              retCheckpoint = {
+                id: lastDoc.id,
+                updatedAt: lastDoc.updatedAt
+              }
+            } else {
+              retCheckpoint = requestCheckpoint
+            }
+
+            return {
+                documents: docs,
+                checkpoint: retCheckpoint
+            };
+          }
       },
       onConnect: (msg) => {
         console.log("SubscriptionClient.onConnect()");
@@ -346,8 +278,6 @@ export class GraphQLReplicator {
         }
       },
     live: true,
-      //todo: If you want to run the pull replication on interval, you can send a RESYNC event manually in a loop.
-//      liveInterval: 1000 * 10, // 10 secs
       deletedField: 'deleted',
       retryTime: 6000,
     });
@@ -357,6 +287,53 @@ export class GraphQLReplicator {
       // replicationState.cancel();
     });
 
+    replicationState.received$.subscribe((doc) => {
+        console.dir(doc);
+
+        let action = doc;
+        console.log("subscription emitted => trigger run");
+        if (action.deleted) {
+          adb.actions.findOne({selector: { id: action.id }}).exec().then(removeUnusedAction);
+        } else if (action.status === 401) {
+          //wrong jwt was set
+          adb.actions.findOne({selector: { id: action.id }}).exec().then(reactOn401);
+        } else if (action.result !== null && action.isCompleted === false) {
+          const reactOnCompletedAction = (act) => {
+            if (
+              act &&
+              !act.isCompleted
+            ) {
+              const changeFunction = (oldData) => {
+                oldData.isCompleted = true;
+                // when a value is null, the rxdb will throw an error
+                if (oldData.result === null) {
+                  oldData.result = undefined;
+                }
+                if (oldData.status === null) {
+                  oldData.status = undefined;
+                }
+
+                if (oldData?.parameter?.ImageData) {
+                  oldData.parameter.ImageData = "!locallyStripped";
+                }
+                return oldData;
+              };
+              //set isCompelted to true
+              act.incrementalModify(changeFunction);
+
+              //call the callback function
+              if (updateCallback != null) {
+                updateCallback(action);
+              }
+            }
+          };
+          adb.actions
+            .findOne({selector: { id: action.id }})
+            .exec().then(reactOnCompletedAction);
+        }
+      }
+    );
+
     if (this.intervalId) {
       clearInterval(this.intervalId);
     }
@@ -365,7 +342,7 @@ export class GraphQLReplicator {
       replicationState.emitEvent('RESYNC');
     }
 
-    this.intervalId = setInterval(refresh, 10000);
+    this.intervalId = setInterval(refresh, 5000);
 
     return replicationState;
   }
