@@ -141,6 +141,15 @@ export class GraphQLReplicator {
     this.temporarySyncTime = temporarySyncTime;
   }
 
+  dispose() {
+    if (this.replicationState) {
+      this.replicationState.cancel();
+    }
+
+    if (this.intervalId) {
+      clearInterval(this.intervalId);
+    }
+  }
 
   async restart(auth, errorCallback, updateCallback) {
     if (this.replicationState) {
@@ -151,7 +160,7 @@ export class GraphQLReplicator {
     //   this.subscriptionClient.close();
     // }
 
-    this.replicationState = await this.setupGraphQLReplication(
+    this.replicationState = this.setupGraphQLReplication(
       auth,
       errorCallback,
       updateCallback
@@ -194,7 +203,7 @@ export class GraphQLReplicator {
   }
   
 
-  async setupGraphQLReplication(auth, errorCallback, updateCallback) {
+  setupGraphQLReplication(auth, errorCallback, updateCallback) {
     const adb = this.db;
     // adb.waitForLeaderShip();
 
@@ -311,7 +320,7 @@ export class GraphQLReplicator {
         } else if (action.status === 401) {
           //wrong jwt was set
           adb.actions.findOne({selector: { id: action.id }}).exec().then(reactOn401);
-        } else if (action.result !== null && action.isCompleted === false) {
+        } else if (action.result && action.isCompleted === false) {
           const reactOnCompletedAction = (act) => {
             if (
               act &&

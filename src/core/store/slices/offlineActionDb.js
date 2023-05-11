@@ -125,9 +125,15 @@ export const reInitialize = () => {
   return async (dispatch, getState) => {
     const state = getState();
     const jwt = getJWT(state);
+    const oldRep = getRep(state);
     const login = getLoginFromJWT(jwt);
     const loginLowerCase = (login || "").toLowerCase();
     const d = window["db_" + DB_VERSION + "_" + loginLowerCase];
+
+    if (oldRep) {
+      oldRep.dispose();
+    }
+
     let rep = new offlineDatabase.GraphQLReplicator(d);
 
     const errorCallback = (error) => {
