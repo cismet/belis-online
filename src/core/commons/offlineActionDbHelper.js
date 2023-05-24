@@ -377,39 +377,61 @@ export const createDb = async (login) => {
   const loginLowerCase = (login || "").toLowerCase();
   if (window["db_" + DB_VERSION + "_" + loginLowerCase]) {
     return window["db_" + DB_VERSION + "_" + loginLowerCase];
-  }
-  const db = await createRxDatabase({
-    name: "actiondb_" + DB_VERSION + "_" + loginLowerCase,
-    storage: wrappedValidateAjvStorage({
-      storage: getRxStorageDexie()
-    }),
-    multiInstance: true
-  });  
+  } else if (window["db_" + DB_VERSION + "_" + loginLowerCase + "___WAIT"]) {
+    let attempts = 0;
+    do {
+      await delay(1000);
+      ++attempts;
+    } while (window["db_" + DB_VERSION + "_" + loginLowerCase + "___WAIT"] && attempts < 20);
 
-  window["db_" + DB_VERSION + "_" + loginLowerCase] = db; // write to window for debugging
-  let ready = true;
-  let attempts = 0;
-
-  do {
-    try {
-      ready = true;
-      // sometimes, the method invocation db.collection(...) fails, because the db connection is closed,
-      // but a retry solves this problem
-      await db.addCollections({
-        actions: { schema: actionSchema }
-      });
-      attempts += 1;
-    } catch (exception) {
-      ready = false;
-      //wait one second and try it again
-      delay(1000);
+    if (window["db_" + DB_VERSION + "_" + loginLowerCase]) {
+      return window["db_" + DB_VERSION + "_" + loginLowerCase];
     }
-  } while (!ready && attempts < 3);
+  }
 
-  return db;
+  window["db_" + DB_VERSION + "_" + loginLowerCase + "___WAIT"] = true;
+
+  try {
+    const db = await createRxDatabase({
+      name: "actiondb_" + DB_VERSION + "_" + loginLowerCase,
+      storage: wrappedValidateAjvStorage({
+        storage: getRxStorageDexie()
+      }),
+      multiInstance: true
+    });  
+
+    let ready = true;
+    let attempts = 0;
+
+    do {
+      try {
+        ready = true;
+        // sometimes, the method invocation db.collection(...) fails, because the db connection is closed,
+        // but a retry solves this problem
+        await db.addCollections({
+          actions: { schema: actionSchema }
+        });
+        attempts += 1;
+      } catch (exception) {
+        ready = false;
+        //wait one second and try it again
+        await delay(1000);
+      }
+    } while (!ready && attempts < 3);
+
+    window["db_" + DB_VERSION + "_" + loginLowerCase] = db; // write to window
+    window["db_" + DB_VERSION + "_" + loginLowerCase + "___WAIT"] = undefined;
+
+    return db;
+  } catch (exception) {
+    console.log("exception while creating db", exception);
+
+    window["db_" + DB_VERSION + "_" + loginLowerCase + "___WAIT"] = undefined;
+    return null;
+  }
 };
 
-const delay = (millis) =>
+const delay = async (millis) =>
   new Promise((resolve, reject) => {
     setTimeout((_) => resolve(), millis);
   });

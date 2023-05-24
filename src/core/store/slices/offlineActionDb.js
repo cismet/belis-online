@@ -65,10 +65,10 @@ export const getTasks = (state) => {
 export const getRawTasks = (state) => {
   return state.offlineActionDb.rawTasks;
 };
-export const initialize = () => {
+export const initialize = (storedJWT) => {
   return async (dispatch, getState) => {
     const state = getState();
-    const jwt = getJWT(state);
+    const jwt = (storedJWT ? storedJWT : getJWT(state));
     const login = getLoginFromJWT(jwt);
     offlineDatabase
       .createDb(login)
@@ -121,10 +121,10 @@ export const initialize = () => {
   };
 };
 
-export const reInitialize = () => {
+export const reInitialize = (storedJWT) => {
   return async (dispatch, getState) => {
     const state = getState();
-    const jwt = getJWT(state);
+    const jwt = (storedJWT ? storedJWT : getJWT(state));
     const oldRep = getRep(state);
     const login = getLoginFromJWT(jwt);
     const loginLowerCase = (login || "").toLowerCase();
@@ -186,14 +186,14 @@ export const truncateActionTables = () => {
   };
 };
 
-export const resyncDb = () => {
+export const resyncDb = (currentJwt) => {
   return async (dispatch, getState) => {
     const state = getState();
     const rep = getRep(state);
     const db = getDB(state);
 
     if (rep) {
-      const jwt = getJWT(getState());
+      const jwt = (currentJwt ? currentJwt : getJWT(getState()));
 
       const errorCallback = (error) => {
         console.log("error occured", error);

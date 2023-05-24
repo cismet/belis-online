@@ -264,16 +264,16 @@ const View = () => {
 
     if (storedJWT) {
       if (window["db_" + DB_VERSION + "_" + loginLowerCase]) {
-        dispatch(reInitialize());
+        dispatch(reInitialize(storedJWT));
       } else {
-        dispatch(initialize());
+        dispatch(initialize(storedJWT));
       }
     }
   }, [storedJWT]);
 
   useEffect(() => {
     if (onlineStatus === true) {
-      dispatch(resyncDb());
+      dispatch(resyncDb(jwt));
       dispatch(setDone(true));
     } else {
       dispatch(doHealthCheck(jwt));
