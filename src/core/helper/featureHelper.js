@@ -614,7 +614,7 @@ export const integrateIntermediateResults = (feature, intermediateResults) => {
               console.log("xxx found a candidate to incorportae intermediate changes", protIR);
               //check if arbeitsprotokoll already exists (ccnonce check)
               const found = item.ar_protokolleArray.find((p) => {
-                return p.ccnonce === protIR.ccnonce;
+                return p.arbeitsprotokoll.ccnonce === protIR.ccnonce;
               });
               if (!found) {
                 const newArbeitsprotokoll = {
@@ -669,9 +669,8 @@ export const integrateIntermediateResults = (feature, intermediateResults) => {
                 console.log("xxx newArbeitsprotokoll", newArbeitsprotokoll);
 
                 item.ar_protokolleArray.push(newArbeitsprotokoll);
+                item.iv_included = true;
               }
-
-              item.iv_included = true;
             }
           }
         }
