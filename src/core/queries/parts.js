@@ -368,10 +368,12 @@ dokumenteArray {
 }
 fk_dk1: fk_dk1_tkey_doppelkommando {
   id
+  pk
   beschreibung
 }
 fk_dk2: fk_dk2_tkey_doppelkommando {
   id
+  pk
   beschreibung
 }
 

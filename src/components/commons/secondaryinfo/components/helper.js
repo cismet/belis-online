@@ -90,7 +90,14 @@ export const addDotThumbnail = (_url) => {
   return url;
 };
 
-export const getSquaredThumbnails = ({ docs, type, jwt, setIndex, setVisible }) => {
+export const getSquaredThumbnails = ({
+  docs,
+  type,
+  jwt,
+  setIndex,
+  setVisible,
+  openLightBox = true,
+}) => {
   if (docs === undefined) {
     console.trace();
     return null;
@@ -106,8 +113,10 @@ export const getSquaredThumbnails = ({ docs, type, jwt, setIndex, setVisible }) 
       <div style={{ width: "75px", height: "75px", overflow: "hidden", margin: "3px" }}>
         <img
           onClick={() => {
-            setIndex(index);
-            setVisible(true);
+            if (openLightBox) {
+              setIndex(index);
+              setVisible(true);
+            }
           }}
           alt=''
           style={{ width: "100%", height: "100%", objectFit: "cover" }}

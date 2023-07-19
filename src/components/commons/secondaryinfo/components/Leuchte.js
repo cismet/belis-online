@@ -45,6 +45,7 @@ const getLayout4Leuchte = ({
   setIndex,
   setVisible,
   showActions = true,
+  openLightBox = true,
 }) => {
   const item = feature.properties;
   // const item = leuchteMitAllenAttributen;
@@ -68,8 +69,10 @@ const getLayout4Leuchte = ({
       {mainDoc && (
         <img
           onClick={() => {
-            setVisible(true);
-            setIndex(0);
+            if (openLightBox) {
+              setVisible(true);
+              setIndex(0);
+            }
           }}
           alt='Bild'
           style={{
@@ -152,7 +155,7 @@ const getLayout4Leuchte = ({
             {clearOptionalDescriptionItems(leuchteItems)}
           </Descriptions>
 
-          {getSquaredThumbnails({ docs, type: "Leuchte", jwt, setIndex, setVisible })}
+          {getSquaredThumbnails({ docs, type: "Leuchte", jwt, setIndex, setVisible, openLightBox })}
         </Col>
         <Col span={12}>{getTimelineForEvents({ events })}</Col>
       </Row>
@@ -168,7 +171,9 @@ const getLayout4Leuchte = ({
       <Descriptions column={{ xs: 1, sm: 3, md: 3, lg: 3, xxl: 3 }} layout='horizontal' bordered>
         {item?.fk_dk1 && (
           <>
-            <Descriptions.Item label='DK 1'>{item?.fk_dk1?.pk}</Descriptions.Item>
+            <Descriptions.Item label='DK 1'>
+              <span title={item?.fk_dk1?.beschreibung}>{item?.fk_dk1?.pk}</span>
+            </Descriptions.Item>
             <Descriptions.Item label='Anzahl DK 1'>{item?.anzahl_1dk}</Descriptions.Item>
             <Descriptions.Item label='Anschlussleistung DK 1'>
               {item?.anschlussleistung_1dk} W
@@ -177,7 +182,9 @@ const getLayout4Leuchte = ({
         )}
         {item?.fk_dk2 && (
           <>
-            <Descriptions.Item label='DK 2'>{item?.fk_dk2?.pk}</Descriptions.Item>
+            <Descriptions.Item label='DK 2'>
+              <span title={item?.fk_dk2?.beschreibung}>{item?.fk_dk2?.pk}</span>
+            </Descriptions.Item>
             <Descriptions.Item label='Anzahl DK 2'>{item?.anzahl_2dk}</Descriptions.Item>
             <Descriptions.Item label='Anschlussleistung DK 2'>
               {item?.anschlussleistung_2dk} W
@@ -245,7 +252,7 @@ const getLayout4Leuchte = ({
         {clearOptionalDescriptionItems(leuchtTypItems)}
         {/* {leuchtTypItems} */}
       </Descriptions>
-      {getSquaredThumbnails({ docs, type: "Leuchtentyp", jwt, setIndex, setVisible })}
+      {getSquaredThumbnails({ docs, type: "Leuchtentyp", jwt, setIndex, setVisible, openLightBox })}
     </SecondaryInfoPanelSection>
   );
 

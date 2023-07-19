@@ -140,7 +140,6 @@ const getSubActionInfoForAddIncident = ({ selectedFeature, selectedArbeitsauftra
   const vcard = getVCard(selectedFeature);
   let subs = [];
   //check if selected feature is a tdta_leuchte
-  console.log("xxx selectedFeature", selectedFeature);
 
   if (selectedFeature.featuretype === "tdta_leuchten") {
     if (selectedFeature.properties.fk_standort) {

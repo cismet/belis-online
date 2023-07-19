@@ -17,7 +17,11 @@ import { getZoom } from "./zoom";
 
 const focusedSearchMinimumZoomThreshhold = 18;
 const searchMinimumZoomThreshhold = 19;
-export const MODES = { OBJECTS: "OBJECTS", TASKLISTS: "TASKLISTS", PROTOCOLS: "PROTOCOLS" };
+export const MODES = {
+  OBJECTS: "OBJECTS",
+  TASKLISTS: "TASKLISTS",
+  PROTOCOLS: "PROTOCOLS",
+};
 
 export const initialFilter = {
   tdta_leuchten: { title: "Leuchten", enabled: true },
@@ -119,7 +123,8 @@ const featureCollectionSlice = createSlice({
 
       if (state.selectedFeature[mode]) {
         // const oldSelectedFeature = fc.find((f) => f.id === state.selectedFeature.id);
-        const oldSelectedFeature = fc[state.featuresMap[mode][state.selectedFeature[mode].id]];
+        const oldSelectedFeature =
+          fc[state.featuresMap[mode][state.selectedFeature[mode].id]];
         if (oldSelectedFeature) {
           if (oldSelectedFeature?.id !== selectedFeature?.id) {
             oldSelectedFeature.selected = false;
@@ -129,8 +134,9 @@ const featureCollectionSlice = createSlice({
       }
       if (selectedFeature) {
         // state.selectedFeature = fc.find((f) => f.id === selectedFeature.id);
-        state.selectedFeature[mode] = fc[state.featuresMap[mode][selectedFeature.id]];
-      } else if (selectedFeatureIndex) {
+        state.selectedFeature[mode] =
+          fc[state.featuresMap[mode][selectedFeature.id]];
+      } else if (selectedFeatureIndex !== undefined) {
         state.selectedFeature[mode] = fc[selectedFeatureIndex];
       } else {
         state.selectedFeature[mode] = null;
@@ -175,23 +181,28 @@ export const getFeatureCollection = (state) => {
 export const getFeatureCollections = (state) => {
   return state.featureCollection.features;
 };
-export const isDone = (state) => state.featureCollection.done[state.featureCollection.mode];
+export const isDone = (state) =>
+  state.featureCollection.done[state.featureCollection.mode];
 export const getDones = (state) => state.featureCollection.done;
 
 export const getFilter = (state) => state.featureCollection.filter;
-export const getOrigin = (state) => state.featureCollection.origin[state.featureCollection.mode];
+export const getOrigin = (state) =>
+  state.featureCollection.origin[state.featureCollection.mode];
 export const getOrigins = (state) => state.featureCollection.origin;
 
 export const getFeatureCollectionMode = (state) => state.featureCollection.mode;
 export const getSelectedFeature = (state) =>
   state.featureCollection.selectedFeature[state.featureCollection.mode];
-export const getSelectedFeaturesForAllModes = (state) => state.featureCollection.selectedFeature;
+export const getSelectedFeaturesForAllModes = (state) =>
+  state.featureCollection.selectedFeature;
 const getRequestBasis = (state) => state.featureCollection.requestBasis;
 export const isInFocusMode = (state) => state.featureCollection.inFocusMode;
-export const isSecondaryInfoVisible = (state) => state.featureCollection.secondaryInfoVisible;
+export const isSecondaryInfoVisible = (state) =>
+  state.featureCollection.secondaryInfoVisible;
 export const getFeatureCollectionInfo = (state) =>
   state.featureCollection.info[state.featureCollection.mode];
-export const getOverlayFeature = (state) => state.featureCollection.overlayFeature;
+export const getOverlayFeature = (state) =>
+  state.featureCollection.overlayFeature;
 export const getGazetteerHit = (state) => state.featureCollection.gazetteerHit;
 
 export default featureCollectionSlice;
@@ -235,21 +246,34 @@ export const setFeatureCollectionInfo = (info) => {
 export const forceRefresh = () => {
   return async (dispatch, getState) => {
     const state = getState();
-    console.log("xxx forceRefresh in", state.featureCollection.boundingBox, state.mapInfo?.bounds);
-    dispatch(setFeatureCollectionForMode({ mode: MODES.OBJECTS, features: [] }));
-    dispatch(setFeatureCollectionForMode({ mode: MODES.TASKLISTS, features: [] }));
-    dispatch(setFeatureCollectionForMode({ mode: MODES.PROTOCOLS, features: [] }));
+    console.log(
+      "xxx forceRefresh in",
+      state.featureCollection.boundingBox,
+      state.mapInfo?.bounds
+    );
+    dispatch(
+      setFeatureCollectionForMode({ mode: MODES.OBJECTS, features: [] })
+    );
+    dispatch(
+      setFeatureCollectionForMode({ mode: MODES.TASKLISTS, features: [] })
+    );
+    dispatch(
+      setFeatureCollectionForMode({ mode: MODES.PROTOCOLS, features: [] })
+    );
     dispatch(setSelectedFeature(null));
     const onlineDataForcing = false;
-    dispatch(
-      loadObjects({
-        boundingBox:
-          state.featureCollection.boundingBox || convertBounds2BBox(state.mapInfo.bounds),
-        jwt: state.auth.jwt,
-        force: true,
-        onlineDataForcing,
-      })
-    );
+    if (state.featureCollection.boundingBox || state.mapInfo.bounds) {
+      dispatch(
+        loadObjects({
+          boundingBox:
+            state.featureCollection.boundingBox ||
+            convertBounds2BBox(state.mapInfo.bounds),
+          jwt: state.auth.jwt,
+          force: true,
+          onlineDataForcing,
+        })
+      );
+    }
     if (state.team.selectedTeam) {
       dispatch(
         loadTaskLists({
@@ -303,7 +327,11 @@ export const loadObjects = ({
     if (searchModeActive === true || manualRequest === true) {
       const _filterstate = overridingFilterState || _filterState;
       const reqBasis =
-        JSON.stringify(boundingBox) + "." + JSON.stringify(_filterstate) + "." + inFocusMode;
+        JSON.stringify(boundingBox) +
+        "." +
+        JSON.stringify(_filterstate) +
+        "." +
+        inFocusMode;
 
       if (reqBasis !== requestBasis || force) {
         dispatch(setRequestBasis(reqBasis));
@@ -326,7 +354,11 @@ export const loadObjects = ({
         }
 
         dispatch(
-          loadObjectsIntoFeatureCollection({ boundingBox: xbb, jwt: jwt, onlineDataForcing })
+          loadObjectsIntoFeatureCollection({
+            boundingBox: xbb,
+            jwt: jwt,
+            onlineDataForcing,
+          })
         );
       } else {
         // console.log("xxx duplicate requestBasis", boundingBox, new Error());
@@ -359,21 +391,30 @@ export const reSetSelecteFeatureFromCollection = (_featureCollection) => {
     const state = getState();
     const featureCollection = _featureCollection || getFeatureCollection(state);
     const oldSelectedFeature = getSelectedFeature(state);
-    const selectedFeature = featureCollection.find((f) => f.id === oldSelectedFeature.id);
+    const selectedFeature = featureCollection.find(
+      (f) => f.id === oldSelectedFeature.id
+    );
     const mode = state.featureCollection.mode;
     dispatch(setSelectedFeatureForMode({ selectedFeature, mode }));
   };
 };
 
-export const integrateIntermediateResultsIntofeatureCollection = (intermediateResults) => {
+export const integrateIntermediateResultsIntofeatureCollection = (
+  intermediateResults
+) => {
   return async (dispatch, getState) => {
     const state = getState();
     // need to create a new featurecollection because the retrieved collection is immutable
     console.time("integrateIntermediateResultsIntofeatureCollection.clone.FC");
-    const featureCollection = JSON.parse(JSON.stringify(getFeatureCollection(state)));
-    console.timeEnd("integrateIntermediateResultsIntofeatureCollection.clone.FC");
+    const featureCollection = JSON.parse(
+      JSON.stringify(getFeatureCollection(state))
+    );
+    console.timeEnd(
+      "integrateIntermediateResultsIntofeatureCollection.clone.FC"
+    );
 
-    const _intermediateResults = intermediateResults || getIntermediateResults(state);
+    const _intermediateResults =
+      intermediateResults || getIntermediateResults(state);
     for (const feature of featureCollection) {
       integrateIntermediateResults(feature, _intermediateResults);
     }

@@ -5,6 +5,7 @@ const getLayout4FreieGeometrie = ({
   setVisible,
   setIndex,
   showActions = true,
+  openLightBox = true,
 }) => {
   return {
     title: feature.properties.bezeichnung,

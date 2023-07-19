@@ -21,7 +21,10 @@ import NavDropdown from "react-bootstrap/NavDropdown";
 import { MappingConstants } from "react-cismap";
 import GazetteerSearchComponent from "react-cismap/GazetteerSearchComponent";
 import { useDispatch, useSelector } from "react-redux";
-import { useHistory, useLocation } from "react-router-dom/cjs/react-router-dom.min";
+import {
+  useHistory,
+  useLocation,
+} from "react-router-dom/cjs/react-router-dom.min";
 import { useLongPress } from "use-long-press";
 import Filter from "../components/app/dialogs/Filter";
 
@@ -35,7 +38,10 @@ import {
 } from "../core/store/slices/app";
 import { storeJWT, storeLogin } from "../core/store/slices/auth";
 import { getBackground } from "../core/store/slices/background";
-import { renewCache } from "../core/store/slices/cacheControl";
+import {
+  renewCache,
+  resetCacheInfoForAllKeys,
+} from "../core/store/slices/cacheControl";
 import {
   isDone as featureCollectionIsDone,
   forceRefresh,
@@ -54,7 +60,10 @@ import {
   setOverlayFeature,
   setDoneForMode,
 } from "../core/store/slices/featureCollection";
-import { getGazData, loadGazeteerEntries } from "../core/store/slices/gazetteerData";
+import {
+  getGazData,
+  loadGazeteerEntries,
+} from "../core/store/slices/gazetteerData";
 import { fitBoundsForCollection } from "../core/store/slices/map";
 import {
   getIntermediateResults,
@@ -137,10 +146,10 @@ const TopNavbar = ({
       <Navbar
         ref={innerRef}
         bg={background === "nightplan" ? "dark" : "light"}
-        expand='lg'
+        expand="lg"
         key={"navbar." + fcIsDone}
       >
-        <Nav className='mr-auto'>
+        <Nav className="mr-auto">
           <Nav.Link
             disabled={searchForbidden}
             onClick={(e) => {
@@ -155,14 +164,17 @@ const TopNavbar = ({
             }}
             // style={{ cursor: "not-allowed!important" }} works not (should be conditionally done when search forbidden). don't know why
           >
-            <Icon className={searchForbidden ? "text" : "text-primary"} icon={faSearch} />
+            <Icon
+              className={searchForbidden ? "text" : "text-primary"}
+              icon={faSearch}
+            />
           </Nav.Link>
           <Nav.Link>
             <Switch
               disabled={searchForbidden}
               checked={searchModeActive}
-              checkedChildren='automatische Suche'
-              unCheckedChildren='automatische Suche'
+              checkedChildren="automatische Suche"
+              unCheckedChildren="automatische Suche"
               onChange={(switched) => {
                 dispatch(setSearchModeActive(switched));
                 if (switched === true) {
@@ -183,13 +195,16 @@ const TopNavbar = ({
           <Nav.Link
             onClick={(e) => {
               const filterDialog = (
-                <Filter refRoutedMap={refRoutedMap} filterStateFromRedux={filterState} />
+                <Filter
+                  refRoutedMap={refRoutedMap}
+                  filterStateFromRedux={filterState}
+                />
               );
               dispatch(showDialog(filterDialog));
             }}
             style={{ marginRight: 20, marginLeft: 20 }}
           >
-            <Icon className='text-primary' icon={faFilter} /> Filter (
+            <Icon className="text-primary" icon={faFilter} /> Filter (
             {Object.entries(filterState).reduce((prev, curr) => {
               if (curr[1]?.enabled) {
                 return prev + 1;
@@ -209,7 +224,7 @@ const TopNavbar = ({
               }
             }}
           >
-            <Icon className='text-primary' icon={faRedo} />
+            <Icon className="text-primary" icon={faRedo} />
           </Nav.Link>
         </Nav>
 
@@ -226,7 +241,7 @@ const TopNavbar = ({
               dispatch(setMode(MODES.TASKLISTS));
             }
           }}
-          className='mr-auto text-primary'
+          className="mr-auto text-primary"
         >
           {selectedArbeitsauftrag
             ? selectedArbeitsauftrag.properties.nummer
@@ -248,6 +263,7 @@ const TopNavbar = ({
 
               console.log("xxx intermediateResult ", intermediateResult);
               console.log("xxx nonce", getNonce());
+              dispatch(resetCacheInfoForAllKeys());
             }}
           >
             <Icon icon={faVial} />
@@ -280,14 +296,20 @@ const TopNavbar = ({
               setLoadTaskListsInProgress(false);
               dispatch(setDoneForMode({ mode: MODES.TASKLISTS, done: true }));
             };
-            console.log("xxx connectionMode", connectionMode, CONNECTIONMODE.FROMCACHE);
+            console.log(
+              "xxx connectionMode",
+              connectionMode,
+              CONNECTIONMODE.FROMCACHE
+            );
             setLoadTaskListsInProgress(true);
 
             if (connectionMode === CONNECTIONMODE.FROMCACHE) {
               console.log("xxx renewCache");
               dispatch(setDoneForMode({ mode: MODES.TASKLISTS, done: false }));
 
-              dispatch(renewCache("arbeitsauftrag", jwt, undefined, success, error));
+              dispatch(
+                renewCache("arbeitsauftrag", jwt, undefined, success, error)
+              );
             } else {
               dispatch(
                 loadTaskLists({
@@ -305,8 +327,11 @@ const TopNavbar = ({
           }}
         >
           {loadTaskListsInProgress && (
-            <span className='fa-layers fa-fw'>
-              <Icon style={{ color: "grey", opacity: 0.34 }} icon={faBookOpen} />
+            <span className="fa-layers fa-fw">
+              <Icon
+                style={{ color: "grey", opacity: 0.34 }}
+                icon={faBookOpen}
+              />
               <Icon icon={faSpinner} spin />
             </span>
           )}
@@ -333,14 +358,14 @@ const TopNavbar = ({
             referenceSystem={MappingConstants.crs3857}
             referenceSystemDefinition={MappingConstants.proj4crs3857def}
             autoFocus={false}
-            tooltipPlacement='top'
+            tooltipPlacement="top"
           />
         </span>
 
         <Nav.Link
           style={{ marginLeft: 10, marginRight: 10, color: "#377CF6" }}
           size={narrow ? "sm" : ""}
-          id='navitem_logout'
+          id="navitem_logout"
           eventKey={3}
           onClick={() => {
             // dispatch(storeLogin(undefined));
@@ -356,7 +381,7 @@ const TopNavbar = ({
           onClick={() => {
             setAppMenuVisible(true);
           }}
-          variant='outline-primary'
+          variant="outline-primary"
         >
           <Icon icon={faBars} />
         </Button>

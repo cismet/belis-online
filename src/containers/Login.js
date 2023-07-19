@@ -1,20 +1,34 @@
 import { Button, Checkbox, Form, Input, Popover, Select } from "antd";
 import React, { useEffect } from "react";
 
-import "antd/dist/antd.css";
+import "antd/dist/antd.min.css";
 import { useWindowSize } from "@react-hook/window-size";
 import { useDispatch, useSelector } from "react-redux";
-import { useHistory, useLocation } from "react-router-dom/cjs/react-router-dom.min";
+import {
+  useHistory,
+  useLocation,
+} from "react-router-dom/cjs/react-router-dom.min";
 import useOnlineStatus from "@rehooks/online-status";
 import { getWorker } from "../core/store/slices/dexie";
-import { getJWT, setLoginRequested, storeJWT, storeLogin } from "../core/store/slices/auth";
+import {
+  getJWT,
+  setLoginRequested,
+  storeJWT,
+  storeLogin,
+} from "../core/store/slices/auth";
 import { DOMAIN, REST_SERVICE } from "../constants/belis";
 import { forceRefresh } from "../core/store/slices/featureCollection";
 import VersionFooter from "../components/commons/secondaryinfo/VersionFooter";
 import localforage from "localforage";
 import { CONNECTIONMODE, setConnectionMode } from "../core/store/slices/app";
-import { deleteCacheDB, isCacheFullUsable } from "../core/store/slices/cacheControl";
-import { downloadTasks, truncateActionTables } from "../core/store/slices/offlineActionDb";
+import {
+  deleteCacheDB,
+  isCacheFullUsable,
+} from "../core/store/slices/cacheControl";
+import {
+  downloadTasks,
+  truncateActionTables,
+} from "../core/store/slices/offlineActionDb";
 import { resetApplicationState } from "../core/store";
 import {
   doHealthCheck,
@@ -53,6 +67,7 @@ const Login = () => {
       clearInterval(timer);
     };
   }, [jwt, dispatch]);
+
   useEffect(() => {
     (async () => {
       try {
@@ -71,7 +86,10 @@ const Login = () => {
             values.password = cheats.cheatingPassword;
           }
 
-          form.setFieldsValue({ username: values.user, password: values.password });
+          form.setFieldsValue({
+            username: values.user,
+            password: values.password,
+          });
         } else {
           form.setFieldsValue({ username: lastSuccesfulUser });
         }
@@ -81,7 +99,7 @@ const Login = () => {
     })();
   }, [productionMode]);
 
-  const loginPanelWidth = 400;
+  const loginPanelWidth = 450;
   const loginPanelHeight = 300;
   const onFinish = (values) => {
     login(values.username, values.password);
@@ -100,7 +118,7 @@ const Login = () => {
           response.json().then(function (responseWithJWT) {
             const jwt = responseWithJWT.jwt;
             setLoginInfo({
-              color: "#79BD9A",
+              color: "#038643",
               text: "Anmeldung erfolgreich. Daten werden geladen.",
             });
             setTimeout(() => {
@@ -114,8 +132,8 @@ const Login = () => {
           });
         } else {
           setLoginInfo({
-            color: "#FF8048",
-            text: "Bei der Anmeldung ist ein Fehler aufgetreten. ",
+            color: "#703014",
+            text: "Bei der Anmeldung ist ein Fehler aufgetreten.",
           });
           setTimeout(() => {
             setLoginInfo();
@@ -123,7 +141,10 @@ const Login = () => {
         }
       })
       .catch(function (err) {
-        setLoginInfo({ color: "#FF3030", text: "Bei der Anmeldung ist ein Fehler aufgetreten." });
+        setLoginInfo({
+          color: "#703014",
+          text: "Bei der Anmeldung ist ein Fehler aufgetreten.",
+        });
         setTimeout(() => {
           setLoginInfo();
         }, 2500);
@@ -158,15 +179,33 @@ const Login = () => {
           borderRadius: 25,
         }}
       >
-        <h1 style={{ padding: 25, color: "black", opacity: 0.5 }}>BelIS-Online</h1>
+        <h1
+          style={{
+            padding: 25,
+            color: "black",
+            opacity: 0.5,
+            paddingBottom: 4,
+          }}
+        >
+          BelIS-Online
+        </h1>
+        <div
+          style={{
+            minHeight: 21,
+            color: loginInfo?.color || "black",
+            marginRight: 10,
+          }}
+        >
+          {loginInfo?.text || ""}
+        </div>
         <Form
           form={form}
-          name='basic'
+          name="basic"
           //   labelCol={{ span: 8 }}
           //   wrapperCol={{ span: 16 }}
           onFinish={onFinish}
           onFinishFailed={onFinishFailed}
-          autoComplete='off'
+          autoComplete="off"
           style={{
             justifyContent: "left",
             width: "100%",
@@ -177,17 +216,24 @@ const Login = () => {
           }}
         >
           <Form.Item
-            label='Benutzer'
-            name='username'
-            rules={[{ required: true, message: "Bitte geben Sie Ihren Benutzernamen an" }]}
+            label="Benutzer"
+            name="username"
+            rules={[
+              {
+                required: true,
+                message: "Bitte geben Sie Ihren Benutzernamen an",
+              },
+            ]}
           >
             <Input />
           </Form.Item>
 
           <Form.Item
-            label='Passwort'
-            name='password'
-            rules={[{ required: true, message: "Bitte geben Sie ein Passwort an." }]}
+            label="Passwort"
+            name="password"
+            rules={[
+              { required: true, message: "Bitte geben Sie ein Passwort an." },
+            ]}
           >
             <Input.Password />
           </Form.Item>
@@ -196,7 +242,7 @@ const Login = () => {
               {isCacheFullyUsable === true && (
                 <Button
                   style={{ marginRight: 15 }}
-                  type='secondary'
+                  type="secondary"
                   onClick={() => {
                     dispatch(setConnectionMode(CONNECTIONMODE.FROMCACHE));
                     dispatch(setLoginRequested(false));
@@ -206,7 +252,7 @@ const Login = () => {
                   Offline arbeiten
                 </Button>
               )}
-              <Button type='primary' htmlType='submit'>
+              <Button type="primary" htmlType="submit">
                 Login
               </Button>
             </Form.Item>
@@ -215,7 +261,7 @@ const Login = () => {
       </div>
       <div style={{ position: "absolute", bottom: 20, left: 30 }}>
         <Popover
-          placement='rightBottom'
+          placement="rightBottom"
           title={<b>Systemmenü</b>}
           content={
             <div style={{ textAlign: "left" }}>
@@ -296,14 +342,14 @@ const Login = () => {
               </Button>
             </div>
           }
-          trigger='click'
+          trigger="click"
         >
           <b style={{ cursor: "pointer" }}>...</b>
         </Popover>
       </div>
       <div style={{ position: "absolute", top: 20, left: 30, opacity: 0.7 }}>
         <h1 style={{ color: "white" }}>
-          <img alt='' width={180} src='/images/wuppertal-white.svg' />
+          <img alt="" width={180} src="/images/wuppertal-white.svg" />
         </h1>
       </div>
       <div

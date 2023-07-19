@@ -1,8 +1,9 @@
 import { createSlice } from "@reduxjs/toolkit";
 import dexieworker from "workerize-loader!../../workers/dexie"; // eslint-disable-line import/no-webpack-loader-syntax
 
-import { fetchGraphQL } from "../../commons/graphql";
+import { fetchGraphQL, fetchGraphQLZipped } from "../../commons/graphql";
 import cacheQueries from "../../queries/cache";
+import { CONNECTIONMODE, setConnectionMode } from "./app";
 import { getLoginFromJWT } from "./auth";
 import { clearIntermediateResults } from "./offlineActionDb";
 import { initIndex } from "./spatialIndex";
@@ -132,7 +133,9 @@ const cacheSlice = createSlice({
   reducers: {
     setLoadingState(state, action) {
       if (!state.types[action.payload.key]) {
-        state.types[action.payload.key] = initializeForKey(configx[action.payload.key]);
+        state.types[action.payload.key] = initializeForKey(
+          configx[action.payload.key]
+        );
       }
       if (
         state.types[action.payload.key].resetTimer !== undefined &&
@@ -141,7 +144,8 @@ const cacheSlice = createSlice({
         clearTimeout(state.types[action.payload.key].resetTimer);
         state.types[action.payload.key].resetTimer = undefined;
       }
-      state.types[action.payload.key].loadingState = action.payload.loadingState;
+      state.types[action.payload.key].loadingState =
+        action.payload.loadingState;
       if (action.payload.resetTimer !== undefined) {
         state.types[action.payload.key].resetTimer = action.payload.resetTimer;
       }
@@ -150,7 +154,9 @@ const cacheSlice = createSlice({
     },
     setLastUpdate(state, action) {
       if (!state.types[action.payload.key]) {
-        state.types[action.payload.key] = initializeForKey(configx[action.payload.key]);
+        state.types[action.payload.key] = initializeForKey(
+          configx[action.payload.key]
+        );
       }
       state.types[action.payload.key].lastUpdate = action.payload.lastUpdate;
 
@@ -158,23 +164,30 @@ const cacheSlice = createSlice({
     },
     setObjectCount(state, action) {
       if (!state.types[action.payload.key]) {
-        state.types[action.payload.key] = initializeForKey(configx[action.payload.key]);
+        state.types[action.payload.key] = initializeForKey(
+          configx[action.payload.key]
+        );
       }
       state.types[action.payload.key].objectCount = action.payload.objectCount;
       return state;
     },
     setUpdateCount(state, action) {
       if (!state.types[action.payload.key]) {
-        state.types[action.payload.key] = initializeForKey(configx[action.payload.key]);
+        state.types[action.payload.key] = initializeForKey(
+          configx[action.payload.key]
+        );
       }
       state.types[action.payload.key].updateCount = action.payload.updateCount;
       return state;
     },
     setCachingProgress(state, action) {
       if (!state.types[action.payload.key]) {
-        state.types[action.payload.key] = initializeForKey(configx[action.payload.key]);
+        state.types[action.payload.key] = initializeForKey(
+          configx[action.payload.key]
+        );
       }
-      state.types[action.payload.key].cachingProgress = action.payload.cachingProgress;
+      state.types[action.payload.key].cachingProgress =
+        action.payload.cachingProgress;
       return state;
     },
     setCacheUser(state, action) {
@@ -221,7 +234,8 @@ export const isCacheFullUsable = (state) => {
     if (
       key &&
       (state.cacheControl.types[key].objectCount === undefined ||
-        (state.cacheControl.types[key].objectCount === 0 && key !== "arbeitsauftrag") ||
+        (state.cacheControl.types[key].objectCount === 0 &&
+          key !== "arbeitsauftrag") ||
         state.cacheControl.types[key].lastUpdate === undefined ||
         state.cacheControl.types[key].lastUpdate === -1 ||
         state.cacheControl.types[key].loadingState === "loading" ||
@@ -282,6 +296,34 @@ export const getCacheUpdatingProgress = (state) => {
     }
   }
   return progressCounter / keys.length;
+};
+
+export const resetCacheInfoForAllKeys = () => {
+  return async (dispatch, getState) => {
+    const state = getState();
+    for (const key of getAllInfoKeys(state)) {
+      dexieW.clear(key);
+      dispatch(setLoadingState({ key, loadingState: undefined }));
+      dispatch(setLastUpdate({ key, lastUpdate: -1 }));
+      dispatch(setObjectCount({ key, objectCount: undefined }));
+      dispatch(setUpdateCount({ key, updateCount: undefined }));
+      dispatch(setCachingProgress({ key, cachingProgress: undefined }));
+    }
+  };
+};
+
+export const resetCacheInfoIfOneIsStillInLoadingState = () => {
+  return async (dispatch, getState) => {
+    const state = getState();
+    for (const key of getAllInfoKeys(state)) {
+      const loadingState = state.cacheControl.types[key].loadingState;
+      if (loadingState === "loading" || loadingState === "caching") {
+        dispatch(resetCacheInfoForAllKeys());
+        dispatch(setConnectionMode(CONNECTIONMODE.ONLINE));
+        break;
+      }
+    }
+  };
 };
 
 export const fillCacheInfo = () => {
@@ -357,10 +399,13 @@ export const renewCache = (
   errorHook = () => {}
 ) => {
   if (key === undefined || jwt === undefined) {
-    console.error("renewCache: either key or jwt is undefined. This must be an error.");
+    console.error(
+      "renewCache: either key or jwt is undefined. This must be an error."
+    );
   }
   return async (dispatch, getState) => {
-    const stateForParameterFactory = overridingStateForParameterFactory || getState();
+    const stateForParameterFactory =
+      overridingStateForParameterFactory || getState();
     const state = getState();
     const cfg = keys.find((k) => k.queryKey === key);
 
@@ -372,11 +417,26 @@ export const renewCache = (
     dispatch(setUpdateCount({ key, updateCount: 0 }));
 
     const progressListener = (message) => {
-      if (message.data.progress !== undefined && message.data.objectstorename === itemKey) {
-        dispatch(setCachingProgress({ key, cachingProgress: message.data.progress }));
+      if (
+        message.data.target !== undefined &&
+        message.data.objectstorename === itemKey
+      ) {
+        dispatch(setLoadingState({ key, loadingState: "caching" }));
+        dispatch(setObjectCount({ key, objectCount: message.data.target }));
+        dispatch(setUpdateCount({ key, updateCount: message.data.target }));
+        setCachingProgress({ key, cachingProgress: 0 });
+      } else if (
+        message.data.progress !== undefined &&
+        message.data.objectstorename === itemKey
+      ) {
+        dispatch(
+          setCachingProgress({ key, cachingProgress: message.data.progress })
+        );
       }
     };
-    dexieW.addEventListener("message", progressListener);
+    const tmpdexieW = dexieworker();
+
+    tmpdexieW.addEventListener("message", progressListener);
     // console.log("cacheQueries[" + itemKey + "]", { gql: cacheQueries[itemKey] });
     // if (itemKey === "arbeitsauftrag") {
     //   console.log(
@@ -385,37 +445,143 @@ export const renewCache = (
     //   );
     // }
 
+    // z Schnittstelle bedeutet: die daten kommen komprimiert in base64 string an und werden
+    // im worker dekomprimiert und in die dexiedb geschrieben
+
+    // fetchGraphQL(
+    //   cacheQueries[itemKey],
+    //   config[itemKey].parameterFactory(stateForParameterFactory),
+    //   jwt,
+    //   undefined,
+    //   "z"
+    // )
+    //   .then((result) => {
+    //     // console.log("result", result);
+    //     //dataKey and itemKey are the same !!!
+    //     if (result.ok) {
+    //       console.log(
+    //         itemKey + " returned with " + result.response.length + " results"
+    //       );
+    //       // console.log(itemKey + " returned with ", result.data[dataKey]);
+    //       // dispatch(
+    //       //   setObjectCount({ key, objectCount: result.data[dataKey].length })
+    //       // );
+    //       // dispatch(
+    //       //   setUpdateCount({ key, updateCount: result.data[dataKey].length })
+    //       // );
+    //       //async block
+    //       (async () => {
+    //         //put the data in the indexedDB
+    //         console.log(itemKey + " in async block");
+    //         await tmpdexieW.clear(itemKey);
+    //         console.log(itemKey + " clear executed");
+    //         console.log(itemKey + " putArray execute:");
+    //         await tmpdexieW.putZArray(result.response, itemKey);
+    //         // await dexieW.putArray(result.data[dataKey], itemKey);
+    //         console.log(itemKey + " putArray executed");
+
+    //         //reset loadingState in 1 minute
+    //         const resetTimer = setTimeout(() => {
+    //           dispatch(
+    //             setLoadingState({ key, resetTimer, loadingState: undefined })
+    //           );
+    //         }, 30000);
+
+    //         //set loading state done
+    //         dispatch(
+    //           setLoadingState({ key, resetTimer, loadingState: "cached" })
+    //         );
+    //         dispatch(setLastUpdate({ key, lastUpdate: new Date().getTime() }));
+    //         console.log(itemKey + " setLoadingState: cached");
+
+    //         //remove the intermediate results of this datatype
+    //         dispatch(clearIntermediateResults(key));
+
+    //         //removeEVent Listener to free memory
+    //         tmpdexieW.removeEventListener("message", progressListener);
+
+    //         if (itemKey === "raw_point_index") {
+    //           //todo: the initIndex function should be called, after the cache was completely refreshed
+    //           //to use the new data for the geometry search
+    //           dispatch(initIndex(() => {}));
+    //         }
+    //         tmpdexieW.terminate();
+    //         successHook();
+    //       })();
+    //     } else {
+    //       throw new Error("Error in fetchGraphQL (" + result.status + ")");
+    //     }
+    //   })
+    //   .catch(function (error) {
+    //     console.log("xxx error in fetch ", error);
+    //     dispatch(setLoadingState({ key, loadingState: "problem" }));
+    //     const resetTimer = setTimeout(() => {
+    //       dispatch(
+    //         setLoadingState({ key, resetTimer, loadingState: undefined })
+    //       );
+    //     }, 30000);
+    //     errorHook(error);
+    //     tmpdexieW.terminate();
+    //   });
+
     fetchGraphQL(
       cacheQueries[itemKey],
       config[itemKey].parameterFactory(stateForParameterFactory),
-      jwt
+      jwt,
+      undefined,
+      "z2" // z2 bedeutet die daten kommen chunked
     )
       .then((result) => {
-        // console.log("result", result);
+        console.log("result", result);
+        //dataKey and itemKey are the same !!!
         if (result.ok) {
-          console.log(itemKey + " returned with " + result.data[dataKey].length + " results");
+          console.log(
+            itemKey +
+              " result returned in " +
+              result.dataz[itemKey + "_length"] +
+              " chunks"
+          );
           // console.log(itemKey + " returned with ", result.data[dataKey]);
-          dispatch(setLoadingState({ key, loadingState: "caching" }));
-          dispatch(setObjectCount({ key, objectCount: result.data[dataKey].length }));
-          dispatch(setUpdateCount({ key, updateCount: result.data[dataKey].length }));
+          // dispatch(
+          //   setObjectCount({ key, objectCount: result.data[dataKey].length })
+          // );
+          // dispatch(
+          //   setUpdateCount({ key, updateCount: result.data[dataKey].length })
+          // );
           //async block
           (async () => {
             //put the data in the indexedDB
             console.log(itemKey + " in async block");
-
-            await dexieW.clear(itemKey);
+            await tmpdexieW.clear(itemKey);
             console.log(itemKey + " clear executed");
+            console.log(itemKey + " putArray execute:");
 
-            await dexieW.putArray(result.data[dataKey], itemKey);
+            /// there is only one element in the result
+            let countElements = 0;
+            for (const chunk of result.dataz[itemKey]) {
+              countElements = await tmpdexieW.putChunkedZArray(
+                result.dataz[itemKey + "_length"],
+                countElements,
+                chunk,
+                itemKey
+              );
+            }
+
+            // await tmpdexieW.putZArray(result.response, itemKey);
+            // await dexieW.putArray(result.data[dataKey], itemKey);
             console.log(itemKey + " putArray executed");
 
             //reset loadingState in 1 minute
             const resetTimer = setTimeout(() => {
-              dispatch(setLoadingState({ key, resetTimer, loadingState: undefined }));
+              dispatch(
+                setLoadingState({ key, resetTimer, loadingState: undefined })
+              );
             }, 30000);
 
             //set loading state done
-            dispatch(setLoadingState({ key, resetTimer, loadingState: "cached" }));
+            dispatch(
+              setLoadingState({ key, resetTimer, loadingState: "cached" })
+            );
             dispatch(setLastUpdate({ key, lastUpdate: new Date().getTime() }));
             console.log(itemKey + " setLoadingState: cached");
 
@@ -423,13 +589,14 @@ export const renewCache = (
             dispatch(clearIntermediateResults(key));
 
             //removeEVent Listener to free memory
-            dexieW.removeEventListener("message", progressListener);
+            tmpdexieW.removeEventListener("message", progressListener);
 
             if (itemKey === "raw_point_index") {
               //todo: the initIndex function should be called, after the cache was completely refreshed
               //to use the new data for the geometry search
               dispatch(initIndex(() => {}));
             }
+            tmpdexieW.terminate();
             successHook();
           })();
         } else {
@@ -440,9 +607,12 @@ export const renewCache = (
         console.log("xxx error in fetch ", error);
         dispatch(setLoadingState({ key, loadingState: "problem" }));
         const resetTimer = setTimeout(() => {
-          dispatch(setLoadingState({ key, resetTimer, loadingState: undefined }));
+          dispatch(
+            setLoadingState({ key, resetTimer, loadingState: undefined })
+          );
         }, 30000);
         errorHook(error);
+        tmpdexieW.terminate();
       });
   };
 };

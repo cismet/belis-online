@@ -12,8 +12,7 @@ import {
 import TextArea from "antd/lib/input/TextArea";
 import moment from "moment";
 import { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
-import { dispatch } from "rxjs/internal/observable/pairs";
+import { useSelector, useDispatch } from "react-redux";
 
 import { getJWT } from "../../../core/store/slices/auth";
 import { renewCache } from "../../../core/store/slices/cacheControl";
@@ -49,6 +48,7 @@ const SetStatusDialog = ({
 
   const [rundsteuerempfaenger, setRundsteuerempfaenger] = useState([]);
   const [preferredRundsteuerempfaenger, setPreferredRundsteuerempfaenger] = useState();
+  const dispatch = useDispatch();
 
   useEffect(() => {
     //async block

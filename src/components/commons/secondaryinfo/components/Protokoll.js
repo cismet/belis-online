@@ -42,6 +42,7 @@ const getLayout4Protokoll = ({
   setIndex,
   setVisible,
   showActions = true,
+  openLightBox = true,
 }) => {
   const vcard = getVCard(feature);
   const item = feature.properties;
@@ -178,7 +179,14 @@ const getLayout4Protokoll = ({
         {/* {clearOptionalDescriptionItems(veranlassungsItems)} */}
         {veranlassungsItems}
       </Descriptions>
-      {getSquaredThumbnails({ docs: item?.docs, type: "Veranlassung", jwt, setIndex, setVisible })}
+      {getSquaredThumbnails({
+        docs: item?.docs,
+        type: "Veranlassung",
+        jwt,
+        setIndex,
+        setVisible,
+        openLightBox,
+      })}
     </SecondaryInfoPanelSection>
   );
 
@@ -236,6 +244,7 @@ const getLayout4Protokoll = ({
       setIndex,
       setVisible,
       showActions: false,
+      openLightBox,
     });
 
     fachobjektTitle = layoutResult.title;

@@ -10,15 +10,21 @@ import { persistStore } from "redux-persist";
 import { PersistGate } from "redux-persist/integration/react";
 
 import AppErrorFallback from "./components/AppErrorFallback";
-import { backgroundConfigurations, backgroundModes, offlineConfig } from "./constants/belis";
+import {
+  backgroundConfigurations,
+  backgroundModes,
+  offlineConfig,
+} from "./constants/belis";
 import MobileApp from "./containers/MobileApp";
 import Test from "./containers/Test";
 import store from "./core/store";
 import { appKey, storagePostfix } from "./Keys";
 
 import "./App.css";
-import "antd/dist/antd.css";
+// import "antd/dist/antd.css";
+import "antd/dist/antd.min.css";
 import Login from "./containers/Login";
+import { getBelisHash, getBelisVersion } from "./constants/versions";
 
 let persistor = persistStore(store);
 
@@ -83,6 +89,42 @@ if (!baseLayerConf.namedLayers.dark_matter_pale) {
     textOpacity: 1,
   };
 }
+console.log(
+  "......................................................................"
+);
+console.log("... BelIS Version: ", getBelisVersion());
+console.log("... BelIS Hash: ", getBelisHash());
+console.log("...");
+
+// disable console.log in production mode
+// bypass this by setting the queryParam consoleLog=true
+
+if (
+  window.location.search.includes("consoleLog=false") ||
+  (process.env.NODE_ENV === "production" &&
+    !window.location.search.includes("consoleLog=true"))
+) {
+  console.log("... console.log|warn|error|info|time|timeEnd disabled");
+  console.log(
+    "... reenable by setting the queryParam consoleLog=true in the url"
+  );
+  console.log(
+    "... or removing the queryParam consoleLog=false in development mode"
+  );
+  console.log(
+    "......................................................................"
+  );
+  console.log = function () {};
+  console.warn = function () {};
+  console.error = function () {};
+  console.info = function () {};
+  console.time = function () {};
+  console.timeEnd = function () {};
+} else {
+  console.log(
+    "......................................................................"
+  );
+}
 
 function App() {
   //check for queryParam artificialError
@@ -93,9 +135,9 @@ function App() {
         <ConfigProvider locale={deDE}>
           <PersistGate loading={null} persistor={persistor}>
             <Router>
-              <div className='App'>
+              <div className="App">
                 <Switch>
-                  <Route path='/app'>
+                  <Route path="/app">
                     <TopicMapContextProvider
                       appKey={appKey + "." + storagePostfix}
                       backgroundModes={backgroundModes}
@@ -103,8 +145,16 @@ function App() {
                       baseLayerConf={baseLayerConf}
                       offlineCacheConfig={offlineConfig}
                       persistenceSettings={{
-                        ui: ["appMenuVisible", "appMenuActiveMenuSection", "collapsedInfoBox"],
-                        featureCollection: ["filterState", "filterMode", "clusteringEnabled"],
+                        ui: [
+                          "appMenuVisible",
+                          "appMenuActiveMenuSection",
+                          "collapsedInfoBox",
+                        ],
+                        featureCollection: [
+                          "filterState",
+                          "filterMode",
+                          "clusteringEnabled",
+                        ],
                         responsive: [],
                         styling: [
                           "activeAdditionalLayerKeys",
@@ -118,7 +168,7 @@ function App() {
                       <MobileApp />
                     </TopicMapContextProvider>
                   </Route>
-                  <Route path='/'>
+                  <Route path="/">
                     <Login />
                   </Route>
                 </Switch>

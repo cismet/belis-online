@@ -1,5 +1,9 @@
 import { blue, gold, green, grey, red } from "@ant-design/colors";
-import { faCheckCircle, faHdd, faQuestionCircle } from "@fortawesome/free-regular-svg-icons";
+import {
+  faCheckCircle,
+  faHdd,
+  faQuestionCircle,
+} from "@fortawesome/free-regular-svg-icons";
 import {
   faCamera,
   faExclamation,
@@ -25,9 +29,11 @@ const convertActionameToActionKey = (actionname) => {
 const getTitleForAction = (action) => {
   switch (action) {
     case "uploadDocument":
-      return <FontAwesomeIcon icon={faCamera} title='Foto hinzufügen' />;
+      return <FontAwesomeIcon icon={faCamera} title="Foto hinzufügen" />;
     case "addIncident":
-      return <FontAwesomeIcon icon={faExclamationTriangle} title='Störung melden' />;
+      return (
+        <FontAwesomeIcon icon={faExclamationTriangle} title="Störung melden" />
+      );
     default:
       const actionKey = convertActionameToActionKey(action);
       if (actionKey) {
@@ -45,7 +51,7 @@ const getStatusIcon = (status) => {
         <FontAwesomeIcon
           style={{ color: gold[4] }}
           icon={faHdd}
-          title='Aktion im Browser hinterlegt'
+          title="Aktion im Browser hinterlegt"
         ></FontAwesomeIcon>
       );
     case null:
@@ -53,7 +59,7 @@ const getStatusIcon = (status) => {
         <FontAwesomeIcon
           style={{ color: gold[6] }}
           icon={faServer}
-          title='Aktion auf Server hinterlegt'
+          title="Aktion auf Server hinterlegt"
         ></FontAwesomeIcon>
       );
     case 202:
@@ -62,7 +68,7 @@ const getStatusIcon = (status) => {
           style={{ color: blue[5] }}
           spin
           icon={faSpinner}
-          title='Aktion wird ausgeführt'
+          title="Aktion wird ausgeführt"
         />
       );
     case 200:
@@ -70,7 +76,7 @@ const getStatusIcon = (status) => {
         <FontAwesomeIcon
           style={{ color: green[4] }}
           icon={faCheckCircle}
-          title='Aktion wurde erfolgreich ausgeführt'
+          title="Aktion wurde erfolgreich ausgeführt"
         />
       );
     case 401:
@@ -78,7 +84,7 @@ const getStatusIcon = (status) => {
         <FontAwesomeIcon
           style={{ color: gold[6] }}
           icon={faUserSlash}
-          title='Aktion kann wegen abgelaufenem Token nicht ausgeführt werden.'
+          title="Aktion kann wegen abgelaufenem Token nicht ausgeführt werden."
         />
       );
     case 500:
@@ -86,7 +92,7 @@ const getStatusIcon = (status) => {
         <FontAwesomeIcon
           style={{ color: red[4] }}
           icon={faExclamation}
-          title='Aktion konnte nicht ausgeführt werden.'
+          title="Aktion konnte nicht ausgeführt werden."
         />
       );
     default:
@@ -166,10 +172,13 @@ export const getTaskForAction = (resultObject) => {
       status,
     } = resultObject;
 
-    let parameters = {};
+    let parameters = { objekt_typ: "???", object_name: "" };
     try {
-      parameters = JSON.parse(parameter);
+      if (parameter) {
+        parameters = JSON.parse(parameter);
+      }
     } catch (e) {}
+    console.log("parameters", parameters);
 
     // if (parameters.objekt_typ===undefined && action===)
 

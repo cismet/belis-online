@@ -6,7 +6,14 @@ import * as offlineDatabase from "../../commons/offlineActionDbHelper";
 import { getTaskForAction } from "../../commons/taskHelper";
 import actions from "./actionSubslices";
 import { getJWT, getLoginFromJWT } from "./auth";
-import { integrateIntermediateResultsIntofeatureCollection, setDone } from "./featureCollection";
+import {
+  integrateIntermediateResultsIntofeatureCollection,
+  setDone,
+} from "./featureCollection";
+import {
+  DB_VERSION  
+} from "../../../constants/belis";
+
 
 const initialState = { tasks: [], rawTasks: [], intermediateResults: {} };
 
@@ -58,12 +65,14 @@ export const getTasks = (state) => {
 export const getRawTasks = (state) => {
   return state.offlineActionDb.rawTasks;
 };
-export const initialize = () => {
+export const initialize = (storedJWT) => {
   return async (dispatch, getState) => {
+    const state = getState();
+    const jwt = (storedJWT ? storedJWT : getJWT(state));
+    const login = getLoginFromJWT(jwt);
     offlineDatabase
-      .createDb()
+      .createDb(login)
       .then((d) => {
-        const jwt = getJWT(getState());
         if (d !== undefined) {
           let rep = new offlineDatabase.GraphQLReplicator(d);
 
@@ -74,7 +83,11 @@ export const initialize = () => {
             console.log("change occured", action);
           };
           const login = getLoginFromJWT(jwt);
-          rep.restart({ userId: login + "@belis", idToken: jwt }, errorCallback, changeCallback);
+          rep.restart(
+            { userId: login + "@belis", idToken: jwt },
+            errorCallback,
+            changeCallback
+          );
           dispatch(storeRep(rep));
           dispatch(storeDB(d));
 
@@ -95,12 +108,61 @@ export const initialize = () => {
             dispatch(slice.actions.setRawTasks(results));
           });
         } else {
+          console.error("offline database not available", jwt);
+
           throw new Error("offline database not available", jwt);
         }
       })
       .catch((e) => {
+        console.error("offline database not available", e);
+
         throw new Error("offline database not available", e);
       });
+  };
+};
+
+export const reInitialize = (storedJWT) => {
+  return async (dispatch, getState) => {
+    const state = getState();
+    const jwt = (storedJWT ? storedJWT : getJWT(state));
+    const oldRep = getRep(state);
+    const login = getLoginFromJWT(jwt);
+    const loginLowerCase = (login || "").toLowerCase();
+    const d = window["db_" + DB_VERSION + "_" + loginLowerCase];
+
+    if (oldRep) {
+      oldRep.dispose();
+    }
+
+    let rep = new offlineDatabase.GraphQLReplicator(d);
+
+    const errorCallback = (error) => {
+      console.log("error occured", error);
+    };
+    const changeCallback = (action) => {
+      console.log("change occured", action);
+    };
+    rep.restart(
+      { userId: login + "@belis", idToken: jwt },
+      errorCallback,
+      changeCallback
+    );
+    dispatch(storeRep(rep));
+    dispatch(storeDB(d));
+    const query = d.actions
+      .find()
+      .where("applicationId")
+      .eq(login + "@belis")
+      .sort({ createdAt: "desc" });
+    query.$.subscribe((results) => {
+      const tasks = [];
+      for (const result of results) {
+        const task = getTaskForAction(result);
+        tasks.push(task);
+      }
+      dispatch(slice.actions.setTasks(tasks));
+      dispatch(slice.actions.setRawTasks(results));
+    });
   };
 };
 
@@ -124,13 +186,14 @@ export const truncateActionTables = () => {
   };
 };
 
-export const resyncDb = () => {
+export const resyncDb = (currentJwt) => {
   return async (dispatch, getState) => {
     const state = getState();
     const rep = getRep(state);
+    const db = getDB(state);
 
     if (rep) {
-      const jwt = getJWT(getState());
+      const jwt = (currentJwt ? currentJwt : getJWT(getState()));
 
       const errorCallback = (error) => {
         console.log("error occured", error);
@@ -140,10 +203,30 @@ export const resyncDb = () => {
       };
 
       const login = getLoginFromJWT(jwt);
-      rep.restart({ userId: login + "@belis", idToken: jwt }, errorCallback, changeCallback);
+      rep.restart(
+        { userId: login + "@belis", idToken: jwt },
+        errorCallback,
+        changeCallback
+      );
     }
   };
 };
+
+
+export const setSyncPoint = (time) => {
+  const timeObj = time;
+
+  return async (dispatch, getState) => {
+    const state = getState();
+    const rep = getRep(state);
+    const db = getDB(state);
+
+    if (rep) {
+      rep.setSyncPoint(timeObj);
+    }
+  };
+};
+
 
 export const clearIntermediateResults = (object_type) => {
   return async (dispatch, getState) => {
@@ -154,7 +237,9 @@ export const clearIntermediateResults = (object_type) => {
     let intermediateResultsCopy;
     if (stateIntermediateResults[object_type]) {
       if (!intermediateResultsCopy) {
-        intermediateResultsCopy = JSON.parse(JSON.stringify(stateIntermediateResults));
+        intermediateResultsCopy = JSON.parse(
+          JSON.stringify(stateIntermediateResults)
+        );
       }
       delete intermediateResultsCopy[object_type];
     }
@@ -179,27 +264,38 @@ export const addIntermediateResult = (intermediateResult) => {
     const stateIntermediateResults = getIntermediateResults(getState()) || {};
     console.log("intermediateResult", intermediateResult);
 
-    const intermediateResults = JSON.parse(JSON.stringify(stateIntermediateResults));
+    const intermediateResults = JSON.parse(
+      JSON.stringify(stateIntermediateResults)
+    );
 
     if (!intermediateResults[intermediateResult.object_type]) {
       intermediateResults[intermediateResult.object_type] = {};
     }
-    if (!intermediateResults[intermediateResult.object_type][intermediateResult.object_id]) {
-      intermediateResults[intermediateResult.object_type][intermediateResult.object_id] = {};
-    }
     if (
-      !intermediateResults[intermediateResult.object_type][intermediateResult.object_id][
-        intermediateResult.resultType
+      !intermediateResults[intermediateResult.object_type][
+        intermediateResult.object_id
       ]
     ) {
-      intermediateResults[intermediateResult.object_type][intermediateResult.object_id][
-        intermediateResult.resultType
-      ] = [];
+      intermediateResults[intermediateResult.object_type][
+        intermediateResult.object_id
+      ] = {};
     }
-    intermediateResults[intermediateResult.object_type][intermediateResult.object_id][
-      intermediateResult.resultType
-    ].push(intermediateResult.data);
-    if (intermediateResults["schaltstelle"] && intermediateResults["schaltstelle"][1444]) {
+    if (
+      !intermediateResults[intermediateResult.object_type][
+        intermediateResult.object_id
+      ][intermediateResult.resultType]
+    ) {
+      intermediateResults[intermediateResult.object_type][
+        intermediateResult.object_id
+      ][intermediateResult.resultType] = [];
+    }
+    intermediateResults[intermediateResult.object_type][
+      intermediateResult.object_id
+    ][intermediateResult.resultType].push(intermediateResult.data);
+    if (
+      intermediateResults["schaltstelle"] &&
+      intermediateResults["schaltstelle"][1444]
+    ) {
       console.log("store intermediateResults", intermediateResults);
       console.log(
         "count intermediateResults of schaltstelle-1444",
@@ -207,11 +303,15 @@ export const addIntermediateResult = (intermediateResult) => {
       );
     }
     dispatch(storeIntermediateResults(intermediateResults));
-    dispatch(integrateIntermediateResultsIntofeatureCollection(intermediateResults));
+    dispatch(
+      integrateIntermediateResultsIntofeatureCollection(intermediateResults)
+    );
   };
 };
 function downloadObjectAsJson(exportObj, exportName) {
-  var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportObj));
+  var dataStr =
+    "data:text/json;charset=utf-8," +
+    encodeURIComponent(JSON.stringify(exportObj));
   var downloadAnchorNode = document.createElement("a");
   downloadAnchorNode.setAttribute("href", dataStr);
   downloadAnchorNode.setAttribute("download", exportName + ".json");
@@ -226,7 +326,10 @@ export const downloadTasks = () => {
     const rawTasks = getRawTasks(state);
     console.log("will export" + rawTasks?.length + " tasks");
 
-    downloadObjectAsJson(rawTasks, "tasks" + slugify(new Date().toLocaleString()));
+    downloadObjectAsJson(
+      rawTasks,
+      "tasks" + slugify(new Date().toLocaleString())
+    );
   };
 };
 

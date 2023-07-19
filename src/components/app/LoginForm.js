@@ -4,18 +4,29 @@ import { useEffect, useRef, useState } from "react";
 import { Button, Form, Modal } from "react-bootstrap";
 import IconComp from "react-cismap/commons/Icon";
 import { useDispatch, useSelector } from "react-redux";
-import { useHistory, useLocation } from "react-router-dom/cjs/react-router-dom.min";
+import {
+  useHistory,
+  useLocation,
+} from "react-router-dom/cjs/react-router-dom.min";
 
 import { DOMAIN, REST_SERVICE } from "../../constants/belis";
 import { CONNECTIONMODE, setConnectionMode } from "../../core/store/slices/app";
-import { getLogin, setLoginRequested, storeJWT, storeLogin } from "../../core/store/slices/auth";
+import {
+  getLogin,
+  setLoginRequested,
+  storeJWT,
+  storeLogin,
+} from "../../core/store/slices/auth";
 import { isCacheFullUsable } from "../../core/store/slices/cacheControl";
 import { forceRefresh } from "../../core/store/slices/featureCollection";
 import { HEALTHSTATUS, setHealthState } from "../../core/store/slices/health";
 
 const LoginForm = ({
   setJWT = (jwt) => {
-    console.log("you need to set the attribute setJWT in the <Login> component", jwt);
+    console.log(
+      "you need to set the attribute setJWT in the <Login> component",
+      jwt
+    );
   },
   loginInfo,
   setLoginInfo = () => {},
@@ -109,7 +120,10 @@ const LoginForm = ({
         }
       })
       .catch(function (err) {
-        setLoginInfo({ color: "#FF3030", text: "Bei der Anmeldung ist ein Fehler aufgetreten." });
+        setLoginInfo({
+          color: "#FF3030",
+          text: "Bei der Anmeldung ist ein Fehler aufgetreten.",
+        });
         setTimeout(() => {
           setLoginInfo();
         }, 2500);
@@ -121,8 +135,8 @@ const LoginForm = ({
       style={{
         zIndex: 30000000,
       }}
-      height='100%'
-      size='l'
+      height="100%"
+      size="l"
       show={true}
       //   onHide={close}
       keyboard={false}
@@ -136,9 +150,13 @@ const LoginForm = ({
           </div>
         </Modal.Title>
       </Modal.Header>
-      <Modal.Body style={modalBodyStyle} id='potenzialflaechen-online' key='login'>
+      <Modal.Body
+        style={modalBodyStyle}
+        id="potenzialflaechen-online"
+        key="login"
+      >
         <Form>
-          <Form.Group controlId='potenzialflaechen-online-login'>
+          <Form.Group controlId="potenzialflaechen-online-login">
             <Form.Label>BelIS Benutzername</Form.Label>
             <Form.Control
               value={user}
@@ -154,14 +172,14 @@ const LoginForm = ({
                   }
                 }
               }}
-              placeholder='Login hier eingeben'
+              placeholder="Login hier eingeben"
             />
             {/* <Form.Text className='text-muted'>
               We'll never share your email with anyone else.
             </Form.Text> */}
           </Form.Group>
 
-          <Form.Group controlId='potenzialflaechen-online-pass'>
+          <Form.Group controlId="potenzialflaechen-online-pass">
             <Form.Label>Passwort</Form.Label>
             <Form.Control
               ref={pwFieldRef}
@@ -169,8 +187,8 @@ const LoginForm = ({
               onChange={(e) => {
                 setPw(e.target.value);
               }}
-              type='password'
-              placeholder='Password'
+              type="password"
+              placeholder="Password"
               onKeyPress={(event) => {
                 if (event.key === "Enter") {
                   login();
@@ -188,7 +206,13 @@ const LoginForm = ({
             }}
           >
             {loginInfo?.text && (
-              <div style={{ margin: 10, color: loginInfo?.color || "black", maxWidth: 200 }}>
+              <div
+                style={{
+                  margin: 10,
+                  color: loginInfo?.color || "black",
+                  maxWidth: 200,
+                }}
+              >
                 <b>{loginInfo?.text}</b>
               </div>
             )}
@@ -209,7 +233,7 @@ const LoginForm = ({
                     }, 1000);
                   }}
                   style={{ margin: 5, marginTop: 30 }}
-                  variant='secondary'
+                  variant="secondary"
                 >
                   Offline arbeiten
                 </Button>
@@ -226,7 +250,7 @@ const LoginForm = ({
                     }, 500);
                   }}
                   style={{ margin: 5, marginTop: 30 }}
-                  variant='secondary'
+                  variant="secondary"
                 >
                   abmelden
                 </Button>
@@ -236,7 +260,7 @@ const LoginForm = ({
                   login();
                 }}
                 style={{ margin: 5, marginTop: 30 }}
-                variant='primary'
+                variant="primary"
               >
                 Anmeldung
               </Button>

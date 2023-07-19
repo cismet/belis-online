@@ -5,16 +5,30 @@ import React, { useContext, useEffect, useRef, useState } from "react";
 import { UIDispatchContext } from "react-cismap/contexts/UIContextProvider";
 import PhotoLightBox from "react-cismap/topicmaps/PhotoLightbox";
 import { useDispatch, useSelector } from "react-redux";
-import { useHistory, useLocation } from "react-router-dom/cjs/react-router-dom.min";
+import {
+  useHistory,
+  useLocation,
+} from "react-router-dom/cjs/react-router-dom.min";
 
 import LoginForm from "../components/app/LoginForm";
 import MapBlocker from "../components/app/MapBlocker";
 import Menu from "../components/app/menu/Menu";
-import { REST_SERVICE } from "../constants/belis";
-import { CONNECTIONMODE, getConnectionMode, getDialog } from "../core/store/slices/app";
-import { getJWT, isLoginRequested } from "../core/store/slices/auth";
+import { REST_SERVICE, DB_VERSION } from "../constants/belis";
+import {
+  CONNECTIONMODE,
+  getConnectionMode,
+  getDialog,
+} from "../core/store/slices/app";
+import {
+  getJWT,
+  getLoginFromJWT,
+  isLoginRequested,
+} from "../core/store/slices/auth";
 import { storeJWT } from "../core/store/slices/auth";
-import { renewCache } from "../core/store/slices/cacheControl";
+import {
+  renewCache,
+  resetCacheInfoIfOneIsStillInLoadingState,
+} from "../core/store/slices/cacheControl";
 import { getWorker } from "../core/store/slices/dexie";
 import {
   getFeatureCollectionMode,
@@ -25,14 +39,22 @@ import {
   setDone,
 } from "../core/store/slices/featureCollection";
 import { tasklistPostSelection } from "../core/store/slices/featureCollectionSubslices/tasklists";
-import { doHealthCheck, getHealthState, HEALTHSTATUS } from "../core/store/slices/health";
+import {
+  doHealthCheck,
+  getHealthState,
+  HEALTHSTATUS,
+} from "../core/store/slices/health";
 import {
   fillLeuchtentypenFromDexie,
   fillLeuchtmittelFromDexie,
   fillRundsteuerempfaengerFromDexie,
   fillTeamsFromDexie,
 } from "../core/store/slices/keytables";
-import { initialize, resyncDb } from "../core/store/slices/offlineActionDb";
+import {
+  initialize,
+  reInitialize,
+  resyncDb,
+} from "../core/store/slices/offlineActionDb";
 import { getTeam } from "../core/store/slices/team";
 import BelisMap from "./BelisMap";
 import BottomNavbar from "./BottomNavbar";
@@ -118,6 +140,7 @@ const View = () => {
     (async () => {
       if (jwt && dexieW) {
         try {
+          dispatch(resetCacheInfoIfOneIsStillInLoadingState());
           //Teams
           const teams = await dexieW.getAll("team");
           if (!teams || teams.length === 0) {
@@ -142,7 +165,9 @@ const View = () => {
             dispatch(fillLeuchtentypenFromDexie());
           }
           //rundsteuerempfaenger
-          const rundsteuerempfaenger = await dexieW.getAll("rundsteuerempfaenger");
+          const rundsteuerempfaenger = await dexieW.getAll(
+            "rundsteuerempfaenger"
+          );
           if (!rundsteuerempfaenger || rundsteuerempfaenger.length === 0) {
             dispatch(
               renewCache("rundsteuerempfaenger", jwt, undefined, () => {
@@ -192,7 +217,9 @@ const View = () => {
     }
   }, [selectedTeam, storedJWT, dispatch]);
 
-  const { setAppMenuActiveMenuSection, setAppMenuVisible } = useContext(UIDispatchContext);
+  const { setAppMenuActiveMenuSection, setAppMenuVisible } = useContext(
+    UIDispatchContext
+  );
 
   let loginForm = null;
 
@@ -223,27 +250,35 @@ const View = () => {
   useEffect(() => {
     if (browserlocation.search === "") {
       history.push(
-        history.location.pathname + "?lat=51.27185783523219&lng=7.200121618952836&zoom=19"
+        history.location.pathname +
+          "?lat=51.27185783523219&lng=7.200121618952836&zoom=19"
       );
     }
   }, [history, browserlocation]);
 
   useEffect(() => {
+    const login = getLoginFromJWT(jwt);
+    console.log("useEffectLogger for storedJWT", { jwt, login });
+
+    const loginLowerCase = (login || "").toLowerCase();
+
     if (storedJWT) {
-      if (window["dbInit"] === true) {
-        dispatch(resyncDb());
+      if (window["db_" + DB_VERSION + "_" + loginLowerCase]) {
+        dispatch(reInitialize(storedJWT));
       } else {
-        dispatch(initialize());
+        dispatch(initialize(storedJWT));
       }
     }
   }, [storedJWT]);
 
   useEffect(() => {
     if (onlineStatus === true) {
-      dispatch(resyncDb());
+      dispatch(resyncDb(jwt));
       dispatch(setDone(true));
+    } else {
+      dispatch(doHealthCheck(jwt));
     }
-  }, [onlineStatus]);
+  }, [onlineStatus, dispatch, jwt]);
 
   // const photoBoxTitle = useSelector(getTitle);
   // const photourls = useSelector(getPhotoUrls);
@@ -268,7 +303,9 @@ const View = () => {
 
   return (
     <div ref={refApp}>
-      <PhotoLightBox reactModalStyleOverride={{ overlay: { zIndex: 60000000 } }} />
+      <PhotoLightBox
+        reactModalStyleOverride={{ overlay: { zIndex: 60000000 } }}
+      />
       <Menu
         hide={() => {
           setAppMenuVisible(false);

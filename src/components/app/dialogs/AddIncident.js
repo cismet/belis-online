@@ -1,14 +1,27 @@
 import { UploadOutlined } from "@ant-design/icons";
-import { Button, Col, Form, Input, Modal, Row, Select, Typography, Upload } from "antd";
+import {
+  Button,
+  Col,
+  Form,
+  Input,
+  Modal,
+  Row,
+  Select,
+  Typography,
+  Upload,
+} from "antd";
 import TextArea from "antd/lib/input/TextArea";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import {
+  IMAGEUPLOAD_MAXSIDE,
+  IMAGEUPLOAD_QUALITY,
+} from "../../../constants/belis";
 
 import extensions from "../../../core/helper/extensions";
 import { getNonce } from "../../../core/helper/featureHelper";
+import { shrinkBase64Image } from "../../../core/helper/imageHelper";
 import { getJWT, getLoginFromJWT } from "../../../core/store/slices/auth";
-import { renewCache } from "../../../core/store/slices/cacheControl";
-import { getWorker } from "../../../core/store/slices/dexie";
 import { getTeamsKT } from "../../../core/store/slices/keytables";
 import { getTeam } from "../../../core/store/slices/team";
 
@@ -58,11 +71,25 @@ const AddIncidentDialog = ({
       // Get this url from response in real world.
       getBase64(info.file.originFileObj, (imageUrl) => {
         //info.file.imageData=imageUrl;
-        setTimeout(() => {
-          setImageData((old) => {
-            return { ...old, [info.file.uid]: { uid: info.file.uid, title: undefined, imageUrl } };
-          });
-        }, 100);
+        shrinkBase64Image(
+          imageUrl,
+          IMAGEUPLOAD_MAXSIDE,
+          IMAGEUPLOAD_QUALITY,
+          (shrinked) => {
+            setTimeout(() => {
+              setImageData((old) => {
+                return {
+                  ...old,
+                  [info.file.uid]: {
+                    uid: info.file.uid,
+                    title: undefined,
+                    imageUrl: shrinked,
+                  },
+                };
+              });
+            }, 100);
+          }
+        );
       });
     } else if (info.file.status === "removed") {
       setImageData((old) => {
@@ -87,7 +114,7 @@ const AddIncidentDialog = ({
       title={
         <>
           <div>Störung melden {modeinfo}</div>{" "}
-          <Text type='secondary'>{input?.vcard?.infobox?.title}</Text>
+          <Text type="secondary">{input?.vcard?.infobox?.title}</Text>
         </>
       }
       centered
@@ -105,6 +132,8 @@ const AddIncidentDialog = ({
             const ccnonce = getNonce();
 
             const images = Object.keys(imageData).map((key) => {
+              console.log("imageData[key]", imageData[key]);
+
               mimeType = imageData[key].imageUrl.match("data:(.*);")[1];
               ending = extensions[mimeType];
               return {
@@ -157,15 +186,15 @@ const AddIncidentDialog = ({
     >
       <Form
         form={form}
-        layout='vertical'
-        name='form_in_modal'
+        layout="vertical"
+        name="form_in_modal"
         initialValues={{
           modifier: "public",
         }}
       >
         <Form.Item
-          name='title'
-          label='Bezeichnung'
+          name="title"
+          label="Bezeichnung"
           rules={[
             {
               required: true,
@@ -177,7 +206,7 @@ const AddIncidentDialog = ({
         </Form.Item>
 
         {input.mode === ADD_INCIDENT_MODES.EINZELAUFTRAG && (
-          <Form.Item name='aa_team' label='Team'>
+          <Form.Item name="aa_team" label="Team">
             <Select
               defaultValue={preferredIncidentTeam?.id || myTeam?.id}
               style={{ width: "100%" }}
@@ -191,15 +220,15 @@ const AddIncidentDialog = ({
             </Select>
           </Form.Item>
         )}
-        <Form.Item name='description' label='Beschreibung'>
+        <Form.Item name="description" label="Beschreibung">
           <TextArea />
         </Form.Item>
-        <Form.Item name='remarks' label='Bemerkungen'>
+        <Form.Item name="remarks" label="Bemerkungen">
           <TextArea />
         </Form.Item>
         <Form.Item
-          name='images'
-          label='Foto aufnehmen oder schon aufgenommenes Foto auswählen'
+          name="images"
+          label="Foto aufnehmen oder schon aufgenommenes Foto auswählen"
           rules={[
             {
               required: false,
@@ -208,10 +237,10 @@ const AddIncidentDialog = ({
           ]}
         >
           <Upload
-            name='upload'
-            listType='picture-card'
+            name="upload"
+            listType="picture-card"
             // listType='picture'
-            className='avatar-uploader'
+            className="avatar-uploader"
             showUploadList={{ showPreviewIcon: false, showDownloadIcon: false }}
             onChange={handleUploadChange}
             customRequest={dummyRequest}
@@ -229,43 +258,50 @@ const AddIncidentDialog = ({
             JSON.stringify(imageData)
           }
           imageData={imageData}
-          yname='images'
-          label='Bildertitel'
+          yname="images"
+          label="Bildertitel"
         >
           {form.getFieldValue("images")?.fileList &&
-            form.getFieldValue("images").fileList.map((fileListEntry, index) => {
-              return (
-                <div key={index}>
-                  <Row justify='space-around' align='middle'>
-                    <Col align='middle' span={4}>
-                      <img style={{ width: "60%" }} src={fileListEntry.thumbUrl} alt='preview' />
-                    </Col>
-                    <Col span={20}>
-                      <div>
-                        <Form.Item
-                          name={"picname" + fileListEntry.uid}
-                          rules={[
-                            {
-                              required: true,
-                              message: "Bitte geben Sie eine Bezeichnung für das Bild an.",
-                            },
-                          ]}
-                        >
-                          <Input
-                            onChange={(e) => {
-                              setImageData((old) => {
-                                old[fileListEntry.uid].title = e.target.value;
-                                return old;
-                              });
-                            }}
-                          />
-                        </Form.Item>
-                      </div>
-                    </Col>
-                  </Row>
-                </div>
-              );
-            })}
+            form
+              .getFieldValue("images")
+              .fileList.map((fileListEntry, index) => {
+                return (
+                  <div key={index}>
+                    <Row justify="space-around" align="middle">
+                      <Col align="middle" span={4}>
+                        <img
+                          style={{ width: "60%" }}
+                          src={fileListEntry.thumbUrl}
+                          alt="preview"
+                        />
+                      </Col>
+                      <Col span={20}>
+                        <div>
+                          <Form.Item
+                            name={"picname" + fileListEntry.uid}
+                            rules={[
+                              {
+                                required: true,
+                                message:
+                                  "Bitte geben Sie eine Bezeichnung für das Bild an.",
+                              },
+                            ]}
+                          >
+                            <Input
+                              onChange={(e) => {
+                                setImageData((old) => {
+                                  old[fileListEntry.uid].title = e.target.value;
+                                  return old;
+                                });
+                              }}
+                            />
+                          </Form.Item>
+                        </div>
+                      </Col>
+                    </Row>
+                  </div>
+                );
+              })}
         </Form.Item>
       </Form>
     </Modal>

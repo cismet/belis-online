@@ -74,7 +74,8 @@ export const loadTaskListsIntoFeatureCollection = ({
         }
         const newResults = getNewIntermediateResults(
           state.offlineActionDb.intermediateResults,
-          "arbeitsauftrag"
+          "arbeitsauftrag",
+          team.id
         );
         console.log("xxx newResults", newResults);
 

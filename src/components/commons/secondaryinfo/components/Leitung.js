@@ -9,6 +9,7 @@ const getLayout4Leitung = ({
   setVisible,
   setIndex,
   showActions = true,
+  openLightBox = true,
 }) => {
   const laengePart =
     feature?.geometry !== undefined
