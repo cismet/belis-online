@@ -1,7 +1,7 @@
-export const REST_SERVICE = "https://belis-cloud.cismet.de/belis2/api";
+export const REST_SERVICE = "https://belis-mobile-api.cismet.de";
 export const DOMAIN = "BELIS2";
 const OFFLINE_ACTIONS_ROUTE =
-     "offline-actions-belis-cloud.cismet.de/v1/graphql";
+     "belis-mobile-offline-actions.cismet.de/v1/graphql";
 export const OFFLINE_ACTIONS_SYNC_URL = "https://" + OFFLINE_ACTIONS_ROUTE;
 export const OFFLINE_ACTIONS_ENDPOINT_URL = "wss://" + OFFLINE_ACTIONS_ROUTE;
 export const DB_VERSION = '1';
