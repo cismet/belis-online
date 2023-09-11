@@ -27,13 +27,17 @@ export async function fetchGraphQL(
     query: operationsDoc,
     variables: variables,
   };
+
+  if (apiPrefix == "z2") {
+    queryObject.chunked = true;
+  }
   const body = JSON.stringify(queryObject);
   if (logGQLEnabled && forceSkipLogging === false) {
     console.log(`logGQL:: GraphQL query (${nonce}):`, queryObject);
   }
   try {
     const response = await fetch(
-      REST_SERVICE + `/${apiPrefix}graphql/` + DOMAIN + "/execute",
+      REST_SERVICE + `/graphql/` + DOMAIN + "/execute",
       {
         method: "POST",
         headers: myHeaders,

@@ -81,7 +81,7 @@ const AddImageDialog = ({
               objekt_typ: feature.featuretype,
               object_name: feature.properties.name,
               ts: Date.now(),
-              prefix: "dev", //the dev prefix should only be set in a dev environment to protect the webdav from cluttering
+              prefix: "DOC-", //the dev prefix should only be set in a dev environment to protect the webdav from cluttering
             };
 
             form.resetFields();
