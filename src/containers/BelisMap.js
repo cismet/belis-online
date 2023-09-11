@@ -1,9 +1,6 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { MappingConstants, RoutedMap } from "react-cismap";
-import {
-  TopicMapStylingContext,
-  TopicMapStylingDispatchContext,
-} from "react-cismap/contexts/TopicMapStylingContextProvider";
+import { TopicMapStylingContext } from "react-cismap/contexts/TopicMapStylingContextProvider";
 import GazetteerHitDisplay from "react-cismap/GazetteerHitDisplay";
 import ProjSingleGeoJson from "react-cismap/ProjSingleGeoJson";
 import { useDispatch, useSelector } from "react-redux";
@@ -14,7 +11,6 @@ import FocusRectangle from "../components/app/FocusRectangle";
 import InfoBox from "../components/commons/InfoBox";
 import InfoPanel from "../components/commons/secondaryinfo/SecondaryInfo";
 import PaleOverlay from "../components/leaflet/PaleOverlay";
-import { backgrounds } from "../constants/belis";
 import { modifyQueryPart } from "../core/commons/routingHelper";
 import { convertBounds2BBox } from "../core/helper/gisHelper";
 import { CONNECTIONMODE, getConnectionMode } from "../core/store/slices/app";
@@ -47,16 +43,10 @@ const BelisMap = ({ refRoutedMap, width, height, jwt }) => {
   const [indexInitialized, setIndexInitialized] = useState(false);
   const [indexInitializationRequested, setIndexInitializationRequested] =
     useState(false);
-  const { setSelectedBackground } = useContext(TopicMapStylingDispatchContext);
 
-  const {
-    backgroundModes,
-    selectedBackground,
-    baseLayerConf,
-    backgroundConfigurations,
-    additionalLayerConfiguration,
-    activeAdditionalLayerKeys,
-  } = useContext(TopicMapStylingContext);
+  const { selectedBackground, backgroundConfigurations } = useContext(
+    TopicMapStylingContext
+  );
 
   const timeoutHandlerRef = useRef(null);
 

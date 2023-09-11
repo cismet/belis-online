@@ -33,7 +33,6 @@ import { getLoginFromJWT, setLoginRequested } from "../core/store/slices/auth";
 import { getBackground } from "../core/store/slices/background";
 import {
   getCacheDate,
-  getCacheUpdatingProgress,
   getCacheUser,
   isCacheFullUsable,
 } from "../core/store/slices/cacheControl";
@@ -62,6 +61,7 @@ const BottomNavbar = ({
 }) => {
   const dispatch = useDispatch();
   const browserlocation = useLocation();
+  // eslint-disable-next-line no-unused-vars
   const [windowWidth, windowHeight] = useWindowSize();
 
   const inFocusMode = useSelector(isInFocusMode);
@@ -70,7 +70,7 @@ const BottomNavbar = ({
   const inPaleMode = useSelector(isPaleModeActive);
   const background = useSelector(getBackground);
   const connectionMode = useSelector(getConnectionMode);
-  const cachingProgress = useSelector(getCacheUpdatingProgress);
+
   const isCacheReady = useSelector(isCacheFullUsable);
 
   const healthState = useSelector(getHealthState);
@@ -80,6 +80,7 @@ const BottomNavbar = ({
   let user;
 
   const tasks = useSelector(getTasks);
+  // eslint-disable-next-line no-unused-vars
   const [rerenderCount, setRerenderCount] = useState(0);
 
   const [numberOfPendingTasks, setNumberOfPendingTasks] = useState(0);
@@ -129,17 +130,15 @@ const BottomNavbar = ({
   } else {
     user = getLoginFromJWT(jwt);
   }
-  let fontSize, narrow, fontSizeIconPixel, iconWidth, toggleSize;
+  let fontSize, fontSizeIconPixel, iconWidth, toggleSize;
 
   if (windowWidth <= 1200) {
     fontSize = "0.8rem";
-    narrow = true;
     fontSizeIconPixel = 18;
     iconWidth = "24px";
     toggleSize = "small";
   } else {
     fontSize = "1rem";
-    narrow = false;
     fontSizeIconPixel = 24;
     iconWidth = "24px";
     toggleSize = "large";
@@ -436,8 +435,8 @@ const isToday = (someDateMS) => {
   const someDate = new Date(someDateMS);
   const today = new Date();
   return (
-    someDate.getDate() == today.getDate() &&
-    someDate.getMonth() == today.getMonth() &&
-    someDate.getFullYear() == today.getFullYear()
+    someDate.getDate() === today.getDate() &&
+    someDate.getMonth() === today.getMonth() &&
+    someDate.getFullYear() === today.getFullYear()
   );
 };

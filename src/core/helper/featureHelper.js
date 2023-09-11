@@ -553,6 +553,7 @@ export const getNewIntermediateResults = (
           }
         }
       }
+      break;
     default:
       console.log("no new intermediate results for type " + type);
   }
@@ -566,8 +567,6 @@ export const integrateIntermediateResults = (feature, intermediateResults) => {
   if (item.docs) {
     item.docs = item.docs.filter((doc) => !doc.intermediate);
   }
-
-  let newTasklists = [];
 
   docs = getIntermediateResultsImages(
     item,
@@ -970,19 +969,19 @@ const getProtokollStatusForId = (id) => {
   }
 };
 
-const addFieldByFK = async (db, item, tablename, fieldname, fkId) => {
-  if (fkId !== undefined && fkId !== null) {
-    const tab = await db.table(tablename);
-    let value = await tab.get({ id: fkId });
-    item[fieldname] = value;
-  }
-};
+// const addFieldByFK = async (db, item, tablename, fieldname, fkId) => {
+//   if (fkId !== undefined && fkId !== null) {
+//     const tab = await db.table(tablename);
+//     let value = await tab.get({ id: fkId });
+//     item[fieldname] = value;
+//   }
+// };
 
-const copyFields = (item, feature, fieldnames) => {
-  for (const field of fieldnames) {
-    item[field] = feature.properties[field];
-  }
-};
+// const copyFields = (item, feature, fieldnames) => {
+//   for (const field of fieldnames) {
+//     item[field] = feature.properties[field];
+//   }
+// };
 
 export const compareFeature = (a, b) => {
   try {

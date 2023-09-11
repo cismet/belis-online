@@ -158,19 +158,8 @@ export const getTaskForAction = (resultObject) => {
   //  status
 
   if (resultObject) {
-    const {
-      id,
-      jwt,
-      createdAt,
-      updatedAt,
-      applicationId,
-      isCompleted,
-      action,
-      parameter,
-      result,
-      body,
-      status,
-    } = resultObject;
+    const { id, createdAt, updatedAt, action, parameter, status } =
+      resultObject;
 
     let parameters = { objekt_typ: "???", object_name: "" };
     try {

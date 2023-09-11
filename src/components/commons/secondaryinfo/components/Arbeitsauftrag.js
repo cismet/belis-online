@@ -74,7 +74,7 @@ const getLayout4Arbeitsauftrag = ({
       // Fehlmeldung
       style = "danger";
     }
-
+    /* eslint-disable jsx-a11y/anchor-is-valid */
     subSections.push(
       <SecondaryInfoPanelSection
         key={"prot.in.aa.for." + pf.id}

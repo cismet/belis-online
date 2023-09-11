@@ -28,7 +28,7 @@ export async function fetchGraphQL(
     variables: variables,
   };
 
-  if (apiPrefix == "z2") {
+  if (apiPrefix === "z2") {
     queryObject.chunked = true;
   }
   const body = JSON.stringify(queryObject);

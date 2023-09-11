@@ -8,7 +8,6 @@ import {
   loadObjects,
   setFilter,
 } from "../../../core/store/slices/featureCollection";
-import { getMapRef } from "../../../core/store/slices/map";
 
 const Filter = ({ refRoutedMap }) => {
   // const dexieW = dexieworker();

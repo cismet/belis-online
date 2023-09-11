@@ -16,7 +16,6 @@ import {
 } from "../../../helper/gisHelper";
 import onlineQueryParts, { geomFactories } from "../../../queries/online";
 import { CONNECTIONMODE, getConnectionMode } from "../app";
-import { storeJWT } from "../auth";
 import {
   getFeatureCollection,
   getFilter,
@@ -232,7 +231,6 @@ const enrichAndSetFeatures = (
 
   const tasks = [];
 
-  const newFeatures = [];
   const currentFeatureCollection = getFeatureCollection(state);
 
   const stillInMap = currentFeatureCollection.filter((f) =>

@@ -50,15 +50,9 @@ const CacheSettings = () => {
   useEffect(() => {
     dispatch(fillCacheInfo());
   }, []);
-  const [width, height] = useWindowSize();
 
-  const modalBodyStyle = {
-    zIndex: 30000000,
-    overflowY: "auto",
-    overflowX: "hidden",
-    maxHeight: height - 250,
-    width: "100%",
-  };
+  // eslint-disable-next-line no-unused-vars
+  const [width, height] = useWindowSize();
 
   let secondarySettings = [];
   Object.keys(cacheSettings)

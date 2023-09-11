@@ -44,12 +44,18 @@ const SetStatusDialog = ({
   const jwt = useSelector(getJWT);
 
   const [leuchtentypen, setLeuchtentypen] = useState([]);
+
+  // eslint-disable-next-line no-unused-vars
   const [preferredLeuchtentyp, setPreferredLeuchtentyp] = useState();
 
   const [leuchtmittel, setLeuchtmittel] = useState([]);
+
+  // eslint-disable-next-line no-unused-vars
   const [prefferredLeuchtmittel, setPrefferredLeuchtmittel] = useState([]);
 
   const [rundsteuerempfaenger, setRundsteuerempfaenger] = useState([]);
+
+  // eslint-disable-next-line no-unused-vars
   const [preferredRundsteuerempfaenger, setPreferredRundsteuerempfaenger] =
     useState();
   const dispatch = useDispatch();

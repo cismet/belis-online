@@ -1,6 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
 import slugify from "slugify";
-import uuidv4 from "uuid/v4";
 
 import * as offlineDatabase from "../../commons/offlineActionDbHelper";
 import { getTaskForAction } from "../../commons/taskHelper";
@@ -185,7 +184,6 @@ export const resyncDb = (currentJwt) => {
   return async (dispatch, getState) => {
     const state = getState();
     const rep = getRep(state);
-    const db = getDB(state);
 
     if (rep) {
       const jwt = currentJwt ? currentJwt : getJWT(getState());
@@ -213,7 +211,6 @@ export const setSyncPoint = (time) => {
   return async (dispatch, getState) => {
     const state = getState();
     const rep = getRep(state);
-    const db = getDB(state);
 
     if (rep) {
       rep.setSyncPoint(timeObj);

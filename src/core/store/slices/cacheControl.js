@@ -1,7 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 import dexieworker from "workerize-loader!../../workers/dexie"; // eslint-disable-line import/no-webpack-loader-syntax
 
-import { fetchGraphQL, fetchGraphQLZipped } from "../../commons/graphql";
+import { fetchGraphQL } from "../../commons/graphql";
 import cacheQueries from "../../queries/cache";
 import { CONNECTIONMODE, setConnectionMode } from "./app";
 import { getLoginFromJWT } from "./auth";
@@ -354,7 +354,6 @@ export const renewAllSecondaryInfoCache = (jwt) => {
   return async (dispatch, getState) => {
     const state = getState();
 
-    let index = 0;
     for (const key of Object.keys(state.cacheControl.types)) {
       if (state.cacheControl.types[key].primary !== true) {
         dispatch(renewCache(key, jwt));
@@ -366,7 +365,6 @@ export const renewAllPrimaryInfoCache = (jwt) => {
   return async (dispatch, getState) => {
     const state = getState();
 
-    let index = 0;
     for (const key of Object.keys(state.cacheControl.types)) {
       if (state.cacheControl.types[key].primary === true) {
         dispatch(renewCache(key, jwt));
@@ -379,7 +377,6 @@ export const renewAllCaches = (jwt) => {
   return async (dispatch, getState) => {
     const state = getState();
 
-    let index = 0;
     for (const key of Object.keys(state.cacheControl.types)) {
       if (key) {
         dispatch(renewCache(key, jwt));
@@ -406,11 +403,8 @@ export const renewCache = (
   return async (dispatch, getState) => {
     const stateForParameterFactory =
       overridingStateForParameterFactory || getState();
-    const state = getState();
-    const cfg = keys.find((k) => k.queryKey === key);
 
     const itemKey = key;
-    const dataKey = cfg.queryKey || key;
 
     dispatch(setLoadingState({ key, loadingState: "loading" }));
     dispatch(setCachingProgress({ key, cachingProgress: 0 }));

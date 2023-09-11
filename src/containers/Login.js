@@ -1,4 +1,4 @@
-import { Button, Checkbox, Form, Input, Popover, Select } from "antd";
+import { Button, Form, Input, Popover } from "antd";
 import React, { useEffect } from "react";
 
 import "antd/dist/antd.min.css";
@@ -8,8 +8,6 @@ import {
   useHistory,
   useLocation,
 } from "react-router-dom/cjs/react-router-dom.min";
-import useOnlineStatus from "@rehooks/online-status";
-import { getWorker } from "../core/store/slices/dexie";
 import {
   getJWT,
   setLoginRequested,
@@ -29,7 +27,6 @@ import {
   downloadTasks,
   truncateActionTables,
 } from "../core/store/slices/offlineActionDb";
-import { resetApplicationState } from "../core/store";
 import {
   doHealthCheck,
   getHealthState,

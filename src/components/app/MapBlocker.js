@@ -4,7 +4,6 @@ import { useDispatch } from "react-redux";
 
 import { setDone } from "../../core/store/slices/featureCollection";
 
-const size = 150;
 const MapBlocker = ({ blocking, visible, width, height }) => {
   const [slowRequest, setSlowRequest] = useState(false);
   const dispatch = useDispatch();

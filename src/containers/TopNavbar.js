@@ -1,8 +1,6 @@
 import {
-  faAsterisk,
   faBars,
   faBookOpen,
-  faCloud,
   faFilter,
   faPowerOff,
   faRedo,
@@ -12,12 +10,11 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon as Icon } from "@fortawesome/react-fontawesome";
 import { useWindowSize } from "@react-hook/window-size";
-import { Modal, Switch, Tag } from "antd";
+import { Switch } from "antd";
 import React, { useEffect, useState } from "react";
 import Button from "react-bootstrap/Button";
 import Nav from "react-bootstrap/Nav";
 import Navbar from "react-bootstrap/Navbar";
-import NavDropdown from "react-bootstrap/NavDropdown";
 import { MappingConstants } from "react-cismap";
 import GazetteerSearchComponent from "react-cismap/GazetteerSearchComponent";
 import { useDispatch, useSelector } from "react-redux";
@@ -25,10 +22,8 @@ import {
   useHistory,
   useLocation,
 } from "react-router-dom/cjs/react-router-dom.min";
-import { useLongPress } from "use-long-press";
 import Filter from "../components/app/dialogs/Filter";
 
-import MySwitch from "../components/commons/Switch";
 import { getNonce } from "../core/helper/featureHelper";
 import {
   CONNECTIONMODE,
@@ -36,7 +31,6 @@ import {
   getConnectionMode,
   showDialog,
 } from "../core/store/slices/app";
-import { storeJWT, storeLogin } from "../core/store/slices/auth";
 import { getBackground } from "../core/store/slices/background";
 import {
   renewCache,
@@ -45,7 +39,6 @@ import {
 import {
   isDone as featureCollectionIsDone,
   forceRefresh,
-  getFeatureCollection,
   getFilter,
   getGazetteerHit,
   getOverlayFeature,
@@ -54,7 +47,6 @@ import {
   loadTaskLists,
   MODES,
   setFeatureCollectionForMode,
-  setFilter,
   setGazetteerHit,
   setMode,
   setOverlayFeature,
@@ -65,10 +57,7 @@ import {
   loadGazeteerEntries,
 } from "../core/store/slices/gazetteerData";
 import { fitBoundsForCollection } from "../core/store/slices/map";
-import {
-  getIntermediateResults,
-  getDB as getOfflineActionDB,
-} from "../core/store/slices/offlineActionDb";
+import { getIntermediateResults } from "../core/store/slices/offlineActionDb";
 import {
   isSearchModeActive,
   setActive as setSearchModeActive,
@@ -96,9 +85,7 @@ const TopNavbar = ({
   const fcIsDone = useSelector(featureCollectionIsDone);
   const filterState = useSelector(getFilter);
   const background = useSelector(getBackground);
-  const featureCollection = useSelector(getFeatureCollection);
   const searchForbidden = useSelector(isSearchForbidden);
-  const offlineActionDB = useSelector(getOfflineActionDB);
   const intermediateResult = useSelector(getIntermediateResults);
   const selectedArbeitsauftrag = useSelector(
     (state) => state.featureCollection.selectedFeature[MODES.TASKLISTS]
@@ -110,9 +97,10 @@ const TopNavbar = ({
     dispatch(loadGazeteerEntries());
   }, []);
 
+  // eslint-disable-next-line no-unused-vars
   const [windowWidth, windowHeight] = useWindowSize();
   const [loadTaskListsInProgress, setLoadTaskListsInProgress] = useState(false);
-  let fontSize, narrow, fontSizeIconPixel, iconWidth, toggleSize;
+  let fontSize, narrow;
   const isInStandaloneMode = () =>
     window.matchMedia("(display-mode: standalone)").matches ||
     window.navigator.standalone ||
@@ -121,20 +109,10 @@ const TopNavbar = ({
   if (windowWidth <= 1200) {
     fontSize = "0.8rem";
     narrow = true;
-    fontSizeIconPixel = 18;
-    iconWidth = "24px";
-    toggleSize = "small";
   } else {
     fontSize = "1rem";
     narrow = false;
-    fontSizeIconPixel = 24;
-    iconWidth = "24px";
-    toggleSize = "large";
   }
-
-  const longPress = useLongPress(() => {
-    window.location.reload();
-  });
 
   const artificialError = useSelector(getArtificialError);
   if (artificialError) {
