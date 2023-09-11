@@ -61,8 +61,6 @@ const AddIncidentDialog = ({
   const teams = useSelector(getTeamsKT) || [];
 
   const [imageData, setImageData] = useState({});
-  console.log("teams", teams);
-
   const handleUploadChange = (info) => {
     if (info.file.status === "uploading") {
       return;
@@ -132,8 +130,6 @@ const AddIncidentDialog = ({
             const ccnonce = getNonce();
 
             const images = Object.keys(imageData).map((key) => {
-              console.log("imageData[key]", imageData[key]);
-
               mimeType = imageData[key].imageUrl.match("data:(.*);")[1];
               ending = extensions[mimeType];
               return {

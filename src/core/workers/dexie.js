@@ -1,7 +1,7 @@
 import { getDocs } from "../helper/featureHelper";
 import { db } from "../indexeddb/dexiedb";
 import Pako from "pako";
-import {Buffer} from 'buffer';
+import { Buffer } from "buffer";
 
 export async function putZArray(zip, objectstorename) {
   let zippedData = Uint8Array.from(atob(zip), (c) => c.charCodeAt(0));
@@ -221,7 +221,6 @@ export const getFeaturesForHits = async (points, resultIds, filter) => {
           feature.properties.docs = getDocs(feature);
           featureCollection.push(feature);
         }
-        // //console.log('xxx Feature gebaut ', new Date().getTime() - d);
       }
     } else {
       if (hit.tablename !== "tdta_standort_mast") {
@@ -232,7 +231,3 @@ export const getFeaturesForHits = async (points, resultIds, filter) => {
 
   return featureCollection;
 };
-
-// function timeout(ms) {
-// 	return new Promise((resolve) => setTimeout(resolve, ms));
-// }

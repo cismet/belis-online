@@ -20,8 +20,6 @@ const addImageToObjectAction = (addImageParameter) => {
       applicationId: login + "@belis",
     });
 
-    console.log("added object to offline db to uploadDocument", addImageParameter);
-
     const intermediateResult = {
       object_type: addImageParameter.objekt_typ,
       object_id: addImageParameter.objekt_id,

@@ -84,12 +84,10 @@ const MapBlocker = ({ blocking, visible, width, height }) => {
                 Bitte warten Sie einen Moment oder brechen Sie die Anfrage mit{" "}
                 <Button
                   style={{ opacity: 0.8 }}
-                  size='small'
+                  size="small"
                   danger
-                  type='ghost'
+                  type="ghost"
                   onClick={() => {
-                    console.log("clicked");
-
                     dispatch(setDone(true));
                   }}
                 >

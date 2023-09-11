@@ -24,7 +24,11 @@ import { useDispatch, useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
 
 import MySwitch from "../components/commons/Switch";
-import { CONNECTIONMODE, getConnectionMode, setConnectionMode } from "../core/store/slices/app";
+import {
+  CONNECTIONMODE,
+  getConnectionMode,
+  setConnectionMode,
+} from "../core/store/slices/app";
 import { getLoginFromJWT, setLoginRequested } from "../core/store/slices/auth";
 import { getBackground } from "../core/store/slices/background";
 import {
@@ -41,7 +45,10 @@ import {
 } from "../core/store/slices/featureCollection";
 import { getHealthState, HEALTHSTATUS } from "../core/store/slices/health";
 import { getTasks } from "../core/store/slices/offlineActionDb";
-import { isPaleModeActive, setPaleModeActive } from "../core/store/slices/paleMode";
+import {
+  isPaleModeActive,
+  setPaleModeActive,
+} from "../core/store/slices/paleMode";
 
 //---------
 
@@ -68,7 +75,8 @@ const BottomNavbar = ({
 
   const healthState = useSelector(getHealthState);
   const uiThreadProgressbar =
-    new URLSearchParams(browserlocation.search).get("uiThreadProgressbar") === "true";
+    new URLSearchParams(browserlocation.search).get("uiThreadProgressbar") ===
+    "true";
   let user;
 
   const tasks = useSelector(getTasks);
@@ -139,9 +147,13 @@ const BottomNavbar = ({
 
   return (
     <div style={{ fontSize }}>
-      <Navbar ref={innerRef} bg={background === "nightplan" ? "dark" : "light"} expand='lg'>
-        <Navbar.Toggle aria-controls='basic-navbar-nav' />
-        <Nav className='mr-auto'>
+      <Navbar
+        ref={innerRef}
+        bg={background === "nightplan" ? "dark" : "light"}
+        expand="lg"
+      >
+        <Navbar.Toggle aria-controls="basic-navbar-nav" />
+        <Nav className="mr-auto">
           <div>
             {connectionMode === CONNECTIONMODE.ONLINE && (
               <Icon
@@ -151,7 +163,7 @@ const BottomNavbar = ({
                   cursor: "pointer",
                   paddingTop: 2,
                 }}
-                className='text-primary'
+                className="text-primary"
                 icon={faUser}
                 onClick={() => {
                   dispatch(setConnectionMode(CONNECTIONMODE.FROMCACHE));
@@ -166,7 +178,7 @@ const BottomNavbar = ({
                   cursor: "pointer",
                   paddingTop: 2,
                 }}
-                className='text-primary'
+                className="text-primary"
                 icon={faDatabase}
                 onClick={() => {
                   dispatch(setConnectionMode(CONNECTIONMODE.ONLINE));
@@ -176,10 +188,14 @@ const BottomNavbar = ({
             {user && <span style={{ marginLeft: 10 }}>{user}</span>}
           </div>
           <div style={{ marginLeft: 10 }}>
-            <ButtonGroup className='mr-2' aria-label='ModusGroup'>
+            <ButtonGroup className="mr-2" aria-label="ModusGroup">
               <Button
                 style={{ fontSize }}
-                variant={connectionMode === CONNECTIONMODE.ONLINE ? "primary" : "outline-primary"}
+                variant={
+                  connectionMode === CONNECTIONMODE.ONLINE
+                    ? "primary"
+                    : "outline-primary"
+                }
                 onClick={() => {
                   if (connectionMode !== CONNECTIONMODE.ONLINE) {
                     dispatch(setConnectionMode(CONNECTIONMODE.ONLINE));
@@ -195,7 +211,9 @@ const BottomNavbar = ({
                 style={{ fontSize }}
                 disabled={isCacheReady === false}
                 variant={
-                  connectionMode === CONNECTIONMODE.FROMCACHE ? "primary" : "outline-primary"
+                  connectionMode === CONNECTIONMODE.FROMCACHE
+                    ? "primary"
+                    : "outline-primary"
                 }
                 onClick={() => {
                   if (connectionMode !== CONNECTIONMODE.FROMCACHE) {
@@ -267,7 +285,7 @@ const BottomNavbar = ({
               onClick={() => {
                 dispatch(setLoginRequested(true));
               }}
-              className='text-primary'
+              className="text-primary"
               icon={faUserAltSlash}
             />
           )}
@@ -279,16 +297,16 @@ const BottomNavbar = ({
                 paddingTop: 2,
                 marginLeft: 10,
               }}
-              className='text-primary'
+              className="text-primary"
               icon={faCloudShowersHeavy}
             />
           )}
         </Nav>
 
-        <Nav className='mr-auto'>
+        <Nav className="mr-auto">
           <MySwitch
-            id='focus-toggle'
-            preLabel='Fokus'
+            id="focus-toggle"
+            preLabel="Fokus"
             switched={inFocusMode}
             size={toggleSize}
             style={{ paddingTop: 5 }}
@@ -308,8 +326,8 @@ const BottomNavbar = ({
 
           <div style={{ width: 10 }} />
           <MySwitch
-            id='pale-toggle'
-            preLabel='Blass'
+            id="pale-toggle"
+            preLabel="Blass"
             switched={inPaleMode}
             stateChanged={(switched) => dispatch(setPaleModeActive(switched))}
             size={toggleSize}
@@ -318,10 +336,14 @@ const BottomNavbar = ({
         </Nav>
 
         <Form inline>
-          <ButtonGroup className='mr-2' aria-label='First group'>
+          <ButtonGroup className="mr-2" aria-label="First group">
             <Button
               style={{ fontSize }}
-              variant={selectedBackground === "stadtplan" ? "primary" : "outline-primary"}
+              variant={
+                selectedBackground === "stadtplan"
+                  ? "primary"
+                  : "outline-primary"
+              }
               onClick={() => {
                 // dispatch(setBackground("stadtplan"));
                 setSelectedBackground("stadtplan");
@@ -331,7 +353,9 @@ const BottomNavbar = ({
             </Button>
             <Button
               style={{ fontSize }}
-              variant={selectedBackground === "lbk" ? "primary" : "outline-primary"}
+              variant={
+                selectedBackground === "lbk" ? "primary" : "outline-primary"
+              }
               onClick={() => {
                 // dispatch(setBackground("lbk"));
                 setSelectedBackground("lbk");
@@ -341,7 +365,9 @@ const BottomNavbar = ({
             </Button>
             <Button
               style={{ fontSize }}
-              variant={selectedBackground === "ortho" ? "primary" : "outline-primary"}
+              variant={
+                selectedBackground === "ortho" ? "primary" : "outline-primary"
+              }
               onClick={() => {
                 // dispatch(setBackground("ortho"));
                 setSelectedBackground("ortho");
@@ -358,14 +384,12 @@ const BottomNavbar = ({
         )}
         <Nav
           onClick={() => {
-            console.log("open tasks");
-
             setAppMenuActiveMenuSection("tasks");
             setAppMenuVisible(true);
           }}
         >
           <div key={"taskDiv." + rerenderCount}>
-            <span className='fa-layers fa-3x '>
+            <span className="fa-layers fa-3x ">
               <Icon
                 key={"tasks." + onlineStatus}
                 style={{
@@ -379,7 +403,7 @@ const BottomNavbar = ({
               {numberOfPendingTasks > 0 && (
                 <span
                   style={{ backgroundColor: blue[3] }}
-                  className='fa-layers-counter  fa-layers-bottom-right'
+                  className="fa-layers-counter  fa-layers-bottom-right"
                 >
                   {numberOfPendingTasks}
                 </span>
@@ -387,7 +411,7 @@ const BottomNavbar = ({
               {showingGreenCheck && (
                 <span
                   style={{ backgroundColor: green[5] }}
-                  className='fa-layers-counter  fa-layers-top-right'
+                  className="fa-layers-counter  fa-layers-top-right"
                 >
                   <Icon icon={faCheck} />
                 </span>
@@ -395,7 +419,7 @@ const BottomNavbar = ({
               {numberOfErrorTasks > 0 && (
                 <span
                   style={{ backgroundColor: red[3] }}
-                  className='fa-layers-counter  fa-layers-top-left'
+                  className="fa-layers-counter  fa-layers-top-left"
                 >
                   {numberOfErrorTasks}
                 </span>

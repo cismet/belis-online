@@ -37,14 +37,10 @@ export const loadTaskListsIntoFeatureCollection = ({
     const storedJWT = getJWT(state);
     dispatch(setDoneForMode({ mode: MODES.TASKLISTS, done: false }));
 
-    console.log("xxx Arbeitsaufträge für Team " + team?.name + " suchen");
-
     (async () => {
       try {
         let features = [];
         if (onlineDataForcing || connectionMode === CONNECTIONMODE.ONLINE) {
-          console.log("xxx will get tasklist from server");
-
           const gqlQuery = `query q($teamId: Int) {${queries.arbeitsauftraege_by_team_only_protocolgeoms}}`;
 
           const queryParameter = { teamId: team.id };
@@ -60,7 +56,6 @@ export const loadTaskListsIntoFeatureCollection = ({
           }
         } else {
           //offlineUse
-          console.log("xxx will get tasklist from local cache");
           const results = await dexieW.getAll("arbeitsauftrag");
           features = createArbeitsauftragFeaturesForResults(results, true);
         }
@@ -70,15 +65,16 @@ export const loadTaskListsIntoFeatureCollection = ({
         for (const feature of features) {
           const f = JSON.parse(JSON.stringify(feature));
           featureClones.push(f);
-          integrateIntermediateResults(f, state.offlineActionDb.intermediateResults);
+          integrateIntermediateResults(
+            f,
+            state.offlineActionDb.intermediateResults
+          );
         }
         const newResults = getNewIntermediateResults(
           state.offlineActionDb.intermediateResults,
           "arbeitsauftrag",
           team.id
         );
-        console.log("xxx newResults", newResults);
-
         for (const newResult of newResults) {
           const f = createSingleArbeitsauftragFeatureForItem(newResult, true);
           //try to find the feature in the already loaded feature collection
@@ -92,16 +88,31 @@ export const loadTaskListsIntoFeatureCollection = ({
         }
         features = featureClones;
 
-        dispatch(setFeatureCollectionForMode({ mode: MODES.PROTOCOLS, features: [] }));
-        dispatch(setSelectedFeatureForMode({ mode: MODES.PROTOCOLS, feature: undefined }));
-        dispatch(setFeatureCollectionForMode({ mode: MODES.TASKLISTS, features }));
         dispatch(
-          setFeatureCollectionInfoForMode({ mode: MODES.TASKLISTS, info: { typeCount: 1 } })
+          setFeatureCollectionForMode({ mode: MODES.PROTOCOLS, features: [] })
+        );
+        dispatch(
+          setSelectedFeatureForMode({
+            mode: MODES.PROTOCOLS,
+            feature: undefined,
+          })
+        );
+        dispatch(
+          setFeatureCollectionForMode({ mode: MODES.TASKLISTS, features })
+        );
+        dispatch(
+          setFeatureCollectionInfoForMode({
+            mode: MODES.TASKLISTS,
+            info: { typeCount: 1 },
+          })
         );
 
         if (features.length === 1) {
           dispatch(
-            setSelectedFeatureForMode({ mode: MODES.TASKLISTS, selectedFeature: features[0] })
+            setSelectedFeatureForMode({
+              mode: MODES.TASKLISTS,
+              selectedFeature: features[0],
+            })
           );
           dispatch(tasklistPostSelection(features[0], storedJWT));
         }
@@ -137,10 +148,16 @@ export const createSingleArbeitsauftragFeatureForItem = (item, enriched) => {
   return feature;
 };
 
-export const createArbeitsauftragFeaturesForResults = (results, enriched = false) => {
+export const createArbeitsauftragFeaturesForResults = (
+  results,
+  enriched = false
+) => {
   const features = [];
   for (const arbeitsauftrag of results) {
-    const feature = createSingleArbeitsauftragFeatureForItem(arbeitsauftrag, enriched);
+    const feature = createSingleArbeitsauftragFeatureForItem(
+      arbeitsauftrag,
+      enriched
+    );
     features.push(feature);
   }
 
@@ -163,10 +180,14 @@ const geometryFactory = (arbeitsauftrag) => {
       geoms.push(createGeomOnlyFeature(prot?.geometrie?.geom?.geo_field));
     }
     if (prot?.tdta_leuchten?.fk_standort?.geom?.geo_field) {
-      geoms.push(createGeomOnlyFeature(prot.tdta_leuchten.fk_standort.geom?.geo_field));
+      geoms.push(
+        createGeomOnlyFeature(prot.tdta_leuchten.fk_standort.geom?.geo_field)
+      );
     }
     if (prot?.tdta_standort_mast?.geom?.geo_field) {
-      geoms.push(createGeomOnlyFeature(prot.tdta_standort_mast.geom?.geo_field));
+      geoms.push(
+        createGeomOnlyFeature(prot.tdta_standort_mast.geom?.geo_field)
+      );
     }
     if (prot?.schaltstelle?.geom?.geo_field) {
       geoms.push(createGeomOnlyFeature(prot.schaltstelle.geom?.geo_field));
@@ -219,6 +240,11 @@ const createGeomOnlyFeature = (geom) => {
 
 export const tasklistPostSelection = (selectedFeature, jwt) => {
   return async (dispatch, getState) => {
-    dispatch(loadProtocollsIntoFeatureCollection({ tasklistFeature: selectedFeature, jwt }));
+    dispatch(
+      loadProtocollsIntoFeatureCollection({
+        tasklistFeature: selectedFeature,
+        jwt,
+      })
+    );
   };
 };

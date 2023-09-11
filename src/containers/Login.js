@@ -275,9 +275,7 @@ const Login = () => {
                       " ausgewähltes Team, Hintergrund, u.ä. gelöscht.\n\n" +
                       "Sind Sie sicher, dass Sie Ihre Einstellungen zurücksetzen wollen?"
                   );
-                  console.log("confirmation: " + confirmation);
                   if (confirmation) {
-                    console.log("resetting settings");
                     localforage.clear();
                   }
                 }}

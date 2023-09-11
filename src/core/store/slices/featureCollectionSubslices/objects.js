@@ -10,7 +10,10 @@ import {
   getDocs,
   integrateIntermediateResults,
 } from "../../../helper/featureHelper";
-import { convertBoundingBox, createQueryGeomFromBB } from "../../../helper/gisHelper";
+import {
+  convertBoundingBox,
+  createQueryGeomFromBB,
+} from "../../../helper/gisHelper";
 import onlineQueryParts, { geomFactories } from "../../../queries/online";
 import { CONNECTIONMODE, getConnectionMode } from "../app";
 import { storeJWT } from "../auth";
@@ -37,8 +40,6 @@ export const loadObjectsIntoFeatureCollection = ({
   jwt,
   onlineDataForcing = false,
 }) => {
-  console.log("will loadObjectsIntoFeatureCollection");
-
   if (boundingBox) {
     //const boundingBox=
     return async (dispatch, getState) => {
@@ -104,12 +105,21 @@ export const loadObjectsIntoFeatureCollection = ({
         }
         // console.log('leitungsFeatures', leitungsFeatures);
 
-        if (connectionMode === CONNECTIONMODE.FROMCACHE && onlineDataForcing === false) {
+        if (
+          connectionMode === CONNECTIONMODE.FROMCACHE &&
+          onlineDataForcing === false
+        ) {
           dexieW
-            .getFeaturesForHits(state.spatialIndex.pointIndex.points, resultIds, filter)
+            .getFeaturesForHits(
+              state.spatialIndex.pointIndex.points,
+              resultIds,
+              filter
+            )
             .then((pointFeatureCollection) => {
               //console.log('xxx alle Features da ', new Date().getTime() - d);
-              const featureCollection = leitungsFeatures.concat(pointFeatureCollection);
+              const featureCollection = leitungsFeatures.concat(
+                pointFeatureCollection
+              );
               enrichAndSetFeatures(dispatch, state, featureCollection, false);
               //console.log('xxx vor setFeatureCollection');
               //console.log("updated featureCollection ", featureCollection);
@@ -132,7 +142,9 @@ export const loadObjectsIntoFeatureCollection = ({
           }
           const gqlQuery = `query q($bbPoly: geometry!) {${queryparts}}`;
 
-          const queryParameter = { bbPoly: createQueryGeomFromBB(convertedBoundingBox) };
+          const queryParameter = {
+            bbPoly: createQueryGeomFromBB(convertedBoundingBox),
+          };
           try {
             console.time("query returned");
             // online query
@@ -148,21 +160,15 @@ export const loadObjectsIntoFeatureCollection = ({
                   featureCollection.push(feature);
                 }
               }
-              //featureCollection[0].selected = true;
-              // dispatch(setFeatureCollection(featureCollection));
               enrichAndSetFeatures(dispatch, state, featureCollection, true);
-              console.log("will updateSingleCacheItems");
-
-              //dexieW.updateSingleCacheItems(updates);
-              console.log("updateSingleCacheItems done");
-              console.log("loadObjectsIntoFeatureCollection done");
             } else {
-              throw new Error("Error in fetchGraphQL (" + response.status + ")");
+              throw new Error(
+                "Error in fetchGraphQL (" + response.status + ")"
+              );
             }
           } catch (e) {
             console.log("error was thrown", e);
             console.log("errorneous query", { gqlQuery, queryParameter, jwt });
-            // dispatch(setRequestBasis(undefined));
             dispatch(setRequestBasis(undefined));
             dispatch(setHealthState({ jwt, healthState: HEALTHSTATUS.ERROR }));
           }
@@ -257,12 +263,14 @@ const enrichAndSetFeatures = (
       const sortedElements = [];
       const typeCount = {};
       let selectionStillInMap = false;
-      console.log("will do cycling through enriched fc");
-      console.time("cycling through enriched fc");
+      // console.time("cycling through enriched fc");
 
       for (const feature of enrichedFeatureCollection) {
         feature.intermediateResultsIntegrated = new Date().getTime();
-        integrateIntermediateResults(feature, state.offlineActionDb.intermediateResults);
+        integrateIntermediateResults(
+          feature,
+          state.offlineActionDb.intermediateResults
+        );
 
         if (typeCount[feature.featuretype] === undefined) {
           typeCount[feature.featuretype] = 1;
@@ -283,7 +291,7 @@ const enrichAndSetFeatures = (
           // feature.selected = true;
         }
       }
-      console.timeEnd("cycling through enriched fc");
+      // console.timeEnd("cycling through enriched fc");
 
       sortedElements.sort(compareFeature);
       if (!selectionStillInMap) {
@@ -294,12 +302,19 @@ const enrichAndSetFeatures = (
         f.index = index++;
       }
 
-      dispatch(setFeatureCollectionInfoForMode({ mode: MODES.OBJECTS, info: { typeCount } }));
-      console.log("will setFeatureCollection");
-      // console.log("sortedElements", sortedElements);
+      dispatch(
+        setFeatureCollectionInfoForMode({
+          mode: MODES.OBJECTS,
+          info: { typeCount },
+        })
+      );
 
-      dispatch(setFeatureCollectionForMode({ features: sortedElements, mode: MODES.OBJECTS }));
-      console.log("setFeatureCollection done");
+      dispatch(
+        setFeatureCollectionForMode({
+          features: sortedElements,
+          mode: MODES.OBJECTS,
+        })
+      );
 
       dispatch(setDoneForMode({ mode: MODES.OBJECTS, done: true }));
     },

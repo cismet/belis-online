@@ -14,7 +14,11 @@ export const getEventsForSchaltstelle = (item) => {
   const events = [
     ["Erstellung", item?.erstellungsjahr, "M"],
     ["Prüfdatum" + ivAsterisk(item?.pruefdatum_iv), item?.pruefdatum, "M"],
-    ["Einbau Rundsteuerempfänger" + ivAsterisk(item?.einbaudatum_rs_iv), item?.einbaudatum_rs, "M"],
+    [
+      "Einbau Rundsteuerempfänger" + ivAsterisk(item?.einbaudatum_rs_iv),
+      item?.einbaudatum_rs,
+      "M",
+    ],
   ];
 
   return events;
@@ -34,8 +38,6 @@ const getLayout4Schaltstelle = ({
   const title = vcard.infobox.header;
 
   const events = getEventsForSchaltstelle(item);
-  console.log("events", events);
-
   let mainDoc;
   let docs = [];
   let mainSectionStyle = {};
@@ -55,7 +57,7 @@ const getLayout4Schaltstelle = ({
               setIndex(0);
             }
           }}
-          alt='Bild'
+          alt="Bild"
           style={{
             paddingLeft: 10,
             paddingRight: 10,
@@ -78,7 +80,8 @@ const getLayout4Schaltstelle = ({
       {getStrasse(item?.fk_strassenschluessel, item?.haus_nr)}
       {item?.plz && (
         <div>
-          {item?.plz} Wuppertal {item?.stadtbezirk && " (" + item?.stadtbezirk?.bezirk + ")"}
+          {item?.plz} Wuppertal{" "}
+          {item?.stadtbezirk && " (" + item?.stadtbezirk?.bezirk + ")"}
         </div>
       )}
       {item?.zusaetzliche_standortbezeichnung && (
@@ -113,7 +116,8 @@ const getLayout4Schaltstelle = ({
           paddingBottom: "5px",
         }}
       >
-        {showActions && getAddImageButton(dispatch, item, "schaltstelle", feature.geometry)}
+        {showActions &&
+          getAddImageButton(dispatch, item, "schaltstelle", feature.geometry)}
       </div>
     </div>
   );

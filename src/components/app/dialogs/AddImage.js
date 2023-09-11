@@ -29,8 +29,6 @@ const AddImageDialog = ({
   input = {},
 }) => {
   const [imageData, setImageData] = useState();
-  console.log("AddImageDialog input", input);
-
   const handleChange = (info) => {
     if (info.file.status === "uploading") {
       return;

@@ -231,7 +231,6 @@ const TopNavbar = ({
         <Nav
           style={{ cursor: "pointer" }}
           onClick={() => {
-            console.log("selectedTeam", selectedTeam);
             if (selectedTeam.name === "-") {
               // open the menu with activated team selection
               setAppMenuActiveMenuSection("teams");
@@ -296,15 +295,9 @@ const TopNavbar = ({
               setLoadTaskListsInProgress(false);
               dispatch(setDoneForMode({ mode: MODES.TASKLISTS, done: true }));
             };
-            console.log(
-              "xxx connectionMode",
-              connectionMode,
-              CONNECTIONMODE.FROMCACHE
-            );
             setLoadTaskListsInProgress(true);
 
             if (connectionMode === CONNECTIONMODE.FROMCACHE) {
-              console.log("xxx renewCache");
               dispatch(setDoneForMode({ mode: MODES.TASKLISTS, done: false }));
 
               dispatch(

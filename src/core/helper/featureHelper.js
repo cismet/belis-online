@@ -47,10 +47,15 @@ export const getVCard = (feature) => {
   switch (feature.featuretype) {
     case "tdta_leuchten":
       const typPart =
-        item?.fk_leuchttyp?.leuchtentyp !== undefined ? item?.fk_leuchttyp?.leuchtentyp : "Leuchte";
-      const nrPart = "-" + (item?.leuchtennummer !== undefined ? item?.leuchtennummer : "0");
+        item?.fk_leuchttyp?.leuchtentyp !== undefined
+          ? item?.fk_leuchttyp?.leuchtentyp
+          : "Leuchte";
+      const nrPart =
+        "-" + (item?.leuchtennummer !== undefined ? item?.leuchtennummer : "0");
       const standortPart =
-        item?.fk_standort?.lfd_nummer !== undefined ? ", " + item?.fk_standort?.lfd_nummer : "";
+        item?.fk_standort?.lfd_nummer !== undefined
+          ? ", " + item?.fk_standort?.lfd_nummer
+          : "";
 
       // Infobox
       const mastinfo = [];
@@ -65,7 +70,8 @@ export const getVCard = (feature) => {
         mastinfo.push(masttyp);
       }
 
-      vcard.infobox.header = item?.fk_leuchttyp?.fabrikat || "Leuchte ohne Fabrikat";
+      vcard.infobox.header =
+        item?.fk_leuchttyp?.fabrikat || "Leuchte ohne Fabrikat";
       if (mastinfo.length > 0) {
         vcard.infobox.header += "  (" + mastinfo.join(" - ") + ")";
       }
@@ -136,7 +142,9 @@ export const getVCard = (feature) => {
 
     case "schaltstelle": {
       let header =
-        item?.fk_bauart?.bezeichnung !== undefined ? item?.fk_bauart?.bezeichnung : "Schaltstelle";
+        item?.fk_bauart?.bezeichnung !== undefined
+          ? item?.fk_bauart?.bezeichnung
+          : "Schaltstelle";
 
       let title;
       if (item?.schaltstellen_nummer) {
@@ -176,7 +184,8 @@ export const getVCard = (feature) => {
       break;
     }
     case "tdta_standort_mast": {
-      const mastStandortPart = item?.lfd_nummer !== undefined ? item?.lfd_nummer : "";
+      const mastStandortPart =
+        item?.lfd_nummer !== undefined ? item?.lfd_nummer : "";
       const title = "Mast - " + mastStandortPart;
 
       const location =
@@ -185,7 +194,9 @@ export const getVCard = (feature) => {
           : "-";
       // Infobox
       vcard.infobox.header =
-        item?.fk_mastart?.mastart !== undefined ? item?.fk_mastart?.mastart : "Mast ohne Mastart";
+        item?.fk_mastart?.mastart !== undefined
+          ? item?.fk_mastart?.mastart
+          : "Mast ohne Mastart";
       vcard.infobox.title = title;
       vcard.infobox.subtitle = location;
 
@@ -193,7 +204,9 @@ export const getVCard = (feature) => {
       vcard.list.main = title;
       vcard.list.upperright = location;
       vcard.list.subtitle =
-        item?.fk_mastart?.mastart !== undefined ? item?.fk_mastart?.mastart : "-ohne Mastart-";
+        item?.fk_mastart?.mastart !== undefined
+          ? item?.fk_mastart?.mastart
+          : "-ohne Mastart-";
       break;
     }
     case "arbeitsauftrag": {
@@ -203,7 +216,9 @@ export const getVCard = (feature) => {
       vcard.infobox.more = "angelegt von: " + item.angelegt_von;
       //propper date formatting
       vcard.infobox.subtitle =
-        "am: " + item?.angelegt_am ? new Date(item.angelegt_am).toLocaleDateString() : "";
+        "am: " + item?.angelegt_am
+          ? new Date(item.angelegt_am).toLocaleDateString()
+          : "";
       // List
       vcard.list.main = "A" + item.nummer;
       vcard.list.upperright = item.angelegt_von;
@@ -218,7 +233,8 @@ export const getVCard = (feature) => {
       item.fachobjekt = getFachobjektOfProtocol(item);
       // Infobox
       vcard.infobox.header = "Arbeitsprotokoll";
-      vcard.infobox.title = "# " + item.protokollnummer + " - " + item.fachobjekt.shortname;
+      vcard.infobox.title =
+        "# " + item.protokollnummer + " - " + item.fachobjekt.shortname;
       vcard.infobox.subtitle = "Veranlassung " + item.veranlassungsnummer;
       vcard.infobox.more = undefined;
       // List
@@ -308,11 +324,23 @@ export const getDocs = (feature) => {
   switch (type) {
     case "tdta_leuchten":
       addDokumenteArrayOfDmsUrls(docs, item?.dokumenteArray, "Leuchte");
-      addDokumenteArrayOfDmsUrls(docs, item?.fk_standort?.dokumenteArray, "Standort");
+      addDokumenteArrayOfDmsUrls(
+        docs,
+        item?.fk_standort?.dokumenteArray,
+        "Standort"
+      );
       addDmsUrl(docs, item?.fk_leuchttyp?.dms_url, "Leuchtentyp");
-      addDokumenteArrayOfDmsUrls(docs, item?.fk_leuchttyp?.dokumenteArray, "Leuchtentyp");
+      addDokumenteArrayOfDmsUrls(
+        docs,
+        item?.fk_leuchttyp?.dokumenteArray,
+        "Leuchtentyp"
+      );
       addDmsUrl(docs, item?.fk_standort?.tkey_masttyp?.dms_url, "Masttyp");
-      addDokumenteArrayOfDmsUrls(docs, item?.fk_standort?.tkey_masttyp?.dokumenteArray, "Masttyp");
+      addDokumenteArrayOfDmsUrls(
+        docs,
+        item?.fk_standort?.tkey_masttyp?.dokumenteArray,
+        "Masttyp"
+      );
       return docs;
     case "Leitung":
     case "leitung":
@@ -323,7 +351,11 @@ export const getDocs = (feature) => {
       return docs;
     case "schaltstelle":
       addDokumenteArrayOfDmsUrls(docs, item?.dokumenteArray, "Schaltstelle");
-      addDmsUrl(docs, item?.rundsteuerempfaenger?.dms_url, "Rundsteuerempfänger");
+      addDmsUrl(
+        docs,
+        item?.rundsteuerempfaenger?.dms_url,
+        "Rundsteuerempfänger"
+      );
       return docs;
     case "abzweigdose":
       addDokumenteArrayOfDmsUrls(docs, item?.dokumenteArray, "Abzweigdose");
@@ -331,7 +363,11 @@ export const getDocs = (feature) => {
     case "tdta_standort_mast":
       addDokumenteArrayOfDmsUrls(docs, item?.dokumenteArray, "Standort");
       addDmsUrl(docs, item?.tkey_masttyp?.dms_url, "Masttyp");
-      addDokumenteArrayOfDmsUrls(docs, item?.tkey_masttyp?.dokumenteArray, "Masttyp");
+      addDokumenteArrayOfDmsUrls(
+        docs,
+        item?.tkey_masttyp?.dokumenteArray,
+        "Masttyp"
+      );
       return docs;
     case "arbeitsprotokoll":
       return docs;
@@ -395,7 +431,12 @@ const getIntermediateResultsImages = (item, intermediateResults, itemtype) => {
   return [];
 };
 
-const integrateIntermediateResultsIntoObjects = (intermediateResults, item, type, id) => {
+const integrateIntermediateResultsIntoObjects = (
+  intermediateResults,
+  item,
+  type,
+  id
+) => {
   // console.log("integrateIntermediateResultsIntoObjects " + type, id);
 
   if (intermediateResults && intermediateResults[type]) {
@@ -425,16 +466,21 @@ const addObject2ProtokollObject = (type, protokollObject, object) => {
       protokollObject[type] = object;
       break;
     default:
-      console.log("xxx unknown objekt_typ this should not happen", type);
+      console.log("unknown objekt_typ this should not happen", type);
   }
 };
 
-export const getNewIntermediateResults = (intermediateResults, type, teamId) => {
+export const getNewIntermediateResults = (
+  intermediateResults,
+  type,
+  teamId
+) => {
   const newResults = [];
   switch (type) {
     case "arbeitsauftrag":
       if (intermediateResults?.arbeitsauftrag) {
-        const newTasklistsFromIR = intermediateResults?.arbeitsauftrag["*"]?.object || [];
+        const newTasklistsFromIR =
+          intermediateResults?.arbeitsauftrag["*"]?.object || [];
         // format todays date in the format yyyy-mm-dd
         const today = new Date();
         const dd = String(today.getDate()).padStart(2, "0");
@@ -523,7 +569,11 @@ export const integrateIntermediateResults = (feature, intermediateResults) => {
 
   let newTasklists = [];
 
-  docs = getIntermediateResultsImages(item, intermediateResults, feature.featuretype.toLowerCase());
+  docs = getIntermediateResultsImages(
+    item,
+    intermediateResults,
+    feature.featuretype.toLowerCase()
+  );
 
   switch (feature.featuretype) {
     case "tdta_leuchten":
@@ -552,7 +602,12 @@ export const integrateIntermediateResults = (feature, intermediateResults) => {
           "tkey_masttyp"
         ),
       ];
-      integrateIntermediateResultsIntoObjects(intermediateResults, item, "tdta_leuchten", item.id);
+      integrateIntermediateResultsIntoObjects(
+        intermediateResults,
+        item,
+        "tdta_leuchten",
+        item.id
+      );
       integrateIntermediateResultsIntoObjects(
         intermediateResults,
         item.fk_standort,
@@ -563,10 +618,20 @@ export const integrateIntermediateResults = (feature, intermediateResults) => {
       break;
     case "Leitung":
     case "leitung":
-      integrateIntermediateResultsIntoObjects(intermediateResults, item, "leitung", item.id);
+      integrateIntermediateResultsIntoObjects(
+        intermediateResults,
+        item,
+        "leitung",
+        item.id
+      );
       break;
     case "mauerlasche":
-      integrateIntermediateResultsIntoObjects(intermediateResults, item, "mauerlasche", item.id);
+      integrateIntermediateResultsIntoObjects(
+        intermediateResults,
+        item,
+        "mauerlasche",
+        item.id
+      );
 
       break;
     case "schaltstelle":
@@ -577,17 +642,31 @@ export const integrateIntermediateResults = (feature, intermediateResults) => {
           "Rundsteuerempfänger"
         )
       );
-      integrateIntermediateResultsIntoObjects(intermediateResults, item, "schaltstelle", item.id);
+      integrateIntermediateResultsIntoObjects(
+        intermediateResults,
+        item,
+        "schaltstelle",
+        item.id
+      );
 
       break;
     case "abzweigdose":
       docs = item.docs.concat(docs);
-      integrateIntermediateResultsIntoObjects(intermediateResults, item, "abzweigdose", item.id);
+      integrateIntermediateResultsIntoObjects(
+        intermediateResults,
+        item,
+        "abzweigdose",
+        item.id
+      );
 
       break;
     case "tdta_standort_mast":
       docs = docs.concat(
-        getIntermediateResultsImages(item?.tkey_masttyp, intermediateResults, "tkey_masttyp")
+        getIntermediateResultsImages(
+          item?.tkey_masttyp,
+          intermediateResults,
+          "tkey_masttyp"
+        )
       );
       integrateIntermediateResultsIntoObjects(
         intermediateResults,
@@ -599,7 +678,7 @@ export const integrateIntermediateResults = (feature, intermediateResults) => {
       break;
     case "arbeitsauftrag":
       //Todo integrate arbeitsauftrag inetermediate object
-      console.log("xxx will integrate ir into tasklist");
+
       if (intermediateResults?.arbeitsauftrag) {
         //add2Arbeitsauftrag
         if (intermediateResults && intermediateResults["arbeitsauftrag"]) {
@@ -611,7 +690,10 @@ export const integrateIntermediateResults = (feature, intermediateResults) => {
             const yyyy = today.getFullYear();
             const todayString = yyyy + "-" + mm + "-" + dd;
             for (const protIR of irs?.object) {
-              console.log("xxx found a candidate to incorportae intermediate changes", protIR);
+              console.log(
+                "xxx found a candidate to incorportae intermediate changes",
+                protIR
+              );
               //check if arbeitsprotokoll already exists (ccnonce check)
               const found = item.ar_protokolleArray.find((p) => {
                 return p.arbeitsprotokoll.ccnonce === protIR.ccnonce;
@@ -665,8 +747,6 @@ export const integrateIntermediateResults = (feature, intermediateResults) => {
                   newArbeitsprotokoll.arbeitsprotokoll,
                   protIR.objektFeature.properties
                 );
-
-                console.log("xxx newArbeitsprotokoll", newArbeitsprotokoll);
 
                 item.ar_protokolleArray.push(newArbeitsprotokoll);
                 item.iv_included = true;
@@ -800,19 +880,10 @@ export const integrateIntermediateResults = (feature, intermediateResults) => {
 const setStatusAndAktionsArrayStuff = (ir, item) => {
   let iv_included = false;
   if (ir.bemerkung && ir.bemerkung !== item?.bemerkung) {
-    console.log("xxx iv_included bemerkung:", ir.bemerkung, item?.bemerkung);
     item.bemerkung = ir.bemerkung + "*";
     iv_included = true;
   }
   if (ir.status && ir.status !== item?.arbeitsprotokollstatus?.id) {
-    console.log(
-      "xxx iv_included status",
-      ir.status,
-      item?.arbeitsprotokollstatus?.id,
-      typeof ir.status,
-      typeof item?.arbeitsprotokollstatus?.id,
-      ir.status !== item?.arbeitsprotokollstatus?.id
-    );
     item.arbeitsprotokollstatus = getProtokollStatusForId(ir.status);
     item.arbeitsprotokollstatusIntermediate = true;
     iv_included = true;
@@ -820,19 +891,19 @@ const setStatusAndAktionsArrayStuff = (ir, item) => {
   if (ir.material && ir.material !== item?.material) {
     item.material = ir.material + "*";
     iv_included = true;
-    console.log("xxx iv_included material");
   }
   if (ir.monteur && ir.monteur !== item?.monteur) {
     item.monteur = ir.monteur + "*";
     iv_included = true;
-    console.log("xxx iv_included monteur");
   }
 
-  if ((ir.datum && !item?.datum) || (ir.datum && Date(ir.datum) !== Date(item?.datum))) {
+  if (
+    (ir.datum && !item?.datum) ||
+    (ir.datum && Date(ir.datum) !== Date(item?.datum))
+  ) {
     item.datum = ir.datum;
     item.datum_iv = true;
     iv_included = true;
-    console.log("xxx iv_included datum");
   }
 
   //Todo check if the change is already in so that we not need to disp,ay the intermediate change
@@ -843,9 +914,6 @@ const setStatusAndAktionsArrayStuff = (ir, item) => {
     JSON.stringify(item.arbeitsprotokollaktionArray || [])
   );
   for (const protAktion of ir.protokollAktionArray || []) {
-    // console.log("xxxx setStatusAndAktionsArrayStuff", protAktion);
-    // console.log("xxxx before", item.arbeitsprotokollaktionArray);
-
     //check if the action is already in the array
     //params to check: aenderung, alt, neu, ccnonce
 
@@ -860,10 +928,7 @@ const setStatusAndAktionsArrayStuff = (ir, item) => {
     if (!found) {
       item.arbeitsprotokollaktionArray.push(protAktion);
       iv_included = true;
-      console.log("xxx iv_included arbeitsprotokollaktionArray");
     }
-
-    // console.log("xxxx after", item.arbeitsprotokollaktionArray);
   }
   if (iv_included) {
     item.iv_included = true;
@@ -928,7 +993,10 @@ export const compareFeature = (a, b) => {
     } else {
       switch (a.featuretype) {
         case "tdta_leuchten":
-          if (a.fk_strassenschluessel?.strasse === b.fk_strassenschluessel?.strasse) {
+          if (
+            a.fk_strassenschluessel?.strasse ===
+            b.fk_strassenschluessel?.strasse
+          ) {
             if (a.kennziffer?.kennziffer === b.kennziffer?.kennziffer) {
               if (a.lfd_nummer === b.lfd_nummer) {
                 return compareValue(a.leuchtennummer, b.leuchtennummer);
@@ -936,16 +1004,25 @@ export const compareFeature = (a, b) => {
                 return compareValue(a.lfd_nummer, b.lfd_nummer);
               }
             } else {
-              return compareValue(a.kennziffer?.kennziffer, b.kennziffer?.kennziffer);
+              return compareValue(
+                a.kennziffer?.kennziffer,
+                b.kennziffer?.kennziffer
+              );
             }
           } else {
-            return compareValue(a.fk_strassenschluessel?.strasse, b.fk_strassenschluessel?.strasse);
+            return compareValue(
+              a.fk_strassenschluessel?.strasse,
+              b.fk_strassenschluessel?.strasse
+            );
           }
 
         case "Leitung":
         case "leitung":
           try {
-            return compareValue(a.geometry.coordinates[0][1], b.geometry.coordinates[0][1]);
+            return compareValue(
+              a.geometry.coordinates[0][1],
+              b.geometry.coordinates[0][1]
+            );
           } catch (e) {
             console.log("error during compare", e);
 
@@ -954,26 +1031,39 @@ export const compareFeature = (a, b) => {
           }
 
         case "schaltstelle":
-          if (a.fk_strassenschluessel?.strasse === b.fk_strassenschluessel?.strasse) {
+          if (
+            a.fk_strassenschluessel?.strasse ===
+            b.fk_strassenschluessel?.strasse
+          ) {
             let titleA =
-              a?.fk_bauart?.bezeichnung !== undefined ? a?.fk_bauart?.bezeichnung : "Schaltstelle";
+              a?.fk_bauart?.bezeichnung !== undefined
+                ? a?.fk_bauart?.bezeichnung
+                : "Schaltstelle";
 
             if (a?.schaltstellen_nummer !== undefined) {
               titleA = titleA.concat(" - ", a?.schaltstellen_nummer);
             }
             let titleB =
-              b?.fk_bauart?.bezeichnung !== undefined ? b?.fk_bauart?.bezeichnung : "Schaltstelle";
+              b?.fk_bauart?.bezeichnung !== undefined
+                ? b?.fk_bauart?.bezeichnung
+                : "Schaltstelle";
 
             if (b?.schaltstellen_nummer !== undefined) {
               titleB = titleB.concat(" - ", b?.schaltstellen_nummer);
             }
             return compareValue(titleA, titleB);
           } else {
-            return compareValue(a.fk_strassenschluessel?.strasse, b.fk_strassenschluessel?.strasse);
+            return compareValue(
+              a.fk_strassenschluessel?.strasse,
+              b.fk_strassenschluessel?.strasse
+            );
           }
 
         case "abzweigdose":
-          if (a.fk_strassenschluessel?.strasse === b.fk_strassenschluessel?.strasse) {
+          if (
+            a.fk_strassenschluessel?.strasse ===
+            b.fk_strassenschluessel?.strasse
+          ) {
             let titleA = a?.lfd_nummer !== undefined ? a?.lfd_nummer : "";
             titleA = "Mast - " + titleA;
             let titleB = b?.lfd_nummer !== undefined ? b?.lfd_nummer : "";
@@ -981,7 +1071,10 @@ export const compareFeature = (a, b) => {
 
             return compareValue(titleA, titleB);
           } else {
-            return compareValue(a.fk_strassenschluessel?.strasse, b.fk_strassenschluessel?.strasse);
+            return compareValue(
+              a.fk_strassenschluessel?.strasse,
+              b.fk_strassenschluessel?.strasse
+            );
           }
 
         default:
@@ -1031,10 +1124,16 @@ export const getFachobjektOfProtocol = (item) => {
       ...item.schaltstelle,
       type: "schaltstelle",
       shortname:
-        item.schaltstelle.fk_bauart?.bezeichnung + " - " + item.schaltstelle.schaltstellen_nummer,
+        item.schaltstelle.fk_bauart?.bezeichnung +
+        " - " +
+        item.schaltstelle.schaltstellen_nummer,
     };
   } else if (item.abzweigdose) {
-    return { ...item.abzweigdose, type: "abzweigdose", shortname: "AZD - " + item.abzweigdose.id };
+    return {
+      ...item.abzweigdose,
+      type: "abzweigdose",
+      shortname: "AZD - " + item.abzweigdose.id,
+    };
   } else if (item.mauerlasche) {
     return {
       ...item.mauerlasche,

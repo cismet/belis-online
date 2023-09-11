@@ -8,7 +8,10 @@ import { getBelisVersion } from "../constants/versions";
 import store from "../core/store";
 import { CONNECTIONMODE, setConnectionMode } from "../core/store/slices/app";
 import { deleteCacheDB } from "../core/store/slices/cacheControl";
-import { downloadTasks, truncateActionTables } from "../core/store/slices/offlineActionDb";
+import {
+  downloadTasks,
+  truncateActionTables,
+} from "../core/store/slices/offlineActionDb";
 
 const FallbackComponent = ({ error, resetErrorBoundary }) => {
   const br = "\n";
@@ -125,10 +128,10 @@ const FallbackComponent = ({ error, resetErrorBoundary }) => {
         </div>
       </div>
       <Container>
-        <Row className='show-grid'>
+        <Row className="show-grid">
           <Col style={{ marginTop: 30 }} xs={12} md={12}>
             <h1 style={{ color: "white" }}>
-              <img alt='' width={180} src='/images/wuppertal-white.svg' />
+              <img alt="" width={180} src="/images/wuppertal-white.svg" />
             </h1>
             <h2 style={{ color: "white" }}>BelIS - online</h2>
             <h3 style={{ color: "white" }}>Beleuchtungsinformation</h3>
@@ -158,7 +161,9 @@ const FallbackComponent = ({ error, resetErrorBoundary }) => {
       <div style={{ margin: 25, overflow: "auto" }}>
         <h2>Es ist ein Fehler aufgetreten. Das tut uns leid. ¯\_(ツ)_/¯</h2>
 
-        <div style={{ overflow: "auto", height: "20%", backgroundColor: "#fff9" }}>
+        <div
+          style={{ overflow: "auto", height: "20%", backgroundColor: "#fff9" }}
+        >
           <h3>
             <pre style={{ backgroundColor: "#fff9" }}>{error.message}</pre>
           </h3>
@@ -169,7 +174,8 @@ const FallbackComponent = ({ error, resetErrorBoundary }) => {
 							{this.state.errorInfo.componentStack}
 						</pre> */}
           <pre style={{ height: "80%", backgroundColor: "#fff9" }}>
-            {errorStack?.stringifiedStack || "weiter Informationen werden geladen ..."}
+            {errorStack?.stringifiedStack ||
+              "weiter Informationen werden geladen ..."}
           </pre>
           {/* <button style={{ marginTop: 25 }} onClick={resetErrorBoundary}>
 							Einfach nochmal probieren (hilf eigentlich nie)
@@ -181,21 +187,28 @@ const FallbackComponent = ({ error, resetErrorBoundary }) => {
 				</button> */}
 
         <h4 style={{ marginTop: 50 }}>
-          Sie können die Entwickler unterstützen, indem Sie den Fehler an uns melden.
+          Sie können die Entwickler unterstützen, indem Sie den Fehler an uns
+          melden.
         </h4>
 
         <h4>
-          Bitte schicken Sie uns dazu eine <a href={mailToHref}>Mail</a> und fügen sie bitte den
-          Report, den Sie mit dem orangenen Button erzeugen können, als Anhang hinzu.
+          Bitte schicken Sie uns dazu eine <a href={mailToHref}>Mail</a> und
+          fügen sie bitte den Report, den Sie mit dem orangenen Button erzeugen
+          können, als Anhang hinzu.
           <br />
           <br />
           <button
             style={{ marginLeft: 20, backgroundColor: "orange" }}
             onClick={() => {
-              var dataStr = "data:text/plain;charset=utf-8," + encodeURIComponent(attachmentText);
+              var dataStr =
+                "data:text/plain;charset=utf-8," +
+                encodeURIComponent(attachmentText);
               var downloadAnchorNode = document.createElement("a");
               downloadAnchorNode.setAttribute("href", dataStr);
-              downloadAnchorNode.setAttribute("download", "problemReport.belis-online.txt");
+              downloadAnchorNode.setAttribute(
+                "download",
+                "problemReport.belis-online.txt"
+              );
               window.document.body.appendChild(downloadAnchorNode); // required for firefox
               downloadAnchorNode.click();
               downloadAnchorNode.remove();
@@ -214,7 +227,8 @@ const FallbackComponent = ({ error, resetErrorBoundary }) => {
         </h4>
         <br />
         <h4>
-          Mit den folgenden Buttons können Sie den Zustand der Applikation verändern:
+          Mit den folgenden Buttons können Sie den Zustand der Applikation
+          verändern:
           <br /> <br />
           <button
             style={{ marginLeft: 20, backgroundColor: "yellow" }}
@@ -224,7 +238,7 @@ const FallbackComponent = ({ error, resetErrorBoundary }) => {
                   " ausgewähltes Team, Hintergrund, u.ä. gelöscht.\n\n" +
                   "Sind Sie sicher, dass Sie Ihre Einstellungen zurücksetzen wollen?"
               );
-              console.log("confirmation: " + confirmation);
+              // console.log("confirmation: " + confirmation);
               if (confirmation) {
                 console.log("resetting settings");
                 localforage.clear();

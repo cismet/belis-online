@@ -217,9 +217,8 @@ const View = () => {
     }
   }, [selectedTeam, storedJWT, dispatch]);
 
-  const { setAppMenuActiveMenuSection, setAppMenuVisible } = useContext(
-    UIDispatchContext
-  );
+  const { setAppMenuActiveMenuSection, setAppMenuVisible } =
+    useContext(UIDispatchContext);
 
   let loginForm = null;
 
@@ -258,8 +257,6 @@ const View = () => {
 
   useEffect(() => {
     const login = getLoginFromJWT(jwt);
-    console.log("useEffectLogger for storedJWT", { jwt, login });
-
     const loginLowerCase = (login || "").toLowerCase();
 
     if (storedJWT) {

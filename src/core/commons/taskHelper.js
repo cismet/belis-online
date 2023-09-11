@@ -178,7 +178,6 @@ export const getTaskForAction = (resultObject) => {
         parameters = JSON.parse(parameter);
       }
     } catch (e) {}
-    console.log("parameters", parameters);
 
     // if (parameters.objekt_typ===undefined && action===)
 

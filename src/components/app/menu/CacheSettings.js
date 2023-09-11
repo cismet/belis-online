@@ -1,11 +1,18 @@
-import { faCheck, faDownload, faTrash } from "@fortawesome/free-solid-svg-icons";
+import {
+  faCheck,
+  faDownload,
+  faTrash,
+} from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon as Icon } from "@fortawesome/react-fontawesome";
 import { useWindowSize } from "@react-hook/window-size";
 import React, { useContext, useEffect } from "react";
 import Button from "react-bootstrap/Button";
 import { UIDispatchContext } from "react-cismap/contexts/UIContextProvider";
 import { useDispatch, useSelector } from "react-redux";
-import { CONNECTIONMODE, setConnectionMode } from "../../../core/store/slices/app";
+import {
+  CONNECTIONMODE,
+  setConnectionMode,
+} from "../../../core/store/slices/app";
 
 import { getJWT, getLoginFromJWT } from "../../../core/store/slices/auth";
 import {
@@ -18,7 +25,10 @@ import {
   setCacheUser,
 } from "../../../core/store/slices/cacheControl";
 import { forceRefresh } from "../../../core/store/slices/featureCollection";
-import { getHealthState, HEALTHSTATUS } from "../../../core/store/slices/health";
+import {
+  getHealthState,
+  HEALTHSTATUS,
+} from "../../../core/store/slices/health";
 import { getTeam } from "../../../core/store/slices/team";
 import CacheItem from "../../app/cache/CacheItem";
 
@@ -36,7 +46,6 @@ const CacheSettings = () => {
   }, [cacheReady]);
 
   const jwt = useSelector(getJWT);
-  // console.log("jwt", jwt);
 
   useEffect(() => {
     dispatch(fillCacheInfo());
@@ -68,9 +77,13 @@ const CacheSettings = () => {
       <div>
         <Button
           style={{ margin: 3 }}
-          variant='outline-primary'
-          size='sm'
-          disabled={selectedTeam?.id >= 0 && healthState === HEALTHSTATUS.OK ? false : true}
+          variant="outline-primary"
+          size="sm"
+          disabled={
+            selectedTeam?.id >= 0 && healthState === HEALTHSTATUS.OK
+              ? false
+              : true
+          }
           onClick={() => {
             let index = 0;
             for (const setting of [...primarySettings]) {
@@ -97,13 +110,14 @@ const CacheSettings = () => {
         {(selectedTeam?.id === undefined || selectedTeam?.id === -1) && (
           <Button
             style={{ margin: 3 }}
-            variant='outline-primary'
-            size='sm'
+            variant="outline-primary"
+            size="sm"
             onClick={() => {
               setAppMenuActiveMenuSection("teams");
             }}
           >
-            <Icon icon={faCheck} /> Vor dem Füllen des Cache bitte ein Team auswählen
+            <Icon icon={faCheck} /> Vor dem Füllen des Cache bitte ein Team
+            auswählen
           </Button>
         )}
 
@@ -121,8 +135,8 @@ const CacheSettings = () => {
             }, 750);
           }}
           style={{ margin: 3 }}
-          variant='outline-danger'
-          size='sm'
+          variant="outline-danger"
+          size="sm"
         >
           <Icon icon={faTrash} /> Cache DB löschen
         </Button>
@@ -167,8 +181,6 @@ const CacheSettings = () => {
                 config={config[key]}
                 info={cacheSettings[key] || {}}
                 renew={() => {
-                  console.log("renew");
-
                   dispatch(renewCache(key, jwt));
                 }}
               />

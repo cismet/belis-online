@@ -86,10 +86,12 @@ const getLayout4Arbeitsauftrag = ({
         }
         extra={
           <span>
-            <span>{pf?.properties?.arbeitsprotokollstatus?.bezeichnung || "kein Status"}</span>
+            <span>
+              {pf?.properties?.arbeitsprotokollstatus?.bezeichnung ||
+                "kein Status"}
+            </span>
             <a
               onClick={(e) => {
-                console.log("pf.index", pf.index);
                 dispatch(
                   setSelectedFeatureForMode({
                     mode: MODES.PROTOCOLS,
@@ -100,7 +102,7 @@ const getLayout4Arbeitsauftrag = ({
                 e.stopPropagation();
               }}
               style={{ marginLeft: 10 }}
-              className='renderAsLink'
+              className="renderAsLink"
             >
               <FontAwesomeIcon icon={faExternalLinkAlt} />
             </a>

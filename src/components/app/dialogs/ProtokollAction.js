@@ -33,8 +33,11 @@ const SetStatusDialog = ({
   actionkey,
   title = "",
 }) => {
-  const selectedFeaturesForAllModes = useSelector(getSelectedFeaturesForAllModes);
-  const arbeitsauftrag = selectedFeaturesForAllModes[MODES.TASKLISTS].properties;
+  const selectedFeaturesForAllModes = useSelector(
+    getSelectedFeaturesForAllModes
+  );
+  const arbeitsauftrag =
+    selectedFeaturesForAllModes[MODES.TASKLISTS].properties;
 
   const [form] = Form.useForm();
   const dexieW = useSelector(getWorker);
@@ -47,7 +50,8 @@ const SetStatusDialog = ({
   const [prefferredLeuchtmittel, setPrefferredLeuchtmittel] = useState([]);
 
   const [rundsteuerempfaenger, setRundsteuerempfaenger] = useState([]);
-  const [preferredRundsteuerempfaenger, setPreferredRundsteuerempfaenger] = useState();
+  const [preferredRundsteuerempfaenger, setPreferredRundsteuerempfaenger] =
+    useState();
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -65,7 +69,10 @@ const SetStatusDialog = ({
           console.log("Error in fetching teams", e);
         }
       }
-      if (actionkey === "leuchtmittelwechsel" || actionkey === "leuchtmittelwechselEP") {
+      if (
+        actionkey === "leuchtmittelwechsel" ||
+        actionkey === "leuchtmittelwechselEP"
+      ) {
         try {
           const lm = await dexieW.getAll("leuchtmittel");
           if (lm && lm.length > 0) {
@@ -96,7 +103,8 @@ const SetStatusDialog = ({
       zIndex={30000001}
       title={
         <>
-          <div>{title}</div> <Text type='secondary'>{input?.vcard?.infobox?.title}</Text>
+          <div>{title}</div>{" "}
+          <Text type="secondary">{input?.vcard?.infobox?.title}</Text>
         </>
       }
       centered
@@ -105,8 +113,6 @@ const SetStatusDialog = ({
         form
           .validateFields()
           .then((values) => {
-            console.log("formvalues", values);
-
             const feature = input.feature;
             const momentStatusDate =
               values.statusdate ||
@@ -118,14 +124,20 @@ const SetStatusDialog = ({
               statusD = momentStatusDate.valueOf();
             }
 
-            const inbetriebnahmeD = (values.inbetriebnahme || moment()).valueOf();
+            const inbetriebnahmeD = (
+              values.inbetriebnahme || moment()
+            ).valueOf();
             const pruefdatumD = (values.pruefdatum || moment()).valueOf();
             const wechseldatumD = (values.wechseldatum || moment()).valueOf();
             const einbaudatumD = (values.einbaudatum || moment()).valueOf();
-            const sonderturnusdatumD = (values.sonderturnusdatum || moment()).valueOf();
+            const sonderturnusdatumD = (
+              values.sonderturnusdatum || moment()
+            ).valueOf();
             const mastanstrichD = (values.mastanstrich || moment()).valueOf();
             const revisionD = (values.revisionsdatum || moment()).valueOf();
-            const naechstes_pruefdatumD = (values.naechstes_pruefdatum || moment()).valueOf();
+            const naechstes_pruefdatumD = (
+              values.naechstes_pruefdatum || moment()
+            ).valueOf();
 
             const parameter = {
               //leuchtenerneuerung
@@ -179,7 +191,9 @@ const SetStatusDialog = ({
               bemerkung: values.infos,
 
               //statussection
-              status: values.status || input.feature?.properties?.arbeitsprotokollstatus?.id,
+              status:
+                values.status ||
+                input.feature?.properties?.arbeitsprotokollstatus?.id,
               protokoll_id: feature.properties.id,
               monteur: values.monteur || input.feature?.properties?.monteur,
               datum: statusD,
@@ -190,7 +204,11 @@ const SetStatusDialog = ({
               //metainformation
               actionname,
               objekt_typ: "arbeitsprotokoll",
-              object_name: input?.vcard?.infobox?.title + " (A" + arbeitsauftrag.nummer + ")",
+              object_name:
+                input?.vcard?.infobox?.title +
+                " (A" +
+                arbeitsauftrag.nummer +
+                ")",
             };
             Object.keys(parameter).forEach((key) =>
               parameter[key] === undefined ? delete parameter[key] : {}
@@ -214,8 +232,8 @@ const SetStatusDialog = ({
     >
       <Form
         form={form}
-        layout='vertical'
-        name='form_in_modal'
+        layout="vertical"
+        name="form_in_modal"
         initialValues={{
           modifier: "public",
         }}
@@ -224,19 +242,23 @@ const SetStatusDialog = ({
 
         {actionkey === "leuchtenerneuerung" && (
           <>
-            <Form.Item name='inbetriebnahme' label='Inbetriebnahme'>
+            <Form.Item name="inbetriebnahme" label="Inbetriebnahme">
               <DatePicker defaultValue={moment()} style={{ width: "100%" }} />
             </Form.Item>
-            <Form.Item name='leuchtentyp' label='Leuchtentyp'>
+            <Form.Item name="leuchtentyp" label="Leuchtentyp">
               <Select
                 showSearch
                 defaultValue={preferredLeuchtentyp?.id}
                 style={{ width: "100%" }}
                 filterOption={(input, option) => {
-                  const testChilds = option.children.map((child) => child.toLowerCase().trim());
-                  return testChilds.join(" ").search(input.toLowerCase().trim()) >= 0;
+                  const testChilds = option.children.map((child) =>
+                    child.toLowerCase().trim()
+                  );
+                  return (
+                    testChilds.join(" ").search(input.toLowerCase().trim()) >= 0
+                  );
                 }}
-                optionFilterProp='children'
+                optionFilterProp="children"
                 filterSort={(optionA, optionB) =>
                   optionA.children
                     .join(" ")
@@ -261,22 +283,23 @@ const SetStatusDialog = ({
 
         {actionkey === "leuchtmittelwechselEP" && (
           <>
-            <Form.Item name='pruefdatum' label='Elektrische Prüfung am Mast'>
+            <Form.Item name="pruefdatum" label="Elektrische Prüfung am Mast">
               <DatePicker defaultValue={moment()} style={{ width: "100%" }} />
             </Form.Item>
-            <Form.Item label='Erdung in Ordnung' name='erdung'>
+            <Form.Item label="Erdung in Ordnung" name="erdung">
               <Switch />
             </Form.Item>
           </>
         )}
-        {(actionkey === "leuchtmittelwechsel" || actionkey === "leuchtmittelwechselEP") && (
+        {(actionkey === "leuchtmittelwechsel" ||
+          actionkey === "leuchtmittelwechselEP") && (
           <>
-            <Form.Item name='wechseldatum' label='Wechseldatum'>
+            <Form.Item name="wechseldatum" label="Wechseldatum">
               <DatePicker defaultValue={moment()} style={{ width: "100%" }} />
             </Form.Item>
             <Form.Item
-              name='leuchtmittel'
-              label='eingesetztes Leuchtmittel'
+              name="leuchtmittel"
+              label="eingesetztes Leuchtmittel"
               rules={[
                 {
                   required: true,
@@ -289,10 +312,14 @@ const SetStatusDialog = ({
                 defaultValue={prefferredLeuchtmittel?.id}
                 style={{ width: "100%" }}
                 filterOption={(input, option) => {
-                  const testChilds = option.children.map((child) => child.toLowerCase().trim());
-                  return testChilds.join(" ").search(input.toLowerCase().trim()) >= 0;
+                  const testChilds = option.children.map((child) =>
+                    child.toLowerCase().trim()
+                  );
+                  return (
+                    testChilds.join(" ").search(input.toLowerCase().trim()) >= 0
+                  );
                 }}
-                optionFilterProp='children'
+                optionFilterProp="children"
                 filterSort={(optionA, optionB) =>
                   optionA.children
                     .join(" ")
@@ -313,8 +340,8 @@ const SetStatusDialog = ({
               </Select>
             </Form.Item>
             <Form.Item
-              name='lebensdauer'
-              label='Lebensdauer des Leuchtmittels'
+              name="lebensdauer"
+              label="Lebensdauer des Leuchtmittels"
               rules={[
                 {
                   required: true,
@@ -322,18 +349,18 @@ const SetStatusDialog = ({
                 },
               ]}
             >
-              <InputNumber placeholder='in Monaten' style={{ width: "100%" }} />
+              <InputNumber placeholder="in Monaten" style={{ width: "100%" }} />
             </Form.Item>
           </>
         )}
         {actionkey === "rundsteuerempfaengerwechsel" && (
           <>
-            <Form.Item name='einbaudatum' label='Einbaudatum'>
+            <Form.Item name="einbaudatum" label="Einbaudatum">
               <DatePicker defaultValue={moment()} style={{ width: "100%" }} />
             </Form.Item>
             <Form.Item
-              name='rundsteuerempfaenger'
-              label='Rundsteuerempfänger'
+              name="rundsteuerempfaenger"
+              label="Rundsteuerempfänger"
               rules={[
                 {
                   required: true,
@@ -346,10 +373,14 @@ const SetStatusDialog = ({
                 defaultValue={preferredRundsteuerempfaenger?.id}
                 style={{ width: "100%" }}
                 filterOption={(input, option) => {
-                  const testChilds = option.children.map((child) => child.toLowerCase().trim());
-                  return testChilds.join(" ").search(input.toLowerCase().trim()) >= 0;
+                  const testChilds = option.children.map((child) =>
+                    child.toLowerCase().trim()
+                  );
+                  return (
+                    testChilds.join(" ").search(input.toLowerCase().trim()) >= 0
+                  );
                 }}
-                optionFilterProp='children'
+                optionFilterProp="children"
                 filterSort={(optionA, optionB) =>
                   optionA.children
                     .join(" ")
@@ -374,7 +405,7 @@ const SetStatusDialog = ({
 
         {actionkey === "sonderturnus" && (
           <>
-            <Form.Item name='sonderturnusdatum' label='Sonderturnus'>
+            <Form.Item name="sonderturnusdatum" label="Sonderturnus">
               <DatePicker defaultValue={moment()} style={{ width: "100%" }} />
             </Form.Item>
           </>
@@ -382,12 +413,12 @@ const SetStatusDialog = ({
 
         {actionkey === "vorschaltgeraetewechsel" && (
           <>
-            <Form.Item name='wechseldatum' label='Einbaudatum'>
+            <Form.Item name="wechseldatum" label="Einbaudatum">
               <DatePicker defaultValue={moment()} style={{ width: "100%" }} />
             </Form.Item>
             <Form.Item
-              name='vorschaltgeraet'
-              label='Vorschaltgerät'
+              name="vorschaltgeraet"
+              label="Vorschaltgerät"
               rules={[
                 {
                   required: true,
@@ -402,12 +433,12 @@ const SetStatusDialog = ({
 
         {actionkey === "anstricharbeiten" && (
           <>
-            <Form.Item name='mastanstrich' label='Mastanstrich'>
+            <Form.Item name="mastanstrich" label="Mastanstrich">
               <DatePicker defaultValue={moment()} style={{ width: "100%" }} />
             </Form.Item>
             <Form.Item
-              name='anstrichfarbe'
-              label='Anstrichfarbe'
+              name="anstrichfarbe"
+              label="Anstrichfarbe"
               rules={[
                 {
                   required: true,
@@ -422,10 +453,10 @@ const SetStatusDialog = ({
 
         {actionkey === "ep" && (
           <>
-            <Form.Item name='pruefdatum' label='Elektrische Prüfung am Mast'>
+            <Form.Item name="pruefdatum" label="Elektrische Prüfung am Mast">
               <DatePicker defaultValue={moment()} style={{ width: "100%" }} />
             </Form.Item>
-            <Form.Item name='erdung' label='Erdung in Ordnung'>
+            <Form.Item name="erdung" label="Erdung in Ordnung">
               <Switch />
             </Form.Item>
           </>
@@ -433,12 +464,12 @@ const SetStatusDialog = ({
 
         {actionkey === "masterneuerung" && (
           <>
-            <Form.Item name='inbetriebnahme' label='Inbetriebnahme'>
+            <Form.Item name="inbetriebnahme" label="Inbetriebnahme">
               <DatePicker defaultValue={moment()} style={{ width: "100%" }} />
             </Form.Item>
             <Form.Item
-              name='montagefirma'
-              label='Montagefirma'
+              name="montagefirma"
+              label="Montagefirma"
               rules={[
                 {
                   required: true,
@@ -452,19 +483,19 @@ const SetStatusDialog = ({
         )}
         {actionkey === "standortrevision" && (
           <>
-            <Form.Item name='revisionsdatum' label='Revision'>
+            <Form.Item name="revisionsdatum" label="Revision">
               <DatePicker defaultValue={moment()} style={{ width: "100%" }} />
             </Form.Item>
           </>
         )}
         {actionkey === "standsicherheitspruefung" && (
           <>
-            <Form.Item name='pruefdatum' label='Standsicherheitsprüfung'>
+            <Form.Item name="pruefdatum" label="Standsicherheitsprüfung">
               <DatePicker defaultValue={moment()} style={{ width: "100%" }} />
             </Form.Item>
             <Form.Item
-              name='verfahren'
-              label='Verfahren'
+              name="verfahren"
+              label="Verfahren"
               rules={[
                 {
                   required: true,
@@ -474,7 +505,7 @@ const SetStatusDialog = ({
             >
               <Input />
             </Form.Item>
-            <Form.Item name='naechstes_pruefdatum' label='Nächstes Prüfdatum'>
+            <Form.Item name="naechstes_pruefdatum" label="Nächstes Prüfdatum">
               <DatePicker defaultValue={moment()} style={{ width: "100%" }} />
             </Form.Item>
           </>
@@ -482,7 +513,7 @@ const SetStatusDialog = ({
 
         {(actionkey === "schaltstellerevision" || actionkey === "pruefung") && (
           <>
-            <Form.Item name='pruefdatum' label='Prüfdatum'>
+            <Form.Item name="pruefdatum" label="Prüfdatum">
               <DatePicker defaultValue={moment()} style={{ width: "100%" }} />
             </Form.Item>
           </>
@@ -490,43 +521,52 @@ const SetStatusDialog = ({
 
         {actionkey === "sonstiges" && (
           <Form.Item
-            name='infos'
+            name="infos"
             rules={[
               {
                 required: true,
                 message: "Bitte geben Sie hier die Informationen an.",
               },
             ]}
-            label='Informationen zu Ihrer durchgeführten Tätigkeit'
+            label="Informationen zu Ihrer durchgeführten Tätigkeit"
           >
             <TextArea rows={4} />
           </Form.Item>
         )}
 
         {/* For every ProtocolAction the same */}
-        <div className='ant-col ant-form-item-label'>
-          <label for='form_in_modal_date'>Status</label>
+        <div className="ant-col ant-form-item-label">
+          <label for="form_in_modal_date">Status</label>
         </div>
-        <Form.Item name='status' noStyle={true} label='Status'>
+        <Form.Item name="status" noStyle={true} label="Status">
           <Radio.Group
             style={{ width: "100%", marginBottom: 15 }}
             defaultValue={input.feature?.properties?.arbeitsprotokollstatus?.id}
-            buttonStyle='solid'
+            buttonStyle="solid"
           >
-            <Radio.Button style={{ width: "33%", textAlign: "center", fontSize: 12 }} value={1}>
+            <Radio.Button
+              style={{ width: "33%", textAlign: "center", fontSize: 12 }}
+              value={1}
+            >
               in Bearbeitung
             </Radio.Button>
-            <Radio.Button style={{ width: "33%", textAlign: "center", fontSize: 12 }} value={2}>
+            <Radio.Button
+              style={{ width: "33%", textAlign: "center", fontSize: 12 }}
+              value={2}
+            >
               erledigt
             </Radio.Button>
-            <Radio.Button style={{ width: "33%", textAlign: "center", fontSize: 12 }} value={3}>
+            <Radio.Button
+              style={{ width: "33%", textAlign: "center", fontSize: 12 }}
+              value={3}
+            >
               Fehlmeldung
             </Radio.Button>
           </Radio.Group>
         </Form.Item>
         <Form.Item
-          name='monteur'
-          label='Monteur'
+          name="monteur"
+          label="Monteur"
           rules={[
             {
               required: input.feature?.properties?.monteur === undefined,
@@ -537,10 +577,12 @@ const SetStatusDialog = ({
           <Input defaultValue={input.feature?.properties?.monteur} />
         </Form.Item>
 
-        <Form.Item name='statusdate' label='Datum'>
+        <Form.Item name="statusdate" label="Datum">
           <DatePicker
             defaultValue={
-              input.feature?.properties?.datum ? moment(input.feature?.properties?.datum) : moment()
+              input.feature?.properties?.datum
+                ? moment(input.feature?.properties?.datum)
+                : moment()
             }
             style={{ width: "100%" }}
           />

@@ -1,5 +1,7 @@
 import AddImageDialog from "../../components/app/dialogs/AddImage";
-import AddIncidentDialog, { ADD_INCIDENT_MODES } from "../../components/app/dialogs/AddIncident";
+import AddIncidentDialog, {
+  ADD_INCIDENT_MODES,
+} from "../../components/app/dialogs/AddIncident";
 import ProtokollAction from "../../components/app/dialogs/ProtokollAction";
 import SetStatusDialog from "../../components/app/dialogs/SetStatus";
 import addIncidentAction from "../store/slices/actionSubslices/addIncidentAction";
@@ -26,8 +28,6 @@ export const getObjectActionInfos = ({
     {
       tooltip: "Auf Objekt zoomen",
       onClick: () => {
-        console.log("selectedFeature", selectedFeature);
-
         zoomToFeature({
           feature: selectedFeature,
           mapRef: refRoutedMap.current.leafletMap.leafletElement,
@@ -107,7 +107,6 @@ export const getObjectActionInfos = ({
               input={{ feature: selectedFeature, vcard }}
               onClose={(params) => {
                 dispatch(protocolAction(params, selectedFeature.properties));
-                console.log("setStatus", params);
               }}
             />
           );
@@ -116,7 +115,10 @@ export const getObjectActionInfos = ({
         },
         iconname: "tasks",
       });
-      const actionSubs = getSubActionInfoForProtocolAction({ selectedFeature, dispatch });
+      const actionSubs = getSubActionInfoForProtocolAction({
+        selectedFeature,
+        dispatch,
+      });
       if (actionSubs?.length === 1) {
         actionLinkInfos.push({
           tooltip: actionSubs[0].tooltip || actionSubs[0].title,
@@ -136,7 +138,11 @@ export const getObjectActionInfos = ({
   return actionLinkInfos;
 };
 
-const getSubActionInfoForAddIncident = ({ selectedFeature, selectedArbeitsauftrag, dispatch }) => {
+const getSubActionInfoForAddIncident = ({
+  selectedFeature,
+  selectedArbeitsauftrag,
+  dispatch,
+}) => {
   const vcard = getVCard(selectedFeature);
   let subs = [];
   //check if selected feature is a tdta_leuchte
@@ -197,10 +203,14 @@ const getSubActionInfoForAddIncident = ({ selectedFeature, selectedArbeitsauftra
         },
       });
 
-      if (selectedArbeitsauftrag && selectedArbeitsauftrag.properties.intermediate !== true) {
+      if (
+        selectedArbeitsauftrag &&
+        selectedArbeitsauftrag.properties.intermediate !== true
+      ) {
         subs.push({
           tooltip: "Mast: Arbeitsauftrag ergänzen",
-          title: "Mast: " + selectedArbeitsauftrag.properties.nummer + " ergänzen",
+          title:
+            "Mast: " + selectedArbeitsauftrag.properties.nummer + " ergänzen",
           // iconname: "exclamation-triangle",
           iconspan: addIncidentActionIcons.add2arbeitsauftrag_mast,
           onClick: () => {
@@ -235,7 +245,11 @@ const getSubActionInfoForAddIncident = ({ selectedFeature, selectedArbeitsauftra
             close={() => {
               dispatch(showDialog());
             }}
-            input={{ feature: selectedFeature, vcard, mode: ADD_INCIDENT_MODES.VERANLASSUNG }}
+            input={{
+              feature: selectedFeature,
+              vcard,
+              mode: ADD_INCIDENT_MODES.VERANLASSUNG,
+            }}
             onClose={(params) => {
               dispatch(addIncidentAction(params));
             }}
@@ -255,7 +269,11 @@ const getSubActionInfoForAddIncident = ({ selectedFeature, selectedArbeitsauftra
             close={() => {
               dispatch(showDialog());
             }}
-            input={{ feature: selectedFeature, vcard, mode: ADD_INCIDENT_MODES.EINZELAUFTRAG }}
+            input={{
+              feature: selectedFeature,
+              vcard,
+              mode: ADD_INCIDENT_MODES.EINZELAUFTRAG,
+            }}
             onClose={(params) => {
               dispatch(addIncidentAction(params));
             }}
@@ -266,10 +284,14 @@ const getSubActionInfoForAddIncident = ({ selectedFeature, selectedArbeitsauftra
       },
     });
 
-    if (selectedArbeitsauftrag && selectedArbeitsauftrag.properties.intermediate !== true) {
+    if (
+      selectedArbeitsauftrag &&
+      selectedArbeitsauftrag.properties.intermediate !== true
+    ) {
       subs.push({
         tooltip: "Leuchte: Arbeitsauftrag ergänzen",
-        title: "Leuchte: " + selectedArbeitsauftrag.properties.nummer + " ergänzen",
+        title:
+          "Leuchte: " + selectedArbeitsauftrag.properties.nummer + " ergänzen",
         // iconname: "exclamation-triangle",
         iconspan: addIncidentActionIcons.add2arbeitsauftrag_leuchte,
         onClick: () => {
@@ -305,7 +327,11 @@ const getSubActionInfoForAddIncident = ({ selectedFeature, selectedArbeitsauftra
               close={() => {
                 dispatch(showDialog());
               }}
-              input={{ feature: selectedFeature, vcard, mode: ADD_INCIDENT_MODES.VERANLASSUNG }}
+              input={{
+                feature: selectedFeature,
+                vcard,
+                mode: ADD_INCIDENT_MODES.VERANLASSUNG,
+              }}
               onClose={(params) => {
                 dispatch(addIncidentAction(params));
               }}
@@ -325,7 +351,11 @@ const getSubActionInfoForAddIncident = ({ selectedFeature, selectedArbeitsauftra
               close={() => {
                 dispatch(showDialog());
               }}
-              input={{ feature: selectedFeature, vcard, mode: ADD_INCIDENT_MODES.EINZELAUFTRAG }}
+              input={{
+                feature: selectedFeature,
+                vcard,
+                mode: ADD_INCIDENT_MODES.EINZELAUFTRAG,
+              }}
               onClose={(params) => {
                 dispatch(addIncidentAction(params));
               }}
@@ -337,7 +367,10 @@ const getSubActionInfoForAddIncident = ({ selectedFeature, selectedArbeitsauftra
       },
     ];
 
-    if (selectedArbeitsauftrag && selectedArbeitsauftrag.properties.intermediate !== true) {
+    if (
+      selectedArbeitsauftrag &&
+      selectedArbeitsauftrag.properties.intermediate !== true
+    ) {
       subs.push({
         tooltip: "Arbeitsauftrag ergänzen",
         title: selectedArbeitsauftrag.properties.nummer + " ergänzen",
@@ -376,7 +409,11 @@ const getSubActionInfoForAddIncident = ({ selectedFeature, selectedArbeitsauftra
               close={() => {
                 dispatch(showDialog());
               }}
-              input={{ feature: selectedFeature, vcard, mode: ADD_INCIDENT_MODES.VERANLASSUNG }}
+              input={{
+                feature: selectedFeature,
+                vcard,
+                mode: ADD_INCIDENT_MODES.VERANLASSUNG,
+              }}
               onClose={(params) => {
                 dispatch(addIncidentAction(params));
               }}
@@ -396,7 +433,11 @@ const getSubActionInfoForAddIncident = ({ selectedFeature, selectedArbeitsauftra
               close={() => {
                 dispatch(showDialog());
               }}
-              input={{ feature: selectedFeature, vcard, mode: ADD_INCIDENT_MODES.EINZELAUFTRAG }}
+              input={{
+                feature: selectedFeature,
+                vcard,
+                mode: ADD_INCIDENT_MODES.EINZELAUFTRAG,
+              }}
               onClose={(params) => {
                 dispatch(addIncidentAction(params));
               }}
@@ -408,7 +449,10 @@ const getSubActionInfoForAddIncident = ({ selectedFeature, selectedArbeitsauftra
       },
     ];
 
-    if (selectedArbeitsauftrag && selectedArbeitsauftrag.properties.intermediate !== true) {
+    if (
+      selectedArbeitsauftrag &&
+      selectedArbeitsauftrag.properties.intermediate !== true
+    ) {
       subs.push({
         tooltip: "Arbeitsauftrag ergänzen",
         title: selectedArbeitsauftrag.properties.nummer + " ergänzen",
@@ -455,7 +499,6 @@ const getSubInfoForKey = (key, dispatch, selectedFeature) => {
           actionname={info.actionname}
           actionkey={key}
           onClose={(params) => {
-            console.log(info.title, params);
             dispatch(protocolAction(params, selectedFeature.properties));
           }}
           title={info.title}
@@ -473,24 +516,46 @@ const getSubActionInfoForProtocolAction = ({ selectedFeature, dispatch }) => {
     case "geom":
       break;
     case "tdta_leuchten":
-      subs.push(getSubInfoForKey("leuchtenerneuerung", dispatch, selectedFeature));
-      subs.push(getSubInfoForKey("leuchtmittelwechselEP", dispatch, selectedFeature));
-      subs.push(getSubInfoForKey("leuchtmittelwechsel", dispatch, selectedFeature));
-      subs.push(getSubInfoForKey("rundsteuerempfaengerwechsel", dispatch, selectedFeature));
+      subs.push(
+        getSubInfoForKey("leuchtenerneuerung", dispatch, selectedFeature)
+      );
+      subs.push(
+        getSubInfoForKey("leuchtmittelwechselEP", dispatch, selectedFeature)
+      );
+      subs.push(
+        getSubInfoForKey("leuchtmittelwechsel", dispatch, selectedFeature)
+      );
+      subs.push(
+        getSubInfoForKey(
+          "rundsteuerempfaengerwechsel",
+          dispatch,
+          selectedFeature
+        )
+      );
       subs.push(getSubInfoForKey("sonderturnus", dispatch, selectedFeature));
-      subs.push(getSubInfoForKey("vorschaltgeraetewechsel", dispatch, selectedFeature));
+      subs.push(
+        getSubInfoForKey("vorschaltgeraetewechsel", dispatch, selectedFeature)
+      );
       break;
     case "tdta_standort_mast":
-      subs.push(getSubInfoForKey("anstricharbeiten", dispatch, selectedFeature));
+      subs.push(
+        getSubInfoForKey("anstricharbeiten", dispatch, selectedFeature)
+      );
       subs.push(getSubInfoForKey("ep", dispatch, selectedFeature));
       subs.push(getSubInfoForKey("masterneuerung", dispatch, selectedFeature));
-      subs.push(getSubInfoForKey("standortrevision", dispatch, selectedFeature));
-      subs.push(getSubInfoForKey("standsicherheitspruefung", dispatch, selectedFeature));
+      subs.push(
+        getSubInfoForKey("standortrevision", dispatch, selectedFeature)
+      );
+      subs.push(
+        getSubInfoForKey("standsicherheitspruefung", dispatch, selectedFeature)
+      );
       break;
     case "leitung":
       break;
     case "schaltstelle":
-      subs.push(getSubInfoForKey("schaltstellerevision", dispatch, selectedFeature));
+      subs.push(
+        getSubInfoForKey("schaltstellerevision", dispatch, selectedFeature)
+      );
       break;
     case "abzweigdose":
       break;

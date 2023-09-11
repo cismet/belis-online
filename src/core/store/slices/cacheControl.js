@@ -532,30 +532,12 @@ export const renewCache = (
       "z2" // z2 bedeutet die daten kommen chunked
     )
       .then((result) => {
-        console.log("result", result);
         //dataKey and itemKey are the same !!!
         if (result.ok) {
-          console.log(
-            itemKey +
-              " result returned in " +
-              result.dataz[itemKey + "_length"] +
-              " chunks"
-          );
-          // console.log(itemKey + " returned with ", result.data[dataKey]);
-          // dispatch(
-          //   setObjectCount({ key, objectCount: result.data[dataKey].length })
-          // );
-          // dispatch(
-          //   setUpdateCount({ key, updateCount: result.data[dataKey].length })
-          // );
           //async block
           (async () => {
             //put the data in the indexedDB
-            console.log(itemKey + " in async block");
             await tmpdexieW.clear(itemKey);
-            console.log(itemKey + " clear executed");
-            console.log(itemKey + " putArray execute:");
-
             /// there is only one element in the result
             let countElements = 0;
             for (const chunk of result.dataz[itemKey]) {
@@ -566,10 +548,6 @@ export const renewCache = (
                 itemKey
               );
             }
-
-            // await tmpdexieW.putZArray(result.response, itemKey);
-            // await dexieW.putArray(result.data[dataKey], itemKey);
-            console.log(itemKey + " putArray executed");
 
             //reset loadingState in 1 minute
             const resetTimer = setTimeout(() => {
@@ -583,7 +561,6 @@ export const renewCache = (
               setLoadingState({ key, resetTimer, loadingState: "cached" })
             );
             dispatch(setLastUpdate({ key, lastUpdate: new Date().getTime() }));
-            console.log(itemKey + " setLoadingState: cached");
 
             //remove the intermediate results of this datatype
             dispatch(clearIntermediateResults(key));
@@ -604,7 +581,7 @@ export const renewCache = (
         }
       })
       .catch(function (error) {
-        console.log("xxx error in fetch ", error);
+        console.log("error in fetch ", error);
         dispatch(setLoadingState({ key, loadingState: "problem" }));
         const resetTimer = setTimeout(() => {
           dispatch(
