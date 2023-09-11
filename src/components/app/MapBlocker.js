@@ -4,7 +4,6 @@ import { useDispatch } from "react-redux";
 
 import { setDone } from "../../core/store/slices/featureCollection";
 
-const size = 150;
 const MapBlocker = ({ blocking, visible, width, height }) => {
   const [slowRequest, setSlowRequest] = useState(false);
   const dispatch = useDispatch();
@@ -84,12 +83,10 @@ const MapBlocker = ({ blocking, visible, width, height }) => {
                 Bitte warten Sie einen Moment oder brechen Sie die Anfrage mit{" "}
                 <Button
                   style={{ opacity: 0.8 }}
-                  size='small'
+                  size="small"
                   danger
-                  type='ghost'
+                  type="ghost"
                   onClick={() => {
-                    console.log("clicked");
-
                     dispatch(setDone(true));
                   }}
                 >

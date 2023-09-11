@@ -54,12 +54,19 @@ const SideBar = ({ innerRef, height }) => {
   const dispatch = useDispatch();
   useEffect(() => {
     if (selectedFeature !== null) {
-      if (refs && refs[selectedFeature.id] && refs[selectedFeature.id]?.current?.scrollIntoView) {
-        const { top: topOfListItem, height: heightOfListItem } = refs[
-          selectedFeature.id
-        ].current.getBoundingClientRect();
-        const { height: heightOfList } = listRef?.current.getBoundingClientRect();
-        if (topOfListItem < heightOfListItem || topOfListItem + heightOfListItem > heightOfList) {
+      if (
+        refs &&
+        refs[selectedFeature.id] &&
+        refs[selectedFeature.id]?.current?.scrollIntoView
+      ) {
+        const { top: topOfListItem, height: heightOfListItem } =
+          refs[selectedFeature.id].current.getBoundingClientRect();
+        const { height: heightOfList } =
+          listRef?.current.getBoundingClientRect();
+        if (
+          topOfListItem < heightOfListItem ||
+          topOfListItem + heightOfListItem > heightOfList
+        ) {
           refs[selectedFeature.id].current.scrollIntoView({
             behavior: "smooth",
             block: "start",
@@ -82,7 +89,10 @@ const SideBar = ({ innerRef, height }) => {
       <div ref={listRef} style={mapStyle}>
         <ListGroup>
           {featureCollection.map((feature, index) => {
-            if (currentFeatureType === null || currentFeatureType !== feature.featuretype) {
+            if (
+              currentFeatureType === null ||
+              currentFeatureType !== feature.featuretype
+            ) {
               currentFeatureType = feature.featuretype;
               return (
                 <div key={"listItemDiv." + feature.id} ref={refs[feature.id]}>
@@ -132,8 +142,8 @@ const SideBar = ({ innerRef, height }) => {
         {/* <Nav className="col-md-12 d-none d-md-block bg-light sidebar" */}
         <Nav
           ref={innerRef}
-          className='d-md-block bg-light sidebar'
-          activeKey='/home'
+          className="d-md-block bg-light sidebar"
+          activeKey="/home"
           onSelect={(selectedKey) => alert(`selected ${selectedKey}`)}
         >
           <Tabs
@@ -141,8 +151,6 @@ const SideBar = ({ innerRef, height }) => {
             activeKey={mode}
             onTabClick={(key) => {
               if (key === mode) {
-                console.log("fitBoundsForCollection");
-
                 dispatch(fitBoundsForCollection());
               } else {
                 dispatch(setMode(key));
@@ -153,7 +161,11 @@ const SideBar = ({ innerRef, height }) => {
               tab={
                 <div>
                   {dones[MODES.OBJECTS] === false ? (
-                    <FontAwesomeIcon className='text-primary' spin icon={faSpinner} />
+                    <FontAwesomeIcon
+                      className="text-primary"
+                      spin
+                      icon={faSpinner}
+                    />
                   ) : (
                     featureCollections[MODES.OBJECTS].length
                   )}
@@ -168,7 +180,11 @@ const SideBar = ({ innerRef, height }) => {
               tab={
                 <div>
                   {dones[MODES.TASKLISTS] === false ? (
-                    <FontAwesomeIcon className='text-primary' spin icon={faSpinner} />
+                    <FontAwesomeIcon
+                      className="text-primary"
+                      spin
+                      icon={faSpinner}
+                    />
                   ) : (
                     featureCollections[MODES.TASKLISTS].length
                   )}
@@ -187,14 +203,20 @@ const SideBar = ({ innerRef, height }) => {
               tab={
                 <div>
                   {dones[MODES.PROTOCOLS] === false ? (
-                    <FontAwesomeIcon className='text-primary' spin icon={faSpinner} />
+                    <FontAwesomeIcon
+                      className="text-primary"
+                      spin
+                      icon={faSpinner}
+                    />
                   ) : featureCollections[MODES.PROTOCOLS].length > 0 ? (
                     featureCollections[MODES.PROTOCOLS].length
                   ) : (
                     "-"
                   )}
                   <br></br>
-                  {featureCollections[MODES.PROTOCOLS].length === 1 ? "Protokoll" : "Protokolle"}
+                  {featureCollections[MODES.PROTOCOLS].length === 1
+                    ? "Protokoll"
+                    : "Protokolle"}
                 </div>
               }
               key={MODES.PROTOCOLS}

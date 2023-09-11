@@ -1,9 +1,6 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { MappingConstants, RoutedMap } from "react-cismap";
-import {
-  TopicMapStylingContext,
-  TopicMapStylingDispatchContext,
-} from "react-cismap/contexts/TopicMapStylingContextProvider";
+import { TopicMapStylingContext } from "react-cismap/contexts/TopicMapStylingContextProvider";
 import GazetteerHitDisplay from "react-cismap/GazetteerHitDisplay";
 import ProjSingleGeoJson from "react-cismap/ProjSingleGeoJson";
 import { useDispatch, useSelector } from "react-redux";
@@ -14,7 +11,6 @@ import FocusRectangle from "../components/app/FocusRectangle";
 import InfoBox from "../components/commons/InfoBox";
 import InfoPanel from "../components/commons/secondaryinfo/SecondaryInfo";
 import PaleOverlay from "../components/leaflet/PaleOverlay";
-import { backgrounds } from "../constants/belis";
 import { modifyQueryPart } from "../core/commons/routingHelper";
 import { convertBounds2BBox } from "../core/helper/gisHelper";
 import { CONNECTIONMODE, getConnectionMode } from "../core/store/slices/app";
@@ -45,17 +41,12 @@ const BelisMap = ({ refRoutedMap, width, height, jwt }) => {
   const blockingTime = 1000;
   const [blockLoading, setBlockLoading] = useState(false);
   const [indexInitialized, setIndexInitialized] = useState(false);
-  const [indexInitializationRequested, setIndexInitializationRequested] = useState(false);
-  const { setSelectedBackground } = useContext(TopicMapStylingDispatchContext);
+  const [indexInitializationRequested, setIndexInitializationRequested] =
+    useState(false);
 
-  const {
-    backgroundModes,
-    selectedBackground,
-    baseLayerConf,
-    backgroundConfigurations,
-    additionalLayerConfiguration,
-    activeAdditionalLayerKeys,
-  } = useContext(TopicMapStylingContext);
+  const { selectedBackground, backgroundConfigurations } = useContext(
+    TopicMapStylingContext
+  );
 
   const timeoutHandlerRef = useRef(null);
 
@@ -184,7 +175,15 @@ const BelisMap = ({ refRoutedMap, width, height, jwt }) => {
           dispatch(setZoom(z));
         }
         if (featureCollectionMode === MODES.OBJECTS) {
-          dispatch(loadObjects({ boundingBox, inFocusMode, zoom: z, jwt: jwt, force: true })); //here force=true because of problem when initially loading after switching to cache mode
+          dispatch(
+            loadObjects({
+              boundingBox,
+              inFocusMode,
+              zoom: z,
+              jwt: jwt,
+              force: true,
+            })
+          ); //here force=true because of problem when initially loading after switching to cache mode
         } else {
           // console.log("xxx no map for you (mapBounds && mapSize)", mapBounds, mapSize);
         }
@@ -197,7 +196,14 @@ const BelisMap = ({ refRoutedMap, width, height, jwt }) => {
       //   isSecondaryCacheReady
       // );
     }
-  }, [mapBounds, mapSize, blockLoading, indexInitialized, connectionMode, featureCollectionMode]);
+  }, [
+    mapBounds,
+    mapSize,
+    blockLoading,
+    indexInitialized,
+    connectionMode,
+    featureCollectionMode,
+  ]);
 
   // initalize the index in CACHEMODE when the loadingstate is undefined
   useEffect(() => {
@@ -212,11 +218,6 @@ const BelisMap = ({ refRoutedMap, width, height, jwt }) => {
           setIndexInitializationRequested(true);
           dispatch(
             initIndex(() => {
-              console.log(
-                "featureCollection.length",
-                featureCollection.length,
-                !featureCollection.length
-              );
               setIndexInitialized(true);
             })
           );
@@ -246,7 +247,7 @@ const BelisMap = ({ refRoutedMap, width, height, jwt }) => {
       referenceSystem={MappingConstants.crs3857}
       referenceSystemDefinition={MappingConstants.proj4crs3857def}
       ref={refRoutedMap}
-      layers=''
+      layers=""
       doubleClickZoom={false}
       onclick={(e) => {}}
       ondblclick={(e) => {
@@ -256,9 +257,10 @@ const BelisMap = ({ refRoutedMap, width, height, jwt }) => {
           if (classesString) {
             const classes = classesString.split(" ");
 
-            if (classes.includes("leaflet-gl-layer") || classes.includes("leaflet-container")) {
-              console.log("unselect feature");
-
+            if (
+              classes.includes("leaflet-gl-layer") ||
+              classes.includes("leaflet-container")
+            ) {
               dispatch(setSelectedFeature(null));
             } else {
               // console.log("classes", classesString);
@@ -268,7 +270,9 @@ const BelisMap = ({ refRoutedMap, width, height, jwt }) => {
           console.log("error in dbl click", e);
         }
       }}
-      autoFitProcessedHandler={() => this.props.mappingActions.setAutoFit(false)}
+      autoFitProcessedHandler={() =>
+        this.props.mappingActions.setAutoFit(false)
+      }
       backgroundlayers={_backgroundLayers}
       urlSearchParams={urlSearchParams}
       fullScreenControlEnabled={true}
@@ -283,7 +287,10 @@ const BelisMap = ({ refRoutedMap, width, height, jwt }) => {
       }}
       fallbackZoom={18}
       locationChangedHandler={(location) => {
-        history.push(history.location.pathname + modifyQueryPart(browserlocation.search, location));
+        history.push(
+          history.location.pathname +
+            modifyQueryPart(browserlocation.search, location)
+        );
       }}
       boundingBoxChangedHandler={(boundingBox) => {
         // console.log("xxx boundingBox Changed", boundingBox);

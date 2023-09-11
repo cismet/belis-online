@@ -9,7 +9,7 @@ import {
 import extensions from "../../../core/helper/extensions";
 import { shrinkBase64Image } from "../../../core/helper/imageHelper";
 
-const { Text, Link } = Typography;
+const { Text } = Typography;
 const getBase64 = (img, callback) => {
   const reader = new FileReader();
   reader.addEventListener("load", () => {
@@ -29,8 +29,6 @@ const AddImageDialog = ({
   input = {},
 }) => {
   const [imageData, setImageData] = useState();
-  console.log("AddImageDialog input", input);
-
   const handleChange = (info) => {
     if (info.file.status === "uploading") {
       return;

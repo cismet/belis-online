@@ -66,7 +66,6 @@ const Teams = () => {
                         (async () => {
                           const oldTeam = selectedTeam;
                           const oldAAs = await dexieW.getAll("arbeitsauftrag");
-                          console.log("oldAAs", oldAAs);
                           dispatch(setTeam(team));
                           dispatch(
                             renewCache(

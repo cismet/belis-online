@@ -13,7 +13,7 @@ import {
 import LoginForm from "../components/app/LoginForm";
 import MapBlocker from "../components/app/MapBlocker";
 import Menu from "../components/app/menu/Menu";
-import { REST_SERVICE, DB_VERSION } from "../constants/belis";
+import { DB_VERSION } from "../constants/belis";
 import {
   CONNECTIONMODE,
   getConnectionMode,
@@ -94,6 +94,7 @@ const View = () => {
   //local state
   const [loginInfo, setLoginInfo] = useState();
 
+  // eslint-disable-next-line no-unused-vars
   const [loggedOut, setLoggedOut] = useState();
   //	let jwt = 'eyJhbGciOiJSUzI1NiJ9.eyJqdGkiOiIwIiwic3ViIjoiYWRtaW4iLCJkb21haW4iOiJXVU5EQV9CTEFVIn0.E3eZbW0lp6QrEyaDuGgtKpUqwi7WBp-mChecAej2wqutBcXD6utYCiKeAUMar5kIjgKdiZG5v7R-0uUekeTOp6_MuEysuGL4l-61VKLJwl31Tiw40JIzB3_saVky9bfZ_ntnR6Fkb4FuXe0T1Y2qqKwZd0NI-pCzLb98K6AQn41p7_LunusIxAewXUZm20UtsMhSYDNBLqVqi1GYiv_knNKo1iWnFPT37FuF_Rsx9MkWToHuRFXg1J790ghaJQRH5ky1xNYjiOhdK0k5E4zSZBXI7xnuK0fGdjGnJ2wVkfdGDb65e5H3EP3MEiBX1qRpCDEBstq_bOrKs-MTo464sQ'
 
@@ -217,9 +218,8 @@ const View = () => {
     }
   }, [selectedTeam, storedJWT, dispatch]);
 
-  const { setAppMenuActiveMenuSection, setAppMenuVisible } = useContext(
-    UIDispatchContext
-  );
+  const { setAppMenuActiveMenuSection, setAppMenuVisible } =
+    useContext(UIDispatchContext);
 
   let loginForm = null;
 
@@ -258,8 +258,6 @@ const View = () => {
 
   useEffect(() => {
     const login = getLoginFromJWT(jwt);
-    console.log("useEffectLogger for storedJWT", { jwt, login });
-
     const loginLowerCase = (login || "").toLowerCase();
 
     if (storedJWT) {

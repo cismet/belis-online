@@ -3,8 +3,11 @@ import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import { getJWT } from "../../../core/store/slices/auth";
-import { getFilter, loadObjects, setFilter } from "../../../core/store/slices/featureCollection";
-import { getMapRef } from "../../../core/store/slices/map";
+import {
+  getFilter,
+  loadObjects,
+  setFilter,
+} from "../../../core/store/slices/featureCollection";
 
 const Filter = ({ refRoutedMap }) => {
   // const dexieW = dexieworker();
@@ -18,7 +21,10 @@ const Filter = ({ refRoutedMap }) => {
   return (
     <div>
       <div>
-        <div>Wählen Sie hier die Objektarten an, die Sie in der Karte anzeigen möchten:</div>
+        <div>
+          Wählen Sie hier die Objektarten an, die Sie in der Karte anzeigen
+          möchten:
+        </div>
         <p key={JSON.stringify(filterState)} style={{ marginTop: 20 }}>
           {Object.keys(filterState).map((key) => {
             const item = filterState[key];
@@ -33,14 +39,6 @@ const Filter = ({ refRoutedMap }) => {
                   _fs[key].enabled = switched;
                   dispatch(setFilter(_fs));
                   setFilterState(_fs);
-                  console.log("_fs");
-                  console.log("loadObjects", {
-                    boundingBox: refRoutedMap.current.getBoundingBox(),
-                    overridingFilterState: _fs,
-                    force: true,
-                    jwt: jwt,
-                  });
-
                   setTimeout(() => {
                     dispatch(
                       loadObjects({

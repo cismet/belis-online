@@ -217,8 +217,6 @@ export const setSelectedFeature = (selectedFeature) => {
       dispatch(setSelectedFeatureForMode({ selectedFeature, mode }));
       zoomToFeature({ feature: selectedFeature, mapRef });
     } else {
-      console.log("setSelectedFeature else", mode, selectedFeature);
-
       dispatch(setSelectedFeatureForMode({ selectedFeature, mode }));
     }
   };
@@ -246,11 +244,6 @@ export const setFeatureCollectionInfo = (info) => {
 export const forceRefresh = () => {
   return async (dispatch, getState) => {
     const state = getState();
-    console.log(
-      "xxx forceRefresh in",
-      state.featureCollection.boundingBox,
-      state.mapInfo?.bounds
-    );
     dispatch(
       setFeatureCollectionForMode({ mode: MODES.OBJECTS, features: [] })
     );
@@ -360,8 +353,6 @@ export const loadObjects = ({
             onlineDataForcing,
           })
         );
-      } else {
-        // console.log("xxx duplicate requestBasis", boundingBox, new Error());
       }
     }
   };

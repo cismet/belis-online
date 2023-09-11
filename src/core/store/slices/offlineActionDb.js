@@ -1,6 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
 import slugify from "slugify";
-import uuidv4 from "uuid/v4";
 
 import * as offlineDatabase from "../../commons/offlineActionDbHelper";
 import { getTaskForAction } from "../../commons/taskHelper";
@@ -10,10 +9,7 @@ import {
   integrateIntermediateResultsIntofeatureCollection,
   setDone,
 } from "./featureCollection";
-import {
-  DB_VERSION  
-} from "../../../constants/belis";
-
+import { DB_VERSION } from "../../../constants/belis";
 
 const initialState = { tasks: [], rawTasks: [], intermediateResults: {} };
 
@@ -68,7 +64,7 @@ export const getRawTasks = (state) => {
 export const initialize = (storedJWT) => {
   return async (dispatch, getState) => {
     const state = getState();
-    const jwt = (storedJWT ? storedJWT : getJWT(state));
+    const jwt = storedJWT ? storedJWT : getJWT(state);
     const login = getLoginFromJWT(jwt);
     offlineDatabase
       .createDb(login)
@@ -80,7 +76,7 @@ export const initialize = (storedJWT) => {
             console.log("error occured", error);
           };
           const changeCallback = (action) => {
-            console.log("change occured", action);
+            // console.log("change occured", action);
           };
           const login = getLoginFromJWT(jwt);
           rep.restart(
@@ -124,7 +120,7 @@ export const initialize = (storedJWT) => {
 export const reInitialize = (storedJWT) => {
   return async (dispatch, getState) => {
     const state = getState();
-    const jwt = (storedJWT ? storedJWT : getJWT(state));
+    const jwt = storedJWT ? storedJWT : getJWT(state);
     const oldRep = getRep(state);
     const login = getLoginFromJWT(jwt);
     const loginLowerCase = (login || "").toLowerCase();
@@ -169,7 +165,6 @@ export const reInitialize = (storedJWT) => {
 export const truncateActionTables = () => {
   return async (dispatch, getState) => {
     const state = getState();
-    console.log("start trunc");
     const db = getDB(state);
 
     if (db && db.actions) {
@@ -177,7 +172,6 @@ export const truncateActionTables = () => {
       db.actions.remove();
 
       db.destroy().then((res) => {
-        console.log("destroyed db" + res);
         window["dbInit"] = undefined;
         dispatch(initialize());
         dispatch(setDone(true));
@@ -190,10 +184,9 @@ export const resyncDb = (currentJwt) => {
   return async (dispatch, getState) => {
     const state = getState();
     const rep = getRep(state);
-    const db = getDB(state);
 
     if (rep) {
-      const jwt = (currentJwt ? currentJwt : getJWT(getState()));
+      const jwt = currentJwt ? currentJwt : getJWT(getState());
 
       const errorCallback = (error) => {
         console.log("error occured", error);
@@ -212,21 +205,18 @@ export const resyncDb = (currentJwt) => {
   };
 };
 
-
 export const setSyncPoint = (time) => {
   const timeObj = time;
 
   return async (dispatch, getState) => {
     const state = getState();
     const rep = getRep(state);
-    const db = getDB(state);
 
     if (rep) {
       rep.setSyncPoint(timeObj);
     }
   };
 };
-
 
 export const clearIntermediateResults = (object_type) => {
   return async (dispatch, getState) => {
@@ -262,8 +252,6 @@ export const addIntermediateResult = (intermediateResult) => {
     //      prefix: the prefix of the image
     //      ts: the timestamp of the image
     const stateIntermediateResults = getIntermediateResults(getState()) || {};
-    console.log("intermediateResult", intermediateResult);
-
     const intermediateResults = JSON.parse(
       JSON.stringify(stateIntermediateResults)
     );
@@ -292,16 +280,7 @@ export const addIntermediateResult = (intermediateResult) => {
     intermediateResults[intermediateResult.object_type][
       intermediateResult.object_id
     ][intermediateResult.resultType].push(intermediateResult.data);
-    if (
-      intermediateResults["schaltstelle"] &&
-      intermediateResults["schaltstelle"][1444]
-    ) {
-      console.log("store intermediateResults", intermediateResults);
-      console.log(
-        "count intermediateResults of schaltstelle-1444",
-        intermediateResults["schaltstelle"][1444].image.length
-      );
-    }
+
     dispatch(storeIntermediateResults(intermediateResults));
     dispatch(
       integrateIntermediateResultsIntofeatureCollection(intermediateResults)

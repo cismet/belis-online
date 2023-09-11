@@ -1,18 +1,16 @@
-import { addRxPlugin, createRxDatabase } from 'rxdb';
-import { getRxStorageDexie } from 'rxdb/plugins/storage-dexie';
-import {
-  replicateGraphQL
-} from 'rxdb/plugins/replication-graphql';
+import { addRxPlugin, createRxDatabase } from "rxdb";
+import { getRxStorageDexie } from "rxdb/plugins/storage-dexie";
+import { replicateGraphQL } from "rxdb/plugins/replication-graphql";
 import {
   OFFLINE_ACTIONS_ENDPOINT_URL,
   OFFLINE_ACTIONS_SYNC_URL,
-  DB_VERSION  
+  DB_VERSION,
 } from "../../constants/belis";
 import { actionSchema } from "./schema";
-import { wrappedValidateAjvStorage } from 'rxdb/plugins/validate-ajv';
-import { RxDBUpdatePlugin } from 'rxdb/plugins/update';
-import { RxDBQueryBuilderPlugin } from 'rxdb/plugins/query-builder';
-import { RxDBLeaderElectionPlugin } from 'rxdb/plugins/leader-election';
+import { wrappedValidateAjvStorage } from "rxdb/plugins/validate-ajv";
+import { RxDBUpdatePlugin } from "rxdb/plugins/update";
+import { RxDBQueryBuilderPlugin } from "rxdb/plugins/query-builder";
+import { RxDBLeaderElectionPlugin } from "rxdb/plugins/leader-election";
 
 addRxPlugin(RxDBUpdatePlugin);
 addRxPlugin(RxDBQueryBuilderPlugin);
@@ -26,8 +24,25 @@ const batchSize = 5;
 const batchSizePush = 1;
 
 const toTimeString = (dateObject) => {
-  return dateObject.getFullYear() + "-" + (dateObject.getMonth() + 1) + "-" + dateObject.getDate() + "T" + dateObject.getHours() + ":" + dateObject.getMinutes() + ":" + dateObject.getSeconds() + "." + dateObject.getMilliseconds() + "+0" + (dateObject.getTimezoneOffset() / (-60)) + ":00";
-}
+  return (
+    dateObject.getFullYear() +
+    "-" +
+    (dateObject.getMonth() + 1) +
+    "-" +
+    dateObject.getDate() +
+    "T" +
+    dateObject.getHours() +
+    ":" +
+    dateObject.getMinutes() +
+    ":" +
+    dateObject.getSeconds() +
+    "." +
+    dateObject.getMilliseconds() +
+    "+0" +
+    dateObject.getTimezoneOffset() / -60 +
+    ":00"
+  );
+};
 
 const pushQueryBuilder = (doc) => {
   const query = `
@@ -42,14 +57,14 @@ const pushQueryBuilder = (doc) => {
             }
         }
      `;
-  
+
   let acts = [];
   let i = 0;
 
   for (let action of doc) {
-    acts[i] = action.newDocumentState
+    acts[i] = action.newDocumentState;
     ++i;
-  }   
+  }
   const variables = {
     action: acts,
   };
@@ -63,12 +78,10 @@ const pushQueryBuilder = (doc) => {
   };
 };
 
-
 const syncUrls = {
   http: OFFLINE_ACTIONS_SYNC_URL,
-  ws: OFFLINE_ACTIONS_ENDPOINT_URL
+  ws: OFFLINE_ACTIONS_ENDPOINT_URL,
 };
-
 
 export class GraphQLReplicator {
   constructor(db) {
@@ -87,19 +100,19 @@ export class GraphQLReplicator {
         };
       }
       let lastUpdate = doc.updatedAt;
-  
+
       if (this.temporarySyncTime) {
         let dateObject = new Date(this.temporarySyncTime);
-  
+
         lastUpdate = toTimeString(dateObject);
-  
+
         this.temporarySyncTime = undefined;
       }
 
       if (!lastUpdate) {
         lastUpdate = new Date(0).toUTCString();
       }
-  
+
       doc = {
         id: "",
         updatedAt: lastUpdate,
@@ -136,7 +149,7 @@ export class GraphQLReplicator {
       };
     };
   };
-  
+
   setSyncPoint(temporarySyncTime) {
     this.temporarySyncTime = temporarySyncTime;
   }
@@ -201,7 +214,6 @@ export class GraphQLReplicator {
       }
     }
   }
-  
 
   setupGraphQLReplication(auth, errorCallback, updateCallback) {
     const adb = this.db;
@@ -231,61 +243,58 @@ export class GraphQLReplicator {
       collection: adb.actions,
       url: syncUrls,
       headers: {
-          /* optional, set an auth header */
-          Authorization: `Bearer ${auth.idToken}`
+        /* optional, set an auth header */
+        Authorization: `Bearer ${auth.idToken}`,
       },
       push: {
-          batchSizePush,
-          queryBuilder: pushQueryBuilder,
-          responseModifier: async function(data) {
-              console.log('responseModifier');
-              console.log('out' + data);
-
-              if (JSON.stringify(data).indexOf('errors') !== -1) {
-                return data;
-              }
-
-              //an empty array should be returned, if the push request was successful
-              return [];
+        batchSizePush,
+        queryBuilder: pushQueryBuilder,
+        responseModifier: async function (data) {
+          if (JSON.stringify(data).indexOf("errors") !== -1) {
+            return data;
           }
+
+          //an empty array should be returned, if the push request was successful
+          return [];
+        },
       },
       pull: {
-          batchSize,
-          queryBuilder: this.pullQueryBuilder(auth.userId),
-          includeWsHeaders: true,
-          responseModifier: async function(
-            plainResponse, 
-            origin, 
-            requestCheckpoint
-          ) {
-            const docs = plainResponse;
-            let lastDoc = null;
+        batchSize,
+        queryBuilder: this.pullQueryBuilder(auth.userId),
+        includeWsHeaders: true,
+        responseModifier: async function (
+          plainResponse,
+          origin,
+          requestCheckpoint
+        ) {
+          const docs = plainResponse;
+          let lastDoc = null;
 
-            for (let action of docs) {
-              lastDoc = action;
+          for (let action of docs) {
+            lastDoc = action;
 
-              //null values are not allowed, so they must be replaced by undefined
-              if (lastDoc.result === null) {
-                lastDoc.result = undefined;
-              }
+            //null values are not allowed, so they must be replaced by undefined
+            if (lastDoc.result === null) {
+              lastDoc.result = undefined;
             }
-
-            let retCheckpoint;
-            
-            if (lastDoc) {
-              retCheckpoint = {
-                id: lastDoc.id,
-                updatedAt: lastDoc.updatedAt
-              }
-            } else {
-              retCheckpoint = requestCheckpoint
-            }
-
-            return {
-                documents: docs,
-                checkpoint: retCheckpoint
-            };
           }
+
+          let retCheckpoint;
+
+          if (lastDoc) {
+            retCheckpoint = {
+              id: lastDoc.id,
+              updatedAt: lastDoc.updatedAt,
+            };
+          } else {
+            retCheckpoint = requestCheckpoint;
+          }
+
+          return {
+            documents: docs,
+            checkpoint: retCheckpoint,
+          };
+        },
       },
       onConnect: (msg) => {
         console.log("SubscriptionClient.onConnect()");
@@ -300,8 +309,8 @@ export class GraphQLReplicator {
           }
         }
       },
-    live: true,
-      deletedField: 'deleted',
+      live: true,
+      deletedField: "deleted",
       retryTime: 6000,
     });
 
@@ -311,59 +320,61 @@ export class GraphQLReplicator {
     });
 
     replicationState.received$.subscribe((doc) => {
-        console.dir(doc);
+      console.dir(doc);
 
-        let action = doc;
-        console.log("subscription emitted => trigger run");
-        if (action.deleted) {
-          adb.actions.findOne({selector: { id: action.id }}).exec().then(removeUnusedAction);
-        } else if (action.status === 401) {
-          //wrong jwt was set
-          adb.actions.findOne({selector: { id: action.id }}).exec().then(reactOn401);
-        } else if (action.result && action.isCompleted === false) {
-          const reactOnCompletedAction = (act) => {
-            if (
-              act &&
-              !act.isCompleted
-            ) {
-              const changeFunction = (oldData) => {
-                oldData.isCompleted = true;
-                // when a value is null, the rxdb will throw an error
-                if (oldData.result === null) {
-                  oldData.result = undefined;
-                }
-                if (oldData.status === null) {
-                  oldData.status = undefined;
-                }
-
-                if (oldData?.parameter?.ImageData) {
-                  oldData.parameter.ImageData = "!locallyStripped";
-                }
-                return oldData;
-              };
-              //set isCompelted to true
-              act.incrementalModify(changeFunction);
-
-              //call the callback function
-              if (updateCallback != null) {
-                updateCallback(action);
+      let action = doc;
+      if (action.deleted) {
+        adb.actions
+          .findOne({ selector: { id: action.id } })
+          .exec()
+          .then(removeUnusedAction);
+      } else if (action.status === 401) {
+        //wrong jwt was set
+        adb.actions
+          .findOne({ selector: { id: action.id } })
+          .exec()
+          .then(reactOn401);
+      } else if (action.result && action.isCompleted === false) {
+        const reactOnCompletedAction = (act) => {
+          if (act && !act.isCompleted) {
+            const changeFunction = (oldData) => {
+              oldData.isCompleted = true;
+              // when a value is null, the rxdb will throw an error
+              if (oldData.result === null) {
+                oldData.result = undefined;
               }
+              if (oldData.status === null) {
+                oldData.status = undefined;
+              }
+
+              if (oldData?.parameter?.ImageData) {
+                oldData.parameter.ImageData = "!locallyStripped";
+              }
+              return oldData;
+            };
+            //set isCompelted to true
+            act.incrementalModify(changeFunction);
+
+            //call the callback function
+            if (updateCallback != null) {
+              updateCallback(action);
             }
-          };
-          adb.actions
-            .findOne({selector: { id: action.id }})
-            .exec().then(reactOnCompletedAction);
-        }
+          }
+        };
+        adb.actions
+          .findOne({ selector: { id: action.id } })
+          .exec()
+          .then(reactOnCompletedAction);
       }
-    );
+    });
 
     if (this.intervalId) {
       clearInterval(this.intervalId);
     }
 
     const refresh = () => {
-      replicationState.emitEvent('RESYNC');
-    }
+      replicationState.emitEvent("RESYNC");
+    };
 
     this.intervalId = setInterval(refresh, 5000);
 
@@ -382,7 +393,10 @@ export const createDb = async (login) => {
     do {
       await delay(1000);
       ++attempts;
-    } while (window["db_" + DB_VERSION + "_" + loginLowerCase + "___WAIT"] && attempts < 20);
+    } while (
+      window["db_" + DB_VERSION + "_" + loginLowerCase + "___WAIT"] &&
+      attempts < 20
+    );
 
     if (window["db_" + DB_VERSION + "_" + loginLowerCase]) {
       return window["db_" + DB_VERSION + "_" + loginLowerCase];
@@ -395,10 +409,10 @@ export const createDb = async (login) => {
     const db = await createRxDatabase({
       name: "actiondb_" + DB_VERSION + "_" + loginLowerCase,
       storage: wrappedValidateAjvStorage({
-        storage: getRxStorageDexie()
+        storage: getRxStorageDexie(),
       }),
-      multiInstance: true
-    });  
+      multiInstance: true,
+    });
 
     let ready = true;
     let attempts = 0;
@@ -409,7 +423,7 @@ export const createDb = async (login) => {
         // sometimes, the method invocation db.collection(...) fails, because the db connection is closed,
         // but a retry solves this problem
         await db.addCollections({
-          actions: { schema: actionSchema }
+          actions: { schema: actionSchema },
         });
         attempts += 1;
       } catch (exception) {

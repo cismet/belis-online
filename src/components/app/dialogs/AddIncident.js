@@ -12,7 +12,7 @@ import {
 } from "antd";
 import TextArea from "antd/lib/input/TextArea";
 import { useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import {
   IMAGEUPLOAD_MAXSIDE,
   IMAGEUPLOAD_QUALITY,
@@ -51,18 +51,16 @@ const AddIncidentDialog = ({
   onClose = (output) => {},
   input = {},
 }) => {
-  const dispatch = useDispatch();
   const jwt = useSelector(getJWT);
   const login = getLoginFromJWT(jwt);
 
+  // eslint-disable-next-line no-unused-vars
   const [preferredIncidentTeam, setPreferredIncidentTeam] = useState();
   const myTeam = useSelector(getTeam);
   const [selectedTeamId, setSelectedTeamId] = useState(myTeam.id);
   const teams = useSelector(getTeamsKT) || [];
 
   const [imageData, setImageData] = useState({});
-  console.log("teams", teams);
-
   const handleUploadChange = (info) => {
     if (info.file.status === "uploading") {
       return;
@@ -132,8 +130,6 @@ const AddIncidentDialog = ({
             const ccnonce = getNonce();
 
             const images = Object.keys(imageData).map((key) => {
-              console.log("imageData[key]", imageData[key]);
-
               mimeType = imageData[key].imageUrl.match("data:(.*);")[1];
               ending = extensions[mimeType];
               return {

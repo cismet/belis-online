@@ -33,10 +33,12 @@ export const loadProtocollsIntoFeatureCollection = ({
     const origin = getOrigins(state)[MODES.PROTOCOLS];
 
     const connectionMode = getConnectionMode(state);
-    if (true || origin?.id !== tasklistFeature.id || connectionMode === CONNECTIONMODE.FROMCACHE) {
+    if (
+      true ||
+      origin?.id !== tasklistFeature.id ||
+      connectionMode === CONNECTIONMODE.FROMCACHE
+    ) {
       dispatch(setDoneForMode({ mode: MODES.PROTOCOLS, done: false }));
-
-      console.log("Protokolle für Arbeitsauftrag " + tasklistFeature.properties.id + " laden");
 
       const gqlQuery = `query q($aaId: Int) {${queries.full_arbeitsauftrag_by_id}}`;
 
@@ -60,20 +62,26 @@ export const loadProtocollsIntoFeatureCollection = ({
                 true
               );
               const newAAReplacement = aaFeatures[0];
-              dispatch(updateFeatureForMode({ mode: MODES.TASKLISTS, feature: newAAReplacement }));
+              dispatch(
+                updateFeatureForMode({
+                  mode: MODES.TASKLISTS,
+                  feature: newAAReplacement,
+                })
+              );
               const result = response.data.arbeitsauftrag[0];
-              features = getFeaturesForProtokollArray(result.ar_protokolleArray);
+              features = getFeaturesForProtokollArray(
+                result.ar_protokolleArray
+              );
             } else {
-              throw new Error("Error in fetchGraphQL (" + response.status + ")");
+              throw new Error(
+                "Error in fetchGraphQL (" + response.status + ")"
+              );
             }
           } else {
             //not enriched (thats the case when loading offline or after the second time online)
 
-            features = getFeaturesForProtokollArray(tasklistFeature.properties.ar_protokolleArray);
-
-            console.log(
-              "xxx Protokolle waren schon im Arbeitsprotokoll vorhanden (entweder offline mode oder durch vorherigen Requeust)",
-              features
+            features = getFeaturesForProtokollArray(
+              tasklistFeature.properties.ar_protokolleArray
             );
           }
 
@@ -83,11 +91,18 @@ export const loadProtocollsIntoFeatureCollection = ({
             const f = JSON.parse(JSON.stringify(feature));
             featureClones.push(f);
 
-            integrateIntermediateResults(f, state.offlineActionDb.intermediateResults);
+            integrateIntermediateResults(
+              f,
+              state.offlineActionDb.intermediateResults
+            );
           }
           features = featureClones;
-          dispatch(setFeatureCollectionForMode({ mode: MODES.PROTOCOLS, features }));
-          dispatch(setOriginForMode({ mode: MODES.PROTOCOLS, origin: tasklistFeature }));
+          dispatch(
+            setFeatureCollectionForMode({ mode: MODES.PROTOCOLS, features })
+          );
+          dispatch(
+            setOriginForMode({ mode: MODES.PROTOCOLS, origin: tasklistFeature })
+          );
           dispatch(
             setFeatureCollectionInfoForMode({
               mode: MODES.PROTOCOLS,
@@ -96,7 +111,10 @@ export const loadProtocollsIntoFeatureCollection = ({
           );
           if (features.length === 1) {
             dispatch(
-              setSelectedFeatureForMode({ mode: MODES.PROTOCOLS, selectedFeature: features[0] })
+              setSelectedFeatureForMode({
+                mode: MODES.PROTOCOLS,
+                selectedFeature: features[0],
+              })
             );
           }
           dispatch(setDoneForMode({ mode: MODES.PROTOCOLS, done: true }));
