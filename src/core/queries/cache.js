@@ -69,7 +69,10 @@ queries.arbeitsauftrag = `query q($teamId: Int!) {
         {ar_protokolleArray:{arbeitsprotokoll:{arbeitsprotokollstatus:{schluessel:{_eq:"0"}}}}},
        ]},
        {_or:[
-         {ar_protokolleArray:{arbeitsprotokoll:{fk_geometrie:{_is_null:false}}}},
+         { _and :[
+        	{ar_protokolleArray: {arbeitsprotokoll:{fk_geometrie:{_is_null:false}}}},
+          {ar_protokolleArray: {arbeitsprotokoll: {geometrie: {fk_geom: {_is_null: false}}}}},
+          ]}, 
          {ar_protokolleArray:{arbeitsprotokoll:{fk_leuchte:{_is_null:false}}}},
          {ar_protokolleArray:{arbeitsprotokoll:{fk_standort:{_is_null:false}}}},
          {ar_protokolleArray:{arbeitsprotokoll:{fk_mauerlasche:{_is_null:false}}}},
