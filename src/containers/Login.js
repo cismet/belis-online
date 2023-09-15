@@ -34,7 +34,7 @@ import {
   setHealthState,
 } from "../core/store/slices/health";
 
-const background = "belis_background_iStock-139701369_blurred.jpg";
+export const background = "belis_background_iStock-139701369_blurred.jpg";
 
 const Login = () => {
   const windowSize = useWindowSize();
@@ -184,7 +184,7 @@ const Login = () => {
             paddingBottom: 4,
           }}
         >
-          BelIS-Online
+          BelIS-OnlineXX
         </h1>
         <div
           style={{
