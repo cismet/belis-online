@@ -14,7 +14,14 @@ import {
   storeJWT,
   storeLogin,
 } from "../core/store/slices/auth";
-import { DOMAIN, REST_SERVICE } from "../constants/belis";
+import {
+  DB_VERSION,
+  DOMAIN,
+  OFFLINE_ACTIONS_ENDPOINT_URL,
+  OFFLINE_ACTIONS_SYNC_URL,
+  PLAYGROUND,
+  REST_SERVICE,
+} from "../constants/belis";
 import { forceRefresh } from "../core/store/slices/featureCollection";
 import VersionFooter from "../components/commons/secondaryinfo/VersionFooter";
 import localforage from "localforage";
@@ -184,7 +191,7 @@ const Login = () => {
             paddingBottom: 4,
           }}
         >
-          BelIS-OnlineXX
+          BelIS-Online
         </h1>
         <div
           style={{
@@ -262,6 +269,18 @@ const Login = () => {
           title={<b>Systemmenü</b>}
           content={
             <div style={{ textAlign: "left" }}>
+              <i>Systeminfos:</i>{" "}
+              {PLAYGROUND === true && (
+                <span>(Sie befinden sich in einem Playground)</span>
+              )}
+              <br></br>
+              API_URL: {REST_SERVICE} <br></br>
+              DOMAIN: {DOMAIN} <br></br>
+              OFFLINE_ACTIONS_SYNC_URL: {OFFLINE_ACTIONS_SYNC_URL} <br></br>
+              OFFLINE_ACTIONS_ENDPOINT_URL: {OFFLINE_ACTIONS_ENDPOINT_URL}{" "}
+              <br></br>
+              OFFLINE_ACTION_DB: {DB_VERSION} <br></br>
+              <br></br>
               Bei Problemen können folgende Aktionen vielleicht helfen:
               <br />
               <Button
