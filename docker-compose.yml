@@ -1,0 +1,19 @@
+version: "2"
+
+services:
+  nginx:
+    container_name: belis-online
+    image: cismet/belis-online:locallatest
+    restart: always
+    network_mode: bridge
+    environment:
+      OVERRIDE_REST_SERVICE: https://belis-mobile-api.cismet.de
+      OVERRIDE_DOMAIN: BELIS2
+      OVERRIDE_OFFLINE_ACTIONS_ROUTE: belis-mobile-offline-actions.cismet.de/v1/graphql
+      OVERRIDE_DB_VERSION: belis-cloud-db-1.0
+      _VIRTUAL_HOST: cloud-belis-online.cismet.de
+    ports:
+      - "4000:80"
+
+    # volumes:
+    #     - ./nginx.conf:/etc/nginx/nginx.conf
