@@ -1,10 +1,17 @@
-export const REST_SERVICE = "https://belis-mobile-api.cismet.de";
-export const DOMAIN = "BELIS2";
+export const REST_SERVICE =
+  window.BELIS_ONLINE_ENV_CONFIG?.REST_SERVICE ||
+  "https://unconfigured.cismet.de";
+export const DOMAIN = window.BELIS_ONLINE_ENV_CONFIG?.DOMAIN || "UNCONFIGURED";
 const OFFLINE_ACTIONS_ROUTE =
-  "belis-mobile-offline-actions.cismet.de/v1/graphql";
+  window.BELIS_ONLINE_ENV_CONFIG?.OFFLINE_ACTIONS_ROUTE ||
+  "unconfigured-offline-actions.cismet.de/v1/graphql";
+export const DB_VERSION =
+  window.BELIS_ONLINE_ENV_CONFIG?.DB_VERSION || "unconfigured";
+export const PLAYGROUND =
+  window.BELIS_ONLINE_ENV_CONFIG?.PLAYGROUND ?? "unconfigured";
+
 export const OFFLINE_ACTIONS_SYNC_URL = "https://" + OFFLINE_ACTIONS_ROUTE;
 export const OFFLINE_ACTIONS_ENDPOINT_URL = "wss://" + OFFLINE_ACTIONS_ROUTE;
-export const DB_VERSION = "belis-online-db-1.0";
 
 export const IMAGEUPLOAD_MAXSIDE = 1200;
 export const IMAGEUPLOAD_QUALITY = 0.3;
