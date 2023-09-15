@@ -3,5 +3,6 @@
 build
 public/tmp/
 public/devSecrets.json
+public/overrides/
 docker-compose.yml
 Dockerfile
