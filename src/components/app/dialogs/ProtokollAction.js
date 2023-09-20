@@ -249,7 +249,7 @@ const SetStatusDialog = ({
         {actionkey === "leuchtenerneuerung" && (
           <>
             <Form.Item name="inbetriebnahme" label="Inbetriebnahme">
-              <DatePicker defaultValue={moment()} style={{ width: "100%" }} />
+              <DatePicker defaultValue={undefined} style={{ width: "100%" }} />
             </Form.Item>
             <Form.Item name="leuchtentyp" label="Leuchtentyp">
               <Select
@@ -290,7 +290,7 @@ const SetStatusDialog = ({
         {actionkey === "leuchtmittelwechselEP" && (
           <>
             <Form.Item name="pruefdatum" label="Elektrische Prüfung am Mast">
-              <DatePicker defaultValue={moment()} style={{ width: "100%" }} />
+              <DatePicker defaultValue={undefined} style={{ width: "100%" }} />
             </Form.Item>
             <Form.Item label="Erdung in Ordnung" name="erdung">
               <Switch />
@@ -301,7 +301,7 @@ const SetStatusDialog = ({
           actionkey === "leuchtmittelwechselEP") && (
           <>
             <Form.Item name="wechseldatum" label="Wechseldatum">
-              <DatePicker defaultValue={moment()} style={{ width: "100%" }} />
+              <DatePicker defaultValue={undefined} style={{ width: "100%" }} />
             </Form.Item>
             <Form.Item
               name="leuchtmittel"
@@ -362,7 +362,7 @@ const SetStatusDialog = ({
         {actionkey === "rundsteuerempfaengerwechsel" && (
           <>
             <Form.Item name="einbaudatum" label="Einbaudatum">
-              <DatePicker defaultValue={moment()} style={{ width: "100%" }} />
+              <DatePicker defaultValue={undefined} style={{ width: "100%" }} />
             </Form.Item>
             <Form.Item
               name="rundsteuerempfaenger"
@@ -412,7 +412,7 @@ const SetStatusDialog = ({
         {actionkey === "sonderturnus" && (
           <>
             <Form.Item name="sonderturnusdatum" label="Sonderturnus">
-              <DatePicker defaultValue={moment()} style={{ width: "100%" }} />
+              <DatePicker defaultValue={undefined} style={{ width: "100%" }} />
             </Form.Item>
           </>
         )}
@@ -420,7 +420,7 @@ const SetStatusDialog = ({
         {actionkey === "vorschaltgeraetewechsel" && (
           <>
             <Form.Item name="wechseldatum" label="Einbaudatum">
-              <DatePicker defaultValue={moment()} style={{ width: "100%" }} />
+              <DatePicker defaultValue={undefined} style={{ width: "100%" }} />
             </Form.Item>
             <Form.Item
               name="vorschaltgeraet"
@@ -440,7 +440,7 @@ const SetStatusDialog = ({
         {actionkey === "anstricharbeiten" && (
           <>
             <Form.Item name="mastanstrich" label="Mastanstrich">
-              <DatePicker defaultValue={moment()} style={{ width: "100%" }} />
+              <DatePicker defaultValue={undefined} style={{ width: "100%" }} />
             </Form.Item>
             <Form.Item
               name="anstrichfarbe"
@@ -460,7 +460,7 @@ const SetStatusDialog = ({
         {actionkey === "ep" && (
           <>
             <Form.Item name="pruefdatum" label="Elektrische Prüfung am Mast">
-              <DatePicker defaultValue={moment()} style={{ width: "100%" }} />
+              <DatePicker defaultValue={undefined} style={{ width: "100%" }} />
             </Form.Item>
             <Form.Item name="erdung" label="Erdung in Ordnung">
               <Switch />
@@ -471,7 +471,7 @@ const SetStatusDialog = ({
         {actionkey === "masterneuerung" && (
           <>
             <Form.Item name="inbetriebnahme" label="Inbetriebnahme">
-              <DatePicker defaultValue={moment()} style={{ width: "100%" }} />
+              <DatePicker defaultValue={undefined} style={{ width: "100%" }} />
             </Form.Item>
             <Form.Item
               name="montagefirma"
@@ -490,14 +490,14 @@ const SetStatusDialog = ({
         {actionkey === "standortrevision" && (
           <>
             <Form.Item name="revisionsdatum" label="Revision">
-              <DatePicker defaultValue={moment()} style={{ width: "100%" }} />
+              <DatePicker defaultValue={undefined} style={{ width: "100%" }} />
             </Form.Item>
           </>
         )}
         {actionkey === "standsicherheitspruefung" && (
           <>
             <Form.Item name="pruefdatum" label="Standsicherheitsprüfung">
-              <DatePicker defaultValue={moment()} style={{ width: "100%" }} />
+              <DatePicker defaultValue={undefined} style={{ width: "100%" }} />
             </Form.Item>
             <Form.Item
               name="verfahren"
@@ -512,7 +512,7 @@ const SetStatusDialog = ({
               <Input />
             </Form.Item>
             <Form.Item name="naechstes_pruefdatum" label="Nächstes Prüfdatum">
-              <DatePicker defaultValue={moment()} style={{ width: "100%" }} />
+              <DatePicker defaultValue={undefined} style={{ width: "100%" }} />
             </Form.Item>
           </>
         )}
@@ -520,7 +520,7 @@ const SetStatusDialog = ({
         {(actionkey === "schaltstellerevision" || actionkey === "pruefung") && (
           <>
             <Form.Item name="pruefdatum" label="Prüfdatum">
-              <DatePicker defaultValue={moment()} style={{ width: "100%" }} />
+              <DatePicker defaultValue={undefined} style={{ width: "100%" }} />
             </Form.Item>
           </>
         )}
