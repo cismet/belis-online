@@ -105,7 +105,15 @@ const SetStatusDialog = ({
           name="status"
           _noStyle={true}
           label="Status"
-          rules={[{ required: true, message: "Bitte einen Status auswählen." }]}
+          rules={[
+            {
+              required:
+                input.feature?.properties?.arbeitsprotokollstatus?.id ===
+                  undefined ||
+                input.feature?.properties?.arbeitsprotokollstatus?.id === null,
+              message: "Bitte einen Status auswählen.",
+            },
+          ]}
         >
           <Radio.Group
             style={{ width: "100%", marginBottom: 15 }}
@@ -150,7 +158,14 @@ const SetStatusDialog = ({
         <Form.Item
           name="date"
           label="Datum"
-          rules={[{ required: true, message: "Bitte ein Datum auswählen." }]}
+          rules={[
+            {
+              required:
+                input.feature?.properties?.datum === undefined ||
+                input.feature?.properties?.datum === null,
+              message: "Bitte ein Datum auswählen.",
+            },
+          ]}
         >
           <DatePicker
             defaultValue={
