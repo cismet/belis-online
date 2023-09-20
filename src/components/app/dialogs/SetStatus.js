@@ -16,8 +16,11 @@ const SetStatusDialog = ({
   onClose = (output) => {},
   input = {},
 }) => {
-  const selectedFeaturesForAllModes = useSelector(getSelectedFeaturesForAllModes);
-  const arbeitsauftrag = selectedFeaturesForAllModes[MODES.TASKLISTS].properties;
+  const selectedFeaturesForAllModes = useSelector(
+    getSelectedFeaturesForAllModes
+  );
+  const arbeitsauftrag =
+    selectedFeaturesForAllModes[MODES.TASKLISTS].properties;
   const [form] = Form.useForm();
 
   return (
@@ -25,7 +28,8 @@ const SetStatusDialog = ({
       zIndex={30000001}
       title={
         <>
-          <div>Status</div> <Text type='secondary'>{input?.vcard?.infobox?.title}</Text>
+          <div>Status</div>{" "}
+          <Text type="secondary">{input?.vcard?.infobox?.title}</Text>
         </>
       }
       centered
@@ -57,13 +61,19 @@ const SetStatusDialog = ({
             const parameter = {
               actionname: "protokollStatusAenderung",
               protokoll_id: feature.properties.id,
-              status: values.status || input.feature?.properties?.arbeitsprotokollstatus?.id,
+              status:
+                values.status ||
+                input.feature?.properties?.arbeitsprotokollstatus?.id,
               material: values.material || input.feature?.properties?.material,
               bemerkung: values.remarks || input.feature?.properties?.bemerkung,
               monteur: values.monteur || input.feature?.properties?.monteur,
               datum: d,
               objekt_typ: "arbeitsprotokoll",
-              object_name: input?.vcard?.infobox?.title + " (A" + arbeitsauftrag.nummer + ")",
+              object_name:
+                input?.vcard?.infobox?.title +
+                " (A" +
+                arbeitsauftrag.nummer +
+                ")",
             };
 
             form.resetFields();
@@ -85,35 +95,51 @@ const SetStatusDialog = ({
     >
       <Form
         form={form}
-        layout='vertical'
-        name='form_in_modal'
+        layout="vertical"
+        name="form_in_modal"
         initialValues={{
           modifier: "public",
         }}
       >
-        <Form.Item name='status' noStyle={true} label='Status'>
+        <Form.Item
+          name="status"
+          _noStyle={true}
+          label="Status"
+          rules={[{ required: true, message: "Bitte einen Status auswählen." }]}
+        >
           <Radio.Group
             style={{ width: "100%", marginBottom: 15 }}
             defaultValue={input.feature?.properties?.arbeitsprotokollstatus?.id}
-            buttonStyle='solid'
+            buttonStyle="solid"
           >
-            <Radio.Button style={{ width: "33%", textAlign: "center", fontSize: 12 }} value={1}>
+            <Radio.Button
+              style={{ width: "33%", textAlign: "center", fontSize: 12 }}
+              value={1}
+            >
               in Bearbeitung
             </Radio.Button>
-            <Radio.Button style={{ width: "33%", textAlign: "center", fontSize: 12 }} value={2}>
+            <Radio.Button
+              style={{ width: "33%", textAlign: "center", fontSize: 12 }}
+              value={2}
+            >
               erledigt
             </Radio.Button>
-            <Radio.Button style={{ width: "33%", textAlign: "center", fontSize: 12 }} value={3}>
+            <Radio.Button
+              style={{ width: "33%", textAlign: "center", fontSize: 12 }}
+              value={3}
+            >
               Fehlmeldung
             </Radio.Button>
           </Radio.Group>
         </Form.Item>
         <Form.Item
-          name='monteur'
-          label='Monteur'
+          name="monteur"
+          label="Monteur"
           rules={[
             {
-              required: input.feature?.properties?.monteur === undefined,
+              required:
+                input.feature?.properties?.monteur === undefined ||
+                input.feature?.properties?.monteur === null,
               message: "Bitte geben den Namen des Monteurs an.",
             },
           ]}
@@ -121,19 +147,25 @@ const SetStatusDialog = ({
           <Input defaultValue={input.feature?.properties?.monteur} />
         </Form.Item>
 
-        <Form.Item name='date' label='Datum'>
+        <Form.Item
+          name="date"
+          label="Datum"
+          rules={[{ required: true, message: "Bitte ein Datum auswählen." }]}
+        >
           <DatePicker
             defaultValue={
-              input.feature?.properties?.datum ? moment(input.feature?.properties?.datum) : moment()
+              input.feature?.properties?.datum
+                ? moment(input.feature?.properties?.datum)
+                : undefined
             }
             style={{ width: "100%" }}
           />
         </Form.Item>
 
-        <Form.Item name='remarks' label='Bemerkungen'>
+        <Form.Item name="remarks" label="Bemerkungen">
           <TextArea defaultValue={input.feature?.properties?.bemerkung} />
         </Form.Item>
-        <Form.Item name='material' label='Material'>
+        <Form.Item name="material" label="Material">
           <TextArea defaultValue={input.feature?.properties?.material} />
         </Form.Item>
       </Form>
