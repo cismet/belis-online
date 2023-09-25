@@ -541,10 +541,23 @@ const SetStatusDialog = ({
         )}
 
         {/* For every ProtocolAction the same */}
-        <div className="ant-col ant-form-item-label">
+        {/* <div className="ant-col ant-form-item-label">
           <label for="form_in_modal_date">Status</label>
-        </div>
-        <Form.Item name="status" noStyle={true} label="Status">
+        </div> */}
+        <Form.Item
+          name="status"
+          _noStyle={true}
+          label="Status"
+          rules={[
+            {
+              required:
+                input.feature?.properties?.arbeitsprotokollstatus?.id ===
+                  undefined ||
+                input.feature?.properties?.arbeitsprotokollstatus?.id === null,
+              message: "Bitte einen Status auswählen.",
+            },
+          ]}
+        >
           <Radio.Group
             style={{ width: "100%", marginBottom: 15 }}
             defaultValue={input.feature?.properties?.arbeitsprotokollstatus?.id}
@@ -575,7 +588,9 @@ const SetStatusDialog = ({
           label="Monteur"
           rules={[
             {
-              required: input.feature?.properties?.monteur === undefined,
+              required:
+                input.feature?.properties?.monteur === undefined ||
+                input.feature?.properties?.monteur === null,
               message: "Bitte geben den Namen des Monteurs an.",
             },
           ]}
@@ -583,12 +598,23 @@ const SetStatusDialog = ({
           <Input defaultValue={input.feature?.properties?.monteur} />
         </Form.Item>
 
-        <Form.Item name="statusdate" label="Datum">
+        <Form.Item
+          name="statusdate"
+          label="Datum"
+          rules={[
+            {
+              required:
+                input.feature?.properties?.datum === undefined ||
+                input.feature?.properties?.datum === null,
+              message: "Bitte ein Datum auswählen.",
+            },
+          ]}
+        >
           <DatePicker
             defaultValue={
               input.feature?.properties?.datum
                 ? moment(input.feature?.properties?.datum)
-                : moment()
+                : undefined
             }
             style={{ width: "100%" }}
           />
