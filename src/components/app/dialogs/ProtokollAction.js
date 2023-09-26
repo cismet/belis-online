@@ -130,20 +130,14 @@ const SetStatusDialog = ({
               statusD = momentStatusDate.valueOf();
             }
 
-            const inbetriebnahmeD = (
-              values.inbetriebnahme || moment()
-            ).valueOf();
-            const pruefdatumD = (values.pruefdatum || moment()).valueOf();
-            const wechseldatumD = (values.wechseldatum || moment()).valueOf();
-            const einbaudatumD = (values.einbaudatum || moment()).valueOf();
-            const sonderturnusdatumD = (
-              values.sonderturnusdatum || moment()
-            ).valueOf();
-            const mastanstrichD = (values.mastanstrich || moment()).valueOf();
-            const revisionD = (values.revisionsdatum || moment()).valueOf();
-            const naechstes_pruefdatumD = (
-              values.naechstes_pruefdatum || moment()
-            ).valueOf();
+            const inbetriebnahmeD = values.inbetriebnahme.valueOf();
+            const pruefdatumD = values.pruefdatum.valueOf();
+            const wechseldatumD = values.wechseldatum.valueOf();
+            const einbaudatumD = values.einbaudatum.valueOf();
+            const sonderturnusdatumD = values.sonderturnusdatum.valueOf();
+            const mastanstrichD = values.mastanstrich.valueOf();
+            const revisionD = values.revisionsdatum.valueOf();
+            const naechstes_pruefdatumD = values.naechstes_pruefdatum.valueOf();
 
             const parameter = {
               //leuchtenerneuerung
@@ -289,7 +283,16 @@ const SetStatusDialog = ({
 
         {actionkey === "leuchtmittelwechselEP" && (
           <>
-            <Form.Item name="pruefdatum" label="Elektrische Prüfung am Mast">
+            <Form.Item
+              name="pruefdatum"
+              label="Elektrische Prüfung am Mast"
+              rules={[
+                {
+                  required: true,
+                  message: "Bitte ein Datum auswählen.",
+                },
+              ]}
+            >
               <DatePicker defaultValue={undefined} style={{ width: "100%" }} />
             </Form.Item>
             <Form.Item label="Erdung in Ordnung" name="erdung">
@@ -303,16 +306,7 @@ const SetStatusDialog = ({
             <Form.Item name="wechseldatum" label="Wechseldatum">
               <DatePicker defaultValue={undefined} style={{ width: "100%" }} />
             </Form.Item>
-            <Form.Item
-              name="leuchtmittel"
-              label="eingesetztes Leuchtmittel"
-              rules={[
-                {
-                  required: true,
-                  message: "Bitte geben Sie das Leuchtmittel an.",
-                },
-              ]}
-            >
+            <Form.Item name="leuchtmittel" label="eingesetztes Leuchtmittel">
               <Select
                 showSearch
                 defaultValue={prefferredLeuchtmittel?.id}
@@ -345,16 +339,7 @@ const SetStatusDialog = ({
                 })}
               </Select>
             </Form.Item>
-            <Form.Item
-              name="lebensdauer"
-              label="Lebensdauer des Leuchtmittels"
-              rules={[
-                {
-                  required: true,
-                  message: "Bitte geben Sie die Lebensdauer an.",
-                },
-              ]}
-            >
+            <Form.Item name="lebensdauer" label="Lebensdauer des Leuchtmittels">
               <InputNumber placeholder="in Monaten" style={{ width: "100%" }} />
             </Form.Item>
           </>
@@ -364,16 +349,7 @@ const SetStatusDialog = ({
             <Form.Item name="einbaudatum" label="Einbaudatum">
               <DatePicker defaultValue={undefined} style={{ width: "100%" }} />
             </Form.Item>
-            <Form.Item
-              name="rundsteuerempfaenger"
-              label="Rundsteuerempfänger"
-              rules={[
-                {
-                  required: true,
-                  message: "Bitte geben Sie den Rundsteuerempfänger an.",
-                },
-              ]}
-            >
+            <Form.Item name="rundsteuerempfaenger" label="Rundsteuerempfänger">
               <Select
                 showSearch
                 defaultValue={preferredRundsteuerempfaenger?.id}
@@ -411,7 +387,16 @@ const SetStatusDialog = ({
 
         {actionkey === "sonderturnus" && (
           <>
-            <Form.Item name="sonderturnusdatum" label="Sonderturnus">
+            <Form.Item
+              name="sonderturnusdatum"
+              label="Sonderturnus"
+              rules={[
+                {
+                  required: true,
+                  message: "Bitte ein Datum auswählen.",
+                },
+              ]}
+            >
               <DatePicker defaultValue={undefined} style={{ width: "100%" }} />
             </Form.Item>
           </>
@@ -422,16 +407,7 @@ const SetStatusDialog = ({
             <Form.Item name="wechseldatum" label="Einbaudatum">
               <DatePicker defaultValue={undefined} style={{ width: "100%" }} />
             </Form.Item>
-            <Form.Item
-              name="vorschaltgeraet"
-              label="Vorschaltgerät"
-              rules={[
-                {
-                  required: true,
-                  message: "Bitte geben Sie das Vorschaltgerät an.",
-                },
-              ]}
-            >
+            <Form.Item name="vorschaltgeraet" label="Vorschaltgerät">
               <Input />
             </Form.Item>
           </>
@@ -439,19 +415,19 @@ const SetStatusDialog = ({
 
         {actionkey === "anstricharbeiten" && (
           <>
-            <Form.Item name="mastanstrich" label="Mastanstrich">
-              <DatePicker defaultValue={undefined} style={{ width: "100%" }} />
-            </Form.Item>
             <Form.Item
-              name="anstrichfarbe"
-              label="Anstrichfarbe"
+              name="mastanstrich"
+              label="Mastanstrich"
               rules={[
                 {
                   required: true,
-                  message: "Bitte geben Sie die Farbe an.",
+                  message: "Bitte ein Datum auswählen.",
                 },
               ]}
             >
+              <DatePicker defaultValue={undefined} style={{ width: "100%" }} />
+            </Form.Item>
+            <Form.Item name="anstrichfarbe" label="Anstrichfarbe">
               <Input />
             </Form.Item>
           </>
@@ -459,7 +435,16 @@ const SetStatusDialog = ({
 
         {actionkey === "ep" && (
           <>
-            <Form.Item name="pruefdatum" label="Elektrische Prüfung am Mast">
+            <Form.Item
+              name="pruefdatum"
+              label="Elektrische Prüfung am Mast"
+              rules={[
+                {
+                  required: true,
+                  message: "Bitte ein Datum auswählen.",
+                },
+              ]}
+            >
               <DatePicker defaultValue={undefined} style={{ width: "100%" }} />
             </Form.Item>
             <Form.Item name="erdung" label="Erdung in Ordnung">
@@ -470,45 +455,54 @@ const SetStatusDialog = ({
 
         {actionkey === "masterneuerung" && (
           <>
-            <Form.Item name="inbetriebnahme" label="Inbetriebnahme">
-              <DatePicker defaultValue={undefined} style={{ width: "100%" }} />
-            </Form.Item>
             <Form.Item
-              name="montagefirma"
-              label="Montagefirma"
+              name="inbetriebnahme"
+              label="Inbetriebnahme"
               rules={[
                 {
                   required: true,
-                  message: "Bitte geben Sie die Montagefirma an.",
+                  message: "Bitte ein Datum auswählen.",
                 },
               ]}
             >
+              <DatePicker defaultValue={undefined} style={{ width: "100%" }} />
+            </Form.Item>
+            <Form.Item name="montagefirma" label="Montagefirma">
               <Input />
             </Form.Item>
           </>
         )}
         {actionkey === "standortrevision" && (
           <>
-            <Form.Item name="revisionsdatum" label="Revision">
+            <Form.Item
+              name="revisionsdatum"
+              label="Revision"
+              rules={[
+                {
+                  required: true,
+                  message: "Bitte ein Datum auswählen.",
+                },
+              ]}
+            >
               <DatePicker defaultValue={undefined} style={{ width: "100%" }} />
             </Form.Item>
           </>
         )}
         {actionkey === "standsicherheitspruefung" && (
           <>
-            <Form.Item name="pruefdatum" label="Standsicherheitsprüfung">
-              <DatePicker defaultValue={undefined} style={{ width: "100%" }} />
-            </Form.Item>
             <Form.Item
-              name="verfahren"
-              label="Verfahren"
+              name="pruefdatum"
+              label="Standsicherheitsprüfung"
               rules={[
                 {
                   required: true,
-                  message: "Bitte geben Sie das Verfahren an.",
+                  message: "Bitte ein Datum auswählen.",
                 },
               ]}
             >
+              <DatePicker defaultValue={undefined} style={{ width: "100%" }} />
+            </Form.Item>
+            <Form.Item name="verfahren" label="Verfahren">
               <Input />
             </Form.Item>
             <Form.Item name="naechstes_pruefdatum" label="Nächstes Prüfdatum">
@@ -519,7 +513,16 @@ const SetStatusDialog = ({
 
         {(actionkey === "schaltstellerevision" || actionkey === "pruefung") && (
           <>
-            <Form.Item name="pruefdatum" label="Prüfdatum">
+            <Form.Item
+              name="pruefdatum"
+              label="Prüfdatum"
+              rules={[
+                {
+                  required: true,
+                  message: "Bitte ein Datum auswählen.",
+                },
+              ]}
+            >
               <DatePicker defaultValue={undefined} style={{ width: "100%" }} />
             </Form.Item>
           </>
