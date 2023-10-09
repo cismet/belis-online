@@ -127,17 +127,18 @@ const SetStatusDialog = ({
                 : undefined);
             let statusD;
             if (momentStatusDate) {
-              statusD = momentStatusDate.valueOf();
+              statusD = momentStatusDate?.valueOf();
             }
 
-            const inbetriebnahmeD = values.inbetriebnahme.valueOf();
-            const pruefdatumD = values.pruefdatum.valueOf();
-            const wechseldatumD = values.wechseldatum.valueOf();
-            const einbaudatumD = values.einbaudatum.valueOf();
-            const sonderturnusdatumD = values.sonderturnusdatum.valueOf();
-            const mastanstrichD = values.mastanstrich.valueOf();
-            const revisionD = values.revisionsdatum.valueOf();
-            const naechstes_pruefdatumD = values.naechstes_pruefdatum.valueOf();
+            const inbetriebnahmeD = values.inbetriebnahme?.valueOf();
+            const pruefdatumD = values.pruefdatum?.valueOf();
+            const wechseldatumD = values.wechseldatum?.valueOf();
+            const einbaudatumD = values.einbaudatum?.valueOf();
+            const sonderturnusdatumD = values.sonderturnusdatum?.valueOf();
+            const mastanstrichD = values.mastanstrich?.valueOf();
+            const revisionD = values.revisionsdatum?.valueOf();
+            const naechstes_pruefdatumD =
+              values.naechstes_pruefdatum?.valueOf();
 
             const parameter = {
               //leuchtenerneuerung

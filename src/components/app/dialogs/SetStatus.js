@@ -55,7 +55,7 @@ const SetStatusDialog = ({
                 : undefined);
             let d;
             if (momentDate) {
-              d = momentDate.valueOf();
+              d = momentDate?.valueOf();
             }
 
             const parameter = {
