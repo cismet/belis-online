@@ -16,17 +16,17 @@ Originally conceived as a native iOS application that required a constant intern
 
 ## Screenshots
 
-<img width="1433" alt="Screenshot 2023-10-25 at 11 16 00" src="https://github.com/cismet/belis-online/assets/837211/6ed16daa-a716-4160-a5d2-b04b9f9aafa3">
+<img width="1433" alt="Screenshot 2023-10-25 at 11 16 00" src="https://github.com/cismet/belis-online/assets/837211/bf122cb9-06bd-4d4c-beec-14a37048f557">
 
-<img width="1441" alt="Screenshot 2023-10-25 at 11 16 26" src="https://github.com/cismet/belis-online/assets/837211/f90d138b-ad6d-43e7-b13b-afc01cd80c4a">
+<img width="1441" alt="Screenshot 2023-10-25 at 11 16 26" src="https://github.com/cismet/belis-online/assets/837211/a9e448f7-e6d8-4df0-87a8-668d6c44246a">
 
-<img width="1439" alt="Screenshot 2023-10-25 at 11 16 36" src="https://github.com/cismet/belis-online/assets/837211/08403e24-c67d-4b2b-8fc1-a62427f2a79e">
+<img width="1439" alt="Screenshot 2023-10-25 at 11 16 36" src="https://github.com/cismet/belis-online/assets/837211/ac57550b-a635-4c56-985c-4617b9fcbc95">
 
-<img width="1442" alt="Screenshot 2023-10-25 at 11 17 13" src="https://github.com/cismet/belis-online/assets/837211/97411ab5-2b91-4c51-9928-ae6519c18b90">
+<img width="1442" alt="Screenshot 2023-10-25 at 11 17 13" src="https://github.com/cismet/belis-online/assets/837211/cb329fa3-e007-4207-93ae-4da434fd1636">
 
-<img width="1434" alt="Screenshot 2023-10-25 at 11 17 57" src="https://github.com/cismet/belis-online/assets/837211/2a3b90dd-8d87-41a3-bb97-c685d0fc701d">
+<img width="1434" alt="Screenshot 2023-10-25 at 11 17 57" src="https://github.com/cismet/belis-online/assets/837211/b206000f-d207-425b-ac28-250b988b5ec4">
 
-<img width="1440" alt="Screenshot 2023-10-25 at 11 18 31" src="https://github.com/cismet/belis-online/assets/837211/40627fdb-54ec-435c-bad0-b46f3a073ed2">
+<img width="1440" alt="Screenshot 2023-10-25 at 11 18 31" src="https://github.com/cismet/belis-online/assets/837211/de211d90-590b-42a8-9bdf-da8272cea5a7">
 
 ## Contribution
 
