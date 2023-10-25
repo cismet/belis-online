@@ -36,6 +36,8 @@ BelIS promotes an open character, encouraging the active participation of variou
 
 **BelIS online** is open-source software licensed under the [MIT License](https://github.com/cismet/belis-online/blob/dev/LICENSE). Feel free to use, modify, and distribute this project as per the terms of the license.
 
+**Exception:** Some images used in this project [`belis_background_iStock-139701369_blurred.jpg`, `belis_background_iStock-139701369_original.jpg` and all images derived from them] has been licensed from iStock and are explicitly excluded from the MIT license. Usage, modification, and distribution of these particular images are subject to the terms and conditions agreed upon with iStock.
+
 ## Contact
 
 If you have any questions, suggestions, or feedback, please don't hesitate to contact the project maintainers:
