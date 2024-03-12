@@ -3,7 +3,7 @@ version: "2"
 services:
   nginx:
     container_name: belis-online
-    image: cismet/belis-online:locallatest
+    image: cismet/belis-online:latest
     restart: always
     network_mode: bridge
     environment:

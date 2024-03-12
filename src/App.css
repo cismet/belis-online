@@ -40,7 +40,9 @@
 .no-iOS-device {
   display: flex !important;
 }
-
+.iOS-device {
+  display: flex !important;
+}
 .sidebar {
   position: relativ;
   /* display: flex; */
